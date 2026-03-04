@@ -73,8 +73,7 @@ node_modules
 # Testing
 coverage
 
-# Production
-#build/
+# Production (build/ removed from history; keep locally, never commit)
 
 # Miscellaneous
 *.local
@@ -99,3 +98,7 @@ build/
 build/firebase-config.json
 build/firebase-messaging-sw.js
 build/sw.js
+
+public/firebase-config.json
+public/firebase-messaging-sw.js
+public/sw.js
