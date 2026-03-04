@@ -1,0 +1,11 @@
+{
+  "firebaseConfig": {
+    "apiKey": "AIzaSyDzj1tinve_T4yvVfQhShg61krKLFgU5U8",
+    "authDomain": "omega-crm-1a4ed.firebaseapp.com",
+    "projectId": "omega-crm-1a4ed",
+    "storageBucket": "omega-crm-1a4ed.firebasestorage.app",
+    "messagingSenderId": "449625426154",
+    "appId": "1:449625426154:web:14a42f35d611189a2b6f93",
+    "vapidKey": "BE-VLFv1deBdq_0UoCR4-sleyFNeSufxaxXpviH3SXtulD17l_-_ExsdQuQycbf55Iihk0U0qHmjGucQk2hH994 "
+  }
+}
