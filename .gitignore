@@ -94,3 +94,4 @@ run_build_rr.sh
 run_build_omega.sh
 run_build_wizard.sh
 run_build_tower.sh
+build/
