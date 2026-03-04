@@ -95,3 +95,7 @@ run_build_omega.sh
 run_build_wizard.sh
 run_build_tower.sh
 build/
+
+build/firebase-config.json
+build/firebase-messaging-sw.js
+build/sw.js
