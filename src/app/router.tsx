@@ -2,8 +2,6 @@ import { createBrowserRouter } from "react-router-dom"
 import UsersList from "../features/users-list/users-list-view"
 import SignInView from "../features/signin/signin"
 import LogoutView from "../features/logout/logout"
-import HandleRaffleView from "../features/raffles/handle-raffle-view"
-import RafflesView from "../features/raffles-list/raffles-list-view"
 import OfficesListView from "../features/offices/offices-list/offices-list-view"
 import HandleOfficeView from "../features/offices/handle-office/handle-office-view"
 import CustomerListView from "../features/customers/customers-list/customers-list-view"
@@ -13,7 +11,6 @@ import CurrentCampaignView from "../features/campaigns/current-campaign/current-
 import CampaignLeadView from "../features/campaigns/campaign-lead/campaign-lead-view"
 import ImportNumbersView from "../features/customers/import-numbers/import-numbers-view"
 import DashboardView from "../features/dashboard/dashboard-view"
-import UntrustedPaymentsView from "../features/payments/untrusted-payments/untrusted-payments-view"
 import { HandleUserView } from "../features/handle-user/handle-user-view"
 import ReportsView from "../views/reports-view"
 import EventGatewayView from "../views/event-gateway.view"
@@ -72,7 +69,6 @@ const router = createBrowserRouter([
 
     //Reports
     { path: "reports", element: <ReportsView /> },
-    { path: "unstrusted-payments", element: <UntrustedPaymentsView /> },
     { path: "handle-payment", element: <HandlePlaymentView /> },
 
     //Type Setup
@@ -123,9 +119,6 @@ const router = createBrowserRouter([
 
     
     //Raffles
-    { path: "create-raffle", element: <HandleRaffleView /> },
-    { path: "handel-raffle/:raffleId", element: <HandleRaffleView /> },
-    { path: "raffles", element: <RafflesView /> },
     { path: "audits", element: <AuditsPage /> },
     { path: "alerts", element: <AlertsView /> },
     { path: "lead-alerts", element: <LeadAlertsView /> },
