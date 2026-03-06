@@ -1,5 +1,4 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit"
-import counterReducer from "../features/counter/counterSlice"
 import usersListReducer from "../features/users-list/slice/user-list.slice"
 import handleUserSlice from "../features/handle-user/handle-user.slice"
 import SigInReducer from "../features/signin/signin.slice"
@@ -57,7 +56,6 @@ export const store = configureStore({
     }
   }),
   reducer: {
-    counter: counterReducer,
     addPayment: addPaymentSlice,
     alerts: alertsSlice,
     auditResume: auditResumeSlice,
