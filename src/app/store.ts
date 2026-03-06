@@ -4,15 +4,9 @@ import usersListReducer from "../features/users-list/slice/user-list.slice"
 import handleUserSlice from "../features/handle-user/handle-user.slice"
 import SigInReducer from "../features/signin/signin.slice"
 import dashboardSlice from "../features/dashboard/dashboard.slice"
-import handleCardSlice from "../features/handle-card/handle-card.slice"
-import cardsListSlice from "../features/cards-list/cards-list.slice"
 import handleExpensesSlice from "../features/handle-expenses/handle-expenses.slice"
 import addPaymentSlice from "../features/payments/add-payment/add-payment.slice"
-import historyCardsSlice from "../features/history-cards/history-cards.slice"
-import capitalContributeSlice from "../features/capital-contribute/capital-contribute.slice"
 import closureSlice from "../features/closure/closure.slice"
-import handleRaffeSlice from "../features/raffles/handle-raffle.slice"
-import rafflesListSlice  from "../features/raffles-list/rafles-list.slice"
 import officesListSlice from "../features/offices/offices-list/offices-list.slice"
 import handleOfficeSlice from "../features/offices/handle-office/handle-office.slice"
 import customersSlice from "../features/customers/customers-list/customers.slice"
@@ -22,7 +16,6 @@ import currentCampaignSlice from "../features/campaigns/current-campaign/current
 import campaignLeadSlice from "../features/campaigns/campaign-lead/campaign-lead.slice"
 import importNumbersSlice from "../features/customers/import-numbers/import-numbers.slice"
 import reportsSlice from "../features/reports/reports-view/reports.slice"
-import untrustedPaymentsSlice from "../features/payments/untrusted-payments/untrusted-payments.slice"
 import eventsGatewaySlice from "../features/event-gateway/events-gateway.slice"
 import userSessionsSlice from "../features/user-sessions-logs/slice/user-sessions.slice"
 import userCustomerSlice from "../features/user-customers/user-customer.slice"
@@ -110,18 +103,9 @@ export const store = configureStore({
     users: usersListReducer,
     usersWithoutCustomers: usersWithoutCustomersSlice,
     verifyCustomerPaymentsSlice: verifyCustomerPaymentsSlice,
-    
     //Raffle
   //Unused 
-    raffle: handleRaffeSlice,
-    raflesList: rafflesListSlice,
-    untrusted: untrustedPaymentsSlice,
-    handleCard: handleCardSlice,
-    cardsList: cardsListSlice,
-    historyCards: historyCardsSlice,
-    capitalContribute: capitalContributeSlice,
     closure: closureSlice,
-    
     reports: reportsSlice
   },
 })
