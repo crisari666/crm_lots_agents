@@ -363,3 +363,32 @@ export async function updateFcmTokenForUserReq({FCM} : {FCM : string}): Promise<
     throw error;
   }
 }
+
+export type UserImportRowPayload = {
+  name: string
+  lastName: string
+  phone: string
+  email: string
+}
+
+export type UserImportResultItem = {
+  email: string
+  status: 'created' | 'already_exists'
+  userId?: string
+}
+
+export async function importUsersReq({ users }: { users: UserImportRowPayload[] }): Promise<UserImportResultItem[] | undefined> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.post({ path: 'users/import', data: { users } })
+    const { error } = response
+    if (error == null) {
+      return response.result as UserImportResultItem[]
+    }
+    throw error
+  } catch (error) {
+    console.error('ERROR ON importUsersReq')
+    console.error({ error })
+    throw error
+  }
+}

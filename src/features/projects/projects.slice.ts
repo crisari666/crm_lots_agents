@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { ProjectInterface, CreateProjectPayload, UpdateProjectPayload } from '../../app/models/project-interface';
 import { fetchProjectsReq, createProjectReq, updateProjectReq } from '../../app/services/projects.service';
 
-interface ProjectsState {
+export type ProjectsState = {
   projects: ProjectInterface[];
   isLoading: boolean;
   error: string | null;

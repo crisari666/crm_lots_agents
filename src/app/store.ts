@@ -45,7 +45,7 @@ import campaignCustomersSlice from "../features/campaigns/campaign-customers/red
 import penancesSlice from "../features/penance/slice/penances.slice"
 import projectsSlice from "../features/projects/projects.slice"
 import alertsSlice from "../features/alerts/alerts.slice"
-
+import importUsersSlice from "../features/import-users/import-users.slice"
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -80,6 +80,7 @@ export const store = configureStore({
     handleUser: handleUserSlice,
     imagePreview: imagePreviewSlice,
     importNumbers: importNumbersSlice,
+    importUsers: importUsersSlice,
     leadsAuditory: leadsAuditorySlice,
     login: SigInReducer,
     logArrive: logArriveSlice,

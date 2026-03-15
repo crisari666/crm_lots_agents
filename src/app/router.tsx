@@ -12,6 +12,7 @@ import CampaignLeadView from "../features/campaigns/campaign-lead/campaign-lead-
 import ImportNumbersView from "../features/customers/import-numbers/import-numbers-view"
 import DashboardView from "../features/dashboard/dashboard-view"
 import { HandleUserView } from "../features/handle-user/handle-user-view"
+import ImportUsersPage from "../features/import-users/import-users-page"
 import ReportsView from "../views/reports-view"
 import EventGatewayView from "../views/event-gateway.view"
 import CustomerCenterView from "../views/customer-center-view"
@@ -127,6 +128,7 @@ const router = createBrowserRouter([
     { path: "handle-user", element: <HandleUserView /> },
     { path: "handle-user/:userId", element: <HandleUserView /> },
     { path: "users", element: <UsersList /> },
+    { path: "import-users", element: <ImportUsersPage /> },
     { path: "collectors", element: <CollectorsView /> },
 
 

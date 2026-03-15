@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { importMultipleCustomersThunk, setDataFromExcelAct, setDataRowsAct } from "./import-numbers.slice";
 import { LeadNumbersPreviewInterface } from "../../../app/models/lead-numbers-preview.interface";
 import CSVReader from 'react-csv-reader'
-import { json } from "react-router-dom";
 
 export default function ButtonReadExcelFile() {
   const mapLeadUserId = useAppSelector(state => state.importNumbers.mapLeadUserId)

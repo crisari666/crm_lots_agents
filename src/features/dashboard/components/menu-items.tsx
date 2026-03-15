@@ -47,6 +47,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
 
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios", children: [
       { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios"},
+      { to: "/dashboard/import-users", Icon: <UploadFileSharp />, title: "Importar usuarios" },
       { to: "/dashboard/offices-list", Icon: <BusinessOutlined />, title: "Oficinas" },
       { to: "/dashboard/collectors", Icon: <Collections />, title: "Cobradores" },
       { to: "/dashboard/user-log-arrive", Icon: <HistoryEdu />, title: "Historial llegadas" },
