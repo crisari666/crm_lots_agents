@@ -4,8 +4,15 @@ import { OmegaSoftConstants } from "./khas-web-constants"
 import { store } from "./store"
 import { endSessionForceUserAction } from "../features/signin/signin.slice"
 const urlApi = import.meta.env.VITE_API_URL
+const urlRagAgent = import.meta.env.VITE_URL_RAG_AGENT
 const apiAxios = axios.create({
   baseURL: urlApi,
+  headers: {
+    "Content-type": "application/json",
+  },
+})
+const ragApiAxios = axios.create({
+  baseURL: urlRagAgent,
   headers: {
     "Content-type": "application/json",
   },
@@ -149,6 +156,99 @@ export default class Api {
           localStorage.removeItem(OmegaSoftConstants.localstorageAuthKey)
         }
       }
+    }
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(OmegaSoftConstants.localstorageTokenKey)
+  }
+}
+
+export class RagApi {
+  private static instance: RagApi
+
+  public static getInstance(): RagApi {
+    if (!RagApi.instance) {
+      RagApi.instance = new RagApi()
+    }
+    return RagApi.instance
+  }
+
+  async get({ path, data, body }: { path: string; data?: object; body?: object }) {
+    const token = this.getToken()
+    try {
+      const responseGet: AxiosResponse = await ragApiAxios.get(path, {
+        params: data,
+        data: body,
+        headers: { token: token! },
+      })
+      return responseGet.data
+    } catch (error) {
+      const e = error as AxiosError
+      if (e.response?.status === 401 && e.response?.data !== undefined) {
+        const data: any = e.response?.data
+        if (data.error != null && data.error === "Unauthorized") {
+          store.dispatch(endSessionForceUserAction())
+          localStorage.removeItem("auth")
+        }
+      }
+      throw error
+    }
+  }
+
+  async post({ path, data, isFormData = false }: { path: string; data: any; isFormData?: boolean }) {
+    const token = this.getToken()
+    const headers = { token: token!, "Content-type": isFormData ? "multipart/form-data" : "application/json" }
+    try {
+      const responsePost: AxiosResponse = await ragApiAxios.post(path, data, { headers })
+      return await responsePost.data
+    } catch (error) {
+      const e = error as AxiosError
+      if (e.response?.status === 401 && e.response?.data !== undefined) {
+        const data: any = e.response?.data
+        if (data.error != null && data.error === "Unauthorized") {
+          store.dispatch(endSessionForceUserAction())
+          localStorage.removeItem("auth")
+        }
+      }
+      throw error
+    }
+  }
+
+  async patch({ path, data = {}, isFormData = false }: { path: string; data?: any; isFormData?: boolean }) {
+    const token = this.getToken()
+    const headers = { token: token!, "Content-type": isFormData ? "multipart/form-data" : "application/json" }
+    try {
+      const responsePatch: AxiosResponse = await ragApiAxios.patch(path, data, { headers })
+      return await responsePatch.data
+    } catch (error) {
+      const e = error as AxiosError
+      if (e.response?.status === 401 && e.response?.data !== undefined) {
+        const data: any = e.response?.data
+        if (data.error != null && data.error === "Unauthorized") {
+          store.dispatch(endSessionForceUserAction())
+          localStorage.removeItem("auth")
+        }
+      }
+      throw error
+    }
+  }
+
+  async delete({ path, data }: { path: string; data?: object }) {
+    const token = this.getToken()
+    try {
+      const responseDelete: AxiosResponse = await ragApiAxios.delete(path, { data, headers: { token: token! } })
+      return await responseDelete.data
+    } catch (error) {
+      const e = error as AxiosError
+      if (e.response?.status === 401 && e.response?.data !== undefined) {
+        const data: any = e.response?.data
+        if (data.error != null && data.error === "Unauthorized") {
+          store.dispatch(endSessionForceUserAction())
+          localStorage.removeItem("auth")
+        }
+      }
+      throw error
     }
   }
 
