@@ -7,7 +7,9 @@ import {
   getProjectByIdThunk,
   updateProjectThunk,
   uploadProjectImageThunk,
-  clearProjectErrorAct
+  removeProjectImageThunk,
+  clearProjectErrorAct,
+  setProjectErrorAct
 } from "../slice/projects.slice"
 import { fetchAmenitiesThunk } from "../slice/amenities.slice"
 import { UpdateProjectDto } from "../types/project.types"
@@ -75,6 +77,20 @@ export default function EditProjectFormCP() {
     await dispatch(uploadProjectImageThunk({ projectId, file })).unwrap()
   }
 
+  const handleRemoveImage = async (imageName: string) => {
+    if (!projectId) return
+    try {
+      await dispatch(removeProjectImageThunk({ projectId, imageName })).unwrap()
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? ""
+      const message =
+        msg.includes("404") ? "Proyecto o imagen no encontrados." : "No se pudo eliminar la imagen."
+      dispatch(clearProjectErrorAct())
+      dispatch(setProjectErrorAct(message))
+      await dispatch(getProjectByIdThunk(projectId))
+    }
+  }
+
   const handleAddAmenity = async (title: string): Promise<string | null> => {
     try {
       const result = await dispatch(
@@ -139,9 +155,12 @@ export default function EditProjectFormCP() {
   }
 
   const uploadsBaseUrl = import.meta.env.VITE_URL_RAG_AGENT_UPLOADS ?? ""
-  const existingImageUrls = (currentProject?.images ?? []).map((path) =>
-    path.startsWith("http") ? path : `${uploadsBaseUrl}/projects/${path.replace(/^\//, "")}`
-  )
+  const existingImages = (currentProject?.images ?? []).map((name) => ({
+    name,
+    url: name.startsWith("http")
+      ? name
+      : `${uploadsBaseUrl}/projects/${name.replace(/^\//, "")}`
+  }))
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -155,10 +174,11 @@ export default function EditProjectFormCP() {
           form={form}
           onChange={(updates) => setForm((prev) => (prev ? { ...prev, ...updates } : null))}
           amenities={amenities}
-          existingImageUrls={existingImageUrls}
+          existingImages={existingImages}
           onAddAmenity={handleAddAmenity}
           projectId={projectId}
           onUploadImage={handleUploadImage}
+          onRemoveImage={handleRemoveImage}
         />
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>

@@ -47,6 +47,7 @@ import projectsSlice from "../features/project/slice/projects.slice"
 import amenitiesSlice from "../features/project/slice/amenities.slice"
 import alertsSlice from "../features/alerts/alerts.slice"
 import importUsersSlice from "../features/import-users/import-users.slice"
+import usersOnboardingStatusSlice from "../features/users-onboarding-status/slice/users-onboarding-status.slice"
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -102,6 +103,7 @@ export const store = configureStore({
     userActivesSnapShot: userActivesSnapShotSlice,
     userSessionLogs: userSessionsSlice,
     users: usersListReducer,
+    usersOnboardingStatus: usersOnboardingStatusSlice,
     usersWithoutCustomers: usersWithoutCustomersSlice,
     verifyCustomerPaymentsSlice: verifyCustomerPaymentsSlice,
     //Raffle

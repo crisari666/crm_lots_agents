@@ -14,7 +14,7 @@ import { CustomerStepsFormFilter } from "../../features/customer-steps-log/custo
 import { CustomerDocPayType } from "../models/customer-doc-pay.type";
 import { RecycleCustomerRowType } from "../../features/campaigns/campaign-customers/redux/campaign-customers-state";
 
-export async function addCustomerReq({customerForm} : {customerForm : NewCustomerFormI}): Promise<CustomerInterface>  {
+export async function addCustomerReq({customerForm} : {customerForm : NewCustomerFormI, createdBy?: string}): Promise<CustomerInterface>  {
   try {
     const api = Api.getInstance()
     const response = await api.post({path: `customers`, data: customerForm})

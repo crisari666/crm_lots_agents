@@ -96,7 +96,7 @@ export async function uploadProjectImageReq({
 }: {
   projectId: string
   file: File
-}): Promise<{ images: string[] }> {
+}): Promise<ProjectType> {
   try {
     const api = RagApi.getInstance()
     const formData = new FormData()
@@ -109,12 +109,42 @@ export async function uploadProjectImageReq({
     const { error, result } = response
     if (error == null) {
       const project = result?.project ?? result
-      return { images: project?.images ?? result?.images ?? [] }
+      return (project && typeof project === "object" && "_id" in project
+        ? project
+        : { _id: projectId, images: result?.images ?? [] }) as ProjectType
     } else {
       throw error
     }
   } catch (error) {
     console.error("ERROR ON uploadProjectImageReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteProjectImageReq({
+  projectId,
+  imageName
+}: {
+  projectId: string
+  imageName: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const path = `projects/${projectId}/images/${encodeURIComponent(imageName)}`
+    const response = await api.delete({ path })
+    const { error, result } = response
+    if (error == null) {
+      const project = result?.project ?? result
+      if (project && typeof project === "object" && "_id" in project) {
+        return project as ProjectType
+      }
+      throw new Error("Invalid response")
+    } else {
+      throw error
+    }
+  } catch (error) {
+    console.error("ERROR ON deleteProjectImageReq")
     console.error({ error })
     throw error
   }

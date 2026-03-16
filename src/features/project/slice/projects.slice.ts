@@ -6,7 +6,8 @@ import {
   createProjectReq,
   updateProjectReq,
   deleteProjectReq,
-  uploadProjectImageReq
+  uploadProjectImageReq,
+  deleteProjectImageReq
 } from "../../../app/services/project.service"
 import { ProjectsState } from "./projects.state"
 
@@ -60,6 +61,19 @@ export const uploadProjectImageThunk = createAsyncThunk(
   }
 )
 
+export const removeProjectImageThunk = createAsyncThunk(
+  "project/removeProjectImage",
+  async ({
+    projectId,
+    imageName
+  }: {
+    projectId: string
+    imageName: string
+  }) => {
+    return deleteProjectImageReq({ projectId, imageName })
+  }
+)
+
 const projectsSlice = createSlice({
   name: "project",
   initialState,
@@ -69,6 +83,9 @@ const projectsSlice = createSlice({
     },
     clearProjectErrorAct: (state) => {
       state.error = null
+    },
+    setProjectErrorAct: (state, action: PayloadAction<string>) => {
+      state.error = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -133,17 +150,25 @@ const projectsSlice = createSlice({
         if (state.currentProject?._id === action.payload) state.currentProject = null
       })
       .addCase(uploadProjectImageThunk.fulfilled, (state, action) => {
-        if (state.currentProject && action.payload?.images) {
-          state.currentProject.images = action.payload.images
+        if (action.payload && state.currentProject?._id === action.payload._id) {
+          state.currentProject = action.payload
         }
-        const pid = state.currentProject?._id
-        if (pid) {
-          const p = state.projects.find((x) => x._id === pid)
-          if (p && action.payload?.images) p.images = action.payload.images
+        if (action.payload) {
+          const p = state.projects.find((x) => x._id === action.payload!._id)
+          if (p) p.images = action.payload.images
+        }
+      })
+      .addCase(removeProjectImageThunk.fulfilled, (state, action) => {
+        if (action.payload && state.currentProject?._id === action.payload._id) {
+          state.currentProject = action.payload
+        }
+        if (action.payload) {
+          const p = state.projects.find((x) => x._id === action.payload!._id)
+          if (p) p.images = action.payload.images
         }
       })
   }
 })
 
-export const { setCurrentProjectAct, clearProjectErrorAct } = projectsSlice.actions
+export const { setCurrentProjectAct, clearProjectErrorAct, setProjectErrorAct } = projectsSlice.actions
 export default projectsSlice.reducer

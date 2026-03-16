@@ -53,6 +53,7 @@ import CreateProjectPage from "../features/project/pages/create-project-page"
 import EditProjectPage from "../features/project/pages/edit-project-page"
 import AlertsView from "../views/alerts-view"
 import LeadAlertsView from "../views/lead-alerts-view"
+import UsersOnboardingStatusView from "../features/users-onboarding-status/users-onboarding-status-view"
 
 
 const router = createBrowserRouter([
@@ -134,6 +135,7 @@ const router = createBrowserRouter([
     { path: "users", element: <UsersList /> },
     { path: "import-users", element: <ImportUsersPage /> },
     { path: "collectors", element: <CollectorsView /> },
+    { path: "users-onboarding-status", element: <UsersOnboardingStatusView /> },
 
 
     { path: "expenses", element: <HandleExpensesView /> },
