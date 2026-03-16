@@ -7,7 +7,7 @@ import { addCustomerToUsersThunk } from "../import-numbers.slice";
 import DialogSuccessDataImported from "../../customer-view/components/dialog-success-data-imported";
 import { useState, useEffect } from "react";
 import AppSelector from "../../../../app/components/app-select";
-import { fetchProjectsThunk } from "../../../projects/projects.slice";
+import { fetchProjectsThunk } from "../../../project/slice/projects.slice";
 
 export default function PreviewDataControls() {
   const dispatch = useAppDispatch()
@@ -52,6 +52,7 @@ export default function PreviewDataControls() {
                   value={projectId || ''}
                   onChange={handleProjectChange}
                   options={projects}
+                  propOptionName="title"
                   label="Proyecto"
                   name="project"
                   required={true}

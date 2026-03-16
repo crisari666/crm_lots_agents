@@ -48,7 +48,9 @@ import PenancesView from "../views/penances-view"
 import ArrivalHistoryView from "../views/arrival-history-view"
 import AuditsPage from "../views/audits-page"
 import WorkerPaymentsView from "../views/worker-payments-view"
-import ProjectsView from "../views/projects-view"
+import ProjectListPage from "../features/project/pages/project-list-page"
+import CreateProjectPage from "../features/project/pages/create-project-page"
+import EditProjectPage from "../features/project/pages/edit-project-page"
 import AlertsView from "../views/alerts-view"
 import LeadAlertsView from "../views/lead-alerts-view"
 
@@ -93,7 +95,9 @@ const router = createBrowserRouter([
     { path: "users-goal-view", element: <UsersGoalsView/> },
     { path: "alerted-payments", element: <AlertedPaymentsView/> },
     { path: "check-customers", element: <CustomersCheckView/> },
-    { path: "projects", element: <ProjectsView/> },
+    { path: "projects", element: <ProjectListPage /> },
+    { path: "create-project", element: <CreateProjectPage /> },
+    { path: "edit-project/:projectId", element: <EditProjectPage /> },
     
     //Payments
     { path: "worker-payments", element: <WorkerPaymentsView/> },

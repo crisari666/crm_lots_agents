@@ -29,6 +29,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     // { to: "/dashboard/create-card", Icon: <Margin />, title: "Crear Tarjeta" },
 
     { to: "", Icon: <Dashboard />, title: "Resume" },
+    { to: "/dashboard/projects", Icon: <BusinessOutlined />, title: "Projects" },
     { Icon: <Person2Outlined />, title: "Clientes", children: [
       { to: "/dashboard/numbers", Icon: <Dvr />, title: "Clientes" },
       { to: "/dashboard/customers-center", Icon: <SupportAgent />, title: "Customer Center" },

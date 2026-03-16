@@ -110,8 +110,13 @@ Key principle:
 | **Testing** | Focus on logic (hooks, reducers, services), not styling. |
 | **Interface, Types** | create types instead interface when is possible. |
 | **Semicolon | never add or use semicolons at the endlines. |
-
 ---
+
+## Forms
+    - Design form layouts that adapt to different screen sizes.
+    - Use appropriate input types for better mobile experiences.
+    - Implement inline validation and clear error messaging.
+
 
 ## 🧰 5. Summary
 
@@ -123,6 +128,7 @@ Key principle:
 ✅ Centralized router  
 ✅ Consistent Material UI usage  
 ✅ No large, mixed-responsibility files  
+
 
 ---
 

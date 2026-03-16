@@ -43,7 +43,8 @@ import verifyCustomerPaymentsSlice from "../features/payments/verify-payments/sl
 import handlePaymentSlice from "../features/payments/handle-payment/slice/handle-payment.slice"
 import campaignCustomersSlice from "../features/campaigns/campaign-customers/redux/campaign-customers-slice"
 import penancesSlice from "../features/penance/slice/penances.slice"
-import projectsSlice from "../features/projects/projects.slice"
+import projectsSlice from "../features/project/slice/projects.slice"
+import amenitiesSlice from "../features/project/slice/amenities.slice"
 import alertsSlice from "../features/alerts/alerts.slice"
 import importUsersSlice from "../features/import-users/import-users.slice"
 
@@ -90,6 +91,7 @@ export const store = configureStore({
     officesLevel: OfficesLevelSlice,
     penance: penancesSlice,
     projects: projectsSlice,
+    amenities: amenitiesSlice,
     qrArrive: qrArriveSlice,
     situations: clientSituationsSlice,
     statistics: statisticsSlice,
