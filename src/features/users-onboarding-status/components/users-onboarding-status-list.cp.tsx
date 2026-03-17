@@ -1,5 +1,6 @@
 import { Alert, Box, CircularProgress, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from "@mui/material"
 import HistoryIcon from "@mui/icons-material/History"
+import TouchAppIcon from "@mui/icons-material/TouchApp"
 import { useState } from "react"
 import { useAppSelector } from "../../../app/hooks"
 import {
@@ -9,10 +10,14 @@ import {
 import type { OnboardingStateType } from "../types/onboarding-state.types"
 import { dateUTCToFriendly } from "../../../utils/date.utils"
 import UsersOnboardingStatusHistoryDialogCP from "./users-onboarding-status-history-dialog.cp"
+import UsersOnboardingStatusActionsDialogCP from "./users-onboarding-status-actions-dialog.cp"
+import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
 
 export default function UsersOnboardingStatusListCP() {
   const [selectedItem, setSelectedItem] = useState<OnboardingStateType | null>(null)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [actionsItem, setActionsItem] = useState<OnboardingStateType | null>(null)
+  const [isActionsOpen, setIsActionsOpen] = useState(false)
   const { isLoading, error } = useAppSelector(selectUsersOnboardingStatusState)
   const items: OnboardingStateType[] = useAppSelector(selectUsersOnboardingStatusFilteredItems)
 
@@ -23,6 +28,15 @@ export default function UsersOnboardingStatusListCP() {
 
   const handleCloseHistory = () => {
     setIsHistoryOpen(false)
+  }
+
+  const handleOpenActions = (item: OnboardingStateType) => {
+    setActionsItem(item)
+    setIsActionsOpen(true)
+  }
+
+  const handleCloseActions = () => {
+    setIsActionsOpen(false)
   }
 
   if (error) {
@@ -55,6 +69,7 @@ export default function UsersOnboardingStatusListCP() {
             <TableCell>Whatsapp</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Last update</TableCell>
+            <TableCell align="center">{s.actionsOpen}</TableCell>
             <TableCell align="center">History</TableCell>
           </TableRow>
         </TableHead>
@@ -71,7 +86,14 @@ export default function UsersOnboardingStatusListCP() {
               <TableCell>{x.status}</TableCell>
               <TableCell>{dateUTCToFriendly(x.lastUpdate)}</TableCell>
               <TableCell align="center">
-                <Tooltip title="View history">
+                <Tooltip title={s.actionsOpen}>
+                  <IconButton size="small" onClick={() => handleOpenActions(x)}>
+                    <TouchAppIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
+              <TableCell align="center">
+                <Tooltip title={s.viewHistory}>
                   <IconButton
                     size="small"
                     onClick={() => handleOpenHistory(x)}
@@ -85,7 +107,7 @@ export default function UsersOnboardingStatusListCP() {
 
           {items.length === 0 && !isLoading ? (
             <TableRow>
-              <TableCell colSpan={5}>
+              <TableCell colSpan={7}>
                 <Typography variant="body2">No users found</Typography>
               </TableCell>
             </TableRow>
@@ -101,6 +123,12 @@ export default function UsersOnboardingStatusListCP() {
           logs={selectedItem.logsUpdate}
         />
       ) : null}
+
+      <UsersOnboardingStatusActionsDialogCP
+        open={isActionsOpen}
+        onClose={handleCloseActions}
+        item={actionsItem}
+      />
     </TableContainer>
   )
 }

@@ -15,6 +15,7 @@ export type ProjectType = {
   lng: number
   priceSell: number
   deleted?: boolean
+  enabled?: boolean
   commissionPercentage: number
   commissionValue: number
   amenities?: ProjectAmenityRef[]

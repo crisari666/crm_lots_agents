@@ -4,7 +4,7 @@ import { CreateProjectDto, ProjectType, UpdateProjectDto } from "../../features/
 export async function fetchProjectsReq(): Promise<ProjectType[]> {
   try {
     const api = RagApi.getInstance()
-    const response = await api.get({ path: "projects" })
+    const response = await api.get({ path: "projects", data: { enable: "all" } })
     const { error } = response
     if (error == null) {
       return response
@@ -13,6 +13,30 @@ export async function fetchProjectsReq(): Promise<ProjectType[]> {
     }
   } catch (error) {
     console.error("ERROR ON fetchProjectsReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function setProjectEnabledReq({
+  id,
+  enabled
+}: {
+  id: string
+  enabled: boolean
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const enableParam = enabled ? "true" : "false"
+    const response = await api.patch({ path: `projects/${id}/enabled/${enableParam}` })
+    const { error } = response
+    if (error == null) {
+      return response
+    } else {
+      throw error
+    }
+  } catch (error) {
+    console.error("ERROR ON setProjectEnabledReq")
     console.error({ error })
     throw error
   }

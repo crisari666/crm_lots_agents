@@ -7,7 +7,8 @@ import {
   updateProjectReq,
   deleteProjectReq,
   uploadProjectImageReq,
-  deleteProjectImageReq
+  deleteProjectImageReq,
+  setProjectEnabledReq
 } from "../../../app/services/project.service"
 import { ProjectsState } from "./projects.state"
 
@@ -51,6 +52,13 @@ export const deleteProjectThunk = createAsyncThunk(
   async (id: string) => {
     await deleteProjectReq({ id })
     return id
+  }
+)
+
+export const setProjectEnabledThunk = createAsyncThunk(
+  "project/setProjectEnabled",
+  async ({ id, enabled }: { id: string; enabled: boolean }) => {
+    return setProjectEnabledReq({ id, enabled })
   }
 )
 
@@ -148,6 +156,14 @@ const projectsSlice = createSlice({
       .addCase(deleteProjectThunk.fulfilled, (state, action) => {
         state.projects = state.projects.filter((p) => p._id !== action.payload)
         if (state.currentProject?._id === action.payload) state.currentProject = null
+      })
+      .addCase(setProjectEnabledThunk.fulfilled, (state, action) => {
+        state.isLoading = false
+        const idx = state.projects.findIndex((p) => p._id === action.payload._id)
+        if (idx !== -1) state.projects[idx] = action.payload
+        if (state.currentProject?._id === action.payload._id) {
+          state.currentProject = action.payload
+        }
       })
       .addCase(uploadProjectImageThunk.fulfilled, (state, action) => {
         if (action.payload && state.currentProject?._id === action.payload._id) {

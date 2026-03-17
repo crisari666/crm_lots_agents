@@ -10,13 +10,14 @@ import {
   Typography,
   IconButton,
   Alert,
-  Link
+  Link,
+  Switch
 } from "@mui/material"
 import { Edit as EditIcon } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
-import { fetchProjectsThunk } from "../slice/projects.slice"
+import { fetchProjectsThunk, setProjectEnabledThunk } from "../slice/projects.slice"
 import { ProjectType } from "../types/project.types"
 
 export default function ProjectListCP() {
@@ -27,6 +28,11 @@ export default function ProjectListCP() {
   useEffect(() => {
     dispatch(fetchProjectsThunk())
   }, [dispatch])
+
+  const handleToggleEnabled = (project: ProjectType, enabled: boolean) => {
+    if (!project._id) return
+    dispatch(setProjectEnabledThunk({ id: project._id, enabled }))
+  }
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "-"
@@ -70,6 +76,7 @@ export default function ProjectListCP() {
         <TableHead>
           <TableRow>
             <TableCell>Título</TableCell>
+            <TableCell align="center">Habilitado</TableCell>
             <TableCell>Ubicación</TableCell>
             <TableCell align="right">Precio venta</TableCell>
             <TableCell align="right">Comisión (COP)</TableCell>
@@ -89,6 +96,15 @@ export default function ProjectListCP() {
                 <Typography variant="body2" fontWeight="medium">
                   {project.title}
                 </Typography>
+              </TableCell>
+              <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                <Switch
+                  size="small"
+                  color="primary"
+                  checked={project.enabled === true}
+                  onChange={(_, checked) => handleToggleEnabled(project, checked)}
+                  disabled={isLoading}
+                />
               </TableCell>
               <TableCell>
                 {getMapsQuery(project) ? (
@@ -124,7 +140,7 @@ export default function ProjectListCP() {
           ))}
           {projects.length === 0 && !isLoading && (
             <TableRow>
-              <TableCell colSpan={6} align="center">
+              <TableCell colSpan={7} align="center">
                 <Typography variant="body2" color="text.secondary">
                   No se encontraron proyectos
                 </Typography>
