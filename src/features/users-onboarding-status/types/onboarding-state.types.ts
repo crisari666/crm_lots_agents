@@ -9,6 +9,7 @@ export type OnboardingUserType = {
   _id: string
   email: string
   name: string
+  phone: string
   lastName: string
 }
 

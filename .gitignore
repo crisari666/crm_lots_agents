@@ -102,3 +102,5 @@ build/sw.js
 public/firebase-config.json
 public/firebase-messaging-sw.js
 public/sw.js
+repos_help/
+repos_help/*
