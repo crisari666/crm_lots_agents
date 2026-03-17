@@ -1,0 +1,173 @@
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
+import type { RootState } from "../../../app/store"
+import type {
+  CreateTrainingPayload,
+  TrainingAttendeeType,
+  TrainingDetailType,
+  TrainingWithCountsType
+} from "../types/training-traking.types"
+import {
+  createTrainingReq,
+  getTrainingDetailReq,
+  getTrainingsReq,
+  toggleCheckInReq
+} from "../services/training-traking.service"
+import {
+  trainingTrakingInitialState,
+  type TrainingTrakingSliceState
+} from "./training-traking.state"
+
+export const fetchTrainingsThunk = createAsyncThunk(
+  "trainingTraking/fetchTrainings",
+  async () => {
+    return getTrainingsReq()
+  }
+)
+
+export const fetchTrainingDetailThunk = createAsyncThunk(
+  "trainingTraking/fetchTrainingDetail",
+  async (id: string) => {
+    return getTrainingDetailReq(id)
+  }
+)
+
+export const createTrainingThunk = createAsyncThunk(
+  "trainingTraking/createTraining",
+  async (payload: CreateTrainingPayload) => {
+    return createTrainingReq(payload)
+  }
+)
+
+export const toggleCheckInThunk = createAsyncThunk(
+  "trainingTraking/toggleCheckIn",
+  async (params: { trainingId: string; attendeeId: string }) => {
+    return toggleCheckInReq(params)
+  }
+)
+
+const trainingTrakingSlice = createSlice({
+  name: "trainingTraking",
+  initialState: trainingTrakingInitialState,
+  reducers: {
+    setSelectedTrainingId(
+      state: TrainingTrakingSliceState,
+      action: PayloadAction<string | null>
+    ) {
+      state.selectedId = action.payload
+    },
+    clearTrainingTrakingError(state: TrainingTrakingSliceState) {
+      state.error = null
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTrainingsThunk.pending, (state) => {
+        state.isLoadingList = true
+        state.error = null
+      })
+      .addCase(
+        fetchTrainingsThunk.fulfilled,
+        (state, action: PayloadAction<TrainingWithCountsType[]>) => {
+          state.isLoadingList = false
+          state.list = action.payload
+        }
+      )
+      .addCase(fetchTrainingsThunk.rejected, (state, action) => {
+        state.isLoadingList = false
+        state.error = action.error.message ?? "Error fetching trainings"
+      })
+
+      .addCase(fetchTrainingDetailThunk.pending, (state) => {
+        state.isLoadingDetail = true
+        state.error = null
+      })
+      .addCase(
+        fetchTrainingDetailThunk.fulfilled,
+        (state, action: PayloadAction<TrainingDetailType>) => {
+          state.isLoadingDetail = false
+          state.detail = action.payload
+        }
+      )
+      .addCase(fetchTrainingDetailThunk.rejected, (state, action) => {
+        state.isLoadingDetail = false
+        state.error = action.error.message ?? "Error fetching training detail"
+      })
+
+      .addCase(createTrainingThunk.pending, (state) => {
+        state.isCreating = true
+        state.error = null
+      })
+      .addCase(
+        createTrainingThunk.fulfilled,
+        (state, action: PayloadAction<TrainingDetailType>) => {
+          state.isCreating = false
+          state.detail = action.payload
+          state.selectedId = action.payload.id
+          const attendees = action.payload.attendees ?? []
+          const total = attendees.length
+          const confirmed = attendees.filter((a) => a.status === "confirmed").length
+          const pending = attendees.filter((a) => a.status === "pending").length
+          const declined = attendees.filter((a) => a.status === "declined").length
+          const newItem: TrainingWithCountsType = {
+            id: action.payload.id,
+            name: action.payload.name,
+            date: action.payload.date,
+            time: action.payload.time,
+            location: action.payload.location,
+            mapsUrl: action.payload.mapsUrl,
+            maxSlots: action.payload.maxSlots,
+            createdAt: action.payload.createdAt,
+            updatedAt: action.payload.updatedAt,
+            attendeeCounts: {
+              total,
+              confirmed,
+              pending,
+              declined
+            }
+          }
+          state.list = [...state.list, newItem]
+        }
+      )
+      .addCase(createTrainingThunk.rejected, (state, action) => {
+        state.isCreating = false
+        state.error = action.error.message ?? "Error creating training"
+      })
+
+      .addCase(toggleCheckInThunk.pending, (state) => {
+        state.isTogglingCheckIn = true
+        state.error = null
+      })
+      .addCase(
+        toggleCheckInThunk.fulfilled,
+        (state, action: PayloadAction<TrainingAttendeeType>) => {
+          state.isTogglingCheckIn = false
+          if (state.detail == null) return
+          state.detail = {
+            ...state.detail,
+            attendees: state.detail.attendees.map((a) =>
+              a.id === action.payload.id ? { ...a, checkedIn: action.payload.checkedIn } : a
+            )
+          }
+        }
+      )
+      .addCase(toggleCheckInThunk.rejected, (state, action) => {
+        state.isTogglingCheckIn = false
+        state.error = action.error.message ?? "Error updating check-in"
+      })
+  }
+})
+
+export const { setSelectedTrainingId, clearTrainingTrakingError } =
+  trainingTrakingSlice.actions
+
+export const selectTrainingTrakingState = (state: RootState): TrainingTrakingSliceState =>
+  state.trainingTraking
+
+export const selectTrainingTrakingList = (state: RootState) =>
+  selectTrainingTrakingState(state).list
+
+export const selectTrainingTrakingDetail = (state: RootState) =>
+  selectTrainingTrakingState(state).detail
+
+export default trainingTrakingSlice.reducer
+

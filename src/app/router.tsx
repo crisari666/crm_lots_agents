@@ -54,6 +54,7 @@ import EditProjectPage from "../features/project/pages/edit-project-page"
 import AlertsView from "../views/alerts-view"
 import LeadAlertsView from "../views/lead-alerts-view"
 import UsersOnboardingStatusView from "../features/users-onboarding-status/users-onboarding-status-view"
+import TrainingTrakingPage from "../features/training-traking/pages/training-traking-page"
 
 
 const router = createBrowserRouter([
@@ -99,6 +100,7 @@ const router = createBrowserRouter([
     { path: "projects", element: <ProjectListPage /> },
     { path: "create-project", element: <CreateProjectPage /> },
     { path: "edit-project/:projectId", element: <EditProjectPage /> },
+    { path: "traninng-traking", element: <TrainingTrakingPage /> },
     
     //Payments
     { path: "worker-payments", element: <WorkerPaymentsView/> },
