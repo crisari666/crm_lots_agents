@@ -60,10 +60,10 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
 
     { Icon: <PriceChange />, title: "Finanzas", superAdmin: true, children: [
       { to: "/dashboard/expenses", Icon: <PriceChange />, title: "Gastos" },
-      { to: "/dashboard/download-payment", Icon: <PaymentRounded />, title: "Descargar pago" },
-      { to: "/dashboard/users-percentage", Icon: <PercentOutlined />, title: "Porcentajes" },
-      { to: "/dashboard/download-pays-history", Icon: <HistorySharp />, title: "Historial descargas" },
-      { to: "/dashboard/payment-route-template", Icon: <Route />, title: "Rutas de Pago" },
+      // { to: "/dashboard/download-payment", Icon: <PaymentRounded />, title: "Descargar pago" },
+      // { to: "/dashboard/users-percentage", Icon: <PercentOutlined />, title: "Porcentajes" },
+      // { to: "/dashboard/download-pays-history", Icon: <HistorySharp />, title: "Historial descargas" },
+      // { to: "/dashboard/payment-route-template", Icon: <Route />, title: "Rutas de Pago" },
     ] },
 
     { Icon: <ChecklistRtl />, title: "Auditoria", children: [
