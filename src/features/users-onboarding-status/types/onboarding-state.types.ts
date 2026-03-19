@@ -1,9 +1,12 @@
 export type OnboardingStatusType =
   | "Imported"
   | "WS_sent"
-  | "interested"
-  | "call_programmed"
-  | "Capacitacion"
+  | "Interested"
+  | "Call_programmed"
+  | "Call_done_success"
+  | "Call_failed"
+  | "WS_training_sent"
+  | "Confirmed_training_request"
 
 export type OnboardingUserType = {
   _id: string
@@ -30,4 +33,9 @@ export type OnboardingStateListResponse = {
   result: OnboardingStateType[]
   message: string
   error?: string
+}
+
+export type OnboardingTriggerResponse = {
+  flowId: string
+  message: string
 }

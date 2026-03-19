@@ -2,6 +2,7 @@
 export const usersOnboardingStatusStrings = {
   actionsDialogTitle: "Onboarding actions",
   userLabel: "User",
+  triggerOnboardingFlow: "Trigger onboarding flow",
   triggerGreeting: "Saludo inicial",
   triggerCall: "Llamada",
   triggerProposal: "Mensaje confirmación a capacitación",

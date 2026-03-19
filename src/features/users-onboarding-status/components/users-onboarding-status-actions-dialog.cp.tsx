@@ -20,6 +20,8 @@ import {
 } from "../services/voice-agent.service"
 import { phoneToE164, phoneToWhatsAppTo } from "../utils/onboarding-phone.utils"
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
+import { useAppDispatch } from "../../../app/hooks"
+import { triggerOnboardingFlowThunk } from "../slice/users-onboarding-status.slice"
 
 type Props = {
   open: boolean
@@ -31,6 +33,7 @@ const fromNumber = (import.meta.env.VITE_VOICE_AGENT_FROM_NUMBER as string)?.tri
 const MOCK_VOICE_AGENT_ID = "888"
 
 export default function UsersOnboardingStatusActionsDialogCP({ open, onClose, item }: Props) {
+  const dispatch = useAppDispatch()
   const [loadingKey, setLoadingKey] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(
     null
@@ -118,6 +121,31 @@ export default function UsersOnboardingStatusActionsDialogCP({ open, onClose, it
     }
   }
 
+  const handleTriggerOnboardingFlow = async () => {
+    if (!user) return
+    const phoneNumber = phoneToWhatsAppTo(user.phone)
+    if (!phoneNumber) {
+      setFeedback({ type: "error", text: s.missingPhone })
+      return
+    }
+    resetFeedback()
+    setLoadingKey("onboardingFlow")
+    try {
+      await dispatch(
+        triggerOnboardingFlowThunk({
+          userId: user._id,
+          phoneNumber,
+          name: displayName || firstName
+        })
+      ).unwrap()
+      setFeedback({ type: "success", text: s.success })
+    } catch {
+      setFeedback({ type: "error", text: s.errorGeneric })
+    } finally {
+      setLoadingKey(null)
+    }
+  }
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
@@ -135,6 +163,14 @@ export default function UsersOnboardingStatusActionsDialogCP({ open, onClose, it
           </Alert>
         ) : null}
         <Stack spacing={2}>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={loadingKey !== null || !user}
+            onClick={handleTriggerOnboardingFlow}
+          >
+            {loadingKey === "onboardingFlow" ? s.sending : s.triggerOnboardingFlow}
+          </Button>
           <Button
             variant="contained"
             color="primary"

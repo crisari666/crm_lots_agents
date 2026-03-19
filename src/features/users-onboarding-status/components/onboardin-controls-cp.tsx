@@ -13,9 +13,12 @@ const statuses: Array<OnboardingStatusType | "all"> = [
   "all",
   "Imported",
   "WS_sent",
-  "interested",
-  "call_programmed",
-  "Capacitacion"
+  "Interested",
+  "Call_programmed",
+  "Call_done_success",
+  "Call_failed",
+  "WS_training_sent",
+  "Confirmed_training_request"
 ]
 
 export default function OnboardinControlsCP() {

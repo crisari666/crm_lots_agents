@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from "../../../app/store"
 import type { OnboardingStateType, OnboardingStatusType } from "../types/onboarding-state.types"
 import type { UsersOnboardingStatusState } from "./users-onboarding-status.state"
-import { getOnboardingStateListReq } from "../services/onboarding-state.service"
+import { getOnboardingStateListReq, triggerOnboardingFlowReq } from "../services/onboarding-state.service"
 
 const initialState: UsersOnboardingStatusState = {
   items: [],
@@ -16,6 +16,21 @@ export const fetchUsersOnboardingStatusThunk = createAsyncThunk(
   "usersOnboardingStatus/fetchList",
   async ({ status }: { status?: OnboardingStatusType }) => {
     return getOnboardingStateListReq({ status })
+  }
+)
+
+export const triggerOnboardingFlowThunk = createAsyncThunk(
+  "usersOnboardingStatus/triggerFlow",
+  async ({
+    userId,
+    phoneNumber,
+    name
+  }: {
+    userId: string
+    phoneNumber: string
+    name: string
+  }) => {
+    return triggerOnboardingFlowReq({ userId, phoneNumber, name })
   }
 )
 

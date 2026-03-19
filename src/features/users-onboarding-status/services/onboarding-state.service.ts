@@ -1,5 +1,6 @@
 import Api from "../../../app/axios"
 import type {
+  OnboardingTriggerResponse,
   OnboardingStateListResponse,
   OnboardingStateType,
   OnboardingStatusType
@@ -25,6 +26,29 @@ export async function getOnboardingStateListReq({
     throw error
   } catch (error) {
     console.error("ERROR ON getOnboardingStateListReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function triggerOnboardingFlowReq({
+  userId,
+  phoneNumber,
+  name
+}: {
+  userId: string
+  phoneNumber: string
+  name: string
+}): Promise<OnboardingTriggerResponse> {
+  try {
+    const api = Api.getInstance()
+    const response: OnboardingTriggerResponse = await api.post({
+      path: "onboarding-state/trigger",
+      data: { userId, phoneNumber, name }
+    })
+    return response
+  } catch (error) {
+    console.error("ERROR ON triggerOnboardingFlowReq")
     console.error({ error })
     throw error
   }
