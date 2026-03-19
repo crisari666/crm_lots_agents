@@ -7,6 +7,7 @@ import {
   IconButton,
   Typography
 } from "@mui/material"
+import { alpha } from "@mui/material/styles"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
@@ -76,10 +77,86 @@ export default function TrainingTrakingDetailCP() {
           {detail.date} · {detail.time} · {detail.location}
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-          <Chip label={`Confirmados: ${confirmed}`} color="success" />
-          <Chip label={`No asisten: ${declined}`} color="error" />
-          <Chip label={`Pendientes: ${pending}`} />
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+            gap: 2,
+            mt: 2
+          }}
+        >
+          <Box
+            sx={{
+              borderRadius: 2,
+              p: 1.5,
+              textAlign: "center",
+              bgcolor: (theme) => alpha(theme.palette.success.main, 0.08)
+            }}
+          >
+            <Typography
+              variant="h5"
+              component="p"
+              sx={{
+                fontWeight: 700,
+                color: "success.main",
+                fontVariantNumeric: "tabular-nums",
+                lineHeight: 1.2
+              }}
+            >
+              {confirmed}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" display="block">
+              Confirmados
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              borderRadius: 2,
+              p: 1.5,
+              textAlign: "center",
+              bgcolor: (theme) => alpha(theme.palette.error.main, 0.08)
+            }}
+          >
+            <Typography
+              variant="h5"
+              component="p"
+              sx={{
+                fontWeight: 700,
+                color: "error.main",
+                fontVariantNumeric: "tabular-nums",
+                lineHeight: 1.2
+              }}
+            >
+              {declined}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" display="block">
+              No asisten
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              borderRadius: 2,
+              p: 1.5,
+              textAlign: "center",
+              bgcolor: "action.hover"
+            }}
+          >
+            <Typography
+              variant="h5"
+              component="p"
+              sx={{
+                fontWeight: 700,
+                color: "text.secondary",
+                fontVariantNumeric: "tabular-nums",
+                lineHeight: 1.2
+              }}
+            >
+              {pending}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" display="block">
+              Pendientes
+            </Typography>
+          </Box>
         </Box>
 
         <Box sx={{ mt: 3 }}>

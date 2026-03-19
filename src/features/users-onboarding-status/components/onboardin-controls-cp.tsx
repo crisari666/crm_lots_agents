@@ -1,5 +1,6 @@
 import { Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material"
 import type { SelectChangeEvent } from "@mui/material"
+import { useEffect } from "react"
 import type { OnboardingStatusType } from "../types/onboarding-state.types"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
@@ -21,20 +22,33 @@ const statuses: Array<OnboardingStatusType | "all"> = [
   "Confirmed_training_request"
 ]
 
+const isValidStatusFilter = (v: string): v is OnboardingStatusType | "all" =>
+  (statuses as readonly string[]).includes(v)
+
 export default function OnboardinControlsCP() {
   const dispatch = useAppDispatch()
   const { statusFilter, searchTerm, isLoading } = useAppSelector(selectUsersOnboardingStatusState)
 
+  const resolvedFilter: OnboardingStatusType | "all" = isValidStatusFilter(statusFilter)
+    ? statusFilter
+    : "all"
+
+  useEffect(() => {
+    if (!isValidStatusFilter(statusFilter)) {
+      dispatch(setOnboardingStatusFilterAct("all"))
+      return
+    }
+    const status = statusFilter === "all" ? undefined : statusFilter
+    dispatch(fetchUsersOnboardingStatusThunk({ status }))
+  }, [dispatch, statusFilter])
+
   const onChangeStatus = (e: SelectChangeEvent) => {
     const next = e.target.value as OnboardingStatusType | "all"
     dispatch(setOnboardingStatusFilterAct(next))
-
-    const status = next === "all" ? undefined : next
-    dispatch(fetchUsersOnboardingStatusThunk({ status }))
   }
 
   const onRefresh = () => {
-    const status = statusFilter === "all" ? undefined : statusFilter
+    const status = resolvedFilter === "all" ? undefined : resolvedFilter
     dispatch(fetchUsersOnboardingStatusThunk({ status }))
   }
 
@@ -45,7 +59,7 @@ export default function OnboardinControlsCP() {
         <Select
           labelId="onboarding-status-filter-label"
           label="Status"
-          value={statusFilter}
+          value={resolvedFilter}
           onChange={onChangeStatus}
         >
           {statuses.map((s) => (

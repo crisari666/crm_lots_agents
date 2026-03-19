@@ -12,7 +12,7 @@ export async function getTrainingsReq(): Promise<TrainingWithCountsType[]> {
   try {
     const api = Api.getInstance()
     const response: TrainingListResponse = await api.get({
-      path: "/api/trainings"
+      path: "/trainings"
     })
     return response.data
   } catch (error) {
@@ -25,7 +25,7 @@ export async function getTrainingDetailReq(id: string): Promise<TrainingDetailTy
   try {
     const api = Api.getInstance()
     const response: TrainingDetailResponse = await api.get({
-      path: `/api/trainings/${id}`
+      path: `/trainings/${id}`
     })
     return response.data
   } catch (error) {
@@ -38,7 +38,7 @@ export async function createTrainingReq(payload: CreateTrainingPayload): Promise
   try {
     const api = Api.getInstance()
     const response: TrainingDetailResponse = await api.post({
-      path: "/api/trainings",
+      path: "/trainings",
       data: payload
     })
     return response.data
@@ -55,7 +55,7 @@ export async function toggleCheckInReq(params: {
   try {
     const api = Api.getInstance()
     const response: { data: TrainingAttendeeType } = await api.patch({
-      path: `/api/trainings/${params.trainingId}/attendees/${params.attendeeId}/check-in`
+      path: `/trainings/${params.trainingId}/attendees/${params.attendeeId}/check-in`
     })
     return response.data
   } catch (error) {
