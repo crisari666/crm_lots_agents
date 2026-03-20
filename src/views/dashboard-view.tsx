@@ -9,7 +9,7 @@ export default function DashboardContent() {
     <>
       <h1>Dashboard</h1>
       {currentUser?.level === 0 && <StepsGraph />}
-      {currentUser?.level === 0 && (users.includes(currentUser?.email)) && <PayGraph />}
+      {/* {currentUser?.level === 0 && (users.includes(currentUser?.email)) && <PayGraph />} */}
     </>
   )
 }

@@ -38,13 +38,13 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/projects", Icon: <CreditScore />, title: "Proyectos" },
     ]},
 
-    { Icon: <CampaignOutlined />, title: "Campaña", 
-      children: [
-        { to: "/dashboard/campaign", Icon: <Campaign />, title: "Campaña" },
-        { to: "/dashboard/imports-numbers", Icon: <UploadFileSharp />, title: "Importar data", },
-        { to: "/dashboard/campaign-customers", Icon: <CampaignRounded />, title: "Asignar clientes", }
-      ] 
-    },
+    // { Icon: <CampaignOutlined />, title: "Campaña", 
+    //   children: [
+    //     { to: "/dashboard/campaign", Icon: <Campaign />, title: "Campaña" },
+    //     { to: "/dashboard/imports-numbers", Icon: <UploadFileSharp />, title: "Importar data", },
+    //     { to: "/dashboard/campaign-customers", Icon: <CampaignRounded />, title: "Asignar clientes", }
+    //   ] 
+    // },
 
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios", children: [
       { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios"},
@@ -102,7 +102,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
   const mapRoutesAssigner: RouteItemI[] = [
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios" },
     { to: "/dashboard/numbers", Icon: <Dvr />, title: "Clientes" },
-    { to: "/dashboard/lead-campaign", Icon: <Campaign />, title: "Campaña" },
+    // { to: "/dashboard/lead-campaign", Icon: <Campaign />, title: "Campaña" },
     //{ to: "/dashboard/collectors", Icon: <CollectionsOutlined />, title: "Cobradores" },
     { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
     { to: "/dashboard/worker-payments", Icon: <ContactPhone />, title: "Pagos" },
@@ -110,10 +110,10 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
   ]
 
   const mapRoutesFinance: RouteItemI[] = [
-    { to: "/dashboard/download-payment", Icon: <PaymentRounded />, title: "Descargar pago" },
-    { to: "/dashboard/download-pays-history", Icon: <HistorySharp />, title: "Historial descargas" },
+    // { to: "/dashboard/download-payment", Icon: <PaymentRounded />, title: "Descargar pago" },
+    // { to: "/dashboard/download-pays-history", Icon: <HistorySharp />, title: "Historial descargas" },
     { to: "/dashboard/expenses", Icon: <PriceChange />, title: "Gastos" },
-    { to: "/dashboard/calculator", Icon: <Calculate />, title: "Calculadora" },
+    // { to: "/dashboard/calculator", Icon: <Calculate />, title: "Calculadora" },
   ]
   
   const mapRoutesLeader: RouteItemI[] = [
