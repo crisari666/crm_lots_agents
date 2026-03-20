@@ -84,7 +84,6 @@ yarn.lock
 .env*
 package-lock.json
 tsconfig.tsbuildinfo
-yarn.lock
 package-lock.json
 tsconfig.tsbuildinfo
 run_build_prod.sh 
