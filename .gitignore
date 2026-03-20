@@ -77,8 +77,6 @@ coverage
 
 # Miscellaneous
 *.local
-yarn
-yarn.lock
 .env
 .env.example
 .env*
