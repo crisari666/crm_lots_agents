@@ -20,6 +20,9 @@ export type ProjectType = {
   commissionValue: number
   amenities?: ProjectAmenityRef[]
   images?: string[]
+  reelVideo?: string
+  plane?: string
+  brochure?: string
   createdAt?: string
   updatedAt?: string
   __v?: number
@@ -71,4 +74,15 @@ export type ProjectFormState = {
   commissionValue: number
   amenities: string[]
   imageFiles: File[]
+  reelVideoFile: File | null
+  planeFile: File | null
+  brochureFile: File | null
+}
+
+export type ProjectPreviewMediaKind = "image" | "video" | "pdf"
+
+export type ProjectPreviewItem = {
+  kind: ProjectPreviewMediaKind
+  src: string
+  title?: string
 }

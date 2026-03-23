@@ -7,6 +7,10 @@ import {
   updateProjectReq,
   deleteProjectReq,
   uploadProjectImageReq,
+  uploadProjectImagesMultipleReq,
+  uploadProjectReelVideoReq,
+  uploadProjectPlaneReq,
+  uploadProjectBrochureReq,
   deleteProjectImageReq,
   setProjectEnabledReq
 } from "../../../app/services/project.service"
@@ -17,6 +21,17 @@ const initialState: ProjectsState = {
   currentProject: null,
   isLoading: false,
   error: null
+}
+
+function mergeProjectFromUpload(state: ProjectsState, payload: ProjectType) {
+  if (!payload?._id) return
+  if (state.currentProject?._id === payload._id) {
+    state.currentProject = payload
+  }
+  const p = state.projects.find((x) => x._id === payload._id)
+  if (p) {
+    Object.assign(p, payload)
+  }
 }
 
 export const fetchProjectsThunk = createAsyncThunk(
@@ -66,6 +81,34 @@ export const uploadProjectImageThunk = createAsyncThunk(
   "project/uploadProjectImage",
   async ({ projectId, file }: { projectId: string; file: File }) => {
     return uploadProjectImageReq({ projectId, file })
+  }
+)
+
+export const uploadProjectImagesMultipleThunk = createAsyncThunk(
+  "project/uploadProjectImagesMultiple",
+  async ({ projectId, files }: { projectId: string; files: File[] }) => {
+    return uploadProjectImagesMultipleReq({ projectId, files })
+  }
+)
+
+export const uploadProjectReelVideoThunk = createAsyncThunk(
+  "project/uploadProjectReelVideo",
+  async ({ projectId, file }: { projectId: string; file: File }) => {
+    return uploadProjectReelVideoReq({ projectId, file })
+  }
+)
+
+export const uploadProjectPlaneThunk = createAsyncThunk(
+  "project/uploadProjectPlane",
+  async ({ projectId, file }: { projectId: string; file: File }) => {
+    return uploadProjectPlaneReq({ projectId, file })
+  }
+)
+
+export const uploadProjectBrochureThunk = createAsyncThunk(
+  "project/uploadProjectBrochure",
+  async ({ projectId, file }: { projectId: string; file: File }) => {
+    return uploadProjectBrochureReq({ projectId, file })
   }
 )
 
@@ -166,22 +209,22 @@ const projectsSlice = createSlice({
         }
       })
       .addCase(uploadProjectImageThunk.fulfilled, (state, action) => {
-        if (action.payload && state.currentProject?._id === action.payload._id) {
-          state.currentProject = action.payload
-        }
-        if (action.payload) {
-          const p = state.projects.find((x) => x._id === action.payload!._id)
-          if (p) p.images = action.payload.images
-        }
+        mergeProjectFromUpload(state, action.payload)
+      })
+      .addCase(uploadProjectImagesMultipleThunk.fulfilled, (state, action) => {
+        mergeProjectFromUpload(state, action.payload)
+      })
+      .addCase(uploadProjectReelVideoThunk.fulfilled, (state, action) => {
+        mergeProjectFromUpload(state, action.payload)
+      })
+      .addCase(uploadProjectPlaneThunk.fulfilled, (state, action) => {
+        mergeProjectFromUpload(state, action.payload)
+      })
+      .addCase(uploadProjectBrochureThunk.fulfilled, (state, action) => {
+        mergeProjectFromUpload(state, action.payload)
       })
       .addCase(removeProjectImageThunk.fulfilled, (state, action) => {
-        if (action.payload && state.currentProject?._id === action.payload._id) {
-          state.currentProject = action.payload
-        }
-        if (action.payload) {
-          const p = state.projects.find((x) => x._id === action.payload!._id)
-          if (p) p.images = action.payload.images
-        }
+        mergeProjectFromUpload(state, action.payload)
       })
   }
 })

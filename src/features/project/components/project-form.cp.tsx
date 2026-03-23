@@ -1,7 +1,8 @@
 import React from "react"
 import { Grid, Box } from "@mui/material"
 import ProjectFormFieldsCP from "./project-form-fields.cp"
-import ProjectImagePickerCP, { ExistingProjectImage } from "./project-image-picker.cp"
+import ProjectMediaPanelCP from "./project-media-panel.cp"
+import { ExistingProjectImage } from "./project-image-picker.cp"
 import { ProjectFormState } from "../types/project.types"
 import { AmenityType } from "../types/amenity.types"
 
@@ -9,24 +10,38 @@ type ProjectFormCPProps = {
   form: ProjectFormState
   onChange: (updates: Partial<ProjectFormState>) => void
   amenities: AmenityType[]
+  uploadsBaseUrl: string
   existingImages?: ExistingProjectImage[]
   disabled?: boolean
   onAddAmenity?: (title: string) => Promise<string | null>
   projectId?: string
-  onUploadImage?: (file: File) => Promise<void>
+  onUploadImages?: (files: File[]) => Promise<void>
   onRemoveImage?: (imageName: string) => Promise<void>
+  existingReelVideoName?: string | null
+  existingPlaneName?: string | null
+  existingBrochureName?: string | null
+  onUploadReelVideo?: (file: File) => Promise<void>
+  onUploadPlane?: (file: File) => Promise<void>
+  onUploadBrochure?: (file: File) => Promise<void>
 }
 
 export default function ProjectFormCP({
   form,
   onChange,
   amenities,
+  uploadsBaseUrl,
   existingImages = [],
   disabled = false,
   onAddAmenity,
   projectId,
-  onUploadImage,
-  onRemoveImage
+  onUploadImages,
+  onRemoveImage,
+  existingReelVideoName,
+  existingPlaneName,
+  existingBrochureName,
+  onUploadReelVideo,
+  onUploadPlane,
+  onUploadBrochure,
 }: ProjectFormCPProps) {
   return (
     <Box>
@@ -41,14 +56,21 @@ export default function ProjectFormCP({
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <ProjectImagePickerCP
-            files={form.imageFiles}
+          <ProjectMediaPanelCP
+            form={form}
+            onChange={onChange}
+            uploadsBaseUrl={uploadsBaseUrl}
             existingImages={existingImages}
-            onFilesChange={(imageFiles) => onChange({ imageFiles })}
             disabled={disabled}
             projectId={projectId}
-            onUploadImage={onUploadImage}
+            onUploadImages={onUploadImages}
             onRemoveImage={onRemoveImage}
+            existingReelVideoName={existingReelVideoName}
+            existingPlaneName={existingPlaneName}
+            existingBrochureName={existingBrochureName}
+            onUploadReelVideo={onUploadReelVideo}
+            onUploadPlane={onUploadPlane}
+            onUploadBrochure={onUploadBrochure}
           />
         </Grid>
       </Grid>

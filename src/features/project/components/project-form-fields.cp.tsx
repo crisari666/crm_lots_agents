@@ -9,6 +9,7 @@ import {
   Chip,
   InputAdornment
 } from "@mui/material"
+import type { Theme } from "@mui/material/styles"
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
 import { ProjectFormState } from "../types/project.types"
@@ -30,6 +31,13 @@ const modules = {
     ["link"],
     ["clean"]
   ]
+}
+
+const descriptionEditorMinHeight = (theme: Theme) => {
+  const lh = theme.typography.body1.lineHeight
+  const lineHeightUnitless =
+    typeof lh === "number" ? lh : Number.parseFloat(String(lh)) || 1.5
+  return `${4 * lineHeightUnitless}em`
 }
 
 export default function ProjectFormFieldsCP({
@@ -63,14 +71,34 @@ export default function ProjectFormFieldsCP({
         <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
           Description
         </Typography>
-        <Box sx={{ minHeight: 200 }}>
+        <Box
+          sx={{
+            mb: 2,
+            /* Quill uses height: 100% on .ql-container / .ql-editor; .quill has no height, so % resolves to 0 */
+            "& .quill": {
+              display: "flex",
+              flexDirection: "column",
+            },
+            "& .ql-toolbar.ql-snow": {
+              flexShrink: 0,
+            },
+            "& .ql-container.ql-snow": {
+              flex: "1 1 auto",
+              height: "auto",
+              minHeight: (theme) => descriptionEditorMinHeight(theme),
+            },
+            "& .ql-editor": {
+              height: "auto",
+              minHeight: (theme) => descriptionEditorMinHeight(theme),
+            },
+          }}
+        >
           <ReactQuill
             theme="snow"
             value={form.description}
             onChange={(value) => onChange({ description: value })}
             modules={modules}
             readOnly={disabled}
-            style={{ height: "85%" }}
           />
         </Box>
       </Grid>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
   Box,
   Button,
@@ -6,18 +6,34 @@ import {
   IconButton,
   Card,
   CardMedia,
-  CardActions,
   CircularProgress,
   Paper,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Stack,
+  Chip,
 } from "@mui/material"
-import { CloudUpload, Delete, AddPhotoAlternate } from "@mui/icons-material"
+import CloudUpload from "@mui/icons-material/CloudUpload"
+import Delete from "@mui/icons-material/Delete"
+import AddPhotoAlternate from "@mui/icons-material/AddPhotoAlternate"
+import ChevronLeft from "@mui/icons-material/ChevronLeft"
+import ChevronRight from "@mui/icons-material/ChevronRight"
+import Visibility from "@mui/icons-material/Visibility"
+import { ProjectPreviewItem } from "../types/project.types"
+import { projectStrings as s } from "../../../i18n/locales/project.strings"
 
 export type ExistingProjectImage = { name: string; url: string }
+
+type ImageSlide = {
+  key: string
+  url: string
+  displayName: string
+  existingName?: string
+  pendingIndex?: number
+}
 
 type ProjectImagePickerCPProps = {
   files: File[]
@@ -25,8 +41,9 @@ type ProjectImagePickerCPProps = {
   onFilesChange: (files: File[]) => void
   disabled?: boolean
   projectId?: string
-  onUploadImage?: (file: File) => Promise<void>
+  onUploadImages?: (files: File[]) => Promise<void>
   onRemoveImage?: (imageName: string) => Promise<void>
+  onOpenImagesPreview: (items: ProjectPreviewItem[], startIndex: number) => void
 }
 
 export default function ProjectImagePickerCP({
@@ -35,14 +52,49 @@ export default function ProjectImagePickerCP({
   onFilesChange,
   disabled = false,
   projectId,
-  onUploadImage,
-  onRemoveImage
+  onUploadImages,
+  onRemoveImage,
+  onOpenImagesPreview,
 }: ProjectImagePickerCPProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const uploadInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [removeConfirm, setRemoveConfirm] = useState<ExistingProjectImage | null>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [blobUrls, setBlobUrls] = useState<string[]>([])
+
+  useEffect(() => {
+    const urls = files.map((f) => URL.createObjectURL(f))
+    setBlobUrls(urls)
+    return () => urls.forEach((u) => URL.revokeObjectURL(u))
+  }, [files])
+
+  const slides: ImageSlide[] = useMemo(() => {
+    const existing: ImageSlide[] = existingImages.map((img) => ({
+      key: `ex-${img.name}`,
+      url: img.url,
+      displayName: img.name,
+      existingName: img.name,
+    }))
+    const pending: ImageSlide[] = files.map((file, i) => ({
+      key: `pen-${i}-${file.name}-${file.size}`,
+      url: blobUrls[i] ?? "",
+      displayName: file.name,
+      pendingIndex: i,
+    }))
+    return [...existing, ...pending]
+  }, [existingImages, files, blobUrls])
+
+  useEffect(() => {
+    if (activeIndex >= slides.length && slides.length > 0) {
+      setActiveIndex(slides.length - 1)
+    }
+    if (slides.length === 0) setActiveIndex(0)
+  }, [slides.length, activeIndex])
+
+  const current = slides[activeIndex]
+  const total = slides.length
 
   const handleSelectForSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files
@@ -54,12 +106,11 @@ export default function ProjectImagePickerCP({
 
   const handleSelectForUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files
-    if (!selected?.length || !onUploadImage) return
+    if (!selected?.length || !onUploadImages) return
+    const list = Array.from(selected)
     setUploading(true)
     try {
-      for (let i = 0; i < selected.length; i++) {
-        await onUploadImage(selected[i])
-      }
+      await onUploadImages(list)
     } finally {
       setUploading(false)
       e.target.value = ""
@@ -75,134 +126,217 @@ export default function ProjectImagePickerCP({
     const { name } = removeConfirm
     setRemoveConfirm(null)
     setRemoving(true)
-    onRemoveImage(name)
-      .finally(() => setRemoving(false))
+    onRemoveImage(name).finally(() => setRemoving(false))
   }
 
-  const canUploadImmediate = Boolean(projectId && onUploadImage)
+  const canUploadImmediate = Boolean(projectId && onUploadImages)
   const canRemove = Boolean(projectId && onRemoveImage && !disabled)
+
+  const openCarouselPreview = () => {
+    if (!total) return
+    const items: ProjectPreviewItem[] = slides.map((sl) => ({
+      kind: "image" as const,
+      src: sl.url,
+      title: sl.displayName,
+    }))
+    onOpenImagesPreview(items, activeIndex)
+  }
 
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="subtitle1" fontWeight="medium" sx={{ mb: 2 }}>
-        Project images
-      </Typography>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+        <Typography variant="subtitle1" fontWeight="medium">
+          {s.projectImagesTitle}
+        </Typography>
+        {total > 0 && (
+          <Chip size="small" label={`${activeIndex + 1} / ${total}`} variant="outlined" />
+        )}
+      </Stack>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-        {existingImages.map((img, i) => (
-          <Card key={img.name} sx={{ width: 120, overflow: "hidden", position: "relative" }}>
+      <Box
+        sx={{
+          position: "relative",
+          borderRadius: 2,
+          overflow: "hidden",
+          bgcolor: "action.hover",
+          minHeight: 200,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {current && (
+          <Card elevation={0} sx={{ width: "100%", bgcolor: "transparent" }}>
             <CardMedia
               component="img"
-              height="120"
-              image={img.url}
+              image={current.url}
               alt=""
-              sx={{ objectFit: "cover" }}
+              sx={{
+                maxHeight: 280,
+                width: "100%",
+                objectFit: "contain",
+                bgcolor: "grey.100",
+              }}
             />
-            {canRemove && (
+          </Card>
+        )}
+        {!current && (
+          <Typography color="text.secondary" sx={{ py: 6 }}>
+            {s.noImagesYet}
+          </Typography>
+        )}
+        {total > 1 && (
+          <>
+            <IconButton
+              aria-label={s.carouselPrev}
+              onClick={() => setActiveIndex((i) => (i <= 0 ? total - 1 : i - 1))}
+              sx={{
+                position: "absolute",
+                left: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                bgcolor: "background.paper",
+                boxShadow: 2,
+                "&:hover": { bgcolor: "action.hover" },
+              }}
+            >
+              <ChevronLeft />
+            </IconButton>
+            <IconButton
+              aria-label={s.carouselNext}
+              onClick={() => setActiveIndex((i) => (i >= total - 1 ? 0 : i + 1))}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                bgcolor: "background.paper",
+                boxShadow: 2,
+                "&:hover": { bgcolor: "action.hover" },
+              }}
+            >
+              <ChevronRight />
+            </IconButton>
+          </>
+        )}
+        {current && (
+          <Stack
+            direction="row"
+            spacing={0.5}
+            sx={{
+              position: "absolute",
+              bottom: 12,
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+          >
+            {slides.map((_, i) => (
+              <Box
+                key={slides[i].key}
+                onClick={() => setActiveIndex(i)}
+                sx={{
+                  width: i === activeIndex ? 14 : 8,
+                  height: 8,
+                  borderRadius: 4,
+                  bgcolor: i === activeIndex ? "primary.main" : "action.disabled",
+                  cursor: "pointer",
+                  transition: "width 0.2s",
+                }}
+              />
+            ))}
+          </Stack>
+        )}
+      </Box>
+
+      <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 2 }} justifyContent="center">
+        {current && (
+          <>
+            <Button size="small" startIcon={<Visibility />} onClick={openCarouselPreview}>
+              {s.previewImage}
+            </Button>
+            {current.existingName && canRemove && (
               <IconButton
                 size="small"
                 color="error"
-                sx={{
-                  position: "absolute",
-                  top: 4,
-                  right: 4,
-                  bgcolor: "background.paper",
-                  boxShadow: 1,
-                  "&:hover": { bgcolor: "action.hover" }
-                }}
                 disabled={removing}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setRemoveConfirm(img)
-                }}
+                onClick={() =>
+                  setRemoveConfirm({
+                    name: current.existingName!,
+                    url: current.url,
+                  })
+                }
               >
                 <Delete fontSize="small" />
               </IconButton>
             )}
-          </Card>
-        ))}
-        {files.map((file, i) => (
-          <Card key={`file-${i}`} sx={{ width: 120, overflow: "hidden", position: "relative" }}>
-            <CardMedia
-              component="img"
-              height="120"
-              image={URL.createObjectURL(file)}
-              alt=""
-              sx={{ objectFit: "cover" }}
-            />
-            {!disabled && !canUploadImmediate && (
-              <CardActions sx={{ justifyContent: "center", p: 0.5 }}>
-                <IconButton size="small" color="error" onClick={() => removePendingFile(i)}>
-                  <Delete fontSize="small" />
-                </IconButton>
-              </CardActions>
+            {current.pendingIndex !== undefined && !disabled && !canUploadImmediate && (
+              <IconButton
+                size="small"
+                color="error"
+                onClick={() => removePendingFile(current.pendingIndex!)}
+              >
+                <Delete fontSize="small" />
+              </IconButton>
             )}
-          </Card>
-        ))}
-
-        {!disabled && (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, alignItems: "center" }}>
-            {canUploadImmediate ? (
-              <>
-                <Button
-                  variant="contained"
-                  component="label"
-                  startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />}
-                  size="medium"
-                  disabled={uploading}
-                >
-                  {uploading ? "Uploading…" : "Upload image"}
-                  <input
-                    ref={uploadInputRef}
-                    type="file"
-                    hidden
-                    accept="image/jpeg,image/png,image/webp"
-                    multiple
-                    onChange={handleSelectForUpload}
-                  />
-                </Button>
-                <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center", maxWidth: 140 }}>
-                  Image is saved immediately
-                </Typography>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<AddPhotoAlternate />}
-                  size="medium"
-                >
-                  Pick images
-                  <input
-                    ref={inputRef}
-                    type="file"
-                    hidden
-                    accept="image/jpeg,image/png,image/webp"
-                    multiple
-                    onChange={handleSelectForSubmit}
-                  />
-                </Button>
-                <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center", maxWidth: 140 }}>
-                  Added on save
-                </Typography>
-              </>
-            )}
-          </Box>
+          </>
         )}
-      </Box>
+      </Stack>
+
+      {!disabled && (
+        <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1, alignItems: "center" }}>
+          {canUploadImmediate ? (
+            <>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />}
+                size="medium"
+                disabled={uploading}
+              >
+                {uploading ? s.uploading : s.uploadImages}
+                <input
+                  ref={uploadInputRef}
+                  type="file"
+                  hidden
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  multiple
+                  onChange={handleSelectForUpload}
+                />
+              </Button>
+              <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+                {s.imageSavedImmediate}
+              </Typography>
+            </>
+          ) : (
+            <>
+              <Button variant="outlined" component="label" startIcon={<AddPhotoAlternate />} size="medium">
+                {s.pickImages}
+                <input
+                  ref={inputRef}
+                  type="file"
+                  hidden
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  multiple
+                  onChange={handleSelectForSubmit}
+                />
+              </Button>
+              <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+                {s.imageAddedOnSave}
+              </Typography>
+            </>
+          )}
+        </Box>
+      )}
 
       <Dialog open={!!removeConfirm} onClose={() => setRemoveConfirm(null)}>
-        <DialogTitle>Eliminar imagen</DialogTitle>
+        <DialogTitle>{s.removeImageConfirmTitle}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            ¿Quiere eliminar esta imagen del proyecto? Esta acción no se puede deshacer.
-          </DialogContentText>
+          <DialogContentText>{s.removeImageConfirmBody}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setRemoveConfirm(null)}>Cancelar</Button>
+          <Button onClick={() => setRemoveConfirm(null)}>{s.cancel}</Button>
           <Button onClick={handleConfirmRemove} color="error" variant="contained" disabled={removing}>
-            {removing ? "Eliminando…" : "Eliminar"}
+            {removing ? s.deleting : s.delete}
           </Button>
         </DialogActions>
       </Dialog>

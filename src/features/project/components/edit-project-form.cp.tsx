@@ -6,7 +6,10 @@ import { RootState } from "../../../app/store"
 import {
   getProjectByIdThunk,
   updateProjectThunk,
-  uploadProjectImageThunk,
+  uploadProjectImagesMultipleThunk,
+  uploadProjectReelVideoThunk,
+  uploadProjectPlaneThunk,
+  uploadProjectBrochureThunk,
   removeProjectImageThunk,
   clearProjectErrorAct,
   setProjectErrorAct
@@ -46,7 +49,10 @@ function projectToFormState(project: {
     commissionPercentage: project.commissionPercentage,
     commissionValue: project.commissionValue,
     amenities: amenityIds,
-    imageFiles: []
+    imageFiles: [],
+    reelVideoFile: null,
+    planeFile: null,
+    brochureFile: null
   }
 }
 
@@ -72,9 +78,24 @@ export default function EditProjectFormCP() {
     }
   }, [currentProject, projectId])
 
-  const handleUploadImage = async (file: File) => {
+  const handleUploadImages = async (files: File[]) => {
+    if (!projectId || files.length === 0) return
+    await dispatch(uploadProjectImagesMultipleThunk({ projectId, files })).unwrap()
+  }
+
+  const handleUploadReelVideo = async (file: File) => {
     if (!projectId) return
-    await dispatch(uploadProjectImageThunk({ projectId, file })).unwrap()
+    await dispatch(uploadProjectReelVideoThunk({ projectId, file })).unwrap()
+  }
+
+  const handleUploadPlane = async (file: File) => {
+    if (!projectId) return
+    await dispatch(uploadProjectPlaneThunk({ projectId, file })).unwrap()
+  }
+
+  const handleUploadBrochure = async (file: File) => {
+    if (!projectId) return
+    await dispatch(uploadProjectBrochureThunk({ projectId, file })).unwrap()
   }
 
   const handleRemoveImage = async (imageName: string) => {
@@ -121,8 +142,23 @@ export default function EditProjectFormCP() {
     }
     try {
       await dispatch(updateProjectThunk({ id: projectId, data: dto })).unwrap()
-      for (const file of form.imageFiles) {
-        await dispatch(uploadProjectImageThunk({ projectId, file })).unwrap()
+      if (form.imageFiles.length > 0) {
+        await dispatch(
+          uploadProjectImagesMultipleThunk({ projectId, files: form.imageFiles })
+        ).unwrap()
+      }
+      if (form.reelVideoFile) {
+        await dispatch(
+          uploadProjectReelVideoThunk({ projectId, file: form.reelVideoFile })
+        ).unwrap()
+      }
+      if (form.planeFile) {
+        await dispatch(uploadProjectPlaneThunk({ projectId, file: form.planeFile })).unwrap()
+      }
+      if (form.brochureFile) {
+        await dispatch(
+          uploadProjectBrochureThunk({ projectId, file: form.brochureFile })
+        ).unwrap()
       }
       navigate("/dashboard/projects")
     } catch {
@@ -174,11 +210,18 @@ export default function EditProjectFormCP() {
           form={form}
           onChange={(updates) => setForm((prev) => (prev ? { ...prev, ...updates } : null))}
           amenities={amenities}
+          uploadsBaseUrl={uploadsBaseUrl}
           existingImages={existingImages}
           onAddAmenity={handleAddAmenity}
           projectId={projectId}
-          onUploadImage={handleUploadImage}
+          onUploadImages={handleUploadImages}
           onRemoveImage={handleRemoveImage}
+          existingReelVideoName={currentProject?.reelVideo ?? null}
+          existingPlaneName={currentProject?.plane ?? null}
+          existingBrochureName={currentProject?.brochure ?? null}
+          onUploadReelVideo={handleUploadReelVideo}
+          onUploadPlane={handleUploadPlane}
+          onUploadBrochure={handleUploadBrochure}
         />
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>

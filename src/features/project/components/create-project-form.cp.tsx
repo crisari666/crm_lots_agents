@@ -5,7 +5,10 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import {
   createProjectThunk,
-  uploadProjectImageThunk,
+  uploadProjectImagesMultipleThunk,
+  uploadProjectReelVideoThunk,
+  uploadProjectPlaneThunk,
+  uploadProjectBrochureThunk,
   clearProjectErrorAct
 } from "../slice/projects.slice"
 import { fetchAmenitiesThunk } from "../slice/amenities.slice"
@@ -27,7 +30,10 @@ const initialForm: ProjectFormState = {
   commissionPercentage: 0,
   commissionValue: 0,
   amenities: [],
-  imageFiles: []
+  imageFiles: [],
+  reelVideoFile: null,
+  planeFile: null,
+  brochureFile: null
 }
 
 export default function CreateProjectFormCP() {
@@ -75,14 +81,31 @@ export default function CreateProjectFormCP() {
     try {
       const project = await dispatch(createProjectThunk(dto)).unwrap()
       const projectId = project._id
-      for (const file of form.imageFiles) {
-        await dispatch(uploadProjectImageThunk({ projectId, file })).unwrap()
+      if (form.imageFiles.length > 0) {
+        await dispatch(
+          uploadProjectImagesMultipleThunk({ projectId, files: form.imageFiles })
+        ).unwrap()
+      }
+      if (form.reelVideoFile) {
+        await dispatch(
+          uploadProjectReelVideoThunk({ projectId, file: form.reelVideoFile })
+        ).unwrap()
+      }
+      if (form.planeFile) {
+        await dispatch(uploadProjectPlaneThunk({ projectId, file: form.planeFile })).unwrap()
+      }
+      if (form.brochureFile) {
+        await dispatch(
+          uploadProjectBrochureThunk({ projectId, file: form.brochureFile })
+        ).unwrap()
       }
       navigate("/dashboard/projects")
     } catch {
       // error in state
     }
   }
+
+  const uploadsBaseUrl = import.meta.env.VITE_URL_RAG_AGENT_UPLOADS ?? ""
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -96,6 +119,7 @@ export default function CreateProjectFormCP() {
           form={form}
           onChange={(updates) => setForm((prev) => ({ ...prev, ...updates }))}
           amenities={amenities}
+          uploadsBaseUrl={uploadsBaseUrl}
           onAddAmenity={handleAddAmenity}
         />
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
