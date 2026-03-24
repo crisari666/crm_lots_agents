@@ -39,3 +39,42 @@ export type OnboardingTriggerResponse = {
   flowId: string
   message: string
 }
+
+/** `GET /onboarding-state/user/:userId/flows` → `result.flows[]` */
+export type OnboardingFlowSummaryType = {
+  flowId: string
+  date: string
+  currentStatus: string
+  lastEventAt: string
+}
+
+export type OnboardingUserFlowsListResponse = {
+  result: { flows: OnboardingFlowSummaryType[] }
+  message: string
+  error?: string
+}
+
+export type OnboardingFlowWhatsappMessageIds = {
+  greetingMessageId?: string
+  videoMessageId?: string
+  trainingMessageId?: string
+  callNotificationMessageId?: string
+}
+
+export type OnboardingFlowEventItemType = {
+  date: string
+  event: string
+  details?: Record<string, unknown>
+}
+
+/** `GET /onboarding-state/pipeline/:flowId/logs` — body is not wrapped in `result` */
+export type OnboardingFlowDetailType = {
+  flowId: string
+  userId: string
+  phoneNumber: string
+  name: string
+  whatsappMessageIds: OnboardingFlowWhatsappMessageIds
+  createdAt: string | null
+  updatedAt: string | null
+  events: OnboardingFlowEventItemType[]
+}

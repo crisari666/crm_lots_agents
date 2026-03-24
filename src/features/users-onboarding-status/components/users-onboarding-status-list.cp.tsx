@@ -120,7 +120,6 @@ export default function UsersOnboardingStatusListCP() {
           open={isHistoryOpen}
           onClose={handleCloseHistory}
           user={selectedItem.userId}
-          logs={selectedItem.logsUpdate}
         />
       ) : null}
 

@@ -1,4 +1,23 @@
-import type { OnboardingStateType, OnboardingStatusType } from "../types/onboarding-state.types"
+import type {
+  OnboardingFlowDetailType,
+  OnboardingFlowSummaryType,
+  OnboardingStateType,
+  OnboardingStatusType
+} from "../types/onboarding-state.types"
+
+export type UsersOnboardingHistoryFlowsState = {
+  userId: string | null
+  items: OnboardingFlowSummaryType[]
+  isLoading: boolean
+  error: string | null
+}
+
+export type UsersOnboardingHistoryFlowLogsState = {
+  flowId: string | null
+  detail: OnboardingFlowDetailType | null
+  isLoading: boolean
+  error: string | null
+}
 
 export type UsersOnboardingStatusState = {
   items: OnboardingStateType[]
@@ -6,5 +25,7 @@ export type UsersOnboardingStatusState = {
   error: string | null
   statusFilter: OnboardingStatusType | "all"
   searchTerm: string
+  historyFlows: UsersOnboardingHistoryFlowsState
+  historyFlowLogs: UsersOnboardingHistoryFlowLogsState
 }
 
