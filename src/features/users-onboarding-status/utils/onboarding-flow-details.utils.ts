@@ -21,14 +21,18 @@ export type OnboardingFlowDetailRowType = {
 }
 
 export function rowsFromOnboardingFlowDetails(
-  details: Record<string, unknown> | undefined
+  details: Record<string, unknown> | undefined,
+  excludeKeys?: readonly string[]
 ): OnboardingFlowDetailRowType[] {
   if (details == null) {
     return []
   }
-  return Object.entries(details).map(([fieldKey, value]) => ({
-    fieldKey,
-    label: onboardingFlowDetailFieldLabels[fieldKey] ?? fieldKey,
-    value: formatDetailValue(value)
-  }))
+  const skip = excludeKeys != null ? new Set(excludeKeys) : null
+  return Object.entries(details)
+    .filter(([fieldKey]) => skip == null || !skip.has(fieldKey))
+    .map(([fieldKey, value]) => ({
+      fieldKey,
+      label: onboardingFlowDetailFieldLabels[fieldKey] ?? fieldKey,
+      value: formatDetailValue(value)
+    }))
 }

@@ -23,6 +23,11 @@ import {
 } from "../../../i18n/locales/users-onboarding-status.strings"
 import { dateUTCToFriendly } from "../../../utils/date.utils"
 import { rowsFromOnboardingFlowDetails } from "../utils/onboarding-flow-details.utils"
+import {
+  getCallTranscriptChatMessages,
+  TRANSCRIPT_CHAT_OMIT_DETAIL_KEYS
+} from "../utils/onboarding-transcript-chat.utils"
+import CallTranscriptChatCP from "./call-transcript-chat.cp"
 
 type UsersOnboardingStatusFlowLogsDialogCPProps = {
   open: boolean
@@ -118,18 +123,27 @@ export default function UsersOnboardingStatusFlowLogsDialogCP({
                 </TableHead>
                 <TableBody>
                   {detail.events.map((ev, index) => {
-                    const detailRows = rowsFromOnboardingFlowDetails(ev.details)
+                    const chatMessages = getCallTranscriptChatMessages(ev.event, ev.details)
+                    const useTranscriptChat = chatMessages != null && chatMessages.length > 0
+                    const detailRows = rowsFromOnboardingFlowDetails(
+                      ev.details,
+                      useTranscriptChat ? TRANSCRIPT_CHAT_OMIT_DETAIL_KEYS : undefined
+                    )
+                    const hasAnyDetails = useTranscriptChat || detailRows.length > 0
                     return (
                       <TableRow key={`${ev.date}-${ev.event}-${index}`}>
                         <TableCell>{dateUTCToFriendly(ev.date)}</TableCell>
                         <TableCell>{onboardingFlowEventLabel(ev.event)}</TableCell>
                         <TableCell>
-                          {detailRows.length === 0 ? (
+                          {!hasAnyDetails ? (
                             <Typography variant="body2" color="text.secondary">
                               —
                             </Typography>
                           ) : (
-                            <Stack spacing={1}>
+                            <Stack spacing={1.5}>
+                              {useTranscriptChat && chatMessages ? (
+                                <CallTranscriptChatCP messages={chatMessages} />
+                              ) : null}
                               {detailRows.map((row) => (
                                 <Box key={row.fieldKey}>
                                   <Typography variant="caption" color="text.secondary">

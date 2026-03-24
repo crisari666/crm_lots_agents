@@ -31,7 +31,10 @@ export const usersOnboardingStatusStrings = {
   flowLogsMetaPhone: "Phone",
   flowLogsMetaCreated: "Created",
   flowLogsMetaUpdated: "Updated",
-  flowLogsWhatsappIds: "WhatsApp message IDs"
+  flowLogsWhatsappIds: "WhatsApp message IDs",
+  transcriptChatHeading: "Call conversation",
+  transcriptChatSpeakerAssistant: "Assistant",
+  transcriptChatSpeakerUser: "Caller"
 } as const
 
 /** API `event` / `currentStatus` keys → localized label (match keys exactly) */
