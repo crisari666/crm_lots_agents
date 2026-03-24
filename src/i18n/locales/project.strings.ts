@@ -66,6 +66,18 @@ export const projectStrings = {
   documentIngestionLoadingDocuments: "Cargando documentos ingeridos…",
   documentIngestionLoadError: "No se pudieron cargar los documentos del vector store.",
 
+  globalIngestionButton: "Ingesta global",
+  globalIngestionDialogTitle: "Ingesta global de conocimiento",
+  globalIngestionDialogDescription:
+    "Información general no ligada a un proyecto (leyes, normativa, conceptos). Se almacena con projectId GLOBAL en el vector store.",
+  globalIngestionDocumentsSection: "Documentos",
+  globalIngestionDocTypeLabel: "Tipo de documento",
+  globalIngestionLoadingDocuments: "Cargando documentos globales (GLOBAL)…",
+  globalIngestionLoadError: "No se pudieron cargar los documentos globales.",
+  globalIngestionSendCount: "Enviar {{count}} documento(s) global(es)",
+  globalIngestionNothingToSend: "No hay documentos globales listos para enviar.",
+  globalIngestionSuccess: "{{count}} documento(s) global(es) ingerido(s).",
+
   ingestionDocTypeImages: "Imágenes",
   ingestionDocTypePlane: "Plano",
   ingestionDocTypeBrochure: "Brochure",
