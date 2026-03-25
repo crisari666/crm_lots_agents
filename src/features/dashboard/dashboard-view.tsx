@@ -64,10 +64,10 @@ export default function DashboardView() {
       const token = currentUser.token
       const _socket = io.connect(url, {
         transports: ['websocket'],  
-        upgrade: false, 
-        secure: false, 
+        autoConnect: true,
         auth: {token}
       })
+      console.log("Socket connected to", url);
       setSocket(_socket);
       dispatch(setSocketAct(_socket))
 
@@ -82,7 +82,7 @@ export default function DashboardView() {
       _socket.on("disconnect", () => {
         setConnected(false)
         setLastConnection(new Date())
-        //console.log("Socket disconnected");
+        console.log("Socket disconnected");
       })
 
       _socket.on("userConnected", (user: UserInterface) => {
