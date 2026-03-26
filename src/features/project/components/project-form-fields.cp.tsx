@@ -265,16 +265,22 @@ export default function ProjectFormFieldsCP({
           renderOption={(props, option) => {
             const opt = option as { _id: string; title: string }
             const isNew = String(opt._id).startsWith("new:")
+            const { onClick: optionListItemOnClick, ...liProps } = props
             return (
               <li
-                {...props}
+                {...liProps}
                 key={opt._id}
-                onClick={async () => {
+                onClick={(e) => {
                   if (isNew && onAddAmenity) {
-                    const title = opt.title.replace(/^Add "|"$/g, "")
-                    const newId = await onAddAmenity(title)
-                    if (newId) onChange({ amenities: [...selectedAmenityIds, newId] })
+                    e.preventDefault()
+                    void (async () => {
+                      const title = opt.title.replace(/^Add "|"$/g, "")
+                      const newId = await onAddAmenity(title)
+                      if (newId) onChange({ amenities: [...selectedAmenityIds, newId] })
+                    })()
+                    return
                   }
+                  optionListItemOnClick?.(e)
                 }}
               >
                 {opt.title}
