@@ -18,16 +18,16 @@ import {
 } from "@mui/material"
 import CloudUpload from "@mui/icons-material/CloudUpload"
 import Delete from "@mui/icons-material/Delete"
-import AddPhotoAlternate from "@mui/icons-material/AddPhotoAlternate"
+import VideoLibrary from "@mui/icons-material/VideoLibrary"
 import ChevronLeft from "@mui/icons-material/ChevronLeft"
 import ChevronRight from "@mui/icons-material/ChevronRight"
 import Visibility from "@mui/icons-material/Visibility"
 import { ProjectPreviewItem } from "../types/project.types"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
 
-export type ExistingProjectImage = { name: string; url: string }
+export type ExistingProjectVideo = { name: string; url: string }
 
-type ImageSlide = {
+type VideoSlide = {
   key: string
   url: string
   displayName: string
@@ -35,35 +35,34 @@ type ImageSlide = {
   pendingIndex?: number
 }
 
-type ProjectImagePickerCPProps = {
+type ProjectVideoPickerCPProps = {
   files: File[]
-  existingImages?: ExistingProjectImage[]
+  existingVideos?: ExistingProjectVideo[]
   onFilesChange: (files: File[]) => void
   disabled?: boolean
   projectId?: string
-  onUploadImages?: (files: File[]) => Promise<void>
-  onRemoveImage?: (imageName: string) => Promise<void>
-  onOpenImagesPreview: (items: ProjectPreviewItem[], startIndex: number) => void
-  /** Overrides the panel heading (default: project images title) */
+  onUploadVideos?: (files: File[]) => Promise<void>
+  onRemoveVideo?: (videoName: string) => Promise<void>
+  onOpenPreview: (items: ProjectPreviewItem[], startIndex: number) => void
   sectionTitle?: string
 }
 
-export default function ProjectImagePickerCP({
+export default function ProjectVideoPickerCP({
   files,
-  existingImages = [],
+  existingVideos = [],
   onFilesChange,
   disabled = false,
   projectId,
-  onUploadImages,
-  onRemoveImage,
-  onOpenImagesPreview,
-  sectionTitle = s.projectImagesTitle,
-}: ProjectImagePickerCPProps) {
+  onUploadVideos,
+  onRemoveVideo,
+  onOpenPreview,
+  sectionTitle = s.projectVerticalVideosTitle,
+}: ProjectVideoPickerCPProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const uploadInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
-  const [removeConfirm, setRemoveConfirm] = useState<ExistingProjectImage | null>(null)
+  const [removeConfirm, setRemoveConfirm] = useState<ExistingProjectVideo | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const [blobUrls, setBlobUrls] = useState<string[]>([])
 
@@ -73,21 +72,21 @@ export default function ProjectImagePickerCP({
     return () => urls.forEach((u) => URL.revokeObjectURL(u))
   }, [files])
 
-  const slides: ImageSlide[] = useMemo(() => {
-    const existing: ImageSlide[] = existingImages.map((img) => ({
-      key: `ex-${img.name}`,
-      url: img.url,
-      displayName: img.name,
-      existingName: img.name,
+  const slides: VideoSlide[] = useMemo(() => {
+    const existing: VideoSlide[] = existingVideos.map((v) => ({
+      key: `ex-${v.name}`,
+      url: v.url,
+      displayName: v.name,
+      existingName: v.name,
     }))
-    const pending: ImageSlide[] = files.map((file, i) => ({
+    const pending: VideoSlide[] = files.map((file, i) => ({
       key: `pen-${i}-${file.name}-${file.size}`,
       url: blobUrls[i] ?? "",
       displayName: file.name,
       pendingIndex: i,
     }))
     return [...existing, ...pending]
-  }, [existingImages, files, blobUrls])
+  }, [existingVideos, files, blobUrls])
 
   useEffect(() => {
     if (activeIndex >= slides.length && slides.length > 0) {
@@ -109,11 +108,11 @@ export default function ProjectImagePickerCP({
 
   const handleSelectForUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files
-    if (!selected?.length || !onUploadImages) return
+    if (!selected?.length || !onUploadVideos) return
     const list = Array.from(selected)
     setUploading(true)
     try {
-      await onUploadImages(list)
+      await onUploadVideos(list)
     } finally {
       setUploading(false)
       e.target.value = ""
@@ -125,24 +124,24 @@ export default function ProjectImagePickerCP({
   }
 
   const handleConfirmRemove = () => {
-    if (!removeConfirm || !onRemoveImage) return
+    if (!removeConfirm || !onRemoveVideo) return
     const { name } = removeConfirm
     setRemoveConfirm(null)
     setRemoving(true)
-    onRemoveImage(name).finally(() => setRemoving(false))
+    onRemoveVideo(name).finally(() => setRemoving(false))
   }
 
-  const canUploadImmediate = Boolean(projectId && onUploadImages)
-  const canRemove = Boolean(projectId && onRemoveImage && !disabled)
+  const canUploadImmediate = Boolean(projectId && onUploadVideos)
+  const canRemove = Boolean(projectId && onRemoveVideo && !disabled)
 
   const openCarouselPreview = () => {
     if (!total) return
     const items: ProjectPreviewItem[] = slides.map((sl) => ({
-      kind: "image" as const,
+      kind: "video" as const,
       src: sl.url,
       title: sl.displayName,
     }))
-    onOpenImagesPreview(items, activeIndex)
+    onOpenPreview(items, activeIndex)
   }
 
   return (
@@ -171,9 +170,11 @@ export default function ProjectImagePickerCP({
         {current && (
           <Card elevation={0} sx={{ width: "100%", bgcolor: "transparent" }}>
             <CardMedia
-              component="img"
-              image={current.url}
-              alt=""
+              component="video"
+              src={current.url}
+              controls
+              muted
+              playsInline
               sx={{
                 maxHeight: 280,
                 width: "100%",
@@ -184,9 +185,10 @@ export default function ProjectImagePickerCP({
           </Card>
         )}
         {!current && (
-          <Typography color="text.secondary" sx={{ py: 6 }}>
-            {s.noImagesYet}
-          </Typography>
+          <Stack alignItems="center" spacing={1} sx={{ py: 6 }}>
+            <VideoLibrary sx={{ fontSize: 48, color: "text.secondary" }} />
+            <Typography color="text.secondary">{s.noVideosYet}</Typography>
+          </Stack>
         )}
         {total > 1 && (
           <>
@@ -278,7 +280,7 @@ export default function ProjectImagePickerCP({
                   })
                 }
               >
-                {s.removeImage}
+                {s.removeVideo}
               </Button>
             )}
             {current.pendingIndex !== undefined && !disabled && !canUploadImmediate && (
@@ -307,35 +309,35 @@ export default function ProjectImagePickerCP({
                 size="medium"
                 disabled={uploading}
               >
-                {uploading ? s.uploading : s.uploadImages}
+                {uploading ? s.uploading : s.uploadVideos}
                 <input
                   ref={uploadInputRef}
                   type="file"
                   hidden
-                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
                   multiple
                   onChange={handleSelectForUpload}
                 />
               </Button>
               <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
-                {s.imageSavedImmediate}
+                {s.verticalVideosUploadHelper}
               </Typography>
             </>
           ) : (
             <>
-              <Button variant="outlined" component="label" startIcon={<AddPhotoAlternate />} size="medium">
-                {s.pickImages}
+              <Button variant="outlined" component="label" startIcon={<VideoLibrary />} size="medium">
+                {s.pickVideos}
                 <input
                   ref={inputRef}
                   type="file"
                   hidden
-                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
                   multiple
                   onChange={handleSelectForSubmit}
                 />
               </Button>
               <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
-                {s.imageAddedOnSave}
+                {s.verticalVideosAddedOnSave}
               </Typography>
             </>
           )}
@@ -343,9 +345,9 @@ export default function ProjectImagePickerCP({
       )}
 
       <Dialog open={!!removeConfirm} onClose={() => setRemoveConfirm(null)}>
-        <DialogTitle>{s.removeImageConfirmTitle}</DialogTitle>
+        <DialogTitle>{s.removeVideoConfirmTitle}</DialogTitle>
         <DialogContent>
-          <DialogContentText>{s.removeImageConfirmBody}</DialogContentText>
+          <DialogContentText>{s.removeVideoConfirmBody}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRemoveConfirm(null)}>{s.cancel}</Button>

@@ -6,11 +6,20 @@ import { RootState } from "../../../app/store"
 import {
   getProjectByIdThunk,
   updateProjectThunk,
+  uploadProjectCardImageThunk,
+  removeProjectCardImageThunk,
+  uploadProjectHorizontalImagesMultipleThunk,
   uploadProjectImagesMultipleThunk,
+  uploadProjectVerticalVideosMultipleThunk,
   uploadProjectReelVideoThunk,
   uploadProjectPlaneThunk,
   uploadProjectBrochureThunk,
   removeProjectImageThunk,
+  removeProjectHorizontalImageThunk,
+  removeProjectVerticalVideoThunk,
+  removeProjectReelVideoThunk,
+  removeProjectPlaneThunk,
+  removeProjectBrochureThunk,
   clearProjectErrorAct,
   setProjectErrorAct
 } from "../slice/projects.slice"
@@ -19,6 +28,23 @@ import { UpdateProjectDto } from "../types/project.types"
 import { ProjectFormState } from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
 import { createAmenityThunk } from "../slice/amenities.slice"
+import { ExistingProjectImage } from "./project-image-picker.cp"
+import { ExistingProjectVideo } from "./project-video-picker.cp"
+import { buildProjectAssetUrl } from "../utils/project-uploads.util"
+
+function namesToExistingImages(names: string[] | undefined, uploadsBaseUrl: string): ExistingProjectImage[] {
+  return (names ?? []).map((name) => ({
+    name,
+    url: name.startsWith("http") ? name : buildProjectAssetUrl(uploadsBaseUrl, name)
+  }))
+}
+
+function namesToExistingVideos(names: string[] | undefined, uploadsBaseUrl: string): ExistingProjectVideo[] {
+  return (names ?? []).map((name) => ({
+    name,
+    url: name.startsWith("http") ? name : buildProjectAssetUrl(uploadsBaseUrl, name)
+  }))
+}
 
 function projectToFormState(project: {
   title: string
@@ -33,7 +59,6 @@ function projectToFormState(project: {
   commissionPercentage: number
   commissionValue: number
   amenities?: { _id: string; title?: string }[]
-  images?: string[]
 }): ProjectFormState {
   const amenityIds = project.amenities?.map((a) => a._id) ?? []
   return {
@@ -49,7 +74,10 @@ function projectToFormState(project: {
     commissionPercentage: project.commissionPercentage,
     commissionValue: project.commissionValue,
     amenities: amenityIds,
+    cardProjectFile: null,
+    horizontalImageFiles: [],
     imageFiles: [],
+    verticalVideoFiles: [],
     reelVideoFile: null,
     planeFile: null,
     brochureFile: null
@@ -78,14 +106,43 @@ export default function EditProjectFormCP() {
     }
   }, [currentProject, projectId])
 
-  const handleUploadImages = async (files: File[]) => {
+  const handleUploadCard = async (file: File) => {
+    if (!projectId) return
+    await dispatch(uploadProjectCardImageThunk({ projectId, file })).unwrap()
+  }
+
+  const handleRemoveCard = async () => {
+    if (!projectId) return
+    try {
+      await dispatch(removeProjectCardImageThunk({ projectId })).unwrap()
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? ""
+      const message =
+        msg.includes("404") ? "Proyecto o imagen de tarjeta no encontrados." : "No se pudo eliminar la imagen de tarjeta."
+      dispatch(clearProjectErrorAct())
+      dispatch(setProjectErrorAct(message))
+      await dispatch(getProjectByIdThunk(projectId))
+    }
+  }
+
+  const handleUploadVerticalImages = async (files: File[]) => {
     if (!projectId || files.length === 0) return
     await dispatch(uploadProjectImagesMultipleThunk({ projectId, files })).unwrap()
+  }
+
+  const handleUploadHorizontalImages = async (files: File[]) => {
+    if (!projectId || files.length === 0) return
+    await dispatch(uploadProjectHorizontalImagesMultipleThunk({ projectId, files })).unwrap()
   }
 
   const handleUploadReelVideo = async (file: File) => {
     if (!projectId) return
     await dispatch(uploadProjectReelVideoThunk({ projectId, file })).unwrap()
+  }
+
+  const handleUploadHorizontalVideos = async (files: File[]) => {
+    if (!projectId || files.length === 0) return
+    await dispatch(uploadProjectVerticalVideosMultipleThunk({ projectId, files })).unwrap()
   }
 
   const handleUploadPlane = async (file: File) => {
@@ -98,7 +155,49 @@ export default function EditProjectFormCP() {
     await dispatch(uploadProjectBrochureThunk({ projectId, file })).unwrap()
   }
 
-  const handleRemoveImage = async (imageName: string) => {
+  const handleRemoveReelVideo = async () => {
+    if (!projectId) return
+    try {
+      await dispatch(removeProjectReelVideoThunk({ projectId })).unwrap()
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? ""
+      const message =
+        msg.includes("404") ? "Proyecto no encontrado." : "No se pudo eliminar el reel video."
+      dispatch(clearProjectErrorAct())
+      dispatch(setProjectErrorAct(message))
+      await dispatch(getProjectByIdThunk(projectId))
+    }
+  }
+
+  const handleRemovePlane = async () => {
+    if (!projectId) return
+    try {
+      await dispatch(removeProjectPlaneThunk({ projectId })).unwrap()
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? ""
+      const message =
+        msg.includes("404") ? "Proyecto no encontrado." : "No se pudo eliminar el plano."
+      dispatch(clearProjectErrorAct())
+      dispatch(setProjectErrorAct(message))
+      await dispatch(getProjectByIdThunk(projectId))
+    }
+  }
+
+  const handleRemoveBrochure = async () => {
+    if (!projectId) return
+    try {
+      await dispatch(removeProjectBrochureThunk({ projectId })).unwrap()
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? ""
+      const message =
+        msg.includes("404") ? "Proyecto no encontrado." : "No se pudo eliminar el brochure."
+      dispatch(clearProjectErrorAct())
+      dispatch(setProjectErrorAct(message))
+      await dispatch(getProjectByIdThunk(projectId))
+    }
+  }
+
+  const handleRemoveVerticalImage = async (imageName: string) => {
     if (!projectId) return
     try {
       await dispatch(removeProjectImageThunk({ projectId, imageName })).unwrap()
@@ -106,6 +205,34 @@ export default function EditProjectFormCP() {
       const msg = (err as { message?: string })?.message ?? ""
       const message =
         msg.includes("404") ? "Proyecto o imagen no encontrados." : "No se pudo eliminar la imagen."
+      dispatch(clearProjectErrorAct())
+      dispatch(setProjectErrorAct(message))
+      await dispatch(getProjectByIdThunk(projectId))
+    }
+  }
+
+  const handleRemoveHorizontalImage = async (imageName: string) => {
+    if (!projectId) return
+    try {
+      await dispatch(removeProjectHorizontalImageThunk({ projectId, imageName })).unwrap()
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? ""
+      const message =
+        msg.includes("404") ? "Proyecto o imagen no encontrados." : "No se pudo eliminar la imagen horizontal."
+      dispatch(clearProjectErrorAct())
+      dispatch(setProjectErrorAct(message))
+      await dispatch(getProjectByIdThunk(projectId))
+    }
+  }
+
+  const handleRemoveHorizontalVideo = async (videoName: string) => {
+    if (!projectId) return
+    try {
+      await dispatch(removeProjectVerticalVideoThunk({ projectId, videoName })).unwrap()
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? ""
+      const message =
+        msg.includes("404") ? "Proyecto o video no encontrados." : "No se pudo eliminar el video."
       dispatch(clearProjectErrorAct())
       dispatch(setProjectErrorAct(message))
       await dispatch(getProjectByIdThunk(projectId))
@@ -142,9 +269,22 @@ export default function EditProjectFormCP() {
     }
     try {
       await dispatch(updateProjectThunk({ id: projectId, data: dto })).unwrap()
+      if (form.cardProjectFile) {
+        await dispatch(uploadProjectCardImageThunk({ projectId, file: form.cardProjectFile })).unwrap()
+      }
+      if (form.horizontalImageFiles.length > 0) {
+        await dispatch(
+          uploadProjectHorizontalImagesMultipleThunk({ projectId, files: form.horizontalImageFiles })
+        ).unwrap()
+      }
       if (form.imageFiles.length > 0) {
         await dispatch(
           uploadProjectImagesMultipleThunk({ projectId, files: form.imageFiles })
+        ).unwrap()
+      }
+      if (form.verticalVideoFiles.length > 0) {
+        await dispatch(
+          uploadProjectVerticalVideosMultipleThunk({ projectId, files: form.verticalVideoFiles })
         ).unwrap()
       }
       if (form.reelVideoFile) {
@@ -191,12 +331,9 @@ export default function EditProjectFormCP() {
   }
 
   const uploadsBaseUrl = import.meta.env.VITE_URL_RAG_AGENT_UPLOADS ?? ""
-  const existingImages = (currentProject?.images ?? []).map((name) => ({
-    name,
-    url: name.startsWith("http")
-      ? name
-      : `${uploadsBaseUrl}/projects/${name.replace(/^\//, "")}`
-  }))
+  const existingVerticalImages = namesToExistingImages(currentProject?.images, uploadsBaseUrl)
+  const existingHorizontalImages = namesToExistingImages(currentProject?.horizontalImages, uploadsBaseUrl)
+  const existingHorizontalVideos = namesToExistingVideos(currentProject?.verticalVideos, uploadsBaseUrl)
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -211,17 +348,29 @@ export default function EditProjectFormCP() {
           onChange={(updates) => setForm((prev) => (prev ? { ...prev, ...updates } : null))}
           amenities={amenities}
           uploadsBaseUrl={uploadsBaseUrl}
-          existingImages={existingImages}
+          existingCardProjectName={currentProject?.cardProject ?? null}
+          existingVerticalImages={existingVerticalImages}
+          existingHorizontalImages={existingHorizontalImages}
+          existingHorizontalVideos={existingHorizontalVideos}
           onAddAmenity={handleAddAmenity}
           projectId={projectId}
-          onUploadImages={handleUploadImages}
-          onRemoveImage={handleRemoveImage}
+          onUploadCard={handleUploadCard}
+          onRemoveCard={handleRemoveCard}
+          onUploadVerticalImages={handleUploadVerticalImages}
+          onRemoveVerticalImage={handleRemoveVerticalImage}
+          onUploadHorizontalImages={handleUploadHorizontalImages}
+          onRemoveHorizontalImage={handleRemoveHorizontalImage}
           existingReelVideoName={currentProject?.reelVideo ?? null}
           existingPlaneName={currentProject?.plane ?? null}
           existingBrochureName={currentProject?.brochure ?? null}
           onUploadReelVideo={handleUploadReelVideo}
+          onRemoveReelVideo={handleRemoveReelVideo}
+          onUploadHorizontalVideos={handleUploadHorizontalVideos}
+          onRemoveHorizontalVideo={handleRemoveHorizontalVideo}
           onUploadPlane={handleUploadPlane}
+          onRemovePlane={handleRemovePlane}
           onUploadBrochure={handleUploadBrochure}
+          onRemoveBrochure={handleRemoveBrochure}
         />
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>

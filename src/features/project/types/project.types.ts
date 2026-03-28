@@ -20,6 +20,12 @@ export type ProjectType = {
   commissionValue: number
   amenities?: ProjectAmenityRef[]
   images?: string[]
+  /** Single listing card image filename */
+  cardProject?: string
+  /** Landscape gallery / banner image filenames */
+  horizontalImages?: string[]
+  /** Portrait promotional video filenames */
+  verticalVideos?: string[]
   reelVideo?: string
   plane?: string
   brochure?: string
@@ -42,6 +48,9 @@ export type CreateProjectDto = {
   commissionValue: number
   amenities?: string[]
   images?: string[]
+  cardProject?: string
+  horizontalImages?: string[]
+  verticalVideos?: string[]
 }
 
 export type UpdateProjectDto = {
@@ -58,6 +67,9 @@ export type UpdateProjectDto = {
   commissionValue?: number
   amenities?: string[]
   images?: string[]
+  cardProject?: string
+  horizontalImages?: string[]
+  verticalVideos?: string[]
 }
 
 export type ProjectFormState = {
@@ -73,7 +85,10 @@ export type ProjectFormState = {
   commissionPercentage: number
   commissionValue: number
   amenities: string[]
+  cardProjectFile: File | null
+  horizontalImageFiles: File[]
   imageFiles: File[]
+  verticalVideoFiles: File[]
   reelVideoFile: File | null
   planeFile: File | null
   brochureFile: File | null

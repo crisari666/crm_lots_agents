@@ -5,7 +5,10 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import {
   createProjectThunk,
+  uploadProjectCardImageThunk,
+  uploadProjectHorizontalImagesMultipleThunk,
   uploadProjectImagesMultipleThunk,
+  uploadProjectVerticalVideosMultipleThunk,
   uploadProjectReelVideoThunk,
   uploadProjectPlaneThunk,
   uploadProjectBrochureThunk,
@@ -30,7 +33,10 @@ const initialForm: ProjectFormState = {
   commissionPercentage: 0,
   commissionValue: 0,
   amenities: [],
+  cardProjectFile: null,
+  horizontalImageFiles: [],
   imageFiles: [],
+  verticalVideoFiles: [],
   reelVideoFile: null,
   planeFile: null,
   brochureFile: null
@@ -81,9 +87,22 @@ export default function CreateProjectFormCP() {
     try {
       const project = await dispatch(createProjectThunk(dto)).unwrap()
       const projectId = project._id
+      if (form.cardProjectFile) {
+        await dispatch(uploadProjectCardImageThunk({ projectId, file: form.cardProjectFile })).unwrap()
+      }
+      if (form.horizontalImageFiles.length > 0) {
+        await dispatch(
+          uploadProjectHorizontalImagesMultipleThunk({ projectId, files: form.horizontalImageFiles })
+        ).unwrap()
+      }
       if (form.imageFiles.length > 0) {
         await dispatch(
           uploadProjectImagesMultipleThunk({ projectId, files: form.imageFiles })
+        ).unwrap()
+      }
+      if (form.verticalVideoFiles.length > 0) {
+        await dispatch(
+          uploadProjectVerticalVideosMultipleThunk({ projectId, files: form.verticalVideoFiles })
         ).unwrap()
       }
       if (form.reelVideoFile) {
@@ -120,6 +139,9 @@ export default function CreateProjectFormCP() {
           onChange={(updates) => setForm((prev) => ({ ...prev, ...updates }))}
           amenities={amenities}
           uploadsBaseUrl={uploadsBaseUrl}
+          existingVerticalImages={[]}
+          existingHorizontalImages={[]}
+          existingHorizontalVideos={[]}
           onAddAmenity={handleAddAmenity}
         />
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>

@@ -192,6 +192,138 @@ export async function uploadProjectImagesMultipleReq({
   }
 }
 
+export async function uploadProjectCardImageReq({
+  projectId,
+  file
+}: {
+  projectId: string
+  file: File
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const formData = new FormData()
+    formData.append("file", file)
+    const response = await api.post({
+      path: `projects/${projectId}/card-project`,
+      data: formData,
+      isFormData: true
+    })
+    return parseProjectFromUploadResponse(response, projectId)
+  } catch (error) {
+    console.error("ERROR ON uploadProjectCardImageReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteProjectCardImageReq({
+  projectId
+}: {
+  projectId: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const response = await api.delete({ path: `projects/${projectId}/card-project` })
+    const project = parseProjectStrict(response)
+    if (!project) throw new Error("Invalid response")
+    return project
+  } catch (error) {
+    console.error("ERROR ON deleteProjectCardImageReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function uploadProjectHorizontalImagesMultipleReq({
+  projectId,
+  files
+}: {
+  projectId: string
+  files: File[]
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const formData = new FormData()
+    files.forEach((f) => formData.append("files", f))
+    const response = await api.post({
+      path: `projects/${projectId}/horizontal-images/multiple`,
+      data: formData,
+      isFormData: true
+    })
+    return parseProjectFromUploadResponse(response, projectId)
+  } catch (error) {
+    console.error("ERROR ON uploadProjectHorizontalImagesMultipleReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteProjectHorizontalImageReq({
+  projectId,
+  imageName
+}: {
+  projectId: string
+  imageName: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const path = `projects/${projectId}/horizontal-images/${encodeURIComponent(imageName)}`
+    const response = await api.delete({ path })
+    const project = parseProjectStrict(response)
+    if (!project) throw new Error("Invalid response")
+    return project
+  } catch (error) {
+    console.error("ERROR ON deleteProjectHorizontalImageReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function uploadProjectVerticalVideosMultipleReq({
+  projectId,
+  files
+}: {
+  projectId: string
+  files: File[]
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const formData = new FormData()
+    files.forEach((f) => formData.append("files", f))
+    const response = await api.post({
+      path: `projects/${projectId}/vertical-videos/multiple`,
+      data: formData,
+      isFormData: true
+    })
+    return parseProjectFromUploadResponse(response, projectId)
+  } catch (error) {
+    console.error("ERROR ON uploadProjectVerticalVideosMultipleReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteProjectVerticalVideoReq({
+  projectId,
+  videoName
+}: {
+  projectId: string
+  videoName: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const path = `projects/${projectId}/vertical-videos/${encodeURIComponent(videoName)}`
+    const response = await api.delete({ path })
+    const project = parseProjectStrict(response)
+    if (!project) throw new Error("Invalid response")
+    return project
+  } catch (error) {
+    console.error("ERROR ON deleteProjectVerticalVideoReq")
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function uploadProjectReelVideoReq({
   projectId,
   file
@@ -211,6 +343,24 @@ export async function uploadProjectReelVideoReq({
     return parseProjectFromUploadResponse(response, projectId)
   } catch (error) {
     console.error("ERROR ON uploadProjectReelVideoReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteProjectReelVideoReq({
+  projectId
+}: {
+  projectId: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const response = await api.delete({ path: `projects/${projectId}/reel-video` })
+    const project = parseProjectStrict(response)
+    if (!project) throw new Error("Invalid response")
+    return project
+  } catch (error) {
+    console.error("ERROR ON deleteProjectReelVideoReq")
     console.error({ error })
     throw error
   }
@@ -240,6 +390,24 @@ export async function uploadProjectPlaneReq({
   }
 }
 
+export async function deleteProjectPlaneReq({
+  projectId
+}: {
+  projectId: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const response = await api.delete({ path: `projects/${projectId}/plane` })
+    const project = parseProjectStrict(response)
+    if (!project) throw new Error("Invalid response")
+    return project
+  } catch (error) {
+    console.error("ERROR ON deleteProjectPlaneReq")
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function uploadProjectBrochureReq({
   projectId,
   file
@@ -259,6 +427,24 @@ export async function uploadProjectBrochureReq({
     return parseProjectFromUploadResponse(response, projectId)
   } catch (error) {
     console.error("ERROR ON uploadProjectBrochureReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteProjectBrochureReq({
+  projectId
+}: {
+  projectId: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const response = await api.delete({ path: `projects/${projectId}/brochure` })
+    const project = parseProjectStrict(response)
+    if (!project) throw new Error("Invalid response")
+    return project
+  } catch (error) {
+    console.error("ERROR ON deleteProjectBrochureReq")
     console.error({ error })
     throw error
   }

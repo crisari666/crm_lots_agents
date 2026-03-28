@@ -3,6 +3,7 @@ import { Grid, Box } from "@mui/material"
 import ProjectFormFieldsCP from "./project-form-fields.cp"
 import ProjectMediaPanelCP from "./project-media-panel.cp"
 import { ExistingProjectImage } from "./project-image-picker.cp"
+import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { ProjectFormState } from "../types/project.types"
 import { AmenityType } from "../types/amenity.types"
 
@@ -11,18 +12,30 @@ type ProjectFormCPProps = {
   onChange: (updates: Partial<ProjectFormState>) => void
   amenities: AmenityType[]
   uploadsBaseUrl: string
-  existingImages?: ExistingProjectImage[]
+  existingCardProjectName?: string | null
+  existingVerticalImages: ExistingProjectImage[]
+  existingHorizontalImages: ExistingProjectImage[]
+  existingHorizontalVideos: ExistingProjectVideo[]
   disabled?: boolean
   onAddAmenity?: (title: string) => Promise<string | null>
   projectId?: string
-  onUploadImages?: (files: File[]) => Promise<void>
-  onRemoveImage?: (imageName: string) => Promise<void>
+  onUploadCard?: (file: File) => Promise<void>
+  onRemoveCard?: () => Promise<void>
+  onUploadVerticalImages?: (files: File[]) => Promise<void>
+  onRemoveVerticalImage?: (imageName: string) => Promise<void>
+  onUploadHorizontalImages?: (files: File[]) => Promise<void>
+  onRemoveHorizontalImage?: (imageName: string) => Promise<void>
   existingReelVideoName?: string | null
   existingPlaneName?: string | null
   existingBrochureName?: string | null
   onUploadReelVideo?: (file: File) => Promise<void>
+  onRemoveReelVideo?: () => Promise<void>
+  onUploadHorizontalVideos?: (files: File[]) => Promise<void>
+  onRemoveHorizontalVideo?: (videoName: string) => Promise<void>
   onUploadPlane?: (file: File) => Promise<void>
+  onRemovePlane?: () => Promise<void>
   onUploadBrochure?: (file: File) => Promise<void>
+  onRemoveBrochure?: () => Promise<void>
 }
 
 export default function ProjectFormCP({
@@ -30,18 +43,30 @@ export default function ProjectFormCP({
   onChange,
   amenities,
   uploadsBaseUrl,
-  existingImages = [],
+  existingCardProjectName = null,
+  existingVerticalImages = [],
+  existingHorizontalImages = [],
+  existingHorizontalVideos = [],
   disabled = false,
   onAddAmenity,
   projectId,
-  onUploadImages,
-  onRemoveImage,
+  onUploadCard,
+  onRemoveCard,
+  onUploadVerticalImages,
+  onRemoveVerticalImage,
+  onUploadHorizontalImages,
+  onRemoveHorizontalImage,
   existingReelVideoName,
   existingPlaneName,
   existingBrochureName,
   onUploadReelVideo,
+  onRemoveReelVideo,
+  onUploadHorizontalVideos,
+  onRemoveHorizontalVideo,
   onUploadPlane,
+  onRemovePlane,
   onUploadBrochure,
+  onRemoveBrochure,
 }: ProjectFormCPProps) {
   return (
     <Box>
@@ -60,17 +85,29 @@ export default function ProjectFormCP({
             form={form}
             onChange={onChange}
             uploadsBaseUrl={uploadsBaseUrl}
-            existingImages={existingImages}
+            existingCardProjectName={existingCardProjectName}
+            existingVerticalImages={existingVerticalImages}
+            existingHorizontalImages={existingHorizontalImages}
+            existingHorizontalVideos={existingHorizontalVideos}
             disabled={disabled}
             projectId={projectId}
-            onUploadImages={onUploadImages}
-            onRemoveImage={onRemoveImage}
+            onUploadCard={onUploadCard}
+            onRemoveCard={onRemoveCard}
+            onUploadVerticalImages={onUploadVerticalImages}
+            onRemoveVerticalImage={onRemoveVerticalImage}
+            onUploadHorizontalImages={onUploadHorizontalImages}
+            onRemoveHorizontalImage={onRemoveHorizontalImage}
             existingReelVideoName={existingReelVideoName}
             existingPlaneName={existingPlaneName}
             existingBrochureName={existingBrochureName}
             onUploadReelVideo={onUploadReelVideo}
+            onRemoveReelVideo={onRemoveReelVideo}
+            onUploadHorizontalVideos={onUploadHorizontalVideos}
+            onRemoveHorizontalVideo={onRemoveHorizontalVideo}
             onUploadPlane={onUploadPlane}
+            onRemovePlane={onRemovePlane}
             onUploadBrochure={onUploadBrochure}
+            onRemoveBrochure={onRemoveBrochure}
           />
         </Grid>
       </Grid>
