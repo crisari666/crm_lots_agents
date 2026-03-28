@@ -19,6 +19,7 @@ import { CreateProjectDto } from "../types/project.types"
 import { ProjectFormState } from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
 import { createAmenityThunk } from "../slice/amenities.slice"
+import { projectLotOptionsForApi } from "../utils/project-lot-options.util"
 
 const initialForm: ProjectFormState = {
   title: "",
@@ -32,6 +33,8 @@ const initialForm: ProjectFormState = {
   priceSell: 0,
   commissionPercentage: 0,
   commissionValue: 0,
+  separation: 0,
+  lotOptions: [],
   amenities: [],
   cardProjectFile: null,
   horizontalImageFiles: [],
@@ -70,6 +73,7 @@ export default function CreateProjectFormCP() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title.trim()) return
+    const lotOptionsPayload = projectLotOptionsForApi(form.lotOptions ?? [])
     const dto: CreateProjectDto = {
       title: form.title.trim(),
       description: form.description || undefined,
@@ -82,6 +86,8 @@ export default function CreateProjectFormCP() {
       priceSell: form.priceSell,
       commissionPercentage: form.commissionPercentage,
       commissionValue: (form.priceSell * form.commissionPercentage) / 100,
+      separation: form.separation > 0 ? form.separation : undefined,
+      lotOptions: lotOptionsPayload.length > 0 ? lotOptionsPayload : undefined,
       amenities: form.amenities.length ? form.amenities : undefined
     }
     try {

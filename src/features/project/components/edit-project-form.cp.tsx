@@ -31,6 +31,8 @@ import { createAmenityThunk } from "../slice/amenities.slice"
 import { ExistingProjectImage } from "./project-image-picker.cp"
 import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { buildProjectAssetUrl } from "../utils/project-uploads.util"
+import { projectLotOptionsForApi } from "../utils/project-lot-options.util"
+import type { ProjectLotOption } from "../types/project.types"
 
 function namesToExistingImages(names: string[] | undefined, uploadsBaseUrl: string): ExistingProjectImage[] {
   return (names ?? []).map((name) => ({
@@ -58,9 +60,12 @@ function projectToFormState(project: {
   priceSell: number
   commissionPercentage: number
   commissionValue: number
+  separation?: number
+  lotOptions?: ProjectLotOption[]
   amenities?: { _id: string; title?: string }[]
 }): ProjectFormState {
   const amenityIds = project.amenities?.map((a) => a._id) ?? []
+  const lotOptionsFromApi = project.lotOptions ?? []
   return {
     title: project.title,
     description: project.description ?? "",
@@ -73,6 +78,11 @@ function projectToFormState(project: {
     priceSell: project.priceSell,
     commissionPercentage: project.commissionPercentage,
     commissionValue: project.commissionValue,
+    separation: project.separation ?? 0,
+    lotOptions: lotOptionsFromApi.map((o) => ({
+      area: o.area ?? 0,
+      price: o.price ?? 0
+    })),
     amenities: amenityIds,
     cardProjectFile: null,
     horizontalImageFiles: [],
@@ -265,6 +275,8 @@ export default function EditProjectFormCP() {
       priceSell: form.priceSell,
       commissionPercentage: form.commissionPercentage,
       commissionValue: (form.priceSell * form.commissionPercentage) / 100,
+      separation: form.separation,
+      lotOptions: projectLotOptionsForApi(form.lotOptions ?? []),
       amenities: form.amenities.length ? form.amenities : undefined
     }
     try {

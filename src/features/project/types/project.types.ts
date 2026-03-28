@@ -3,6 +3,12 @@ export type ProjectAmenityRef = {
   title: string
 }
 
+/** Lot variant for sale (area e.g. m² and price) — API subdocuments without _id */
+export type ProjectLotOption = {
+  area: number
+  price: number
+}
+
 export type ProjectType = {
   _id: string
   title: string
@@ -18,6 +24,9 @@ export type ProjectType = {
   enabled?: boolean
   commissionPercentage: number
   commissionValue: number
+  /** Separation between lots (product-defined unit, e.g. meters) */
+  separation?: number
+  lotOptions?: ProjectLotOption[]
   amenities?: ProjectAmenityRef[]
   images?: string[]
   /** Single listing card image filename */
@@ -46,6 +55,8 @@ export type CreateProjectDto = {
   priceSell: number
   commissionPercentage: number
   commissionValue: number
+  separation?: number
+  lotOptions?: ProjectLotOption[]
   amenities?: string[]
   images?: string[]
   cardProject?: string
@@ -65,6 +76,8 @@ export type UpdateProjectDto = {
   priceSell?: number
   commissionPercentage?: number
   commissionValue?: number
+  separation?: number
+  lotOptions?: ProjectLotOption[]
   amenities?: string[]
   images?: string[]
   cardProject?: string
@@ -84,6 +97,8 @@ export type ProjectFormState = {
   priceSell: number
   commissionPercentage: number
   commissionValue: number
+  separation: number
+  lotOptions: ProjectLotOption[]
   amenities: string[]
   cardProjectFile: File | null
   horizontalImageFiles: File[]
