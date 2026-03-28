@@ -4,6 +4,11 @@ export const projectStrings = {
   formSectionLocation: "Ubicación",
   formSectionSellInfo: "Sell information",
   formFieldTitle: "Title",
+  formFieldSlug: "Slug",
+  formFieldSlugHelper:
+    "Unique URL segment: lowercase letters, digits, single hyphens (kebab-case). Max 120 characters. Leave empty if unused.",
+  formFieldSlugErrorInvalid:
+    "Use kebab-case only (e.g. lote-norte). No leading, trailing, or double hyphens.",
   formFieldDescription: "Description",
   formFieldAmenities: "Amenities",
   formFieldAmenitiesPlaceholder: "Select or add",

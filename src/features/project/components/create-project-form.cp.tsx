@@ -20,9 +20,15 @@ import { ProjectFormState } from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
 import { createAmenityThunk } from "../slice/amenities.slice"
 import { projectLotOptionsForApi } from "../utils/project-lot-options.util"
+import {
+  normalizeProjectSlugInput,
+  isValidProjectSlugForApi,
+  projectSlugForCreateApi
+} from "../utils/project-slug.util"
 
 const initialForm: ProjectFormState = {
   title: "",
+  slug: "",
   description: "",
   location: "",
   city: "",
@@ -73,9 +79,13 @@ export default function CreateProjectFormCP() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title.trim()) return
+    const slugNorm = normalizeProjectSlugInput(form.slug ?? "")
+    if (!isValidProjectSlugForApi(slugNorm)) return
     const lotOptionsPayload = projectLotOptionsForApi(form.lotOptions ?? [])
+    const slugPayload = projectSlugForCreateApi(form.slug ?? "")
     const dto: CreateProjectDto = {
       title: form.title.trim(),
+      ...(slugPayload ? { slug: slugPayload } : {}),
       description: form.description || undefined,
       location: form.location.trim(),
       city: form.city?.trim() || undefined,
@@ -157,7 +167,11 @@ export default function CreateProjectFormCP() {
           <Button
             type="submit"
             variant="contained"
-            disabled={isLoading || !form.title.trim()}
+            disabled={
+              isLoading ||
+              !form.title.trim() ||
+              !isValidProjectSlugForApi(normalizeProjectSlugInput(form.slug ?? ""))
+            }
           >
             Create Project
           </Button>

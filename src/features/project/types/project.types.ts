@@ -12,6 +12,8 @@ export type ProjectLotOption = {
 export type ProjectType = {
   _id: string
   title: string
+  /** URL-friendly unique identifier among non-deleted projects (kebab-case, max 120) */
+  slug?: string
   description?: string
   location: string
   city?: string
@@ -45,6 +47,7 @@ export type ProjectType = {
 
 export type CreateProjectDto = {
   title: string
+  slug?: string
   description?: string
   location: string
   city?: string
@@ -66,6 +69,7 @@ export type CreateProjectDto = {
 
 export type UpdateProjectDto = {
   title?: string
+  slug?: string
   description?: string
   location?: string
   city?: string
@@ -87,6 +91,7 @@ export type UpdateProjectDto = {
 
 export type ProjectFormState = {
   title: string
+  slug: string
   description: string
   location: string
   city: string

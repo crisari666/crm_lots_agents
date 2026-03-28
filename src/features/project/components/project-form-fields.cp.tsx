@@ -21,6 +21,11 @@ import "react-quill/dist/quill.snow.css"
 import { ProjectFormState } from "../types/project.types"
 import { AmenityType } from "../types/amenity.types"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
+import {
+  normalizeProjectSlugInput,
+  isValidProjectSlugForApi,
+  PROJECT_SLUG_MAX_LENGTH
+} from "../utils/project-slug.util"
 
 type ProjectFormFieldsCPProps = {
   form: ProjectFormState
@@ -83,6 +88,10 @@ export default function ProjectFormFieldsCP({
 
   const lotOptions = form.lotOptions ?? []
 
+  const slugNormalized = normalizeProjectSlugInput(form.slug ?? "")
+  const slugInvalid =
+    slugNormalized.length > 0 && !isValidProjectSlugForApi(slugNormalized)
+
   const updateLotRow = (index: number, patch: { area?: number; price?: number }) => {
     const next = lotOptions.map((row, i) => (i === index ? { ...row, ...patch } : row))
     onChange({ lotOptions: next })
@@ -107,6 +116,22 @@ export default function ProjectFormFieldsCP({
             onChange={(e) => onChange({ title: e.target.value })}
             disabled={disabled}
             required
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label={s.formFieldSlug}
+            value={form.slug ?? ""}
+            onChange={(e) => onChange({ slug: e.target.value })}
+            onBlur={() => {
+              const n = normalizeProjectSlugInput(form.slug ?? "")
+              if (n !== form.slug) onChange({ slug: n })
+            }}
+            disabled={disabled}
+            error={slugInvalid}
+            helperText={slugInvalid ? s.formFieldSlugErrorInvalid : s.formFieldSlugHelper}
+            inputProps={{ maxLength: PROJECT_SLUG_MAX_LENGTH }}
           />
         </Grid>
         <Grid item xs={12}>

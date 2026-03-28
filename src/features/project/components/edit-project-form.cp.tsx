@@ -33,6 +33,11 @@ import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { buildProjectAssetUrl } from "../utils/project-uploads.util"
 import { projectLotOptionsForApi } from "../utils/project-lot-options.util"
 import type { ProjectLotOption } from "../types/project.types"
+import {
+  normalizeProjectSlugInput,
+  isValidProjectSlugForApi,
+  projectSlugForUpdateApi
+} from "../utils/project-slug.util"
 
 function namesToExistingImages(names: string[] | undefined, uploadsBaseUrl: string): ExistingProjectImage[] {
   return (names ?? []).map((name) => ({
@@ -62,12 +67,14 @@ function projectToFormState(project: {
   commissionValue: number
   separation?: number
   lotOptions?: ProjectLotOption[]
+  slug?: string
   amenities?: { _id: string; title?: string }[]
 }): ProjectFormState {
   const amenityIds = project.amenities?.map((a) => a._id) ?? []
   const lotOptionsFromApi = project.lotOptions ?? []
   return {
     title: project.title,
+    slug: project.slug ?? "",
     description: project.description ?? "",
     location: project.location,
     city: project.city ?? "",
@@ -263,8 +270,11 @@ export default function EditProjectFormCP() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form || !projectId || !form.title.trim()) return
+    const slugNorm = normalizeProjectSlugInput(form.slug ?? "")
+    if (!isValidProjectSlugForApi(slugNorm)) return
     const dto: UpdateProjectDto = {
       title: form.title.trim(),
+      slug: projectSlugForUpdateApi(form.slug ?? ""),
       description: form.description || undefined,
       location: form.location.trim(),
       city: form.city?.trim() || undefined,
@@ -391,7 +401,11 @@ export default function EditProjectFormCP() {
           <Button
             type="submit"
             variant="contained"
-            disabled={isLoading || !form.title.trim()}
+            disabled={
+              isLoading ||
+              !form.title.trim() ||
+              !isValidProjectSlugForApi(normalizeProjectSlugInput(form.slug ?? ""))
+            }
           >
             Update Project
           </Button>
