@@ -26,14 +26,15 @@ function parseCsvRows(rows: string[][]): ImportUserRowPreview[] {
   const lastNameIdx = headers.indexOf("lastName")
   const phoneIdx = headers.indexOf("phone")
   const emailIdx = headers.indexOf("email")
-  if ([firstNameIdx, lastNameIdx, phoneIdx, emailIdx].some((i) => i === -1)) {
+  if ([firstNameIdx, phoneIdx, emailIdx].some((i) => i === -1)) {
     return []
   }
   const result: ImportUserRowPreview[] = []
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i]
     const name = (row[firstNameIdx] ?? "").trim()
-    const lastName = (row[lastNameIdx] ?? "").trim()
+    const lastName =
+      lastNameIdx >= 0 ? (row[lastNameIdx] ?? "").trim() : ""
     const phone = (row[phoneIdx] ?? "").trim()
     const email = (row[emailIdx] ?? "").trim()
     if (!email) continue
@@ -75,7 +76,7 @@ export default function CsvDropZone() {
       console.log({data})
       const parsed = parseCsvRows(data)
       if (parsed.length === 0) {
-        setError("El CSV debe tener columnas: firstName, lastName, phone, email")
+        setError("El CSV debe tener columnas: firstName, phone, email (lastName opcional)")
         return
       }
       dispatch(setPreviewRowsAct(parsed))

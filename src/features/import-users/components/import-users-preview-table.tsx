@@ -82,7 +82,7 @@ export default function ImportUsersPreviewTable() {
         itemContent={(index, row) => (
           <>
             <TableCell>{row.name}</TableCell>
-            <TableCell>{row.lastName}</TableCell>
+            <TableCell>{row.lastName?.trim() ? row.lastName : "—"}</TableCell>
             <TableCell>{row.phone}</TableCell>
             <TableCell>{row.email}</TableCell>
             <TableCell align="center">
