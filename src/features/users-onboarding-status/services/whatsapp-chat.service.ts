@@ -7,6 +7,8 @@ import type {
 
 const CHATS_PATH = "whatsapp-cloud/chats"
 const messagesPath = (chatId: string) => `whatsapp-cloud/chats/${encodeURIComponent(chatId)}/messages`
+const sendTextPath = (chatId: string) =>
+  `whatsapp-cloud/chats/${encodeURIComponent(chatId)}/messages/text`
 
 /** Digits only, for matching CRM `phone` to chat `waId` */
 export function digitsOnlyPhone(value: string): string {
@@ -33,6 +35,12 @@ export async function listWhatsappChatMessagesReq(
     limit: params?.limit,
     before: params?.before
   })
+}
+
+/** `POST .../chats/:chatId/messages/text` — body `{ "body": "..." }` per WhatsApp Cloud MS API */
+export async function sendWhatsappChatTextMessageReq(chatId: string, body: string): Promise<unknown> {
+  const http = WsCloudMsHttp.getInstance()
+  return http.post<unknown>(sendTextPath(chatId), { body })
 }
 
 /**

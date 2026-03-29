@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogTitle,
   Stack,
+  TextField,
   Typography
 } from "@mui/material"
 import { useCallback, useEffect, useState } from "react"
@@ -16,7 +17,8 @@ import { dateUTCToFriendly } from "../../../utils/date.utils"
 import {
   digitsOnlyPhone,
   findWhatsappChatByPhoneDigits,
-  loadWhatsappChatMessagesForDisplay
+  loadWhatsappChatMessagesForDisplay,
+  sendWhatsappChatTextMessageReq
 } from "../services/whatsapp-chat.service"
 import type { OnboardingUserType } from "../types/onboarding-state.types"
 import type { WhatsappChatMessageType } from "../types/whatsapp-chat.types"
@@ -50,11 +52,19 @@ export default function UsersOnboardingWhatsappChatDialogCP({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [messages, setMessages] = useState<WhatsappChatMessageType[]>([])
+  const [chatId, setChatId] = useState<string | null>(null)
+  const [draft, setDraft] = useState("")
+  const [isSending, setIsSending] = useState(false)
+  const [sendError, setSendError] = useState<string | null>(null)
 
   const reset = useCallback(() => {
     setIsLoading(false)
     setError(null)
     setMessages([])
+    setChatId(null)
+    setDraft("")
+    setIsSending(false)
+    setSendError(null)
   }, [])
 
   const handleClose = useCallback(() => {
@@ -78,6 +88,8 @@ export default function UsersOnboardingWhatsappChatDialogCP({
     setIsLoading(true)
     setError(null)
     setMessages([])
+    setChatId(null)
+    setSendError(null)
 
     ;(async () => {
       try {
@@ -90,14 +102,22 @@ export default function UsersOnboardingWhatsappChatDialogCP({
           setIsLoading(false)
           return
         }
-        const items = await loadWhatsappChatMessagesForDisplay(chat.id)
-        if (cancelled) {
-          return
+        setChatId(chat.id)
+        try {
+          const items = await loadWhatsappChatMessagesForDisplay(chat.id)
+          if (cancelled) {
+            return
+          }
+          setMessages(items)
+        } catch {
+          if (!cancelled) {
+            setError(s.whatsappChatError)
+          }
         }
-        setMessages(items)
       } catch {
         if (!cancelled) {
           setError(s.whatsappChatError)
+          setChatId(null)
         }
       } finally {
         if (!cancelled) {
@@ -120,6 +140,25 @@ export default function UsersOnboardingWhatsappChatDialogCP({
   const titleUser =
     user != null ? `${user.name} ${user.lastName}`.trim() || user.email : ""
 
+  const handleSend = useCallback(async () => {
+    const text = draft.trim()
+    if (text === "" || chatId == null || isSending) {
+      return
+    }
+    setIsSending(true)
+    setSendError(null)
+    try {
+      await sendWhatsappChatTextMessageReq(chatId, text)
+      setDraft("")
+      const items = await loadWhatsappChatMessagesForDisplay(chatId)
+      setMessages(items)
+    } catch {
+      setSendError(s.whatsappChatSendError)
+    } finally {
+      setIsSending(false)
+    }
+  }, [chatId, draft, isSending])
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth scroll="paper">
       <DialogTitle>
@@ -130,56 +169,102 @@ export default function UsersOnboardingWhatsappChatDialogCP({
           </Typography>
         ) : null}
       </DialogTitle>
-      <DialogContent dividers sx={{ minHeight: 320, p: 2 }}>
-        {isLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-            <CircularProgress size={36} aria-label={s.whatsappChatLoading} />
-          </Box>
-        ) : null}
+      <DialogContent sx={{ display: "flex", flexDirection: "column", p: 0, overflow: "hidden", minHeight: 320 }}>
+        <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>
+          {isLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+              <CircularProgress size={36} aria-label={s.whatsappChatLoading} />
+            </Box>
+          ) : null}
 
-        {!isLoading && error != null ? <Alert severity="warning">{error}</Alert> : null}
+          {!isLoading && error != null ? <Alert severity="warning">{error}</Alert> : null}
 
-        {!isLoading && error == null && messages.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            {s.whatsappChatEmpty}
-          </Typography>
-        ) : null}
+          {!isLoading && error == null && messages.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              {s.whatsappChatEmpty}
+            </Typography>
+          ) : null}
 
-        {!isLoading && error == null && messages.length > 0 ? (
-          <Stack spacing={1.5}>
-            {messages.map((m) => {
-              const inbound = m.direction === "inbound"
-              return (
-                <Box
-                  key={m.id}
-                  sx={{
-                    display: "flex",
-                    justifyContent: inbound ? "flex-start" : "flex-end",
-                    width: "100%"
-                  }}
-                >
+          {!isLoading && messages.length > 0 ? (
+            <Stack spacing={1.5}>
+              {messages.map((m) => {
+                const inbound = m.direction === "inbound"
+                return (
                   <Box
+                    key={m.id}
                     sx={{
-                      maxWidth: "85%",
-                      px: 1.5,
-                      py: 1,
-                      borderRadius: 2,
-                      bgcolor: inbound ? "grey.200" : "primary.main",
-                      color: inbound ? "text.primary" : "primary.contrastText"
+                      display: "flex",
+                      justifyContent: inbound ? "flex-start" : "flex-end",
+                      width: "100%"
                     }}
                   >
-                    <Typography variant="caption" sx={{ opacity: 0.85, display: "block", mb: 0.25 }}>
-                      {inbound ? s.whatsappChatUserBubble : s.whatsappChatSystemBubble} ·{" "}
-                      {dateUTCToFriendly(m.timestamp)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-                      {messageBodyText(m)}
-                    </Typography>
+                    <Box
+                      sx={{
+                        maxWidth: "85%",
+                        px: 1.5,
+                        py: 1,
+                        borderRadius: 2,
+                        bgcolor: inbound ? "grey.200" : "primary.main",
+                        color: inbound ? "text.primary" : "primary.contrastText"
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ opacity: 0.85, display: "block", mb: 0.25 }}>
+                        {inbound ? s.whatsappChatUserBubble : s.whatsappChatSystemBubble} ·{" "}
+                        {dateUTCToFriendly(m.timestamp)}
+                      </Typography>
+                      <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                        {messageBodyText(m)}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-              )
-            })}
-          </Stack>
+                )
+              })}
+            </Stack>
+          ) : null}
+        </Box>
+
+        {chatId != null && !isLoading ? (
+          <Box
+            sx={{
+              p: 2,
+              borderTop: 1,
+              borderColor: "divider",
+              flexShrink: 0
+            }}
+          >
+            {sendError != null ? (
+              <Alert severity="error" sx={{ mb: 1 }} onClose={() => setSendError(null)}>
+                {sendError}
+              </Alert>
+            ) : null}
+            <Stack direction="row" spacing={1} alignItems="flex-end">
+              <TextField
+                fullWidth
+                multiline
+                maxRows={4}
+                size="small"
+                placeholder={s.whatsappChatMessagePlaceholder}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault()
+                    void handleSend()
+                  }
+                }}
+                disabled={isSending}
+                aria-label={s.whatsappChatMessagePlaceholder}
+              />
+              <Button
+                variant="contained"
+                disabled={isSending || draft.trim() === ""}
+                onClick={() => void handleSend()}
+                sx={{ flexShrink: 0 }}
+              >
+                {isSending ? <CircularProgress size={22} color="inherit" /> : s.whatsappChatSend}
+              </Button>
+            </Stack>
+          </Box>
         ) : null}
       </DialogContent>
       <DialogActions>

@@ -53,7 +53,10 @@ export const usersOnboardingStatusStrings = {
   whatsappChatEmpty: "No messages in this chat yet",
   whatsappChatUserBubble: "User",
   whatsappChatSystemBubble: "Assistant",
-  whatsappChatMessageOtherType: (messageType: string) => `[${messageType}]`
+  whatsappChatMessageOtherType: (messageType: string) => `[${messageType}]`,
+  whatsappChatSend: "Send",
+  whatsappChatMessagePlaceholder: "Type a message",
+  whatsappChatSendError: "Could not send the message"
 } as const
 
 /** API `event` / `currentStatus` keys → localized label (match keys exactly) */
