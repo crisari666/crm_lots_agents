@@ -2,6 +2,7 @@ export type OnboardingStatusType =
   | "Imported"
   | "WS_sent"
   | "WS_video_sent"
+  | "Needs_human_whatsapp"
   | "Interested"
   | "Call_programmed"
   | "Call_done_success"

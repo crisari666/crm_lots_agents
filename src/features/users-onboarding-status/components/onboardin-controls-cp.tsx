@@ -17,6 +17,7 @@ import UsersOnboardingDeleteFlowsConfirmDialogCP from "./users-onboarding-delete
 
 const statuses: Array<OnboardingStatusType | "all"> = [
   "all",
+  "Needs_human_whatsapp",
   "Imported",
   "WS_video_sent",
   "WS_sent",
