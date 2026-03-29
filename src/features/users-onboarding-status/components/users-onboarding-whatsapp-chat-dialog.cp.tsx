@@ -1,3 +1,4 @@
+import RefreshIcon from "@mui/icons-material/Refresh"
 import {
   Alert,
   Box,
@@ -7,8 +8,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   TextField,
+  Tooltip,
   Typography
 } from "@mui/material"
 import { useCallback, useEffect, useState } from "react"
@@ -56,6 +59,7 @@ export default function UsersOnboardingWhatsappChatDialogCP({
   const [draft, setDraft] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
+  const [isReloading, setIsReloading] = useState(false)
 
   const reset = useCallback(() => {
     setIsLoading(false)
@@ -65,6 +69,7 @@ export default function UsersOnboardingWhatsappChatDialogCP({
     setDraft("")
     setIsSending(false)
     setSendError(null)
+    setIsReloading(false)
   }, [])
 
   const handleClose = useCallback(() => {
@@ -159,15 +164,55 @@ export default function UsersOnboardingWhatsappChatDialogCP({
     }
   }, [chatId, draft, isSending])
 
+  const handleReload = useCallback(async () => {
+    if (chatId == null || isReloading) {
+      return
+    }
+    setIsReloading(true)
+    setSendError(null)
+    try {
+      const items = await loadWhatsappChatMessagesForDisplay(chatId)
+      setMessages(items)
+      setError(null)
+    } catch {
+      setError(s.whatsappChatError)
+    } finally {
+      setIsReloading(false)
+    }
+  }, [chatId, isReloading])
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth scroll="paper">
       <DialogTitle>
-        {s.whatsappChatDialogTitle}
-        {titleUser !== "" ? (
-          <Typography component="span" variant="body2" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-            {titleUser}
-          </Typography>
-        ) : null}
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            {s.whatsappChatDialogTitle}
+            {titleUser !== "" ? (
+              <Typography
+                component="span"
+                variant="body2"
+                color="text.secondary"
+                sx={{ display: "block", mt: 0.5 }}
+              >
+                {titleUser}
+              </Typography>
+            ) : null}
+          </Box>
+          {chatId != null && !isLoading ? (
+            <Tooltip title={s.whatsappChatReload}>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={() => void handleReload()}
+                  disabled={isReloading || isSending}
+                  aria-label={s.whatsappChatReload}
+                >
+                  {isReloading ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon fontSize="small" />}
+                </IconButton>
+              </span>
+            </Tooltip>
+          ) : null}
+        </Stack>
       </DialogTitle>
       <DialogContent sx={{ display: "flex", flexDirection: "column", p: 0, overflow: "hidden", minHeight: 320 }}>
         <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>

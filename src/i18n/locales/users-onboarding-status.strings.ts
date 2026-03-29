@@ -56,7 +56,8 @@ export const usersOnboardingStatusStrings = {
   whatsappChatMessageOtherType: (messageType: string) => `[${messageType}]`,
   whatsappChatSend: "Send",
   whatsappChatMessagePlaceholder: "Type a message",
-  whatsappChatSendError: "Could not send the message"
+  whatsappChatSendError: "Could not send the message",
+  whatsappChatReload: "Reload messages"
 } as const
 
 /** API `event` / `currentStatus` keys → localized label (match keys exactly) */
