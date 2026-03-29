@@ -1,12 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from "../../../app/store"
 import type { OnboardingStateType, OnboardingStatusType } from "../types/onboarding-state.types"
+import { isOrphanOnboardingListRow } from "../types/onboarding-state.types"
 import type { UsersOnboardingStatusState } from "./users-onboarding-status.state"
 import {
   getOnboardingStateListReq,
   getOnboardingFlowLogsReq,
   getUserOnboardingFlowsReq,
-  triggerOnboardingFlowReq
+  triggerOnboardingFlowReq,
+  deleteOnboardingFlowsReq
 } from "../services/onboarding-state.service"
 
 const historyFlowsInitial = {
@@ -29,6 +31,8 @@ const initialState: UsersOnboardingStatusState = {
   error: null,
   statusFilter: "all",
   searchTerm: "",
+  selectedOrphanRowIds: [],
+  bulkDeleteFlowsLoading: false,
   historyFlows: historyFlowsInitial,
   historyFlowLogs: historyFlowLogsInitial
 }
@@ -69,6 +73,30 @@ export const fetchOnboardingFlowLogsThunk = createAsyncThunk(
   }
 )
 
+/** Sends list row `_id` values as `flowIds` to `POST onboarding-state/flows/delete` (no pipeline/logs). */
+export const deleteOnboardingFlowsBySelectedIdsThunk = createAsyncThunk<
+  { deletedCount: number },
+  string[],
+  { state: RootState; rejectValue: string }
+>(
+  "usersOnboardingStatus/deleteFlowsBySelectedIds",
+  async (flowIds, { dispatch, getState, rejectWithValue }) => {
+    try {
+      if (flowIds.length === 0) {
+        return rejectWithValue("noSelection")
+      }
+      const { deletedCount } = await deleteOnboardingFlowsReq(flowIds)
+      const { statusFilter } = getState().usersOnboardingStatus
+      const status = statusFilter === "all" ? undefined : statusFilter
+      await dispatch(fetchUsersOnboardingStatusThunk({ status }))
+      return { deletedCount }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "deleteFailed"
+      return rejectWithValue(msg)
+    }
+  }
+)
+
 const usersOnboardingStatusSlice = createSlice({
   name: "usersOnboardingStatus",
   initialState,
@@ -90,6 +118,23 @@ const usersOnboardingStatusSlice = createSlice({
     },
     clearHistoryFlowLogsAct: (state) => {
       state.historyFlowLogs = { ...historyFlowLogsInitial, detail: null }
+    },
+    toggleOrphanOnboardingRowSelectedAct: (state, action: PayloadAction<string>) => {
+      const id = action.payload
+      const i = state.selectedOrphanRowIds.indexOf(id)
+      if (i >= 0) state.selectedOrphanRowIds.splice(i, 1)
+      else state.selectedOrphanRowIds.push(id)
+    },
+    toggleSelectAllVisibleOrphanOnboardingRowsAct: (state, action: PayloadAction<string[]>) => {
+      const orphanIds = action.payload
+      const set = new Set(orphanIds)
+      const allSelected =
+        orphanIds.length > 0 && orphanIds.every((id) => state.selectedOrphanRowIds.includes(id))
+      if (allSelected) {
+        state.selectedOrphanRowIds = state.selectedOrphanRowIds.filter((id) => !set.has(id))
+      } else {
+        state.selectedOrphanRowIds = [...new Set([...state.selectedOrphanRowIds, ...orphanIds])]
+      }
     }
   },
   extraReducers: (builder) => {
@@ -104,6 +149,13 @@ const usersOnboardingStatusSlice = createSlice({
           state.isLoading = false
           state.items = action.payload
           state.error = null
+          const valid = new Set(
+            action.payload
+              .filter(isOrphanOnboardingListRow)
+              .map((x) => x._id)
+              .filter((id): id is string => Boolean(id))
+          )
+          state.selectedOrphanRowIds = state.selectedOrphanRowIds.filter((id) => valid.has(id))
         }
       )
       .addCase(fetchUsersOnboardingStatusThunk.rejected, (state, action) => {
@@ -153,6 +205,16 @@ const usersOnboardingStatusSlice = createSlice({
         state.historyFlowLogs.isLoading = false
         state.historyFlowLogs.error = action.error.message ?? "Error loading flow logs"
       })
+      .addCase(deleteOnboardingFlowsBySelectedIdsThunk.pending, (state) => {
+        state.bulkDeleteFlowsLoading = true
+      })
+      .addCase(deleteOnboardingFlowsBySelectedIdsThunk.fulfilled, (state) => {
+        state.bulkDeleteFlowsLoading = false
+        state.selectedOrphanRowIds = []
+      })
+      .addCase(deleteOnboardingFlowsBySelectedIdsThunk.rejected, (state) => {
+        state.bulkDeleteFlowsLoading = false
+      })
   }
 })
 
@@ -161,7 +223,9 @@ export const {
   setOnboardingSearchTermAct,
   clearUsersOnboardingStatusErrorAct,
   clearHistoryFlowsAct,
-  clearHistoryFlowLogsAct
+  clearHistoryFlowLogsAct,
+  toggleOrphanOnboardingRowSelectedAct,
+  toggleSelectAllVisibleOrphanOnboardingRowsAct
 } = usersOnboardingStatusSlice.actions
 
 export const selectUsersOnboardingStatusState = (state: RootState) => state.usersOnboardingStatus
@@ -180,9 +244,13 @@ export const selectUsersOnboardingStatusFilteredItems = (state: RootState) => {
   return items.filter((x: OnboardingStateType) => {
     const fullName = `${x.userId?.name ?? ""} ${x.userId?.lastName ?? ""}`.trim().toLowerCase()
     const email = (x.userId?.email ?? "").toLowerCase()
-    return fullName.includes(term) || email.includes(term)
+    const idMatch = (x._id ?? "").toLowerCase().includes(term)
+    return fullName.includes(term) || email.includes(term) || idMatch
   })
 }
+
+export const selectSelectedOrphanOnboardingRowIds = (state: RootState) =>
+  state.usersOnboardingStatus.selectedOrphanRowIds
 
 export default usersOnboardingStatusSlice.reducer
 

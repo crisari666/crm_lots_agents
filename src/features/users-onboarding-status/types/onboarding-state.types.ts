@@ -1,6 +1,7 @@
 export type OnboardingStatusType =
   | "Imported"
   | "WS_sent"
+  | "WS_video_sent"
   | "Interested"
   | "Call_programmed"
   | "Call_done_success"
@@ -21,12 +22,19 @@ export type OnboardingLogUpdateType = {
   status: string
 }
 
+/** List row from `GET onboarding-state/list`; `userId` may be null for orphan state rows. */
 export type OnboardingStateType = {
-  userId: OnboardingUserType
+  _id?: string
+  userId: OnboardingUserType | null
   createdAt: string
   lastUpdate: string
   status: string
   logsUpdate: OnboardingLogUpdateType[]
+  updatedAt?: string
+}
+
+export function isOrphanOnboardingListRow(x: OnboardingStateType): boolean {
+  return x.userId == null && Boolean((x._id ?? "").trim())
 }
 
 export type OnboardingStateListResponse = {
@@ -77,4 +85,11 @@ export type OnboardingFlowDetailType = {
   createdAt: string | null
   updatedAt: string | null
   events: OnboardingFlowEventItemType[]
+}
+
+/** `POST /onboarding-state/flows/delete` */
+export type OnboardingFlowsDeleteResponse = {
+  result: { deletedCount: number }
+  message: string
+  error?: string
 }

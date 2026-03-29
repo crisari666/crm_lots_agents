@@ -6,7 +6,8 @@ import type {
   OnboardingStatusType,
   OnboardingUserFlowsListResponse,
   OnboardingFlowSummaryType,
-  OnboardingFlowDetailType
+  OnboardingFlowDetailType,
+  OnboardingFlowsDeleteResponse
 } from "../types/onboarding-state.types"
 
 export async function getOnboardingStateListReq({
@@ -103,6 +104,30 @@ export async function getOnboardingFlowLogsReq(flowId: string): Promise<Onboardi
     return response as OnboardingFlowDetailType
   } catch (error) {
     console.error("ERROR ON getOnboardingFlowLogsReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteOnboardingFlowsReq(flowIds: string[]): Promise<{ deletedCount: number }> {
+  try {
+    const api = Api.getInstance()
+    const response = (await api.post({
+      path: "onboarding-state/flows/delete",
+      data: { flowIds }
+    })) as OnboardingFlowsDeleteResponse | { message: string; error: string }
+
+    if (response != null && "message" in response && response.message === "error") {
+      throw new Error("error" in response && response.error != null ? String(response.error) : "Delete failed")
+    }
+
+    const ok = response as OnboardingFlowsDeleteResponse
+    if (ok?.result == null || typeof ok.result.deletedCount !== "number") {
+      throw new Error("Invalid delete response")
+    }
+    return ok.result
+  } catch (error) {
+    console.error("ERROR ON deleteOnboardingFlowsReq")
     console.error({ error })
     throw error
   }

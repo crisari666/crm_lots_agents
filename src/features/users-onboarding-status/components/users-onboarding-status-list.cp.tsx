@@ -1,25 +1,53 @@
-import { Alert, Box, CircularProgress, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from "@mui/material"
+import {
+  Alert,
+  Box,
+  Checkbox,
+  CircularProgress,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography
+} from "@mui/material"
 import HistoryIcon from "@mui/icons-material/History"
 import TouchAppIcon from "@mui/icons-material/TouchApp"
 import { useState } from "react"
-import { useAppSelector } from "../../../app/hooks"
+import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
+  selectSelectedOrphanOnboardingRowIds,
   selectUsersOnboardingStatusFilteredItems,
-  selectUsersOnboardingStatusState
+  selectUsersOnboardingStatusState,
+  toggleOrphanOnboardingRowSelectedAct,
+  toggleSelectAllVisibleOrphanOnboardingRowsAct
 } from "../slice/users-onboarding-status.slice"
 import type { OnboardingStateType } from "../types/onboarding-state.types"
+import { isOrphanOnboardingListRow } from "../types/onboarding-state.types"
 import { dateUTCToFriendly } from "../../../utils/date.utils"
 import UsersOnboardingStatusHistoryDialogCP from "./users-onboarding-status-history-dialog.cp"
 import UsersOnboardingStatusActionsDialogCP from "./users-onboarding-status-actions-dialog.cp"
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
 
 export default function UsersOnboardingStatusListCP() {
+  const dispatch = useAppDispatch()
   const [selectedItem, setSelectedItem] = useState<OnboardingStateType | null>(null)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [actionsItem, setActionsItem] = useState<OnboardingStateType | null>(null)
   const [isActionsOpen, setIsActionsOpen] = useState(false)
   const { isLoading, error } = useAppSelector(selectUsersOnboardingStatusState)
   const items: OnboardingStateType[] = useAppSelector(selectUsersOnboardingStatusFilteredItems)
+  const selectedOrphanIds = useAppSelector(selectSelectedOrphanOnboardingRowIds)
+
+  const visibleOrphanIds = items
+    .filter(isOrphanOnboardingListRow)
+    .map((x) => x._id as string)
+  const allOrphansSelected =
+    visibleOrphanIds.length > 0 && visibleOrphanIds.every((id) => selectedOrphanIds.includes(id))
+  const someOrphansSelected = visibleOrphanIds.some((id) => selectedOrphanIds.includes(id))
 
   const handleOpenHistory = (item: OnboardingStateType) => {
     setSelectedItem(item)
@@ -64,6 +92,21 @@ export default function UsersOnboardingStatusListCP() {
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell padding="checkbox">
+              {visibleOrphanIds.length > 0 ? (
+                <Tooltip title={s.selectOrphanRows}>
+                  <Checkbox
+                    size="small"
+                    indeterminate={someOrphansSelected && !allOrphansSelected}
+                    checked={allOrphansSelected}
+                    onChange={() =>
+                      dispatch(toggleSelectAllVisibleOrphanOnboardingRowsAct(visibleOrphanIds))
+                    }
+                    inputProps={{ "aria-label": s.selectOrphanRows }}
+                  />
+                </Tooltip>
+              ) : null}
+            </TableCell>
             <TableCell>User</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Whatsapp</TableCell>
@@ -74,40 +117,63 @@ export default function UsersOnboardingStatusListCP() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {items.map((x) => (
-            <TableRow key={x.userId?._id ?? `${x.createdAt}-${x.lastUpdate}`}>
-              <TableCell>
-                <Typography variant="body2">
-                  {x.userId?.name} {x.userId?.lastName}
-                </Typography>
-              </TableCell>
-              <TableCell>{x.userId?.email}</TableCell>
-              <TableCell>{x.userId?.phone}</TableCell>
-              <TableCell>{x.status}</TableCell>
-              <TableCell>{dateUTCToFriendly(x.lastUpdate)}</TableCell>
-              <TableCell align="center">
-                <Tooltip title={s.actionsOpen}>
-                  <IconButton size="small" onClick={() => handleOpenActions(x)}>
-                    <TouchAppIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-              <TableCell align="center">
-                <Tooltip title={s.viewHistory}>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleOpenHistory(x)}
-                  >
-                    <HistoryIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            </TableRow>
-          ))}
+          {items.map((x) => {
+            const rowId = x._id ?? `${x.createdAt}-${x.lastUpdate}`
+            const orphan = isOrphanOnboardingListRow(x)
+            const stateId = x._id
+            return (
+              <TableRow key={rowId}>
+                <TableCell padding="checkbox">
+                  {orphan && stateId ? (
+                    <Checkbox
+                      size="small"
+                      checked={selectedOrphanIds.includes(stateId)}
+                      onChange={() => dispatch(toggleOrphanOnboardingRowSelectedAct(stateId))}
+                    />
+                  ) : null}
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {x.userId ? `${x.userId.name} ${x.userId.lastName}`.trim() : "—"}
+                  </Typography>
+                </TableCell>
+                <TableCell>{x.userId?.email ?? "—"}</TableCell>
+                <TableCell>{x.userId?.phone ?? "—"}</TableCell>
+                <TableCell>{x.status}</TableCell>
+                <TableCell>{dateUTCToFriendly(x.lastUpdate)}</TableCell>
+                <TableCell align="center">
+                  <Tooltip title={s.actionsOpen}>
+                    <span>
+                      <IconButton
+                        size="small"
+                        disabled={!x.userId}
+                        onClick={() => handleOpenActions(x)}
+                      >
+                        <TouchAppIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell align="center">
+                  <Tooltip title={s.viewHistory}>
+                    <span>
+                      <IconButton
+                        size="small"
+                        disabled={!x.userId}
+                        onClick={() => handleOpenHistory(x)}
+                      >
+                        <HistoryIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            )
+          })}
 
           {items.length === 0 && !isLoading ? (
             <TableRow>
-              <TableCell colSpan={7}>
+              <TableCell colSpan={8}>
                 <Typography variant="body2">No users found</Typography>
               </TableCell>
             </TableRow>
@@ -115,7 +181,7 @@ export default function UsersOnboardingStatusListCP() {
         </TableBody>
       </Table>
 
-      {selectedItem ? (
+      {selectedItem?.userId ? (
         <UsersOnboardingStatusHistoryDialogCP
           open={isHistoryOpen}
           onClose={handleCloseHistory}
@@ -131,4 +197,3 @@ export default function UsersOnboardingStatusListCP() {
     </TableContainer>
   )
 }
-

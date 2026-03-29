@@ -34,7 +34,16 @@ export const usersOnboardingStatusStrings = {
   flowLogsWhatsappIds: "WhatsApp message IDs",
   transcriptChatHeading: "Call conversation",
   transcriptChatSpeakerAssistant: "Assistant",
-  transcriptChatSpeakerUser: "Caller"
+  transcriptChatSpeakerUser: "Caller",
+  deleteOrphanFlows: "Delete selected",
+  deleteOrphanFlowsConfirmTitle: "Delete selected records?",
+  deleteOrphanFlowsConfirmBody: (count: number) =>
+    `The server will receive ${count} id(s) from the selected rows (list _id values as flowIds).`,
+  deleteFlowsNoSelection: "Select at least one row without a user",
+  selectOrphanRows: "Select rows without user",
+  deleteFlowsConfirmAction: "Delete",
+  deleteFlowsCancel: "Cancel",
+  deleteFlowsGenericError: "Could not delete flows"
 } as const
 
 /** API `event` / `currentStatus` keys → localized label (match keys exactly) */

@@ -1,18 +1,24 @@
 import { Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material"
 import type { SelectChangeEvent } from "@mui/material"
-import { useEffect } from "react"
+import DeleteOutline from "@mui/icons-material/DeleteOutline"
+import { useCallback, useEffect, useState } from "react"
 import type { OnboardingStatusType } from "../types/onboarding-state.types"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
+  deleteOnboardingFlowsBySelectedIdsThunk,
   fetchUsersOnboardingStatusThunk,
+  selectSelectedOrphanOnboardingRowIds,
   selectUsersOnboardingStatusState,
   setOnboardingSearchTermAct,
   setOnboardingStatusFilterAct
 } from "../slice/users-onboarding-status.slice"
+import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
+import UsersOnboardingDeleteFlowsConfirmDialogCP from "./users-onboarding-delete-flows-confirm-dialog.cp"
 
 const statuses: Array<OnboardingStatusType | "all"> = [
   "all",
   "Imported",
+  "WS_video_sent",
   "WS_sent",
   "Interested",
   "Call_programmed",
@@ -27,7 +33,15 @@ const isValidStatusFilter = (v: string): v is OnboardingStatusType | "all" =>
 
 export default function OnboardinControlsCP() {
   const dispatch = useAppDispatch()
-  const { statusFilter, searchTerm, isLoading } = useAppSelector(selectUsersOnboardingStatusState)
+  const { statusFilter, searchTerm, isLoading, bulkDeleteFlowsLoading } =
+    useAppSelector(selectUsersOnboardingStatusState)
+  const selectedOrphanRowIds = useAppSelector(selectSelectedOrphanOnboardingRowIds)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteDialogError, setDeleteDialogError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!deleteDialogOpen) setDeleteDialogError(null)
+  }, [deleteDialogOpen])
 
   const resolvedFilter: OnboardingStatusType | "all" = isValidStatusFilter(statusFilter)
     ? statusFilter
@@ -51,6 +65,32 @@ export default function OnboardinControlsCP() {
     const status = resolvedFilter === "all" ? undefined : resolvedFilter
     dispatch(fetchUsersOnboardingStatusThunk({ status }))
   }
+
+  const openDeleteDialog = useCallback(() => {
+    setDeleteDialogError(null)
+    setDeleteDialogOpen(true)
+  }, [])
+
+  const closeDeleteDialog = useCallback(() => {
+    if (!bulkDeleteFlowsLoading) setDeleteDialogOpen(false)
+  }, [bulkDeleteFlowsLoading])
+
+  const confirmDeleteFlows = useCallback(async () => {
+    setDeleteDialogError(null)
+    const result = await dispatch(deleteOnboardingFlowsBySelectedIdsThunk(selectedOrphanRowIds))
+    if (deleteOnboardingFlowsBySelectedIdsThunk.fulfilled.match(result)) {
+      setDeleteDialogOpen(false)
+      return
+    }
+    const payload = result.payload as string | undefined
+    if (payload === "noSelection") {
+      setDeleteDialogError(s.deleteFlowsNoSelection)
+      return
+    }
+    setDeleteDialogError(
+      payload != null && payload !== "deleteFailed" ? payload : s.deleteFlowsGenericError
+    )
+  }, [dispatch, selectedOrphanRowIds])
 
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
@@ -81,6 +121,25 @@ export default function OnboardinControlsCP() {
       <Button variant="contained" onClick={onRefresh} disabled={isLoading}>
         Refresh
       </Button>
+
+      <Button
+        variant="outlined"
+        color="error"
+        startIcon={<DeleteOutline />}
+        disabled={selectedOrphanRowIds.length === 0 || isLoading || bulkDeleteFlowsLoading}
+        onClick={openDeleteDialog}
+      >
+        {s.deleteOrphanFlows}
+      </Button>
+
+      <UsersOnboardingDeleteFlowsConfirmDialogCP
+        open={deleteDialogOpen}
+        onClose={closeDeleteDialog}
+        selectedCount={selectedOrphanRowIds.length}
+        isDeleting={bulkDeleteFlowsLoading}
+        errorText={deleteDialogError}
+        onConfirm={confirmDeleteFlows}
+      />
     </Stack>
   )
 }

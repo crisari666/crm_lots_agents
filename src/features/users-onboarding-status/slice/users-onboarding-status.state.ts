@@ -25,6 +25,8 @@ export type UsersOnboardingStatusState = {
   error: string | null
   statusFilter: OnboardingStatusType | "all"
   searchTerm: string
+  selectedOrphanRowIds: string[]
+  bulkDeleteFlowsLoading: boolean
   historyFlows: UsersOnboardingHistoryFlowsState
   historyFlowLogs: UsersOnboardingHistoryFlowLogsState
 }
