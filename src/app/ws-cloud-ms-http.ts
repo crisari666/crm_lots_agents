@@ -19,6 +19,17 @@ export class WsCloudMsHttp {
     return WsCloudMsHttp.instance
   }
 
+  async get<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
+    const cleaned =
+      params == null
+        ? undefined
+        : Object.fromEntries(
+            Object.entries(params).filter(([, v]) => v !== undefined && v !== "")
+          )
+    const response: AxiosResponse<T> = await wsCloudMsAxios.get(path, { params: cleaned })
+    return response.data
+  }
+
   async post<T>(path: string, data: unknown): Promise<T> {
     const response: AxiosResponse<T> = await wsCloudMsAxios.post(path, data)
     return response.data

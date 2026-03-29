@@ -43,7 +43,17 @@ export const usersOnboardingStatusStrings = {
   selectOrphanRows: "Select rows without user",
   deleteFlowsConfirmAction: "Delete",
   deleteFlowsCancel: "Cancel",
-  deleteFlowsGenericError: "Could not delete flows"
+  deleteFlowsGenericError: "Could not delete flows",
+  whatsappChatOpen: "WhatsApp conversation",
+  whatsappChatDialogTitle: "WhatsApp chat",
+  whatsappChatLoading: "Loading conversation…",
+  whatsappChatNoPhone: "User has no phone number to match a chat",
+  whatsappChatNotFound: "No WhatsApp chat found for this phone number",
+  whatsappChatError: "Could not load WhatsApp messages",
+  whatsappChatEmpty: "No messages in this chat yet",
+  whatsappChatUserBubble: "User",
+  whatsappChatSystemBubble: "Assistant",
+  whatsappChatMessageOtherType: (messageType: string) => `[${messageType}]`
 } as const
 
 /** API `event` / `currentStatus` keys → localized label (match keys exactly) */

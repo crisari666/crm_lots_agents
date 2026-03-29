@@ -14,6 +14,7 @@ import {
   Tooltip,
   Typography
 } from "@mui/material"
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline"
 import HistoryIcon from "@mui/icons-material/History"
 import TouchAppIcon from "@mui/icons-material/TouchApp"
 import { useState } from "react"
@@ -25,14 +26,18 @@ import {
   toggleOrphanOnboardingRowSelectedAct,
   toggleSelectAllVisibleOrphanOnboardingRowsAct
 } from "../slice/users-onboarding-status.slice"
-import type { OnboardingStateType } from "../types/onboarding-state.types"
+import type { OnboardingStateType, OnboardingUserType } from "../types/onboarding-state.types"
 import { isOrphanOnboardingListRow } from "../types/onboarding-state.types"
 import { dateUTCToFriendly } from "../../../utils/date.utils"
 import UsersOnboardingStatusHistoryDialogCP from "./users-onboarding-status-history-dialog.cp"
 import UsersOnboardingStatusActionsDialogCP from "./users-onboarding-status-actions-dialog.cp"
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
 
-export default function UsersOnboardingStatusListCP() {
+type UsersOnboardingStatusListCPProps = {
+  onOpenWhatsappChat: (user: OnboardingUserType) => void
+}
+
+export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: UsersOnboardingStatusListCPProps) {
   const dispatch = useAppDispatch()
   const [selectedItem, setSelectedItem] = useState<OnboardingStateType | null>(null)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
@@ -114,6 +119,7 @@ export default function UsersOnboardingStatusListCP() {
             <TableCell>Last update</TableCell>
             <TableCell align="center">{s.actionsOpen}</TableCell>
             <TableCell align="center">History</TableCell>
+            <TableCell align="center">{s.whatsappChatOpen}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -167,13 +173,26 @@ export default function UsersOnboardingStatusListCP() {
                     </span>
                   </Tooltip>
                 </TableCell>
+                <TableCell align="center">
+                  <Tooltip title={s.whatsappChatOpen}>
+                    <span>
+                      <IconButton
+                        size="small"
+                        disabled={!x.userId || !(x.userId.phone ?? "").trim()}
+                        onClick={() => x.userId != null && onOpenWhatsappChat(x.userId)}
+                      >
+                        <ChatBubbleOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             )
           })}
 
           {items.length === 0 && !isLoading ? (
             <TableRow>
-              <TableCell colSpan={8}>
+              <TableCell colSpan={9}>
                 <Typography variant="body2">No users found</Typography>
               </TableCell>
             </TableRow>
