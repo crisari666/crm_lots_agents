@@ -176,6 +176,7 @@ export class RagApi {
 
   async get({ path, data, body }: { path: string; data?: object; body?: object }) {
     const token = this.getToken()
+    console.log({ token })
     try {
       const responseGet: AxiosResponse = await ragApiAxios.get(path, {
         params: data,

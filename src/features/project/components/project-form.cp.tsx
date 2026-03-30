@@ -5,19 +5,16 @@ import ProjectMediaPanelCP from "./project-media-panel.cp"
 import { ExistingProjectImage } from "./project-image-picker.cp"
 import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { ProjectFormState } from "../types/project.types"
-import { AmenityType } from "../types/amenity.types"
 
 type ProjectFormCPProps = {
   form: ProjectFormState
   onChange: (updates: Partial<ProjectFormState>) => void
-  amenities: AmenityType[]
   uploadsBaseUrl: string
   existingCardProjectName?: string | null
   existingVerticalImages: ExistingProjectImage[]
   existingHorizontalImages: ExistingProjectImage[]
   existingHorizontalVideos: ExistingProjectVideo[]
   disabled?: boolean
-  onAddAmenity?: (title: string) => Promise<string | null>
   projectId?: string
   onUploadCard?: (file: File) => Promise<void>
   onRemoveCard?: () => Promise<void>
@@ -41,14 +38,12 @@ type ProjectFormCPProps = {
 export default function ProjectFormCP({
   form,
   onChange,
-  amenities,
   uploadsBaseUrl,
   existingCardProjectName = null,
   existingVerticalImages = [],
   existingHorizontalImages = [],
   existingHorizontalVideos = [],
   disabled = false,
-  onAddAmenity,
   projectId,
   onUploadCard,
   onRemoveCard,
@@ -72,13 +67,7 @@ export default function ProjectFormCP({
     <Box>
       <Grid container spacing={2}>
         <Grid item xs={12} md={8}>
-          <ProjectFormFieldsCP
-            form={form}
-            onChange={onChange}
-            amenities={amenities}
-            disabled={disabled}
-            onAddAmenity={onAddAmenity}
-          />
+          <ProjectFormFieldsCP form={form} onChange={onChange} disabled={disabled} />
         </Grid>
         <Grid item xs={12} md={4}>
           <ProjectMediaPanelCP

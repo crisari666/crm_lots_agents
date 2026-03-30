@@ -1,5 +1,44 @@
 import { RagApi } from "../axios"
-import { CreateProjectDto, ProjectType, UpdateProjectDto } from "../../features/project/types/project.types"
+import {
+  CreateProjectDto,
+  ProjectAmenitiesGroup,
+  ProjectType,
+  UpdateProjectDto
+} from "../../features/project/types/project.types"
+
+const AMENITIES_GROUPS_MAX = 50
+const AMENITIES_GROUP_LABELS_MAX = 100
+
+/** Aligns payload with RAG `amenitiesGroups` limits (see `projects-endpoints.md`). */
+export function sanitizeAmenitiesGroupsPayload(
+  groups: ProjectAmenitiesGroup[] | undefined
+): ProjectAmenitiesGroup[] | undefined {
+  if (groups === undefined) return undefined
+  return groups
+    .slice(0, AMENITIES_GROUPS_MAX)
+    .map((g) => ({
+      icon:
+        typeof g.icon === "string" && g.icon.trim().length > 0
+          ? g.icon.trim()
+          : "category",
+      title: String(g.title ?? "").trim(),
+      amenities: (Array.isArray(g.amenities) ? g.amenities : [])
+        .map((a) => String(a).trim())
+        .filter(Boolean)
+        .slice(0, AMENITIES_GROUP_LABELS_MAX)
+    }))
+    .filter((g) => g.title.length > 0)
+}
+
+function withSanitizedAmenitiesGroups<T extends { amenitiesGroups?: ProjectAmenitiesGroup[] }>(
+  data: T
+): T {
+  if (data.amenitiesGroups === undefined) return data
+  return {
+    ...data,
+    amenitiesGroups: sanitizeAmenitiesGroupsPayload(data.amenitiesGroups)
+  }
+}
 
 function parseProjectStrict(data: unknown): ProjectType | null {
   if (data && typeof data === "object") {
@@ -92,7 +131,7 @@ export async function getProjectByIdReq({ id }: { id: string }): Promise<Project
 export async function createProjectReq({ data }: { data: CreateProjectDto }): Promise<ProjectType> {
   try {
     const api = RagApi.getInstance()
-    const response = await api.post({ path: "projects", data })
+    const response = await api.post({ path: "projects", data: withSanitizedAmenitiesGroups(data) })
     const { error } = response
     if (error == null) {
       return response
@@ -115,7 +154,7 @@ export async function updateProjectReq({
 }): Promise<ProjectType> {
   try {
     const api = RagApi.getInstance()
-    const response = await api.patch({ path: `projects/${id}`, data })
+    const response = await api.patch({ path: `projects/${id}`, data: withSanitizedAmenitiesGroups(data) })
     const { error } = response
     if (error == null) {
       return response

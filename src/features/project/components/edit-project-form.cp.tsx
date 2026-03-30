@@ -23,11 +23,12 @@ import {
   clearProjectErrorAct,
   setProjectErrorAct
 } from "../slice/projects.slice"
-import { fetchAmenitiesThunk } from "../slice/amenities.slice"
-import { UpdateProjectDto } from "../types/project.types"
-import { ProjectFormState } from "../types/project.types"
+import {
+  ProjectAmenitiesGroup,
+  ProjectFormState,
+  UpdateProjectDto
+} from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
-import { createAmenityThunk } from "../slice/amenities.slice"
 import { ExistingProjectImage } from "./project-image-picker.cp"
 import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { buildProjectAssetUrl } from "../utils/project-uploads.util"
@@ -68,10 +69,10 @@ function projectToFormState(project: {
   separation?: number
   lotOptions?: ProjectLotOption[]
   slug?: string
-  amenities?: { _id: string; title?: string }[]
+  amenitiesGroups?: ProjectAmenitiesGroup[]
 }): ProjectFormState {
-  const amenityIds = project.amenities?.map((a) => a._id) ?? []
   const lotOptionsFromApi = project.lotOptions ?? []
+  const groupsFromApi = project.amenitiesGroups ?? []
   return {
     title: project.title,
     slug: project.slug ?? "",
@@ -90,7 +91,11 @@ function projectToFormState(project: {
       area: o.area ?? 0,
       price: o.price ?? 0
     })),
-    amenities: amenityIds,
+    amenitiesGroups: groupsFromApi.map((g) => ({
+      icon: g.icon ?? "category",
+      title: g.title ?? "",
+      amenities: Array.isArray(g.amenities) ? [...g.amenities] : []
+    })),
     cardProjectFile: null,
     horizontalImageFiles: [],
     imageFiles: [],
@@ -106,12 +111,10 @@ export default function EditProjectFormCP() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { currentProject, isLoading, error } = useAppSelector((state: RootState) => state.projects)
-  const { amenities } = useAppSelector((state: RootState) => state.amenities)
   const [form, setForm] = useState<ProjectFormState | null>(null)
 
   useEffect(() => {
     if (projectId) dispatch(getProjectByIdThunk(projectId))
-    dispatch(fetchAmenitiesThunk())
     return () => {
       dispatch(clearProjectErrorAct())
     }
@@ -256,17 +259,6 @@ export default function EditProjectFormCP() {
     }
   }
 
-  const handleAddAmenity = async (title: string): Promise<string | null> => {
-    try {
-      const result = await dispatch(
-        createAmenityThunk({ title: title.trim() })
-      ).unwrap()
-      return result._id
-    } catch {
-      return null
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form || !projectId || !form.title.trim()) return
@@ -287,7 +279,7 @@ export default function EditProjectFormCP() {
       commissionValue: (form.priceSell * form.commissionPercentage) / 100,
       separation: form.separation,
       lotOptions: projectLotOptionsForApi(form.lotOptions ?? []),
-      amenities: form.amenities.length ? form.amenities : undefined
+      amenitiesGroups: form.amenitiesGroups
     }
     try {
       await dispatch(updateProjectThunk({ id: projectId, data: dto })).unwrap()
@@ -368,13 +360,11 @@ export default function EditProjectFormCP() {
         <ProjectFormCP
           form={form}
           onChange={(updates) => setForm((prev) => (prev ? { ...prev, ...updates } : null))}
-          amenities={amenities}
           uploadsBaseUrl={uploadsBaseUrl}
           existingCardProjectName={currentProject?.cardProject ?? null}
           existingVerticalImages={existingVerticalImages}
           existingHorizontalImages={existingHorizontalImages}
           existingHorizontalVideos={existingHorizontalVideos}
-          onAddAmenity={handleAddAmenity}
           projectId={projectId}
           onUploadCard={handleUploadCard}
           onRemoveCard={handleRemoveCard}

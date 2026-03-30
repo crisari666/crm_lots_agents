@@ -3,6 +3,13 @@ export type ProjectAmenityRef = {
   title: string
 }
 
+/** Marketing amenity groups — matches RAG `amenitiesGroups` (icon id, title, label strings) */
+export type ProjectAmenitiesGroup = {
+  icon: string
+  title: string
+  amenities: string[]
+}
+
 /** Lot variant for sale (area e.g. m² and price) — API subdocuments without _id */
 export type ProjectLotOption = {
   area: number
@@ -29,7 +36,10 @@ export type ProjectType = {
   /** Separation between lots (product-defined unit, e.g. meters) */
   separation?: number
   lotOptions?: ProjectLotOption[]
+  /** Catalog-linked amenity documents (GET may populate) */
   amenities?: ProjectAmenityRef[]
+  /** Marketing UI groups; PATCH replaces entire array when sent */
+  amenitiesGroups?: ProjectAmenitiesGroup[]
   images?: string[]
   /** Single listing card image filename */
   cardProject?: string
@@ -60,7 +70,7 @@ export type CreateProjectDto = {
   commissionValue: number
   separation?: number
   lotOptions?: ProjectLotOption[]
-  amenities?: string[]
+  amenitiesGroups?: ProjectAmenitiesGroup[]
   images?: string[]
   cardProject?: string
   horizontalImages?: string[]
@@ -82,7 +92,7 @@ export type UpdateProjectDto = {
   commissionValue?: number
   separation?: number
   lotOptions?: ProjectLotOption[]
-  amenities?: string[]
+  amenitiesGroups?: ProjectAmenitiesGroup[]
   images?: string[]
   cardProject?: string
   horizontalImages?: string[]
@@ -104,7 +114,7 @@ export type ProjectFormState = {
   commissionValue: number
   separation: number
   lotOptions: ProjectLotOption[]
-  amenities: string[]
+  amenitiesGroups: ProjectAmenitiesGroup[]
   cardProjectFile: File | null
   horizontalImageFiles: File[]
   imageFiles: File[]

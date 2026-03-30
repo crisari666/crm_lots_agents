@@ -5,8 +5,6 @@ import {
   Box,
   Typography,
   Link,
-  Autocomplete,
-  Chip,
   InputAdornment,
   Paper,
   Stack,
@@ -19,8 +17,8 @@ import DeleteOutline from "@mui/icons-material/DeleteOutline"
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
 import { ProjectFormState } from "../types/project.types"
-import { AmenityType } from "../types/amenity.types"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
+import ProjectAmenitiesGroupsFieldCP from "./project-amenities-groups-field.cp"
 import {
   normalizeProjectSlugInput,
   isValidProjectSlugForApi,
@@ -30,9 +28,7 @@ import {
 type ProjectFormFieldsCPProps = {
   form: ProjectFormState
   onChange: (updates: Partial<ProjectFormState>) => void
-  amenities: AmenityType[]
   disabled?: boolean
-  onAddAmenity?: (title: string) => Promise<string | null>
 }
 
 const modules = {
@@ -74,17 +70,11 @@ function FormSection({
 export default function ProjectFormFieldsCP({
   form,
   onChange,
-  amenities,
-  disabled = false,
-  onAddAmenity
+  disabled = false
 }: ProjectFormFieldsCPProps) {
   const commissionValueCop = form.priceSell && form.commissionPercentage
     ? (form.priceSell * form.commissionPercentage) / 100
     : 0
-
-  const amenityOptions = amenities.map((a) => ({ _id: a._id, title: a.title }))
-  const selectedAmenityIds = form.amenities || []
-  const selectedAmenities = amenityOptions.filter((o) => selectedAmenityIds.includes(o._id))
 
   const lotOptions = form.lotOptions ?? []
 
@@ -168,84 +158,13 @@ export default function ProjectFormFieldsCP({
             />
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Autocomplete
-            multiple
-            options={amenityOptions}
-            getOptionLabel={(opt) => (typeof opt === "string" ? opt : opt.title)}
-            value={selectedAmenities}
-            onChange={(_, newValue) => {
-              const ids = newValue
-                .map((o) => (typeof o === "object" && o && "_id" in o ? (o as { _id: string })._id : ""))
-                .filter(Boolean)
-              onChange({ amenities: ids })
-            }}
-            freeSolo
-            filterOptions={(options, params) => {
-              const input = params.inputValue.trim()
-              const filtered = options.filter((o) =>
-                o.title.toLowerCase().includes(input.toLowerCase())
-              )
-              if (input && onAddAmenity && !options.some((o) => o.title.toLowerCase() === input.toLowerCase())) {
-                return [...filtered, { _id: `new:${input}`, title: `Add "${input}"` }]
-              }
-              return filtered
-            }}
-            onInputChange={(_, value, reason) => {
-              if (reason === "input" && value.trim() && onAddAmenity) {
-                const match = amenityOptions.find(
-                  (o) => o.title.toLowerCase() === value.trim().toLowerCase()
-                )
-                if (!match) {
-                  // Option to add will appear via filterOptions
-                }
-              }
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label={s.formFieldAmenities} placeholder={s.formFieldAmenitiesPlaceholder} />
-            )}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => {
-                const o = option as { _id: string; title: string }
-                return (
-                  <Chip
-                    {...getTagProps({ index })}
-                    key={o._id}
-                    label={o.title}
-                    size="small"
-                  />
-                )
-              })
-            }
-            renderOption={(props, option) => {
-              const opt = option as { _id: string; title: string }
-              const isNew = String(opt._id).startsWith("new:")
-              const { onClick: optionListItemOnClick, ...liProps } = props
-              return (
-                <li
-                  {...liProps}
-                  key={opt._id}
-                  onClick={(e) => {
-                    if (isNew && onAddAmenity) {
-                      e.preventDefault()
-                      void (async () => {
-                        const title = opt.title.replace(/^Add "|"$/g, "")
-                        const newId = await onAddAmenity(title)
-                        if (newId) onChange({ amenities: [...selectedAmenityIds, newId] })
-                      })()
-                      return
-                    }
-                    optionListItemOnClick?.(e)
-                  }}
-                >
-                  {opt.title}
-                </li>
-              )
-            }}
-            disabled={disabled}
-          />
-        </Grid>
       </FormSection>
+
+      <ProjectAmenitiesGroupsFieldCP
+        value={form.amenitiesGroups}
+        onChange={(amenitiesGroups) => onChange({ amenitiesGroups })}
+        disabled={disabled}
+      />
 
       <FormSection title={s.formSectionLocation}>
         <Grid item xs={12}>

@@ -14,11 +14,9 @@ import {
   uploadProjectBrochureThunk,
   clearProjectErrorAct
 } from "../slice/projects.slice"
-import { fetchAmenitiesThunk } from "../slice/amenities.slice"
 import { CreateProjectDto } from "../types/project.types"
 import { ProjectFormState } from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
-import { createAmenityThunk } from "../slice/amenities.slice"
 import { projectLotOptionsForApi } from "../utils/project-lot-options.util"
 import {
   normalizeProjectSlugInput,
@@ -41,7 +39,7 @@ const initialForm: ProjectFormState = {
   commissionValue: 0,
   separation: 0,
   lotOptions: [],
-  amenities: [],
+  amenitiesGroups: [],
   cardProjectFile: null,
   horizontalImageFiles: [],
   imageFiles: [],
@@ -55,26 +53,13 @@ export default function CreateProjectFormCP() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { isLoading, error } = useAppSelector((state: RootState) => state.projects)
-  const { amenities } = useAppSelector((state: RootState) => state.amenities)
   const [form, setForm] = useState<ProjectFormState>(initialForm)
 
   useEffect(() => {
-    dispatch(fetchAmenitiesThunk())
     return () => {
       dispatch(clearProjectErrorAct())
     }
   }, [dispatch])
-
-  const handleAddAmenity = async (title: string): Promise<string | null> => {
-    try {
-      const result = await dispatch(
-        createAmenityThunk({ title: title.trim() })
-      ).unwrap()
-      return result._id
-    } catch {
-      return null
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,7 +83,7 @@ export default function CreateProjectFormCP() {
       commissionValue: (form.priceSell * form.commissionPercentage) / 100,
       separation: form.separation > 0 ? form.separation : undefined,
       lotOptions: lotOptionsPayload.length > 0 ? lotOptionsPayload : undefined,
-      amenities: form.amenities.length ? form.amenities : undefined
+      amenitiesGroups: form.amenitiesGroups.length > 0 ? form.amenitiesGroups : undefined
     }
     try {
       const project = await dispatch(createProjectThunk(dto)).unwrap()
@@ -153,12 +138,10 @@ export default function CreateProjectFormCP() {
         <ProjectFormCP
           form={form}
           onChange={(updates) => setForm((prev) => ({ ...prev, ...updates }))}
-          amenities={amenities}
           uploadsBaseUrl={uploadsBaseUrl}
           existingVerticalImages={[]}
           existingHorizontalImages={[]}
           existingHorizontalVideos={[]}
-          onAddAmenity={handleAddAmenity}
         />
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>
