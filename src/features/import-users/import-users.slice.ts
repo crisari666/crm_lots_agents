@@ -1,5 +1,10 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { importUsersReq, UserImportRowPayload, UserImportResultItem } from "../../app/services/users.service"
+import {
+  importUsersReq,
+  UserImportFirstStepType,
+  UserImportRowPayload,
+  UserImportResultItem
+} from "../../app/services/users.service"
 import { ImportUsersState, ImportUserRowPreview } from "./import-users.state"
 
 const initialState: ImportUsersState = {
@@ -10,8 +15,13 @@ const initialState: ImportUsersState = {
 
 export const importUsersThunk = createAsyncThunk(
   "ImportUsers/importUsersThunk",
-  async ({ users }: { users: UserImportRowPayload[] }): Promise<UserImportResultItem[]> => {
-    const result = await importUsersReq({ users })
+  async (
+    {
+      users,
+      importFirstStep
+    }: { users: UserImportRowPayload[]; importFirstStep: UserImportFirstStepType }
+  ): Promise<UserImportResultItem[]> => {
+    const result = await importUsersReq({ importFirstStep, users })
     if (result == null) throw new Error("Import failed")
     return result
   }

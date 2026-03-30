@@ -371,16 +371,31 @@ export type UserImportRowPayload = {
   email: string
 }
 
+/** Matches `POST /users/import` — see omega_office_back `md_files/USERS-IMPORT-API.md` */
+export type UserImportFirstStepType =
+  | "scheduled_whatsapp_import_greeting"
+  | "immediate_whatsapp_import_sequence"
+  | "voice_call"
+
 export type UserImportResultItem = {
   email: string
   status: 'created' | 'already_exists'
   userId?: string
 }
 
-export async function importUsersReq({ users }: { users: UserImportRowPayload[] }): Promise<UserImportResultItem[] | undefined> {
+export async function importUsersReq({
+  importFirstStep,
+  users
+}: {
+  importFirstStep: UserImportFirstStepType
+  users: UserImportRowPayload[]
+}): Promise<UserImportResultItem[] | undefined> {
   try {
     const api = Api.getInstance()
-    const response = await api.post({ path: 'users/import', data: { users } })
+    const response = await api.post({
+      path: 'users/import',
+      data: { importFirstStep, users }
+    })
     const { error } = response
     if (error == null) {
       return response.result as UserImportResultItem[]
