@@ -94,3 +94,13 @@ export type OnboardingFlowsDeleteResponse = {
   message: string
   error?: string
 }
+
+/** `POST /onboarding-state/import/recreate-schedules` */
+export type OnboardingRecreateSchedulesResponse = {
+  result: Array<{
+    userId: string
+    status: "scheduled" | "user_not_found" | "missing_phone"
+  }>
+  message: string
+  error?: string
+}

@@ -27,6 +27,7 @@ export type UsersOnboardingStatusState = {
   searchTerm: string
   selectedOrphanRowIds: string[]
   bulkDeleteFlowsLoading: boolean
+  bulkRecreateSchedulesLoading: boolean
   historyFlows: UsersOnboardingHistoryFlowsState
   historyFlowLogs: UsersOnboardingHistoryFlowLogsState
 }

@@ -8,7 +8,8 @@ import {
   getOnboardingFlowLogsReq,
   getUserOnboardingFlowsReq,
   triggerOnboardingFlowReq,
-  deleteOnboardingFlowsReq
+  deleteOnboardingFlowsReq,
+  recreateImportSchedulesReq
 } from "../services/onboarding-state.service"
 
 const historyFlowsInitial = {
@@ -33,6 +34,7 @@ const initialState: UsersOnboardingStatusState = {
   searchTerm: "",
   selectedOrphanRowIds: [],
   bulkDeleteFlowsLoading: false,
+  bulkRecreateSchedulesLoading: false,
   historyFlows: historyFlowsInitial,
   historyFlowLogs: historyFlowLogsInitial
 }
@@ -92,6 +94,39 @@ export const deleteOnboardingFlowsBySelectedIdsThunk = createAsyncThunk<
       return { deletedCount }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "deleteFailed"
+      return rejectWithValue(msg)
+    }
+  }
+)
+
+export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThunk<
+  { updatedCount: number },
+  void,
+  { state: RootState; rejectValue: string }
+>(
+  "usersOnboardingStatus/recreateImportSchedulesForNeedsHumanWhatsapp",
+  async (_, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const { items, statusFilter } = getState().usersOnboardingStatus
+      const userIds = Array.from(
+        new Set(
+          items
+            .filter((x) => x.status === "Needs_human_whatsapp")
+            .map((x) => x.userId?._id)
+            .filter((id): id is string => typeof id === "string" && id.trim() !== "")
+        )
+      )
+
+      if (userIds.length === 0) {
+        return rejectWithValue("noNeedsHumanWhatsappUsers")
+      }
+
+      const result = await recreateImportSchedulesReq(userIds)
+      const status = statusFilter === "all" ? undefined : statusFilter
+      await dispatch(fetchUsersOnboardingStatusThunk({ status }))
+      return { updatedCount: result.length }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "recreateSchedulesFailed"
       return rejectWithValue(msg)
     }
   }
@@ -214,6 +249,15 @@ const usersOnboardingStatusSlice = createSlice({
       })
       .addCase(deleteOnboardingFlowsBySelectedIdsThunk.rejected, (state) => {
         state.bulkDeleteFlowsLoading = false
+      })
+      .addCase(recreateImportSchedulesForNeedsHumanWhatsappThunk.pending, (state) => {
+        state.bulkRecreateSchedulesLoading = true
+      })
+      .addCase(recreateImportSchedulesForNeedsHumanWhatsappThunk.fulfilled, (state) => {
+        state.bulkRecreateSchedulesLoading = false
+      })
+      .addCase(recreateImportSchedulesForNeedsHumanWhatsappThunk.rejected, (state) => {
+        state.bulkRecreateSchedulesLoading = false
       })
   }
 })

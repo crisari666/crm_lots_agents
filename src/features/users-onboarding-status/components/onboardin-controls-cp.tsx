@@ -1,4 +1,4 @@
-import { Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material"
+import { Alert, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material"
 import type { SelectChangeEvent } from "@mui/material"
 import DeleteOutline from "@mui/icons-material/DeleteOutline"
 import { useCallback, useEffect, useState } from "react"
@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
   deleteOnboardingFlowsBySelectedIdsThunk,
   fetchUsersOnboardingStatusThunk,
+  recreateImportSchedulesForNeedsHumanWhatsappThunk,
   selectSelectedOrphanOnboardingRowIds,
   selectUsersOnboardingStatusState,
   setOnboardingSearchTermAct,
@@ -34,11 +35,18 @@ const isValidStatusFilter = (v: string): v is OnboardingStatusType | "all" =>
 
 export default function OnboardinControlsCP() {
   const dispatch = useAppDispatch()
-  const { statusFilter, searchTerm, isLoading, bulkDeleteFlowsLoading } =
+  const {
+    statusFilter,
+    searchTerm,
+    isLoading,
+    bulkDeleteFlowsLoading,
+    bulkRecreateSchedulesLoading
+  } =
     useAppSelector(selectUsersOnboardingStatusState)
   const selectedOrphanRowIds = useAppSelector(selectSelectedOrphanOnboardingRowIds)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteDialogError, setDeleteDialogError] = useState<string | null>(null)
+  const [recreateError, setRecreateError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!deleteDialogOpen) setDeleteDialogError(null)
@@ -93,6 +101,22 @@ export default function OnboardinControlsCP() {
     )
   }, [dispatch, selectedOrphanRowIds])
 
+  const onRecreateSchedules = useCallback(async () => {
+    setRecreateError(null)
+    const result = await dispatch(recreateImportSchedulesForNeedsHumanWhatsappThunk())
+    if (recreateImportSchedulesForNeedsHumanWhatsappThunk.fulfilled.match(result)) {
+      return
+    }
+    const payload = result.payload as string | undefined
+    if (payload === "noNeedsHumanWhatsappUsers") {
+      setRecreateError(s.recreateSchedulesNoUsers)
+      return
+    }
+    setRecreateError(
+      payload != null && payload !== "recreateSchedulesFailed" ? payload : s.recreateSchedulesError
+    )
+  }, [dispatch])
+
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
       <FormControl size="small" sx={{ minWidth: 220 }}>
@@ -125,13 +149,28 @@ export default function OnboardinControlsCP() {
 
       <Button
         variant="outlined"
+        disabled={isLoading || bulkRecreateSchedulesLoading}
+        onClick={onRecreateSchedules}
+      >
+        {s.recreateSchedulesNeedsHumanWhatsapp}
+      </Button>
+
+      <Button
+        variant="outlined"
         color="error"
         startIcon={<DeleteOutline />}
-        disabled={selectedOrphanRowIds.length === 0 || isLoading || bulkDeleteFlowsLoading}
+        disabled={
+          selectedOrphanRowIds.length === 0 ||
+          isLoading ||
+          bulkDeleteFlowsLoading ||
+          bulkRecreateSchedulesLoading
+        }
         onClick={openDeleteDialog}
       >
         {s.deleteOrphanFlows}
       </Button>
+
+      {recreateError != null ? <Alert severity="error">{recreateError}</Alert> : null}
 
       <UsersOnboardingDeleteFlowsConfirmDialogCP
         open={deleteDialogOpen}

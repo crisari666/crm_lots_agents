@@ -7,7 +7,8 @@ import type {
   OnboardingUserFlowsListResponse,
   OnboardingFlowSummaryType,
   OnboardingFlowDetailType,
-  OnboardingFlowsDeleteResponse
+  OnboardingFlowsDeleteResponse,
+  OnboardingRecreateSchedulesResponse
 } from "../types/onboarding-state.types"
 
 export async function getOnboardingStateListReq({
@@ -114,7 +115,7 @@ export async function deleteOnboardingFlowsReq(flowIds: string[]): Promise<{ del
     const api = Api.getInstance()
     const response = (await api.post({
       path: "onboarding-state/flows/delete",
-      data: { flowIds }
+      data: { stateIds: flowIds }
     })) as OnboardingFlowsDeleteResponse | { message: string; error: string }
 
     if (response != null && "message" in response && response.message === "error") {
@@ -128,6 +129,34 @@ export async function deleteOnboardingFlowsReq(flowIds: string[]): Promise<{ del
     return ok.result
   } catch (error) {
     console.error("ERROR ON deleteOnboardingFlowsReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function recreateImportSchedulesReq(userIds: string[]): Promise<OnboardingRecreateSchedulesResponse["result"]> {
+  try {
+    const api = Api.getInstance()
+    const response = (await api.post({
+      path: "onboarding-state/import/recreate-schedules",
+      data: { userIds }
+    })) as OnboardingRecreateSchedulesResponse | { message: string; error: string } | undefined
+
+    if (response == null) {
+      throw new Error("Invalid recreate schedules response")
+    }
+
+    if ("message" in response && response.message === "error") {
+      throw new Error("error" in response && response.error != null ? String(response.error) : "Recreate schedules failed")
+    }
+
+    const ok = response as OnboardingRecreateSchedulesResponse
+    if (!Array.isArray(ok.result)) {
+      throw new Error("Invalid recreate schedules response")
+    }
+    return ok.result
+  } catch (error) {
+    console.error("ERROR ON recreateImportSchedulesReq")
     console.error({ error })
     throw error
   }
