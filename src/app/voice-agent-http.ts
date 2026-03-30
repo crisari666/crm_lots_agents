@@ -26,7 +26,7 @@ export class VoiceAgentHttp {
 }
 
 export function getVoiceAgentWebsocketUrl(): string {
-  const raw = (import.meta.env.VITE_URL_VOICE_AGENT as string)?.trim?.() ?? ""
+  const raw = (import.meta.env.VITE_URL_VOICE_AGENT_WEBSOCKET as string)?.trim?.() ?? ""
   const withoutTrailing = raw.replace(/\/$/, "")
   const ws = withoutTrailing.replace(/^http:\/\//i, "ws://").replace(/^https:\/\//i, "wss://")
   return `${ws}/twilio`

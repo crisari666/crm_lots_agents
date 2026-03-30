@@ -1,7 +1,7 @@
 import { WsCloudMsHttp } from "../../../app/ws-cloud-ms-http"
 
 const PATH_GREETING = "whatsapp-cloud/messages/template/greeting"
-const PATH_PROPOSAL = "whatsapp-cloud/messages/template/proposal"
+const PATH_PROPOSAL = "whatsapp-cloud/messages/template/info-capacitacion"
 
 export type SendGreetingTemplatePayload = {
   to: string
@@ -13,6 +13,7 @@ export type SendProposalTemplatePayload = {
   to: string
   code: string
   name: string
+  date: string
 }
 
 export async function sendGreetingTemplateReq(
