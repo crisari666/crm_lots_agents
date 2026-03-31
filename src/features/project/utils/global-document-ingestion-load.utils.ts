@@ -25,10 +25,12 @@ export function createGlobalIngestionRow(
   return {
     id: crypto.randomUUID(),
     docType,
+    currentDocType: undefined,
     sourceMode: "upload",
     rawText: "",
     externalUrl: "",
     documentKeyName: "",
+    currentSource: undefined,
     isEdited: false
   }
 }
@@ -68,6 +70,8 @@ export function rowsFromGlobalIngestedChunks(chunks: VectorizedDocumentChunk[]):
       r.sourceMode = "url"
       r.externalUrl = src0
     }
+    r.currentDocType = docType
+    r.currentSource = src0
     submittedIds.add(r.id)
     rows.push(r)
   }

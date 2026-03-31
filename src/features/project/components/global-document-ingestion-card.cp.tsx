@@ -87,7 +87,7 @@ export default function GlobalDocumentIngestionCardCP({
   const ready = globalIngestionRowReady(row)
 
   const handleSourceMode = (_: React.MouseEvent<HTMLElement>, mode: ProjectIngestionSourceMode | null) => {
-    if (!mode || isSubmitted) return
+    if (!mode) return
     onUpdate(row.id, {
       sourceMode: mode,
       externalUrl: "",
@@ -97,7 +97,7 @@ export default function GlobalDocumentIngestionCardCP({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || isSubmitted) return
+    if (!file) return
     onUpdate(row.id, { file })
     e.target.value = ""
   }
@@ -166,7 +166,6 @@ export default function GlobalDocumentIngestionCardCP({
             value={row.docType}
             onChange={handleDocTypeChange}
             fullWidth
-            disabled={isSubmitted}
           >
             {ALL_INGESTION_DOC_TYPES.map((dt) => (
               <MenuItem key={dt} value={dt}>
@@ -185,7 +184,6 @@ export default function GlobalDocumentIngestionCardCP({
             minRows={3}
             fullWidth
             required
-            InputProps={{ readOnly: isSubmitted }}
           />
 
           {row.docType === "other" && (
@@ -197,7 +195,6 @@ export default function GlobalDocumentIngestionCardCP({
               onChange={(e) => onUpdate(row.id, { documentKeyName: e.target.value })}
               fullWidth
               required
-              InputProps={{ readOnly: isSubmitted }}
             />
           )}
 
@@ -209,7 +206,6 @@ export default function GlobalDocumentIngestionCardCP({
               size="small"
               value={row.sourceMode}
               onChange={handleSourceMode}
-              disabled={isSubmitted}
             >
               <ToggleButton value="upload">{s.documentIngestionModeUpload}</ToggleButton>
               <ToggleButton value="url">{s.documentIngestionModeUrl}</ToggleButton>
@@ -224,7 +220,6 @@ export default function GlobalDocumentIngestionCardCP({
               value={row.externalUrl}
               onChange={(e) => onUpdate(row.id, { externalUrl: e.target.value })}
               fullWidth
-              InputProps={{ readOnly: isSubmitted }}
             />
           )}
 
@@ -236,13 +231,11 @@ export default function GlobalDocumentIngestionCardCP({
                 hidden
                 onChange={handleFileChange}
                 accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp,.xls,.xlsx,.csv"
-                disabled={isSubmitted}
               />
               <Button
                 variant="outlined"
                 onClick={() => fileInputRef.current?.click()}
                 fullWidth
-                disabled={isSubmitted}
               >
                 {row.file ? row.file.name : s.documentIngestionPickFile}
               </Button>

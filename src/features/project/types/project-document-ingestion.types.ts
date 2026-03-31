@@ -18,12 +18,14 @@ export type ProjectIngestionSourceMode = "upload" | "url"
 export type ProjectIngestionDocumentRow = {
   id: string
   docType: ProjectIngestionDocType
+  currentDocType?: ProjectIngestionDocType
   sourceMode: ProjectIngestionSourceMode
   /** Always required: human description / context for the document */
   rawText: string
   externalUrl: string
   /** Required when docType is "other": API `source` / document key name */
   documentKeyName: string
+  currentSource?: string
   file?: File
   isEdited?: boolean
 }

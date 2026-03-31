@@ -78,7 +78,7 @@ export default function ProjectDocumentIngestionCardCP({ row, isSubmitted, onUpd
   const ready = rowReadyForIngest(row)
 
   const handleSourceMode = (_: React.MouseEvent<HTMLElement>, mode: ProjectIngestionSourceMode | null) => {
-    if (!mode || isSubmitted) return
+    if (!mode) return
     onUpdate(row.id, {
       sourceMode: mode,
       externalUrl: "",
@@ -88,7 +88,7 @@ export default function ProjectDocumentIngestionCardCP({ row, isSubmitted, onUpd
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || isSubmitted) return
+    if (!file) return
     onUpdate(row.id, { file })
     e.target.value = ""
   }
@@ -153,7 +153,6 @@ export default function ProjectDocumentIngestionCardCP({ row, isSubmitted, onUpd
             minRows={3}
             fullWidth
             required
-            InputProps={{ readOnly: isSubmitted }}
           />
 
           {row.docType === "other" && (
@@ -165,7 +164,6 @@ export default function ProjectDocumentIngestionCardCP({ row, isSubmitted, onUpd
               onChange={(e) => onUpdate(row.id, { documentKeyName: e.target.value })}
               fullWidth
               required
-              InputProps={{ readOnly: isSubmitted }}
             />
           )}
 
@@ -177,7 +175,6 @@ export default function ProjectDocumentIngestionCardCP({ row, isSubmitted, onUpd
               size="small"
               value={row.sourceMode}
               onChange={handleSourceMode}
-              disabled={isSubmitted}
             >
               <ToggleButton value="upload">{s.documentIngestionModeUpload}</ToggleButton>
               <ToggleButton value="url">{s.documentIngestionModeUrl}</ToggleButton>
@@ -192,7 +189,6 @@ export default function ProjectDocumentIngestionCardCP({ row, isSubmitted, onUpd
               value={row.externalUrl}
               onChange={(e) => onUpdate(row.id, { externalUrl: e.target.value })}
               fullWidth
-              InputProps={{ readOnly: isSubmitted }}
             />
           )}
 
@@ -204,13 +200,11 @@ export default function ProjectDocumentIngestionCardCP({ row, isSubmitted, onUpd
                 hidden
                 onChange={handleFileChange}
                 accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp,.xls,.xlsx,.csv"
-                disabled={isSubmitted}
               />
               <Button
                 variant="outlined"
                 onClick={() => fileInputRef.current?.click()}
                 fullWidth
-                disabled={isSubmitted}
               >
                 {row.file ? row.file.name : s.documentIngestionPickFile}
               </Button>

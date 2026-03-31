@@ -51,6 +51,7 @@ export function fetchIngestedGlobalDocumentsReq(): Promise<VectorizedDocumentChu
 export type IngestProjectDocumentResponse = {
   message: string
   chunks: number
+  previousChunksRemoved?: number
   projectId?: string
 }
 
@@ -114,6 +115,48 @@ export async function ingestGlobalDocumentMultipartReq(params: {
   }
   return api.post({
     path: GLOBAL_RAG_INGESTION_PATH,
+    data: formData,
+    isFormData: true
+  })
+}
+
+export async function updateProjectDocumentJsonReq(payload: {
+  projectId: string
+  currentDocType: string
+  currentSource: string
+  newDocType?: string
+  newSource?: string
+  externalUrl: string
+  rawText: string
+}): Promise<IngestProjectDocumentResponse> {
+  const api = RagApi.getInstance()
+  return api.patch({ path: PROJECT_RAG_INGESTION_PATH, data: payload })
+}
+
+export async function updateProjectDocumentMultipartReq(params: {
+  projectId: string
+  currentDocType: string
+  currentSource: string
+  newDocType?: string
+  newSource?: string
+  file: File
+  rawText: string
+}): Promise<IngestProjectDocumentResponse> {
+  const api = RagApi.getInstance()
+  const formData = new FormData()
+  formData.append("projectId", params.projectId)
+  formData.append("currentDocType", params.currentDocType)
+  formData.append("currentSource", params.currentSource)
+  if (params.newDocType) {
+    formData.append("newDocType", params.newDocType)
+  }
+  if (params.newSource !== undefined) {
+    formData.append("newSource", params.newSource)
+  }
+  formData.append("file", params.file)
+  formData.append("rawText", params.rawText.trim())
+  return api.patch({
+    path: PROJECT_RAG_INGESTION_PATH,
     data: formData,
     isFormData: true
   })

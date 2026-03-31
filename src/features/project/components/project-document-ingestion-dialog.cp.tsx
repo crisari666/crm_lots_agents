@@ -18,7 +18,9 @@ import {
   fetchIngestedDocumentsByProjectReq,
   ingestProjectDocumentJsonReq,
   ingestProjectDocumentMultipartReq,
-  getRagIngestionErrorMessage
+  getRagIngestionErrorMessage,
+  updateProjectDocumentJsonReq,
+  updateProjectDocumentMultipartReq
 } from "../../../app/services/project-document-ingestion.service"
 import ProjectDocumentIngestionCardCP, { rowReadyForIngest } from "./project-document-ingestion-card.cp"
 import { STANDARD_PROJECT_DOC_TYPES } from "../types/project-document-ingestion.types"
@@ -159,15 +161,38 @@ export default function ProjectDocumentIngestionDialogCP({ open, onClose, projec
 
   const ingestOne = async (row: ProjectIngestionDocumentRow) => {
     const rawText = row.rawText.trim()
-    const sourceOpt =
+    const newSource =
       row.docType === "other" ? row.documentKeyName.trim() || undefined : undefined
+    const isUpdate = submittedIds.has(row.id)
+    if (isUpdate && row.currentDocType !== undefined && row.currentSource !== undefined) {
+      if (row.sourceMode === "upload" && row.file) {
+        return updateProjectDocumentMultipartReq({
+          projectId,
+          currentDocType: row.currentDocType,
+          currentSource: row.currentSource,
+          newDocType: row.docType,
+          newSource: newSource ?? "",
+          file: row.file,
+          rawText
+        })
+      }
+      return updateProjectDocumentJsonReq({
+        projectId,
+        currentDocType: row.currentDocType,
+        currentSource: row.currentSource,
+        newDocType: row.docType,
+        newSource: newSource ?? "",
+        externalUrl: row.externalUrl.trim(),
+        rawText
+      })
+    }
     if (row.sourceMode === "upload" && row.file) {
       return ingestProjectDocumentMultipartReq({
         projectId,
         docType: row.docType,
         file: row.file,
         rawText,
-        source: sourceOpt
+        source: newSource
       })
     }
     return ingestProjectDocumentJsonReq({
@@ -175,7 +200,7 @@ export default function ProjectDocumentIngestionDialogCP({ open, onClose, projec
       docType: row.docType,
       externalUrl: row.externalUrl.trim(),
       rawText,
-      source: sourceOpt
+      source: newSource
     })
   }
 
