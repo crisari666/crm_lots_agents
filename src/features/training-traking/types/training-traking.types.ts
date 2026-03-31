@@ -26,6 +26,7 @@ export type TrainingAttendeeType = {
   trainingId: string
   uniqueCode: string
   name: string
+  phoneNumber?: string | null
   email: string
   status: TrainingAttendeeStatusType
   declineReason?: string | null

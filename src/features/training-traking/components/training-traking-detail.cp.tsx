@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
@@ -16,6 +17,7 @@ import {
   selectTrainingTrakingState
 } from "../slice/training-traking.slice"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import DownloadIcon from "@mui/icons-material/Download"
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
 import type { TrainingAttendeeType } from "../types/training-traking.types"
 import { toggleCheckInThunk } from "../slice/training-traking.slice"
@@ -65,6 +67,33 @@ export default function TrainingTrakingDetailCP() {
         attendeeId: attendee.id
       })
     )
+  }
+
+  const escapeCsvValue = (value: string) => `"${value.replace(/"/g, `""`)}"`
+
+  const handleDownloadAttendeesCsv = () => {
+    const header = ["name", "phone", "email", "status"]
+    const rows = detail.attendees.map((attendee) => [
+      attendee.name ?? "",
+      attendee.phoneNumber ?? "",
+      attendee.email ?? "",
+      attendee.status ?? ""
+    ])
+
+    const csv = [header, ...rows]
+      .map((row) => row.map((value) => escapeCsvValue(String(value))).join(","))
+      .join("\n")
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    const safeTrainingName = detail.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")
+    link.href = url
+    link.download = `${safeTrainingName || "training"}-attendees.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -160,9 +189,25 @@ export default function TrainingTrakingDetailCP() {
         </Box>
 
         <Box sx={{ mt: 3 }}>
-          <Typography variant="subtitle2" gutterBottom>
-            Asistentes
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 1
+            }}
+          >
+            <Typography variant="subtitle2">Asistentes</Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<DownloadIcon />}
+              onClick={handleDownloadAttendeesCsv}
+              disabled={detail.attendees.length === 0}
+            >
+              Descargar CSV
+            </Button>
+          </Box>
 
           {detail.attendees.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
