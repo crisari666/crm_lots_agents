@@ -2,13 +2,16 @@ import { Alert, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextFi
 import type { SelectChangeEvent } from "@mui/material"
 import DeleteOutline from "@mui/icons-material/DeleteOutline"
 import { useCallback, useEffect, useState } from "react"
+import type { UserImportFirstStepType } from "../../../app/services/users.service"
 import type { OnboardingStatusType } from "../types/onboarding-state.types"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
   deleteOnboardingFlowsBySelectedIdsThunk,
   fetchUsersOnboardingStatusThunk,
   recreateImportSchedulesForNeedsHumanWhatsappThunk,
+  recreateImportSchedulesForSelectedUserIdsThunk,
   selectSelectedOrphanOnboardingRowIds,
+  selectSelectedRescheduleUserIds,
   selectUsersOnboardingStatusState,
   setOnboardingSearchTermAct,
   setOnboardingStatusFilterAct
@@ -18,6 +21,7 @@ import UsersOnboardingDeleteFlowsConfirmDialogCP from "./users-onboarding-delete
 
 const statuses: Array<OnboardingStatusType | "all"> = [
   "all",
+  "Scheduled",
   "Needs_human_whatsapp",
   "Imported",
   "WS_video_sent",
@@ -44,9 +48,12 @@ export default function OnboardinControlsCP() {
   } =
     useAppSelector(selectUsersOnboardingStatusState)
   const selectedOrphanRowIds = useAppSelector(selectSelectedOrphanOnboardingRowIds)
+  const selectedRescheduleUserIds = useAppSelector(selectSelectedRescheduleUserIds)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteDialogError, setDeleteDialogError] = useState<string | null>(null)
   const [recreateError, setRecreateError] = useState<string | null>(null)
+  const [rescheduleSelectedError, setRescheduleSelectedError] = useState<string | null>(null)
+  const [rescheduleFirstStep, setRescheduleFirstStep] = useState<UserImportFirstStepType | "">("")
 
   useEffect(() => {
     if (!deleteDialogOpen) setDeleteDialogError(null)
@@ -117,8 +124,32 @@ export default function OnboardinControlsCP() {
     )
   }, [dispatch])
 
+  const onRescheduleSelected = useCallback(async () => {
+    setRescheduleSelectedError(null)
+    if (rescheduleFirstStep === "" || selectedRescheduleUserIds.length === 0) {
+      setRescheduleSelectedError(s.rescheduleNoSelection)
+      return
+    }
+    const result = await dispatch(
+      recreateImportSchedulesForSelectedUserIdsThunk({
+        importFirstStep: rescheduleFirstStep
+      })
+    )
+    if (recreateImportSchedulesForSelectedUserIdsThunk.fulfilled.match(result)) {
+      return
+    }
+    const payload = result.payload as string | undefined
+    if (payload === "noRescheduleSelection") {
+      setRescheduleSelectedError(s.rescheduleNoSelection)
+      return
+    }
+    setRescheduleSelectedError(
+      payload != null && payload !== "recreateSchedulesFailed" ? payload : s.recreateSchedulesError
+    )
+  }, [dispatch, rescheduleFirstStep, selectedRescheduleUserIds.length])
+
   return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
+    <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }} flexWrap="wrap">
       <FormControl size="small" sx={{ minWidth: 220 }}>
         <InputLabel id="onboarding-status-filter-label">Status</InputLabel>
         <Select
@@ -147,6 +178,43 @@ export default function OnboardinControlsCP() {
         Refresh
       </Button>
 
+      <FormControl size="small" sx={{ minWidth: 260 }}>
+        <InputLabel id="reschedule-first-step-label">{s.rescheduleFirstStepLabel}</InputLabel>
+        <Select
+          labelId="reschedule-first-step-label"
+          label={s.rescheduleFirstStepLabel}
+          value={rescheduleFirstStep}
+          onChange={(e) =>
+            setRescheduleFirstStep(e.target.value as UserImportFirstStepType | "")
+          }
+        >
+          <MenuItem value="">
+            <em>{s.rescheduleFirstStepPlaceholder}</em>
+          </MenuItem>
+          <MenuItem value="scheduled_whatsapp_import_greeting">
+            {s.rescheduleFirstStepScheduledWhatsapp}
+          </MenuItem>
+          <MenuItem value="immediate_whatsapp_import_sequence">
+            {s.rescheduleFirstStepImmediateWhatsapp}
+          </MenuItem>
+          <MenuItem value="voice_call">{s.rescheduleFirstStepVoice}</MenuItem>
+        </Select>
+      </FormControl>
+
+      <Button
+        variant="contained"
+        color="secondary"
+        disabled={
+          selectedRescheduleUserIds.length === 0 ||
+          rescheduleFirstStep === "" ||
+          isLoading ||
+          bulkRecreateSchedulesLoading
+        }
+        onClick={onRescheduleSelected}
+      >
+        {s.rescheduleSelectedUsers}
+      </Button>
+
       <Button
         variant="outlined"
         disabled={isLoading || bulkRecreateSchedulesLoading}
@@ -171,6 +239,9 @@ export default function OnboardinControlsCP() {
       </Button>
 
       {recreateError != null ? <Alert severity="error">{recreateError}</Alert> : null}
+      {rescheduleSelectedError != null ? (
+        <Alert severity="error">{rescheduleSelectedError}</Alert>
+      ) : null}
 
       <UsersOnboardingDeleteFlowsConfirmDialogCP
         open={deleteDialogOpen}

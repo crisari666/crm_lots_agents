@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
+import type { UserImportFirstStepType } from "../../../app/services/users.service"
 import type { RootState } from "../../../app/store"
 import type { OnboardingStateType, OnboardingStatusType } from "../types/onboarding-state.types"
 import { isOrphanOnboardingListRow } from "../types/onboarding-state.types"
@@ -33,6 +34,7 @@ const initialState: UsersOnboardingStatusState = {
   statusFilter: "all",
   searchTerm: "",
   selectedOrphanRowIds: [],
+  selectedRescheduleUserIds: [],
   bulkDeleteFlowsLoading: false,
   bulkRecreateSchedulesLoading: false,
   historyFlows: historyFlowsInitial,
@@ -121,7 +123,40 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
         return rejectWithValue("noNeedsHumanWhatsappUsers")
       }
 
-      const result = await recreateImportSchedulesReq(userIds)
+      const result = await recreateImportSchedulesReq({
+        userIds,
+        importFirstStep: "scheduled_whatsapp_import_greeting"
+      })
+      const status = statusFilter === "all" ? undefined : statusFilter
+      await dispatch(fetchUsersOnboardingStatusThunk({ status }))
+      return { updatedCount: result.length }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "recreateSchedulesFailed"
+      return rejectWithValue(msg)
+    }
+  }
+)
+
+export const recreateImportSchedulesForSelectedUserIdsThunk = createAsyncThunk<
+  { updatedCount: number },
+  { importFirstStep: UserImportFirstStepType },
+  { state: RootState; rejectValue: string }
+>(
+  "usersOnboardingStatus/recreateImportSchedulesForSelectedUserIds",
+  async ({ importFirstStep }, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const { selectedRescheduleUserIds, statusFilter } = getState().usersOnboardingStatus
+      const userIds = Array.from(
+        new Set(
+          selectedRescheduleUserIds.filter((id) => typeof id === "string" && id.trim() !== "")
+        )
+      )
+
+      if (userIds.length === 0) {
+        return rejectWithValue("noRescheduleSelection")
+      }
+
+      const result = await recreateImportSchedulesReq({ userIds, importFirstStep })
       const status = statusFilter === "all" ? undefined : statusFilter
       await dispatch(fetchUsersOnboardingStatusThunk({ status }))
       return { updatedCount: result.length }
@@ -170,6 +205,26 @@ const usersOnboardingStatusSlice = createSlice({
       } else {
         state.selectedOrphanRowIds = [...new Set([...state.selectedOrphanRowIds, ...orphanIds])]
       }
+    },
+    toggleRescheduleUserSelectedAct: (state, action: PayloadAction<string>) => {
+      const id = action.payload
+      const i = state.selectedRescheduleUserIds.indexOf(id)
+      if (i >= 0) state.selectedRescheduleUserIds.splice(i, 1)
+      else state.selectedRescheduleUserIds.push(id)
+    },
+    toggleSelectAllVisibleRescheduleUsersAct: (state, action: PayloadAction<string[]>) => {
+      const userIds = action.payload
+      const set = new Set(userIds)
+      const allSelected =
+        userIds.length > 0 &&
+        userIds.every((id) => state.selectedRescheduleUserIds.includes(id))
+      if (allSelected) {
+        state.selectedRescheduleUserIds = state.selectedRescheduleUserIds.filter((id) => !set.has(id))
+      } else {
+        state.selectedRescheduleUserIds = [
+          ...new Set([...state.selectedRescheduleUserIds, ...userIds])
+        ]
+      }
     }
   },
   extraReducers: (builder) => {
@@ -191,6 +246,14 @@ const usersOnboardingStatusSlice = createSlice({
               .filter((id): id is string => Boolean(id))
           )
           state.selectedOrphanRowIds = state.selectedOrphanRowIds.filter((id) => valid.has(id))
+          const validUserIds = new Set(
+            action.payload
+              .map((x) => x.userId?._id)
+              .filter((id): id is string => Boolean(id))
+          )
+          state.selectedRescheduleUserIds = state.selectedRescheduleUserIds.filter((id) =>
+            validUserIds.has(id)
+          )
         }
       )
       .addCase(fetchUsersOnboardingStatusThunk.rejected, (state, action) => {
@@ -259,6 +322,16 @@ const usersOnboardingStatusSlice = createSlice({
       .addCase(recreateImportSchedulesForNeedsHumanWhatsappThunk.rejected, (state) => {
         state.bulkRecreateSchedulesLoading = false
       })
+      .addCase(recreateImportSchedulesForSelectedUserIdsThunk.pending, (state) => {
+        state.bulkRecreateSchedulesLoading = true
+      })
+      .addCase(recreateImportSchedulesForSelectedUserIdsThunk.fulfilled, (state) => {
+        state.bulkRecreateSchedulesLoading = false
+        state.selectedRescheduleUserIds = []
+      })
+      .addCase(recreateImportSchedulesForSelectedUserIdsThunk.rejected, (state) => {
+        state.bulkRecreateSchedulesLoading = false
+      })
   }
 })
 
@@ -269,7 +342,9 @@ export const {
   clearHistoryFlowsAct,
   clearHistoryFlowLogsAct,
   toggleOrphanOnboardingRowSelectedAct,
-  toggleSelectAllVisibleOrphanOnboardingRowsAct
+  toggleSelectAllVisibleOrphanOnboardingRowsAct,
+  toggleRescheduleUserSelectedAct,
+  toggleSelectAllVisibleRescheduleUsersAct
 } = usersOnboardingStatusSlice.actions
 
 export const selectUsersOnboardingStatusState = (state: RootState) => state.usersOnboardingStatus
@@ -295,6 +370,9 @@ export const selectUsersOnboardingStatusFilteredItems = (state: RootState) => {
 
 export const selectSelectedOrphanOnboardingRowIds = (state: RootState) =>
   state.usersOnboardingStatus.selectedOrphanRowIds
+
+export const selectSelectedRescheduleUserIds = (state: RootState) =>
+  state.usersOnboardingStatus.selectedRescheduleUserIds
 
 export default usersOnboardingStatusSlice.reducer
 

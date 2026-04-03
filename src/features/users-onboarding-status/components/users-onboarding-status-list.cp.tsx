@@ -21,10 +21,13 @@ import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
   selectSelectedOrphanOnboardingRowIds,
+  selectSelectedRescheduleUserIds,
   selectUsersOnboardingStatusFilteredItems,
   selectUsersOnboardingStatusState,
   toggleOrphanOnboardingRowSelectedAct,
-  toggleSelectAllVisibleOrphanOnboardingRowsAct
+  toggleRescheduleUserSelectedAct,
+  toggleSelectAllVisibleOrphanOnboardingRowsAct,
+  toggleSelectAllVisibleRescheduleUsersAct
 } from "../slice/users-onboarding-status.slice"
 import type { OnboardingStateType, OnboardingUserType } from "../types/onboarding-state.types"
 import { isOrphanOnboardingListRow } from "../types/onboarding-state.types"
@@ -46,6 +49,7 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
   const { isLoading, error } = useAppSelector(selectUsersOnboardingStatusState)
   const items: OnboardingStateType[] = useAppSelector(selectUsersOnboardingStatusFilteredItems)
   const selectedOrphanIds = useAppSelector(selectSelectedOrphanOnboardingRowIds)
+  const selectedRescheduleUserIds = useAppSelector(selectSelectedRescheduleUserIds)
 
   const visibleOrphanIds = items
     .filter(isOrphanOnboardingListRow)
@@ -53,6 +57,20 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
   const allOrphansSelected =
     visibleOrphanIds.length > 0 && visibleOrphanIds.every((id) => selectedOrphanIds.includes(id))
   const someOrphansSelected = visibleOrphanIds.some((id) => selectedOrphanIds.includes(id))
+
+  const visibleRescheduleUserIds = Array.from(
+    new Set(
+      items
+        .map((x) => x.userId?._id)
+        .filter((id): id is string => Boolean(id))
+    )
+  )
+  const allRescheduleSelected =
+    visibleRescheduleUserIds.length > 0 &&
+    visibleRescheduleUserIds.every((id) => selectedRescheduleUserIds.includes(id))
+  const someRescheduleSelected = visibleRescheduleUserIds.some((id) =>
+    selectedRescheduleUserIds.includes(id)
+  )
 
   const handleOpenHistory = (item: OnboardingStateType) => {
     setSelectedItem(item)
@@ -112,6 +130,23 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
                 </Tooltip>
               ) : null}
             </TableCell>
+            <TableCell padding="checkbox">
+              {visibleRescheduleUserIds.length > 0 ? (
+                <Tooltip title={s.selectUsersForReschedule}>
+                  <Checkbox
+                    size="small"
+                    indeterminate={someRescheduleSelected && !allRescheduleSelected}
+                    checked={allRescheduleSelected}
+                    onChange={() =>
+                      dispatch(
+                        toggleSelectAllVisibleRescheduleUsersAct(visibleRescheduleUserIds)
+                      )
+                    }
+                    inputProps={{ "aria-label": s.selectUsersForReschedule }}
+                  />
+                </Tooltip>
+              ) : null}
+            </TableCell>
             <TableCell>User</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Whatsapp</TableCell>
@@ -127,6 +162,7 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
             const rowId = x._id ?? `${x.createdAt}-${x.lastUpdate}`
             const orphan = isOrphanOnboardingListRow(x)
             const stateId = x._id
+            const userMongoId = x.userId?._id
             return (
               <TableRow key={rowId}>
                 <TableCell padding="checkbox">
@@ -135,6 +171,17 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
                       size="small"
                       checked={selectedOrphanIds.includes(stateId)}
                       onChange={() => dispatch(toggleOrphanOnboardingRowSelectedAct(stateId))}
+                    />
+                  ) : null}
+                </TableCell>
+                <TableCell padding="checkbox">
+                  {userMongoId ? (
+                    <Checkbox
+                      size="small"
+                      checked={selectedRescheduleUserIds.includes(userMongoId)}
+                      onChange={() =>
+                        dispatch(toggleRescheduleUserSelectedAct(userMongoId))
+                      }
                     />
                   ) : null}
                 </TableCell>
@@ -192,7 +239,7 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
 
           {items.length === 0 && !isLoading ? (
             <TableRow>
-              <TableCell colSpan={9}>
+              <TableCell colSpan={10}>
                 <Typography variant="body2">No users found</Typography>
               </TableCell>
             </TableRow>

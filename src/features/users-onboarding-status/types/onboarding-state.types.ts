@@ -1,6 +1,7 @@
 export type OnboardingStatusType =
   | "Imported"
   | "WS_sent"
+  | "Scheduled"
   | "WS_video_sent"
   | "Needs_human_whatsapp"
   | "Interested"
@@ -96,10 +97,16 @@ export type OnboardingFlowsDeleteResponse = {
 }
 
 /** `POST /onboarding-state/import/recreate-schedules` */
+export type OnboardingRecreateScheduleItemStatus =
+  | "scheduled"
+  | "immediate_triggered"
+  | "user_not_found"
+  | "missing_phone"
+
 export type OnboardingRecreateSchedulesResponse = {
   result: Array<{
     userId: string
-    status: "scheduled" | "user_not_found" | "missing_phone"
+    status: OnboardingRecreateScheduleItemStatus
   }>
   message: string
   error?: string

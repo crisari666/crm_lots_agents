@@ -26,6 +26,8 @@ export type UsersOnboardingStatusState = {
   statusFilter: OnboardingStatusType | "all"
   searchTerm: string
   selectedOrphanRowIds: string[]
+  /** `userId._id` values for bulk recreate-schedules */
+  selectedRescheduleUserIds: string[]
   bulkDeleteFlowsLoading: boolean
   bulkRecreateSchedulesLoading: boolean
   historyFlows: UsersOnboardingHistoryFlowsState
