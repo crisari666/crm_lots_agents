@@ -1,3 +1,60 @@
+import type { OnboardingStatusType } from "../../features/users-onboarding-status/types/onboarding-state.types"
+
+/** Título y descripción para el filtro de estado (valores de API sin cambiar) */
+export const onboardingStatusFilterI18n: Record<
+  OnboardingStatusType | "all",
+  { title: string; description: string }
+> = {
+  all: {
+    title: "Todos",
+    description: "Muestra a todos los usuarios, sin filtrar por en qué van del proceso"
+  },
+  Imported: {
+    title: "Importado",
+    description: "Se importo en el CRM, no se programao el flujo"
+  },
+  Scheduled: {
+    title: "Programado",
+    description: "Tiene agendado el flujo automatico, no ha iniciado el flujo"
+  },
+  WS_sent: {
+    title: "Saludo por WhatsApp enviado",
+    description: "Ya recibió el mensaje de bienvenida o saludo inicial por WhatsApp"
+  },
+  WS_video_sent: {
+    title: "Video o siguiente mensaje enviado",
+    description: "Ya se le envió el video o el mensaje que sigue al saludo en WhatsApp"
+  },
+  Needs_human_whatsapp: {
+    title: "Requiere atención humana (WhatsApp)",
+    description: "Reportado como spam por Whatsapp Business"
+  },
+  Interested: {
+    title: "Mostró interés",
+    description: "Oprimio el boton interesado del video"
+  },
+  Call_programmed: {
+    title: "Llamada programada",
+    description: "Tiene una llamada telefónica agendada con el agente de voz"
+  },
+  Call_done_success: {
+    title: "Llamada completada",
+    description: "La persona contesto la llamada pero colgo."
+  },
+  Call_failed: {
+    title: "Llamada no completada",
+    description: "La llamada no se pudo completar o hubo un fallo técnico"
+  },
+  WS_training_sent: {
+    title: "Mensaje de capacitación enviado",
+    description: "Ya recibió por WhatsApp la información sobre la capacitación"
+  },
+  Confirmed_training_request: {
+    title: "Capacitación confirmada",
+    description: "Confirmó asistencia o fecha para la capacitación"
+  }
+}
+
 /** User-facing copy for users-onboarding-status feature */
 export const usersOnboardingStatusStrings = {
   actionsDialogTitle: "Onboarding actions",
@@ -17,6 +74,12 @@ export const usersOnboardingStatusStrings = {
   errorGeneric: "Something went wrong",
   missingPhone: "User has no phone number",
   missingVoiceConfig: "Configure VITE_VOICE_AGENT_FROM_NUMBER in .env",
+  statusFilterLabel: "Estado del proceso",
+  /** Filas que ves en la tabla; si hay búsqueda, total es lo que devolvió el estado antes de filtrar */
+  listRowsShown: (visible: number, total: number) =>
+    visible === total
+      ? `Se muestran ${visible} fila${visible === 1 ? "" : "s"}`
+      : `Se muestran ${visible} de ${total} fila${total === 1 ? "" : "s"} (búsqueda activa)`,
   viewHistory: "View history",
   actionsOpen: "Triggers",
   historyDialogTitle: "Onboarding flows",

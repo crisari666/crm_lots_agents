@@ -1,4 +1,15 @@
-import { Alert, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material"
+import {
+  Alert,
+  Button,
+  FormControl,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography
+} from "@mui/material"
 import type { SelectChangeEvent } from "@mui/material"
 import DeleteOutline from "@mui/icons-material/DeleteOutline"
 import { useCallback, useEffect, useState } from "react"
@@ -12,20 +23,24 @@ import {
   recreateImportSchedulesForSelectedUserIdsThunk,
   selectSelectedOrphanOnboardingRowIds,
   selectSelectedRescheduleUserIds,
+  selectUsersOnboardingStatusFilteredItems,
   selectUsersOnboardingStatusState,
   setOnboardingSearchTermAct,
   setOnboardingStatusFilterAct
 } from "../slice/users-onboarding-status.slice"
-import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
+import {
+  onboardingStatusFilterI18n,
+  usersOnboardingStatusStrings as s
+} from "../../../i18n/locales/users-onboarding-status.strings"
 import UsersOnboardingDeleteFlowsConfirmDialogCP from "./users-onboarding-delete-flows-confirm-dialog.cp"
 
 const statuses: Array<OnboardingStatusType | "all"> = [
   "all",
-  "Scheduled",
-  "Needs_human_whatsapp",
   "Imported",
-  "WS_video_sent",
+  "Scheduled",
   "WS_sent",
+  "WS_video_sent",
+  "Needs_human_whatsapp",
   "Interested",
   "Call_programmed",
   "Call_done_success",
@@ -40,13 +55,14 @@ const isValidStatusFilter = (v: string): v is OnboardingStatusType | "all" =>
 export default function OnboardinControlsCP() {
   const dispatch = useAppDispatch()
   const {
+    items,
     statusFilter,
     searchTerm,
     isLoading,
     bulkDeleteFlowsLoading,
     bulkRecreateSchedulesLoading
-  } =
-    useAppSelector(selectUsersOnboardingStatusState)
+  } = useAppSelector(selectUsersOnboardingStatusState)
+  const filteredOnboardingRows = useAppSelector(selectUsersOnboardingStatusFilteredItems)
   const selectedOrphanRowIds = useAppSelector(selectSelectedOrphanOnboardingRowIds)
   const selectedRescheduleUserIds = useAppSelector(selectSelectedRescheduleUserIds)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -148,31 +164,45 @@ export default function OnboardinControlsCP() {
     )
   }, [dispatch, rescheduleFirstStep, selectedRescheduleUserIds.length])
 
+  const totalRowCount = items.length
+  const visibleRowCount = filteredOnboardingRows.length
+
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }} flexWrap="wrap">
-      <FormControl size="small" sx={{ minWidth: 220 }}>
-        <InputLabel id="onboarding-status-filter-label">Status</InputLabel>
+      <FormControl size="small" sx={{ minWidth: 300, maxWidth: 420 }}>
+        <InputLabel id="onboarding-status-filter-label">{s.statusFilterLabel}</InputLabel>
         <Select
           labelId="onboarding-status-filter-label"
-          label="Status"
+          label={s.statusFilterLabel}
           value={resolvedFilter}
           onChange={onChangeStatus}
+          renderValue={(value) =>
+            onboardingStatusFilterI18n[value as keyof typeof onboardingStatusFilterI18n].title
+          }
         >
-          {statuses.map((s) => (
-            <MenuItem key={s} value={s}>
-              {s === "all" ? "All" : s}
-            </MenuItem>
-          ))}
+          {statuses.map((statusKey) => {
+            const copy = onboardingStatusFilterI18n[statusKey]
+            return (
+              <MenuItem key={statusKey} value={statusKey}>
+                <ListItemText primary={copy.title} secondary={copy.description} />
+              </MenuItem>
+            )
+          })}
         </Select>
       </FormControl>
 
-      <TextField
-        size="small"
-        label="Search user"
-        value={searchTerm}
-        onChange={(e) => dispatch(setOnboardingSearchTermAct(e.target.value))}
-        sx={{ flex: 1, minWidth: 260 }}
-      />
+      <Stack spacing={0.5} sx={{ flex: 1, minWidth: 260 }}>
+        <TextField
+          size="small"
+          label="Search user"
+          value={searchTerm}
+          onChange={(e) => dispatch(setOnboardingSearchTermAct(e.target.value))}
+          fullWidth
+        />
+        <Typography variant="body2" color="text.secondary" component="p">
+          {s.listRowsShown(visibleRowCount, totalRowCount)}
+        </Typography>
+      </Stack>
 
       <Button variant="contained" onClick={onRefresh} disabled={isLoading}>
         Refresh
