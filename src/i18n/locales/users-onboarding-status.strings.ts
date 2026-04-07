@@ -54,8 +54,8 @@ export const onboardingStatusFilterI18n: Record<
     description: "Confirmó asistencia o fecha para la capacitación"
   },
   Call_voicemail: {
-    title: "Mensaje de voz dejado",
-    description: "La persona dejó un mensaje de voz en la llamada"
+    title: "Correo de Voz",
+    description: "La persona no contesto"
   },
   Reschedule_due_twilio_number_occupiedt: {
     title: "Reagendado debido a que el número de Twilio está ocupado",
