@@ -52,6 +52,14 @@ export const onboardingStatusFilterI18n: Record<
   Confirmed_training_request: {
     title: "Capacitación confirmada",
     description: "Confirmó asistencia o fecha para la capacitación"
+  },
+  Call_voicemail: {
+    title: "Mensaje de voz dejado",
+    description: "La persona dejó un mensaje de voz en la llamada"
+  },
+  Reschedule_due_twilio_number_occupiedt: {
+    title: "Reagendado debido a que el número de Twilio está ocupado",
+    description: "El número de Twilio está ocupado, se reagendó la llamada"
   }
 }
 
@@ -123,6 +131,11 @@ export const usersOnboardingStatusStrings = {
   rescheduleFirstStepVoice: "Voice call (import queue)",
   rescheduleSelectedUsers: "Reschedule selected",
   rescheduleNoSelection: "Select at least one user and a first step",
+  exportVisibleRows: "Export visible users",
+  listColUser: "User",
+  listColPhone: "Phone",
+  listColEmail: "Email",
+  listColStatus: "Status",
   whatsappChatOpen: "WhatsApp conversation",
   whatsappChatDialogTitle: "WhatsApp chat",
   whatsappChatLoading: "Loading conversation…",

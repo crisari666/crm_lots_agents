@@ -6,6 +6,8 @@ export type OnboardingStatusType =
   | "Needs_human_whatsapp"
   | "Interested"
   | "Call_programmed"
+  | "Call_voicemail"
+  | "Reschedule_due_twilio_number_occupiedt"
   | "Call_done_success"
   | "Call_failed"
   | "WS_training_sent"

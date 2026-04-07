@@ -52,6 +52,11 @@ const statuses: Array<OnboardingStatusType | "all"> = [
 const isValidStatusFilter = (v: string): v is OnboardingStatusType | "all" =>
   (statuses as readonly string[]).includes(v)
 
+const sanitizeCsvCell = (value: string) => {
+  const escaped = value.replaceAll(`"`, `""`)
+  return `"${escaped}"`
+}
+
 export default function OnboardinControlsCP() {
   const dispatch = useAppDispatch()
   const {
@@ -97,6 +102,34 @@ export default function OnboardinControlsCP() {
     const status = resolvedFilter === "all" ? undefined : resolvedFilter
     dispatch(fetchUsersOnboardingStatusThunk({ status }))
   }
+
+  const onExportVisibleRows = useCallback(() => {
+    const rows = filteredOnboardingRows.map((x) => ({
+      user: x.userId ? `${x.userId.name} ${x.userId.lastName}`.trim() : "",
+      phone: x.userId?.phone ?? "",
+      email: x.userId?.email ?? "",
+      status: x.status ?? ""
+    }))
+    const headers = [s.listColUser, s.listColPhone, s.listColEmail, s.listColStatus]
+    const csvRows = [
+      headers.map(sanitizeCsvCell).join(","),
+      ...rows.map((row) =>
+        [row.user, row.phone, row.email, row.status].map(sanitizeCsvCell).join(",")
+      )
+    ]
+    const csvContent = `\uFEFF${csvRows.join("\n")}`
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = `${now.getMonth() + 1}`.padStart(2, "0")
+    const d = `${now.getDate()}`.padStart(2, "0")
+    link.href = url
+    link.download = `onboarding-users-${y}${m}${d}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }, [filteredOnboardingRows])
 
   const openDeleteDialog = useCallback(() => {
     setDeleteDialogError(null)
@@ -168,7 +201,23 @@ export default function OnboardinControlsCP() {
   const visibleRowCount = filteredOnboardingRows.length
 
   return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }} flexWrap="wrap">
+    <Stack spacing={2}>
+      <Stack direction="row" justifyContent="flex-end">
+        <Button
+          variant="outlined"
+          onClick={onExportVisibleRows}
+          disabled={isLoading || filteredOnboardingRows.length === 0}
+        >
+          {s.exportVisibleRows}
+        </Button>
+      </Stack>
+
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={2}
+        alignItems={{ md: "center" }}
+        flexWrap="wrap"
+      >
       <FormControl size="small" sx={{ minWidth: 300, maxWidth: 420 }}>
         <InputLabel id="onboarding-status-filter-label">{s.statusFilterLabel}</InputLabel>
         <Select
@@ -281,6 +330,7 @@ export default function OnboardinControlsCP() {
         errorText={deleteDialogError}
         onConfirm={confirmDeleteFlows}
       />
+      </Stack>
     </Stack>
   )
 }
