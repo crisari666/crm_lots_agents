@@ -46,7 +46,9 @@ const statuses: Array<OnboardingStatusType | "all"> = [
   "Call_done_success",
   "Call_failed",
   "WS_training_sent",
-  "Confirmed_training_request"
+  "Confirmed_training_request",
+  "Call_voicemail",
+  "Reschedule_due_twilio_number_occupiedt"
 ]
 
 const isValidStatusFilter = (v: string): v is OnboardingStatusType | "all" =>
