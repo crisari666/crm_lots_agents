@@ -105,7 +105,8 @@ export async function acceptAttendeeReq(attendeeId: string): Promise<ConfirmStat
   try {
     const api = Api.getInstance()
     const response: ConfirmStatusResponse = await api.post({
-      path: `/trainings/attendees/${attendeeId}/accept`
+      path: `/trainings/attendees/${attendeeId}/accept`,
+      data: {}
     })
     return response.data
   } catch (error) {
