@@ -1,11 +1,14 @@
 import Api from "../../../app/axios"
 import type {
+  AddUserByEmailPayload,
+  ConfirmStatusResponse,
   CreateTrainingPayload,
   TrainingAttendeeType,
   TrainingDetailResponse,
   TrainingDetailType,
   TrainingListResponse,
-  TrainingWithCountsType
+  TrainingWithCountsType,
+  UpdateTrainingPayload
 } from "../types/training-traking.types"
 
 export async function getTrainingsReq(): Promise<TrainingWithCountsType[]> {
@@ -48,6 +51,40 @@ export async function createTrainingReq(payload: CreateTrainingPayload): Promise
   }
 }
 
+export async function updateTrainingReq(
+  id: string,
+  payload: UpdateTrainingPayload
+): Promise<TrainingDetailType> {
+  try {
+    const api = Api.getInstance()
+    const response: TrainingDetailResponse = await api.patch({
+      path: `/trainings/${id}`,
+      data: payload
+    })
+    return response.data
+  } catch (error) {
+    console.error("ERROR ON updateTrainingReq", error)
+    throw error
+  }
+}
+
+export async function addUserByEmailReq(
+  trainingId: string,
+  payload: AddUserByEmailPayload
+): Promise<TrainingAttendeeType> {
+  try {
+    const api = Api.getInstance()
+    const response: { data: TrainingAttendeeType } = await api.post({
+      path: `/trainings/${trainingId}/attendees/user`,
+      data: payload
+    })
+    return response.data
+  } catch (error) {
+    console.error("ERROR ON addUserByEmailReq", error)
+    throw error
+  }
+}
+
 export async function toggleCheckInReq(params: {
   trainingId: string
   attendeeId: string
@@ -60,6 +97,36 @@ export async function toggleCheckInReq(params: {
     return response.data
   } catch (error) {
     console.error("ERROR ON toggleCheckInReq", error)
+    throw error
+  }
+}
+
+export async function acceptAttendeeReq(attendeeId: string): Promise<ConfirmStatusResponse["data"]> {
+  try {
+    const api = Api.getInstance()
+    const response: ConfirmStatusResponse = await api.post({
+      path: `/trainings/attendees/${attendeeId}/accept`
+    })
+    return response.data
+  } catch (error) {
+    console.error("ERROR ON acceptAttendeeReq", error)
+    throw error
+  }
+}
+
+export async function declineAttendeeReq(
+  attendeeId: string,
+  reason: string
+): Promise<ConfirmStatusResponse["data"]> {
+  try {
+    const api = Api.getInstance()
+    const response: ConfirmStatusResponse = await api.post({
+      path: `/trainings/attendees/${attendeeId}/decline`,
+      data: { reason }
+    })
+    return response.data
+  } catch (error) {
+    console.error("ERROR ON declineAttendeeReq", error)
     throw error
   }
 }

@@ -56,3 +56,17 @@ export type CreateTrainingPayload = {
   maxSlots: number
 }
 
+export type UpdateTrainingPayload = Partial<CreateTrainingPayload>
+
+export type AddUserByEmailPayload = {
+  email: string
+}
+
+export type ConfirmStatusResponse = {
+  data: {
+    status: TrainingAttendeeStatusType
+    message: string
+    reason?: string
+  }
+}
+

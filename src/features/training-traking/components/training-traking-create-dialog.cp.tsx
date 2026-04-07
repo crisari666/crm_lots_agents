@@ -7,32 +7,46 @@ import {
   Grid,
   TextField
 } from "@mui/material"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
   createTrainingThunk,
-  selectTrainingTrakingState
+  selectTrainingTrakingState,
+  updateTrainingThunk
 } from "../slice/training-traking.slice"
+import type { TrainingDetailType } from "../types/training-traking.types"
 
 type TrainingTrakingCreateDialogCPProps = {
   open: boolean
   onClose: () => void
+  trainingToEdit?: TrainingDetailType | null
 }
 
 export default function TrainingTrakingCreateDialogCP({
   open,
-  onClose
+  onClose,
+  trainingToEdit = null
 }: TrainingTrakingCreateDialogCPProps) {
   const dispatch = useAppDispatch()
-  const { isCreating } = useAppSelector(selectTrainingTrakingState)
-  const [form, setForm] = useState({
-    name: "",
-    date: "",
-    time: "",
-    location: "",
-    mapsUrl: "",
-    maxSlots: 30
-  })
+  const { isCreating, isUpdatingTraining } = useAppSelector(selectTrainingTrakingState)
+  const isEditMode = trainingToEdit != null
+  const initialForm = useMemo(
+    () => ({
+      name: trainingToEdit?.name ?? "",
+      date: trainingToEdit?.date ?? "",
+      time: trainingToEdit?.time ?? "",
+      location: trainingToEdit?.location ?? "",
+      mapsUrl: trainingToEdit?.mapsUrl ?? "",
+      maxSlots: trainingToEdit?.maxSlots ?? 30
+    }),
+    [trainingToEdit]
+  )
+  const [form, setForm] = useState(initialForm)
+
+  useEffect(() => {
+    if (!open) return
+    setForm(initialForm)
+  }, [initialForm, open])
 
   const handleChange = (key: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -40,22 +54,38 @@ export default function TrainingTrakingCreateDialogCP({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    await dispatch(
-      createTrainingThunk({
-        name: form.name,
-        date: form.date,
-        time: form.time,
-        location: form.location,
-        mapsUrl: form.mapsUrl,
-        maxSlots: form.maxSlots
-      })
-    )
+    if (isEditMode && trainingToEdit != null) {
+      await dispatch(
+        updateTrainingThunk({
+          id: trainingToEdit.id,
+          payload: {
+            name: form.name,
+            date: form.date,
+            time: form.time,
+            location: form.location,
+            mapsUrl: form.mapsUrl,
+            maxSlots: form.maxSlots
+          }
+        })
+      )
+    } else {
+      await dispatch(
+        createTrainingThunk({
+          name: form.name,
+          date: form.date,
+          time: form.time,
+          location: form.location,
+          mapsUrl: form.mapsUrl,
+          maxSlots: form.maxSlots
+        })
+      )
+    }
     onClose()
   }
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Crear capacitación</DialogTitle>
+      <DialogTitle>{isEditMode ? "Actualizar capacitación" : "Crear capacitación"}</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Grid container spacing={2}>
@@ -126,8 +156,8 @@ export default function TrainingTrakingCreateDialogCP({
           <Button onClick={onClose} color="inherit">
             Cancelar
           </Button>
-          <Button type="submit" color="primary" disabled={isCreating}>
-            Crear
+          <Button type="submit" color="primary" disabled={isCreating || isUpdatingTraining}>
+            {isEditMode ? "Guardar cambios" : "Crear"}
           </Button>
         </DialogActions>
       </form>

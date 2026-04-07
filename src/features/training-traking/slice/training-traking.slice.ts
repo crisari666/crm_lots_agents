@@ -4,13 +4,18 @@ import type {
   CreateTrainingPayload,
   TrainingAttendeeType,
   TrainingDetailType,
-  TrainingWithCountsType
+  TrainingWithCountsType,
+  UpdateTrainingPayload
 } from "../types/training-traking.types"
 import {
+  acceptAttendeeReq,
+  addUserByEmailReq,
   createTrainingReq,
+  declineAttendeeReq,
   getTrainingDetailReq,
   getTrainingsReq,
-  toggleCheckInReq
+  toggleCheckInReq,
+  updateTrainingReq
 } from "../services/training-traking.service"
 import {
   trainingTrakingInitialState,
@@ -42,6 +47,45 @@ export const toggleCheckInThunk = createAsyncThunk(
   "trainingTraking/toggleCheckIn",
   async (params: { trainingId: string; attendeeId: string }) => {
     return toggleCheckInReq(params)
+  }
+)
+
+export const updateTrainingThunk = createAsyncThunk(
+  "trainingTraking/updateTraining",
+  async (params: { id: string; payload: UpdateTrainingPayload }, { dispatch }) => {
+    const updated = await updateTrainingReq(params.id, params.payload)
+    await dispatch(fetchTrainingsThunk())
+    return updated
+  }
+)
+
+export const addUserToTrainingByEmailThunk = createAsyncThunk(
+  "trainingTraking/addUserToTrainingByEmail",
+  async (params: { trainingId: string; email: string }, { dispatch }) => {
+    const attendee = await addUserByEmailReq(params.trainingId, { email: params.email })
+    await dispatch(fetchTrainingDetailThunk(params.trainingId))
+    await dispatch(fetchTrainingsThunk())
+    return attendee
+  }
+)
+
+export const acceptAttendeeThunk = createAsyncThunk(
+  "trainingTraking/acceptAttendee",
+  async (params: { trainingId: string; attendeeId: string }, { dispatch }) => {
+    const response = await acceptAttendeeReq(params.attendeeId)
+    await dispatch(fetchTrainingDetailThunk(params.trainingId))
+    await dispatch(fetchTrainingsThunk())
+    return response
+  }
+)
+
+export const declineAttendeeThunk = createAsyncThunk(
+  "trainingTraking/declineAttendee",
+  async (params: { trainingId: string; attendeeId: string; reason: string }, { dispatch }) => {
+    const response = await declineAttendeeReq(params.attendeeId, params.reason)
+    await dispatch(fetchTrainingDetailThunk(params.trainingId))
+    await dispatch(fetchTrainingsThunk())
+    return response
   }
 )
 
@@ -131,6 +175,55 @@ const trainingTrakingSlice = createSlice({
       .addCase(createTrainingThunk.rejected, (state, action) => {
         state.isCreating = false
         state.error = action.error.message ?? "Error creating training"
+      })
+
+      .addCase(updateTrainingThunk.pending, (state) => {
+        state.isUpdatingTraining = true
+        state.error = null
+      })
+      .addCase(updateTrainingThunk.fulfilled, (state, action: PayloadAction<TrainingDetailType>) => {
+        state.isUpdatingTraining = false
+        state.detail = action.payload
+      })
+      .addCase(updateTrainingThunk.rejected, (state, action) => {
+        state.isUpdatingTraining = false
+        state.error = action.error.message ?? "Error updating training"
+      })
+
+      .addCase(addUserToTrainingByEmailThunk.pending, (state) => {
+        state.isAddingUserToTraining = true
+        state.error = null
+      })
+      .addCase(addUserToTrainingByEmailThunk.fulfilled, (state) => {
+        state.isAddingUserToTraining = false
+      })
+      .addCase(addUserToTrainingByEmailThunk.rejected, (state, action) => {
+        state.isAddingUserToTraining = false
+        state.error = action.error.message ?? "Error adding user to training"
+      })
+
+      .addCase(acceptAttendeeThunk.pending, (state) => {
+        state.isUpdatingAttendeeStatus = true
+        state.error = null
+      })
+      .addCase(acceptAttendeeThunk.fulfilled, (state) => {
+        state.isUpdatingAttendeeStatus = false
+      })
+      .addCase(acceptAttendeeThunk.rejected, (state, action) => {
+        state.isUpdatingAttendeeStatus = false
+        state.error = action.error.message ?? "Error confirming attendee"
+      })
+
+      .addCase(declineAttendeeThunk.pending, (state) => {
+        state.isUpdatingAttendeeStatus = true
+        state.error = null
+      })
+      .addCase(declineAttendeeThunk.fulfilled, (state) => {
+        state.isUpdatingAttendeeStatus = false
+      })
+      .addCase(declineAttendeeThunk.rejected, (state, action) => {
+        state.isUpdatingAttendeeStatus = false
+        state.error = action.error.message ?? "Error declining attendee"
       })
 
       .addCase(toggleCheckInThunk.pending, (state) => {

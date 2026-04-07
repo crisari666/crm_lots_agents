@@ -7,6 +7,9 @@ export type TrainingTrakingSliceState = {
   isLoadingList: boolean
   isLoadingDetail: boolean
   isCreating: boolean
+  isUpdatingTraining: boolean
+  isAddingUserToTraining: boolean
+  isUpdatingAttendeeStatus: boolean
   isTogglingCheckIn: boolean
   error: string | null
 }
@@ -18,6 +21,9 @@ export const trainingTrakingInitialState: TrainingTrakingSliceState = {
   isLoadingList: false,
   isLoadingDetail: false,
   isCreating: false,
+  isUpdatingTraining: false,
+  isAddingUserToTraining: false,
+  isUpdatingAttendeeStatus: false,
   isTogglingCheckIn: false,
   error: null
 }
