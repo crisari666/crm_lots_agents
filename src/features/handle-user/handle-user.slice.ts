@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
-import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, setUserGoalReq, setUserLeaveDateReq, toggleEnableUserReq, updateUserService, uploadUserDocReq } from "../../app/services/users.service"
+import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq } from "../../app/services/users.service"
 import { pushAlertAction } from "../dashboard/dashboard.slice"
 import { store } from "../../app/store"
 import { HandleUserState } from "./handle-user-state.interface"
@@ -72,6 +72,11 @@ export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({
 
 export const toggleEnableUserThunk = createAsyncThunk( "handleUser/toggleEnableUserThunk", async (params : {userId: string, enable: boolean}) =>  await toggleEnableUserReq(params))
 
+export const setUserPhysicalThunk = createAsyncThunk(
+  "handleUser/setUserPhysical",
+  async (params: { userId: string, physical: boolean }) => setUserPhysicalReq(params)
+)
+
 export const getUserDocsThunk = createAsyncThunk( "handleUser/getUserDocsReq", async (userId: string) => await getUserDocsReq({userId}))
 
 export const setUserLeaveDateThunk = createAsyncThunk( "handleUser/setUserLeaveDateThunk", async (PARAM: {userId: string, date: string}) => await setUserLeaveDateReq({userId: PARAM.userId, leaveDate: PARAM.date}))
@@ -126,6 +131,10 @@ export const HandleUserSlice = createSlice({
       state.currentUser!.lead = action.payload.settedLead
     }).addCase(toggleEnableUserThunk.fulfilled, (state, action) => {
       state.currentUser!.enable = action.payload.enable
+    }).addCase(setUserPhysicalThunk.fulfilled, (state, action) => {
+      if (state.currentUser && action.payload?.physical !== undefined) {
+        state.currentUser.physical = action.payload.physical
+      }
     }).addCase(getUserDocsThunk.fulfilled, (state, action) => {      
       state.userDocs = action.payload
      }).addCase(uploadUserDocThunk.fulfilled, (state, action) => {

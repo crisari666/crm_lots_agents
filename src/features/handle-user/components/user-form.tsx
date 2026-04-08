@@ -88,7 +88,7 @@ export default function UserForm() {
                 <MenuItem value={2}>Lider Principal</MenuItem>
                 <MenuItem value={3}>Lider</MenuItem>
                 <MenuItem value={4}>Vendedor</MenuItem>
-                <MenuItem value={5}>Cobrador</MenuItem>
+                {/* <MenuItem value={5}>Cobrador</MenuItem> */}
                 {userLogged?.level === 0 && <MenuItem value={6}>Oficina</MenuItem>}
                 {userLogged?.level === 0 && <MenuItem value={7}>Contador</MenuItem>}
                 {userLogged?.level === 0 && <MenuItem value={8}>Secretario</MenuItem>}

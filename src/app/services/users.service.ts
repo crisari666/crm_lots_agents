@@ -256,6 +256,31 @@ export async function setUserLinkReq({userId, link} : {userId : string, link: st
   }
 }
 
+export async function setUserPhysicalReq({
+  userId,
+  physical
+}: {
+  userId: string
+  physical: boolean
+}): Promise<UserInterface> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.put({
+      path: `users/set-user-physical/${userId}`,
+      data: { physical }
+    })
+    const { error } = response
+    if (error == null) {
+      return response.result as UserInterface
+    }
+    throw error
+  } catch (error) {
+    console.error('ERROR ON setUserPhysicalReq')
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function uploadUserDocReq({documentType, file, userId} : {userId: string, documentType: string, file: any}): Promise<UserDocType>{
   try {
     const api = Api.getInstance()

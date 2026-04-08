@@ -28,6 +28,7 @@ export default interface UserInterface {
   rank?: OfficeLevelType
   role?: string
   root: boolean
+  physical?: boolean
   [key: string]: any
 }
 
