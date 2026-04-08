@@ -13,15 +13,23 @@ import type {
 } from "../types/onboarding-state.types"
 
 export async function getOnboardingStateListReq({
-  status
+  status,
+  lastUpdateFrom,
+  lastUpdateTo
 }: {
   status?: OnboardingStatusType
+  lastUpdateFrom?: string
+  lastUpdateTo?: string
 }): Promise<OnboardingStateType[]> {
   try {
     const api = Api.getInstance()
+    const query: Record<string, string> = {}
+    if (status != null) query.status = status
+    if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.lastUpdateFrom = lastUpdateFrom
+    if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.lastUpdateTo = lastUpdateTo
     const response: OnboardingStateListResponse = await api.get({
       path: `onboarding-state/list`,
-      data: status ? { status } : undefined
+      data: Object.keys(query).length > 0 ? query : undefined
     })
 
     const { error } = response

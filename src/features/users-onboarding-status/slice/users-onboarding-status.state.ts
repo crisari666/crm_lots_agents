@@ -24,6 +24,8 @@ export type UsersOnboardingStatusState = {
   isLoading: boolean
   error: string | null
   statusFilter: OnboardingStatusType | "all"
+  lastUpdateFrom: string
+  lastUpdateTo: string
   searchTerm: string
   selectedOrphanRowIds: string[]
   /** `userId._id` values for bulk recreate-schedules */

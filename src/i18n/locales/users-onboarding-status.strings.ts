@@ -83,6 +83,11 @@ export const usersOnboardingStatusStrings = {
   missingPhone: "User has no phone number",
   missingVoiceConfig: "Configure VITE_VOICE_AGENT_FROM_NUMBER in .env",
   statusFilterLabel: "Estado del proceso",
+  searchUserLabel: "Search user",
+  refresh: "Refresh",
+  lastUpdateFromLabel: "Last update from",
+  lastUpdateToLabel: "Last update to",
+  lastUpdateRangeLabel: "Last update range",
   /** Filas que ves en la tabla; si hay búsqueda, total es lo que devolvió el estado antes de filtrar */
   listRowsShown: (visible: number, total: number) =>
     visible === total
