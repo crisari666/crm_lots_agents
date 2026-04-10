@@ -18,6 +18,7 @@ export type UserCreateRequestBody = {
   lead?: string
   percentage?: number
   document?: string
+  city?: string
 }
 
 export type UserUpdateRequestBody = {
@@ -36,6 +37,7 @@ export type UserUpdateRequestBody = {
   root?: boolean
   password?: string
   document: string
+  city: string
 }
 
 export async function fetchUsers({enable = false} : {enable?: boolean}): Promise<any> {

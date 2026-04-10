@@ -22,6 +22,7 @@ const initUser: UserInterface =  {
   link: "",
   phoneJob: "",
   document: "",
+  city: "",
   connected: false,
   root: false
 }
@@ -47,6 +48,7 @@ function buildCreateUserRequestBody(u: UserInterface): UserCreateRequestBody {
   if (oid !== "") body.office = oid
   const lid = leadFieldToId(u.lead)
   if (lid !== "") body.lead = lid
+  body.city = (u.city ?? "").trim()
   return body
 }
 
@@ -83,7 +85,7 @@ export const uploadUserDocThunk = createAsyncThunk( "handleUser/uploadUserDocThu
 
 export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({dataUser, userId}:{dataUser: UserInterface, userId: string}) => {
   try {
-    const { name, lastName, email, phone, password, level, phoneJob, lead, office, connected, percentage, enable, link, root, document } = dataUser
+    const { name, lastName, email, phone, password, level, phoneJob, lead, office, connected, percentage, enable, link, root, document, city } = dataUser
     const updateUser = await updateUserService({
       user: {
         name,
@@ -101,6 +103,7 @@ export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({
         root,
         password: password !== "" && password !== undefined ? password : undefined,
         document: (document ?? "").trim(),
+        city: (city ?? "").trim(),
       },
       userId,
     })

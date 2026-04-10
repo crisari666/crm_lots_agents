@@ -144,6 +144,14 @@ export default function UserForm() {
             </Grid>
             <Grid item xs={12} md={6}>
               <AppTextField
+                label={s.fieldCity}
+                name="city"
+                value={currentUser!.city ?? ""}
+                onChange={handleChangeInput}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <AppTextField
                 label={s.fieldPassword}
                 type={showPass ? "text" : "password"}
                 name="password"

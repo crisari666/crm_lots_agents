@@ -8,6 +8,7 @@ export const handleUserStrings = {
   fieldPhone: "Personal phone",
   fieldPhoneJob: "Work phone (optional)",
   fieldDocument: "Document ID (optional)",
+  fieldCity: "City (optional)",
   fieldPassword: "Password",
   fieldPasswordHelper: "Optional. Leave empty to use first-access email.",
   fieldLevel: "Role level",
@@ -42,5 +43,16 @@ export const handleUserStrings = {
   sendContractSuccessTitle: "Contract processed",
   sendContractSuccessBody:
     "The contract was generated. The user receives the signing link by email when mail is configured.",
+  sendContractSuccessOk: "OK",
   sendContractError: "Could not generate or send the contract",
+  sendContractMissingTitle: "Missing information for the contract",
+  sendContractMissingIntro:
+    "Complete the following in the user details form, save the user if needed, then try again:",
+  sendContractMissingNoUser: "User profile is not loaded",
+  sendContractMissingSavedUser: "User must be saved first (existing user only)",
+  sendContractMissingFullName: "First name and last name",
+  sendContractMissingDocument: "Document ID",
+  sendContractMissingEmail: "Email",
+  sendContractMissingPhone: "Personal phone",
+  sendContractMissingClose: "Close",
 }

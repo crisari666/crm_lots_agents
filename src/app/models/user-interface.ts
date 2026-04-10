@@ -11,6 +11,7 @@ export default interface UserInterface {
   level?: number
   user?: string;
   document?: string;
+  city?: string;
   createdAt?: string;
   updatedAt?: string;
   __v?: number;
