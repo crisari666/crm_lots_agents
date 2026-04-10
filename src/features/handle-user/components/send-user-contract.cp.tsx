@@ -9,7 +9,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  TextField,
   Typography,
 } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
@@ -44,46 +43,42 @@ function getMissingSendContractItems(user: UserInterface | undefined): string[] 
   if ((user.phone ?? "").trim().length === 0) {
     items.push(s.sendContractMissingPhone)
   }
+  if ((user.city ?? "").trim().length === 0) {
+    items.push(s.sendContractMissingCity)
+  }
   return items
 }
 
 export default function SendUserContractCp() {
   const dispatch = useAppDispatch()
   const { currentUser } = useAppSelector((state) => state.handleUser)
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [missingDialogOpen, setMissingDialogOpen] = useState(false)
   const [missingItems, setMissingItems] = useState<string[]>([])
-  const [city, setCity] = useState("")
   const [successOpen, setSuccessOpen] = useState(false)
   const fullName = currentUser
     ? buildFullName(currentUser.name, currentUser.lastName)
     : ""
-  const sendDisabled = city.trim().length === 0
-  const handleOpenFlow = () => {
+  const handleSendContract = () => {
     const missing = getMissingSendContractItems(currentUser)
     if (missing.length > 0) {
       setMissingItems(missing)
       setMissingDialogOpen(true)
       return
     }
-    setCity((currentUser?.city ?? "").trim())
-    setDialogOpen(true)
-  }
-  const handleSend = () => {
-    if (currentUser?._id == null || sendDisabled) return
+    if (currentUser?._id == null) return
+    const city = (currentUser.city ?? "").trim()
     void dispatch(
       sendUserContractThunk({
         userId: currentUser._id,
         fullName,
         documentNumber: (currentUser.document ?? "").trim(),
-        city: city.trim(),
+        city,
         email: (currentUser.email ?? "").trim(),
         phone: (currentUser.phone ?? "").trim(),
       })
     )
       .unwrap()
       .then(() => {
-        setDialogOpen(false)
         setSuccessOpen(true)
       })
       .catch((err: unknown) => {
@@ -98,7 +93,7 @@ export default function SendUserContractCp() {
   return (
     <>
       <Grid item>
-        <Button variant="outlined" onClick={handleOpenFlow}>
+        <Button variant="outlined" onClick={handleSendContract}>
           {s.sendContract}
         </Button>
       </Grid>
@@ -119,26 +114,6 @@ export default function SendUserContractCp() {
         <DialogActions>
           <Button onClick={() => setMissingDialogOpen(false)} variant="contained">
             {s.sendContractMissingClose}
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{s.sendContractDialogTitle}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={s.sendContractCityLabel}
-            helperText={s.sendContractCityHelper}
-            fullWidth
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>{s.sendContractCancel}</Button>
-          <Button onClick={handleSend} disabled={sendDisabled} variant="contained">
-            {s.sendContractConfirm}
           </Button>
         </DialogActions>
       </Dialog>
