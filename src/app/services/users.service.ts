@@ -6,6 +6,38 @@ import UserInterface from "../models/user-interface"
 
 const api = new Api()
 
+export type UserCreateRequestBody = {
+  name: string
+  lastName: string
+  email: string
+  phone: string
+  level: number
+  phoneJob?: string
+  password?: string
+  office?: string
+  lead?: string
+  percentage?: number
+  document?: string
+}
+
+export type UserUpdateRequestBody = {
+  name: string
+  lastName: string
+  email: string
+  phone: string
+  level: number
+  phoneJob: string
+  office: string
+  lead: string
+  connected?: boolean
+  percentage?: number
+  enable?: boolean
+  link?: string
+  root?: boolean
+  password?: string
+  document: string
+}
+
 export async function fetchUsers({enable = false} : {enable?: boolean}): Promise<any> {
   try {
     const path = !enable ? "users" : "users/enables"
@@ -52,18 +84,17 @@ export async function getUserByIdReq(userId: string): Promise<any> {
   }
 }
 
-export async function sendUserService({user}: { user: any }): Promise<UserInterface | undefined> {
-  try {
-    const createUser = await api.post({ path: "users/create", data: user })
-    const {error} = createUser
-    if(error === null){
-      return createUser.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error({error});
+export async function sendUserService({
+  user,
+}: {
+  user: UserCreateRequestBody
+}): Promise<UserInterface> {
+  const createUser = await api.post({ path: "users/create", data: user })
+  const { error } = createUser
+  if (error === null) {
+    return createUser.result as UserInterface
   }
+  throw new Error(typeof error === "string" ? error : "Create user failed")
 }
 
 export async function sendWelcomeAccessEmailReq(userId: string): Promise<boolean> {
@@ -81,21 +112,22 @@ export async function sendWelcomeAccessEmailReq(userId: string): Promise<boolean
   return true
 }
 
-export async function updateUserService({user, userId}:{user:UserInterface, userId: string}) {
-  try {
-    const updateUser = await api.post({path: `users/update-user/${userId}`, data: user})
-    //console.log({updateUser});
-    
-    const {error} = updateUser
-    if(error === null){
-      return updateUser.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error({error});
-    
+export async function updateUserService({
+  user,
+  userId,
+}: {
+  user: UserUpdateRequestBody
+  userId: string
+}): Promise<boolean | string> {
+  const updateUser = await api.post({
+    path: `users/update-user/${userId}`,
+    data: user,
+  })
+  const { error } = updateUser
+  if (error === null) {
+    return updateUser.result as boolean | string
   }
+  throw new Error(typeof error === "string" ? error : "Update user failed")
 }
 
 export async function siginReq({user, lat, lng, password} : {user: string, password: string, lat: number, lng: number}): Promise<boolean | UserInterface | undefined> {

@@ -1,11 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
 import { generateContractReq, type GenerateContractPayload } from "../../app/services/google.service"
-import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq } from "../../app/services/users.service"
+import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq, type UserCreateRequestBody } from "../../app/services/users.service"
+import { leadFieldToId, officeFieldToId } from "./user-field-ids"
 import { pushAlertAction } from "../dashboard/dashboard.slice"
 import { store } from "../../app/store"
 import { HandleUserState } from "./handle-user-state.interface"
 import { addUserToListAct } from "../users-list/slice/user-list.slice"
+import { handleUserStrings as hu } from "../../i18n/locales/handle-user.strings"
 
 const initUser: UserInterface =  {
   name: "", 
@@ -19,8 +21,33 @@ const initUser: UserInterface =  {
   enable: true,
   link: "",
   phoneJob: "",
+  document: "",
   connected: false,
   root: false
+}
+
+function buildCreateUserRequestBody(u: UserInterface): UserCreateRequestBody {
+  const body: UserCreateRequestBody = {
+    name: u.name.trim(),
+    lastName: u.lastName.trim(),
+    email: u.email.trim(),
+    phone: (u.phone ?? "").trim(),
+    level: u.level ?? 4,
+  }
+  if (u.percentage !== undefined && u.percentage !== null && !Number.isNaN(Number(u.percentage))) {
+    body.percentage = Number(u.percentage)
+  }
+  const pj = (u.phoneJob ?? "").trim()
+  if (pj !== "") body.phoneJob = pj
+  const doc = (u.document ?? "").trim()
+  if (doc !== "") body.document = doc
+  const pw = (u.password ?? "").trim()
+  if (pw !== "") body.password = pw
+  const oid = officeFieldToId(u.office)
+  if (oid !== "") body.office = oid
+  const lid = leadFieldToId(u.lead)
+  if (lid !== "") body.lead = lid
+  return body
 }
 
 const initialState: HandleUserState = {
@@ -44,31 +71,48 @@ export const getLeadForOfficeThunk = createAsyncThunk("HandleUser/getLeadForOffi
 
 export const createUserThunk = createAsyncThunk("handleUser/createUser",  async(dataUser: UserInterface) : Promise<UserInterface | undefined> => {
   try {
-    const createUser = await sendUserService({user: dataUser})
-    if(createUser !== undefined){
-      store.dispatch(addUserToListAct(createUser))
-      return createUser
-    }  
+    const createUser = await sendUserService({ user: buildCreateUserRequestBody(dataUser) })
+    store.dispatch(addUserToListAct(createUser))
+    return createUser
   } catch (error) {
-    store.dispatch(pushAlertAction({message: (error as any).toString(), title: "Error creating user"}))
-    
+    store.dispatch(pushAlertAction({message: String(error), title: hu.errorCreateUserTitle}))
   }
 })
 
 export const uploadUserDocThunk = createAsyncThunk( "handleUser/uploadUserDocThunk", async (params : {userId: string, documentType: string, file: any}) => await uploadUserDocReq(params))
 
-export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({dataUser, userId}:{dataUser: any, userId: string}) => {
-  const { name, lastName, email, phone, password, level, phoneJob, lead, office, connected, percentage, enable, link, root} = dataUser
-  const updateUser = await updateUserService({user: {
-    name, lastName, email, phone, level, phoneJob, lead, office, connected, percentage, enable, link, root,
-    password: password !== "" ? password : undefined
-  }, userId})
-  if(updateUser === true){
-    return true
-  }else {
-    store.dispatch(pushAlertAction({message: updateUser, title: updateUser}))
+export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({dataUser, userId}:{dataUser: UserInterface, userId: string}) => {
+  try {
+    const { name, lastName, email, phone, password, level, phoneJob, lead, office, connected, percentage, enable, link, root, document } = dataUser
+    const updateUser = await updateUserService({
+      user: {
+        name,
+        lastName,
+        email,
+        phone,
+        level: level ?? 4,
+        phoneJob: (phoneJob ?? "").trim(),
+        lead: leadFieldToId(lead),
+        office: officeFieldToId(office),
+        connected,
+        percentage,
+        enable,
+        link,
+        root,
+        password: password !== "" && password !== undefined ? password : undefined,
+        document: (document ?? "").trim(),
+      },
+      userId,
+    })
+    if(updateUser === true){
+      return true
+    }
+    store.dispatch(pushAlertAction({message: String(updateUser), title: String(updateUser)}))
+    return updateUser
+  } catch (error) {
+    store.dispatch(pushAlertAction({message: String(error), title: hu.errorUpdateUserTitle}))
+    return undefined
   }
-  return updateUser
 })
 
 export const toggleEnableUserThunk = createAsyncThunk( "handleUser/toggleEnableUserThunk", async (params : {userId: string, enable: boolean}) =>  await toggleEnableUserReq(params))
@@ -131,8 +175,8 @@ export const HandleUserSlice = createSlice({
   extraReducers(builder) {
     builder.addCase(createUserThunk.fulfilled, (state, action) => {
       if(action.payload !== undefined)  state.created = true
-    }).addCase(updateUserTnunk.fulfilled, (state, action) =>{
-      state.created = true
+    }).addCase(updateUserTnunk.fulfilled, (state, action) => {
+      if (action.payload === true) state.created = true
     }).addCase(fetchUserByIdThunk.pending, (state) => {state.loading = true})
     .addCase(fetchUserByIdThunk.fulfilled , (state, action: PayloadAction<{ user: UserInterface }>) => {
       state.currentUser = action.payload.user
