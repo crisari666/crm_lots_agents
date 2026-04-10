@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { handleUserStrings as s } from "../../../i18n/locales/handle-user.strings"
 import { setUserPhysicalThunk, toggleEnableUserThunk } from "../handle-user.slice"
 import SendFirstAccessWelcomeCp from "./send-first-access-welcome.cp"
+import SendUserContractCp from "./send-user-contract.cp"
 
 export default function CtrlsUserCP() {
   const { currentUser } = useAppSelector((state) => state.handleUser)
@@ -49,6 +50,7 @@ export default function CtrlsUserCP() {
                 />
               </Grid>
               <SendFirstAccessWelcomeCp />
+              <SendUserContractCp />
             </Grid>
           </Paper>
         )}

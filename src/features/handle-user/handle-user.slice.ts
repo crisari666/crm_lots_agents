@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
+import { generateContractReq, type GenerateContractPayload } from "../../app/services/google.service"
 import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq } from "../../app/services/users.service"
 import { pushAlertAction } from "../dashboard/dashboard.slice"
 import { store } from "../../app/store"
@@ -86,6 +87,11 @@ export const setUserGoalThunk = createAsyncThunk( "handleUser/setUserGoalThunks"
 export const sendWelcomeAccessEmailThunk = createAsyncThunk(
   "handleUser/sendWelcomeAccessEmail",
   async (userId: string) => sendWelcomeAccessEmailReq(userId),
+)
+
+export const sendUserContractThunk = createAsyncThunk(
+  "handleUser/sendUserContract",
+  async (payload: GenerateContractPayload) => generateContractReq(payload),
 )
 
 export const HandleUserSlice = createSlice({
