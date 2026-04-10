@@ -2,6 +2,7 @@ import { FormControlLabel, Grid, Paper, Switch } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { handleUserStrings as s } from "../../../i18n/locales/handle-user.strings"
 import { setUserPhysicalThunk, toggleEnableUserThunk } from "../handle-user.slice"
+import SendFirstAccessWelcomeCp from "./send-first-access-welcome.cp"
 
 export default function CtrlsUserCP() {
   const { currentUser } = useAppSelector((state) => state.handleUser)
@@ -47,6 +48,7 @@ export default function CtrlsUserCP() {
                   }
                 />
               </Grid>
+              <SendFirstAccessWelcomeCp />
             </Grid>
           </Paper>
         )}

@@ -66,6 +66,21 @@ export async function sendUserService({user}: { user: any }): Promise<UserInterf
   }
 }
 
+export async function sendWelcomeAccessEmailReq(userId: string): Promise<boolean> {
+  const res = await api.post({
+    path: `users/${userId}/send-welcome-access-email`,
+    data: {},
+  })
+  if (res == null) {
+    throw new Error("Could not send welcome email")
+  }
+  const { error } = res as { error?: string | null }
+  if (error != null && error !== "") {
+    throw new Error(typeof error === "string" ? error : "Error")
+  }
+  return true
+}
+
 export async function updateUserService({user, userId}:{user:UserInterface, userId: string}) {
   try {
     const updateUser = await api.post({path: `users/update-user/${userId}`, data: user})

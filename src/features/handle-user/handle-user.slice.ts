@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
-import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq } from "../../app/services/users.service"
+import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq } from "../../app/services/users.service"
 import { pushAlertAction } from "../dashboard/dashboard.slice"
 import { store } from "../../app/store"
 import { HandleUserState } from "./handle-user-state.interface"
@@ -83,6 +83,11 @@ export const setUserLeaveDateThunk = createAsyncThunk( "handleUser/setUserLeaveD
 
 export const setUserGoalThunk = createAsyncThunk( "handleUser/setUserGoalThunks", async (PARAM: {userId: string, goal: number}) => await setUserGoalReq(PARAM))
 
+export const sendWelcomeAccessEmailThunk = createAsyncThunk(
+  "handleUser/sendWelcomeAccessEmail",
+  async (userId: string) => sendWelcomeAccessEmailReq(userId),
+)
+
 export const HandleUserSlice = createSlice({
   name: "handleUser",
   initialState,
@@ -145,6 +150,11 @@ export const HandleUserSlice = createSlice({
      }).addCase(setUserGoalThunk.fulfilled, (state, action) => {
         state.currentUser!.goal = action.payload.goal
      })
+    .addCase(sendWelcomeAccessEmailThunk.fulfilled, (state) => {
+      if (state.currentUser) {
+        state.currentUser.hasPassword = false
+      }
+    })
  
     builder.addMatcher((action) => action.type.endsWith("/pending") && action.type.includes("handleUser"), 
       (state) => {
