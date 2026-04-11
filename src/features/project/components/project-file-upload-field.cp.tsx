@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import {
+  Alert,
   Box,
   Button,
   Typography,
@@ -62,6 +63,7 @@ type ProjectFileUploadFieldCPProps = {
   onRemove?: () => Promise<void>
   existingFileName?: string | null
   onOpenPreview: (item: ProjectPreviewItem) => void
+  maxFileBytes?: number
 }
 
 export default function ProjectFileUploadFieldCP({
@@ -77,12 +79,14 @@ export default function ProjectFileUploadFieldCP({
   onRemove,
   existingFileName = null,
   onOpenPreview,
+  maxFileBytes,
 }: ProjectFileUploadFieldCPProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState(false)
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null)
 
   const removeUi = removeConfirmStrings(variant)
   const canRemoveServer =
@@ -119,6 +123,11 @@ export default function ProjectFileUploadFieldCP({
     const f = e.target.files?.[0]
     e.target.value = ""
     if (!f) return
+    if (maxFileBytes !== undefined && f.size > maxFileBytes) {
+      setFileSizeError(s.videoFileTooLarge)
+      return
+    }
+    setFileSizeError(null)
     if (onUpload) {
       setUploading(true)
       try {
@@ -200,6 +209,11 @@ export default function ProjectFileUploadFieldCP({
           )}
         </Box>
         <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
+          {fileSizeError && (
+            <Alert severity="error" onClose={() => setFileSizeError(null)} sx={{ py: 0 }}>
+              {fileSizeError}
+            </Alert>
+          )}
           <Typography variant="caption" color="text.secondary">
             {helperText}
           </Typography>

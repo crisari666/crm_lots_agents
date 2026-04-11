@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import {
+  Alert,
   Box,
   Button,
   Typography,
@@ -29,6 +30,7 @@ type ProjectCardImageCPProps = {
   onUploadCard?: (file: File) => Promise<void>
   onRemoveCard?: () => Promise<void>
   onOpenPreview: (item: ProjectPreviewItem) => void
+  maxFileBytes?: number
 }
 
 export default function ProjectCardImageCP({
@@ -41,12 +43,14 @@ export default function ProjectCardImageCP({
   onUploadCard,
   onRemoveCard,
   onOpenPreview,
+  maxFileBytes,
 }: ProjectCardImageCPProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState(false)
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!pendingFile) {
@@ -78,6 +82,11 @@ export default function ProjectCardImageCP({
     const f = e.target.files?.[0]
     e.target.value = ""
     if (!f) return
+    if (maxFileBytes !== undefined && f.size > maxFileBytes) {
+      setFileSizeError(s.imageFileTooLarge)
+      return
+    }
+    setFileSizeError(null)
     if (canUploadImmediate) {
       setUploading(true)
       try {
@@ -136,6 +145,11 @@ export default function ProjectCardImageCP({
           {!hasPreview && <Image sx={{ fontSize: 48, color: "text.secondary" }} />}
         </Box>
         <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
+          {fileSizeError && (
+            <Alert severity="error" onClose={() => setFileSizeError(null)} sx={{ py: 0 }}>
+              {fileSizeError}
+            </Alert>
+          )}
           <Typography variant="caption" color="text.secondary">
             {s.projectCardImageHelper}
           </Typography>

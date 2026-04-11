@@ -3,6 +3,7 @@ import { Box, Paper, Tab, Tabs, Typography } from "@mui/material"
 import ProjectFileUploadFieldCP from "./project-file-upload-field.cp"
 import ProjectVideoPickerCP, { ExistingProjectVideo } from "./project-video-picker.cp"
 import { ProjectFormState, ProjectPreviewItem } from "../types/project.types"
+import { PROJECT_VIDEO_MAX_BYTES } from "../utils/project-uploads.util"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
 
 type ProjectVideosTabsCPProps = {
@@ -18,6 +19,7 @@ type ProjectVideosTabsCPProps = {
   onUploadHorizontalVideos?: (files: File[]) => Promise<void>
   onRemoveHorizontalVideo?: (videoName: string) => Promise<void>
   onOpenPreview: (items: ProjectPreviewItem[], startIndex: number) => void
+  maxVideoBytes?: number
 }
 
 export default function ProjectVideosTabsCP({
@@ -33,6 +35,7 @@ export default function ProjectVideosTabsCP({
   onUploadHorizontalVideos,
   onRemoveHorizontalVideo,
   onOpenPreview,
+  maxVideoBytes = PROJECT_VIDEO_MAX_BYTES,
 }: ProjectVideosTabsCPProps) {
   const [tab, setTab] = useState(0)
 
@@ -65,6 +68,7 @@ export default function ProjectVideosTabsCP({
             onRemove={onRemoveReelVideo}
             existingFileName={existingReelVideoName}
             onOpenPreview={(item) => onOpenPreview([item], 0)}
+            maxFileBytes={maxVideoBytes}
           />
         )}
       </Box>
@@ -80,6 +84,7 @@ export default function ProjectVideosTabsCP({
             onRemoveVideo={onRemoveHorizontalVideo}
             onOpenPreview={onOpenPreview}
             sectionTitle={s.horizontalVideosTab}
+            maxFileBytes={maxVideoBytes}
           />
         )}
       </Box>

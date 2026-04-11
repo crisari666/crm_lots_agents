@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
+  Alert,
   Box,
   Button,
   Typography,
@@ -45,6 +46,7 @@ type ProjectVideoPickerCPProps = {
   onRemoveVideo?: (videoName: string) => Promise<void>
   onOpenPreview: (items: ProjectPreviewItem[], startIndex: number) => void
   sectionTitle?: string
+  maxFileBytes?: number
 }
 
 export default function ProjectVideoPickerCP({
@@ -57,10 +59,12 @@ export default function ProjectVideoPickerCP({
   onRemoveVideo,
   onOpenPreview,
   sectionTitle = s.projectVerticalVideosTitle,
+  maxFileBytes,
 }: ProjectVideoPickerCPProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const uploadInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null)
   const [removing, setRemoving] = useState(false)
   const [removeConfirm, setRemoveConfirm] = useState<ExistingProjectVideo | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -101,21 +105,41 @@ export default function ProjectVideoPickerCP({
   const handleSelectForSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files
     if (!selected?.length) return
-    const newFiles = Array.from(selected)
-    onFilesChange([...files, ...newFiles])
+    let newFiles = Array.from(selected)
     e.target.value = ""
+    if (maxFileBytes !== undefined) {
+      const valid = newFiles.filter((f) => f.size <= maxFileBytes)
+      const invalid = newFiles.filter((f) => f.size > maxFileBytes)
+      if (invalid.length) setFileSizeError(s.videoFileTooLarge)
+      else setFileSizeError(null)
+      newFiles = valid
+    } else {
+      setFileSizeError(null)
+    }
+    if (!newFiles.length) return
+    onFilesChange([...files, ...newFiles])
   }
 
   const handleSelectForUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files
     if (!selected?.length || !onUploadVideos) return
-    const list = Array.from(selected)
+    let list = Array.from(selected)
+    e.target.value = ""
+    if (maxFileBytes !== undefined) {
+      const valid = list.filter((f) => f.size <= maxFileBytes)
+      const invalid = list.filter((f) => f.size > maxFileBytes)
+      if (invalid.length) setFileSizeError(s.videoFileTooLarge)
+      else setFileSizeError(null)
+      list = valid
+    } else {
+      setFileSizeError(null)
+    }
+    if (!list.length) return
     setUploading(true)
     try {
       await onUploadVideos(list)
     } finally {
       setUploading(false)
-      e.target.value = ""
     }
   }
 
@@ -300,6 +324,15 @@ export default function ProjectVideoPickerCP({
 
       {!disabled && (
         <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1, alignItems: "center" }}>
+          {fileSizeError && (
+            <Alert
+              severity="error"
+              onClose={() => setFileSizeError(null)}
+              sx={{ alignSelf: "stretch", maxWidth: 480 }}
+            >
+              {fileSizeError}
+            </Alert>
+          )}
           {canUploadImmediate ? (
             <>
               <Button

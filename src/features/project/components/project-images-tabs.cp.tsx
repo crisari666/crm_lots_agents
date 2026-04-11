@@ -3,6 +3,7 @@ import { Box, Paper, Tab, Tabs, Typography } from "@mui/material"
 import ProjectImagePickerCP, { ExistingProjectImage } from "./project-image-picker.cp"
 import ProjectCardImageCP from "./project-card-image.cp"
 import { ProjectFormState, ProjectPreviewItem } from "../types/project.types"
+import { PROJECT_IMAGE_MAX_BYTES } from "../utils/project-uploads.util"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
 
 type ProjectImagesTabsCPProps = {
@@ -21,6 +22,7 @@ type ProjectImagesTabsCPProps = {
   onUploadHorizontalImages?: (files: File[]) => Promise<void>
   onRemoveHorizontalImage?: (imageName: string) => Promise<void>
   onOpenImagesPreview: (items: ProjectPreviewItem[], startIndex: number) => void
+  maxImageBytes?: number
 }
 
 export default function ProjectImagesTabsCP({
@@ -39,6 +41,7 @@ export default function ProjectImagesTabsCP({
   onUploadHorizontalImages,
   onRemoveHorizontalImage,
   onOpenImagesPreview,
+  maxImageBytes = PROJECT_IMAGE_MAX_BYTES,
 }: ProjectImagesTabsCPProps) {
   const [tab, setTab] = useState(0)
 
@@ -70,6 +73,7 @@ export default function ProjectImagesTabsCP({
             onUploadCard={onUploadCard}
             onRemoveCard={onRemoveCard}
             onOpenPreview={(item) => onOpenImagesPreview([item], 0)}
+            maxFileBytes={maxImageBytes}
           />
         )}
       </Box>
@@ -85,6 +89,7 @@ export default function ProjectImagesTabsCP({
             onRemoveImage={onRemoveVerticalImage}
             onOpenImagesPreview={onOpenImagesPreview}
             sectionTitle={s.tabVerticalImages}
+            maxFileBytes={maxImageBytes}
           />
         )}
       </Box>
@@ -100,6 +105,7 @@ export default function ProjectImagesTabsCP({
             onRemoveImage={onRemoveHorizontalImage}
             onOpenImagesPreview={onOpenImagesPreview}
             sectionTitle={s.tabHorizontalImages}
+            maxFileBytes={maxImageBytes}
           />
         )}
       </Box>

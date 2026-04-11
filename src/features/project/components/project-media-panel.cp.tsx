@@ -7,6 +7,7 @@ import ProjectMediaPreviewDialogCP from "./project-media-preview-dialog.cp"
 import { ExistingProjectImage } from "./project-image-picker.cp"
 import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { ProjectFormState, ProjectPreviewItem } from "../types/project.types"
+import { PROJECT_IMAGE_MAX_BYTES, PROJECT_VIDEO_MAX_BYTES } from "../utils/project-uploads.util"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
 
 type ProjectMediaPanelCPProps = {
@@ -88,6 +89,7 @@ export default function ProjectMediaPanelCP({
         onUploadHorizontalImages={onUploadHorizontalImages}
         onRemoveHorizontalImage={onRemoveHorizontalImage}
         onOpenImagesPreview={(items, startIndex) => setPreview({ items, index: startIndex })}
+        maxImageBytes={PROJECT_IMAGE_MAX_BYTES}
       />
       <ProjectVideosTabsCP
         form={form}
@@ -102,6 +104,7 @@ export default function ProjectMediaPanelCP({
         onUploadHorizontalVideos={onUploadHorizontalVideos}
         onRemoveHorizontalVideo={onRemoveHorizontalVideo}
         onOpenPreview={(items, startIndex) => setPreview({ items, index: startIndex })}
+        maxVideoBytes={PROJECT_VIDEO_MAX_BYTES}
       />
       <ProjectFileUploadFieldCP
         label={s.planeLabel}
