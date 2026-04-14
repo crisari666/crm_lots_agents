@@ -34,7 +34,6 @@ import { isOrphanOnboardingListRow } from "../types/onboarding-state.types"
 import { dateUTCToFriendly } from "../../../utils/date.utils"
 import UsersOnboardingStatusHistoryDialogCP from "./users-onboarding-status-history-dialog.cp"
 import UsersOnboardingStatusActionsDialogCP from "./users-onboarding-status-actions-dialog.cp"
-import UsersOnboardingStatusPieChartCP from "./users-onboarding-status-pie-chart.cp"
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
 
 type UsersOnboardingStatusListCPProps = {
@@ -96,27 +95,24 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
   }
 
   return (
-    <Box>
-      <UsersOnboardingStatusPieChartCP items={items} />
+    <TableContainer component={Paper} sx={{ position: "relative" }}>
+      {isLoading ? (
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(255,255,255,0.6)",
+            zIndex: 1
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : null}
 
-      <TableContainer component={Paper} sx={{ position: "relative" }}>
-        {isLoading ? (
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "rgba(255,255,255,0.6)",
-              zIndex: 1
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        ) : null}
-
-        <Table size="small">
+      <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
@@ -249,22 +245,21 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
               </TableRow>
             ) : null}
           </TableBody>
-        </Table>
+      </Table>
 
-        {selectedItem?.userId ? (
-          <UsersOnboardingStatusHistoryDialogCP
-            open={isHistoryOpen}
-            onClose={handleCloseHistory}
-            user={selectedItem.userId}
-          />
-        ) : null}
-
-        <UsersOnboardingStatusActionsDialogCP
-          open={isActionsOpen}
-          onClose={handleCloseActions}
-          item={actionsItem}
+      {selectedItem?.userId ? (
+        <UsersOnboardingStatusHistoryDialogCP
+          open={isHistoryOpen}
+          onClose={handleCloseHistory}
+          user={selectedItem.userId}
         />
-      </TableContainer>
-    </Box>
+      ) : null}
+
+      <UsersOnboardingStatusActionsDialogCP
+        open={isActionsOpen}
+        onClose={handleCloseActions}
+        item={actionsItem}
+      />
+    </TableContainer>
   )
 }

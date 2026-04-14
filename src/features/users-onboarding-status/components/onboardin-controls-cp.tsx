@@ -11,19 +11,26 @@ import {
   Typography
 } from "@mui/material"
 import DeleteOutline from "@mui/icons-material/DeleteOutline"
+import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined"
+import { useState } from "react"
 import type { UserImportFirstStepType } from "../../../app/services/users.service"
 import AppDateRangeSelector from "../../../app/components/app-date-range-selector"
+import { useAppSelector } from "../../../app/hooks"
 import {
   onboardingStatusFilterI18n,
   usersOnboardingStatusStrings as s
 } from "../../../i18n/locales/users-onboarding-status.strings"
 import UsersOnboardingDeleteFlowsConfirmDialogCP from "./users-onboarding-delete-flows-confirm-dialog.cp"
+import UsersOnboardingStatusChartDialogCP from "./users-onboarding-status-chart-dialog.cp"
 import {
   onboardingStatuses,
   useUsersOnboardingStatusControlsContext
 } from "../contexts/users-onboarding-status-controls.context"
+import { selectUsersOnboardingStatusFilteredItems } from "../slice/users-onboarding-status.slice"
 
 export default function OnboardinControlsCP() {
+  const [chartDialogOpen, setChartDialogOpen] = useState(false)
+  const filteredItems = useAppSelector(selectUsersOnboardingStatusFilteredItems)
   const {
     statusFilter,
     searchTerm,
@@ -60,6 +67,15 @@ export default function OnboardinControlsCP() {
   return (
     <Stack spacing={2}>
       <Stack direction="row" justifyContent="flex-end">
+        <Button
+          variant="outlined"
+          startIcon={<QueryStatsOutlinedIcon />}
+          onClick={() => setChartDialogOpen(true)}
+          disabled={isLoading && filteredItems.length === 0}
+          sx={{ mr: 1 }}
+        >
+          {s.statusChartOpen}
+        </Button>
         <Button
           variant="outlined"
           onClick={onExportVisibleRows}
@@ -203,6 +219,12 @@ export default function OnboardinControlsCP() {
         isDeleting={bulkDeleteFlowsLoading}
         errorText={deleteDialogError}
         onConfirm={confirmDeleteFlows}
+      />
+
+      <UsersOnboardingStatusChartDialogCP
+        open={chartDialogOpen}
+        onClose={() => setChartDialogOpen(false)}
+        items={filteredItems}
       />
     </Stack>
   )

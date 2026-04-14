@@ -150,6 +150,8 @@ export const usersOnboardingStatusStrings = {
   listColStatus: "Status",
   statusChartTitle: "Status distribution",
   statusChartNoData: "No data to display in chart",
+  statusChartOpen: "View status chart",
+  statusChartDialogTitle: "Onboarding status chart",
   whatsappChatOpen: "WhatsApp conversation",
   whatsappChatDialogTitle: "WhatsApp chat",
   whatsappChatLoading: "Loading conversation…",
