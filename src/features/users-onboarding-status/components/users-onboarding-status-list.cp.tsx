@@ -34,6 +34,7 @@ import { isOrphanOnboardingListRow } from "../types/onboarding-state.types"
 import { dateUTCToFriendly } from "../../../utils/date.utils"
 import UsersOnboardingStatusHistoryDialogCP from "./users-onboarding-status-history-dialog.cp"
 import UsersOnboardingStatusActionsDialogCP from "./users-onboarding-status-actions-dialog.cp"
+import UsersOnboardingStatusPieChartCP from "./users-onboarding-status-pie-chart.cp"
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
 
 type UsersOnboardingStatusListCPProps = {
@@ -95,171 +96,175 @@ export default function UsersOnboardingStatusListCP({ onOpenWhatsappChat }: User
   }
 
   return (
-    <TableContainer component={Paper} sx={{ position: "relative" }}>
-      {isLoading ? (
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "rgba(255,255,255,0.6)",
-            zIndex: 1
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : null}
+    <Box>
+      <UsersOnboardingStatusPieChartCP items={items} />
 
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell padding="checkbox">
-              {visibleOrphanIds.length > 0 ? (
-                <Tooltip title={s.selectOrphanRows}>
-                  <Checkbox
-                    size="small"
-                    indeterminate={someOrphansSelected && !allOrphansSelected}
-                    checked={allOrphansSelected}
-                    onChange={() =>
-                      dispatch(toggleSelectAllVisibleOrphanOnboardingRowsAct(visibleOrphanIds))
-                    }
-                    inputProps={{ "aria-label": s.selectOrphanRows }}
-                  />
-                </Tooltip>
-              ) : null}
-            </TableCell>
-            <TableCell padding="checkbox">
-              {visibleRescheduleUserIds.length > 0 ? (
-                <Tooltip title={s.selectUsersForReschedule}>
-                  <Checkbox
-                    size="small"
-                    indeterminate={someRescheduleSelected && !allRescheduleSelected}
-                    checked={allRescheduleSelected}
-                    onChange={() =>
-                      dispatch(
-                        toggleSelectAllVisibleRescheduleUsersAct(visibleRescheduleUserIds)
-                      )
-                    }
-                    inputProps={{ "aria-label": s.selectUsersForReschedule }}
-                  />
-                </Tooltip>
-              ) : null}
-            </TableCell>
-            <TableCell>User</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Whatsapp</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Last update</TableCell>
-            <TableCell align="center">{s.actionsOpen}</TableCell>
-            <TableCell align="center">History</TableCell>
-            <TableCell align="center">{s.whatsappChatOpen}</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items.map((x) => {
-            const rowId = x._id ?? `${x.createdAt}-${x.lastUpdate}`
-            const orphan = isOrphanOnboardingListRow(x)
-            const stateId = x._id
-            const userMongoId = x.userId?._id
-            return (
-              <TableRow key={rowId}>
-                <TableCell padding="checkbox">
-                  {orphan && stateId ? (
+      <TableContainer component={Paper} sx={{ position: "relative" }}>
+        {isLoading ? (
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "rgba(255,255,255,0.6)",
+              zIndex: 1
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : null}
+
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell padding="checkbox">
+                {visibleOrphanIds.length > 0 ? (
+                  <Tooltip title={s.selectOrphanRows}>
                     <Checkbox
                       size="small"
-                      checked={selectedOrphanIds.includes(stateId)}
-                      onChange={() => dispatch(toggleOrphanOnboardingRowSelectedAct(stateId))}
-                    />
-                  ) : null}
-                </TableCell>
-                <TableCell padding="checkbox">
-                  {userMongoId ? (
-                    <Checkbox
-                      size="small"
-                      checked={selectedRescheduleUserIds.includes(userMongoId)}
+                      indeterminate={someOrphansSelected && !allOrphansSelected}
+                      checked={allOrphansSelected}
                       onChange={() =>
-                        dispatch(toggleRescheduleUserSelectedAct(userMongoId))
+                        dispatch(toggleSelectAllVisibleOrphanOnboardingRowsAct(visibleOrphanIds))
                       }
+                      inputProps={{ "aria-label": s.selectOrphanRows }}
                     />
-                  ) : null}
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {x.userId ? `${x.userId.name} ${x.userId.lastName}`.trim() : "—"}
-                  </Typography>
-                </TableCell>
-                <TableCell>{x.userId?.email ?? "—"}</TableCell>
-                <TableCell>{x.userId?.phone ?? "—"}</TableCell>
-                <TableCell>{x.status}</TableCell>
-                <TableCell>{dateUTCToFriendly(x.lastUpdate)}</TableCell>
-                <TableCell align="center">
-                  <Tooltip title={s.actionsOpen}>
-                    <span>
-                      <IconButton
-                        size="small"
-                        disabled={!x.userId}
-                        onClick={() => handleOpenActions(x)}
-                      >
-                        <TouchAppIcon fontSize="small" />
-                      </IconButton>
-                    </span>
                   </Tooltip>
-                </TableCell>
-                <TableCell align="center">
-                  <Tooltip title={s.viewHistory}>
-                    <span>
-                      <IconButton
-                        size="small"
-                        disabled={!x.userId}
-                        onClick={() => handleOpenHistory(x)}
-                      >
-                        <HistoryIcon fontSize="small" />
-                      </IconButton>
-                    </span>
+                ) : null}
+              </TableCell>
+              <TableCell padding="checkbox">
+                {visibleRescheduleUserIds.length > 0 ? (
+                  <Tooltip title={s.selectUsersForReschedule}>
+                    <Checkbox
+                      size="small"
+                      indeterminate={someRescheduleSelected && !allRescheduleSelected}
+                      checked={allRescheduleSelected}
+                      onChange={() =>
+                        dispatch(
+                          toggleSelectAllVisibleRescheduleUsersAct(visibleRescheduleUserIds)
+                        )
+                      }
+                      inputProps={{ "aria-label": s.selectUsersForReschedule }}
+                    />
                   </Tooltip>
-                </TableCell>
-                <TableCell align="center">
-                  <Tooltip title={s.whatsappChatOpen}>
-                    <span>
-                      <IconButton
+                ) : null}
+              </TableCell>
+              <TableCell>User</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Whatsapp</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Last update</TableCell>
+              <TableCell align="center">{s.actionsOpen}</TableCell>
+              <TableCell align="center">History</TableCell>
+              <TableCell align="center">{s.whatsappChatOpen}</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {items.map((x) => {
+              const rowId = x._id ?? `${x.createdAt}-${x.lastUpdate}`
+              const orphan = isOrphanOnboardingListRow(x)
+              const stateId = x._id
+              const userMongoId = x.userId?._id
+              return (
+                <TableRow key={rowId}>
+                  <TableCell padding="checkbox">
+                    {orphan && stateId ? (
+                      <Checkbox
                         size="small"
-                        disabled={!x.userId || !(x.userId.phone ?? "").trim()}
-                        onClick={() => x.userId != null && onOpenWhatsappChat(x.userId)}
-                      >
-                        <ChatBubbleOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
+                        checked={selectedOrphanIds.includes(stateId)}
+                        onChange={() => dispatch(toggleOrphanOnboardingRowSelectedAct(stateId))}
+                      />
+                    ) : null}
+                  </TableCell>
+                  <TableCell padding="checkbox">
+                    {userMongoId ? (
+                      <Checkbox
+                        size="small"
+                        checked={selectedRescheduleUserIds.includes(userMongoId)}
+                        onChange={() =>
+                          dispatch(toggleRescheduleUserSelectedAct(userMongoId))
+                        }
+                      />
+                    ) : null}
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {x.userId ? `${x.userId.name} ${x.userId.lastName}`.trim() : "—"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{x.userId?.email ?? "—"}</TableCell>
+                  <TableCell>{x.userId?.phone ?? "—"}</TableCell>
+                  <TableCell>{x.status}</TableCell>
+                  <TableCell>{dateUTCToFriendly(x.lastUpdate)}</TableCell>
+                  <TableCell align="center">
+                    <Tooltip title={s.actionsOpen}>
+                      <span>
+                        <IconButton
+                          size="small"
+                          disabled={!x.userId}
+                          onClick={() => handleOpenActions(x)}
+                        >
+                          <TouchAppIcon fontSize="small" />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Tooltip title={s.viewHistory}>
+                      <span>
+                        <IconButton
+                          size="small"
+                          disabled={!x.userId}
+                          onClick={() => handleOpenHistory(x)}
+                        >
+                          <HistoryIcon fontSize="small" />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Tooltip title={s.whatsappChatOpen}>
+                      <span>
+                        <IconButton
+                          size="small"
+                          disabled={!x.userId || !(x.userId.phone ?? "").trim()}
+                          onClick={() => x.userId != null && onOpenWhatsappChat(x.userId)}
+                        >
+                          <ChatBubbleOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+
+            {items.length === 0 && !isLoading ? (
+              <TableRow>
+                <TableCell colSpan={10}>
+                  <Typography variant="body2">No users found</Typography>
                 </TableCell>
               </TableRow>
-            )
-          })}
+            ) : null}
+          </TableBody>
+        </Table>
 
-          {items.length === 0 && !isLoading ? (
-            <TableRow>
-              <TableCell colSpan={10}>
-                <Typography variant="body2">No users found</Typography>
-              </TableCell>
-            </TableRow>
-          ) : null}
-        </TableBody>
-      </Table>
+        {selectedItem?.userId ? (
+          <UsersOnboardingStatusHistoryDialogCP
+            open={isHistoryOpen}
+            onClose={handleCloseHistory}
+            user={selectedItem.userId}
+          />
+        ) : null}
 
-      {selectedItem?.userId ? (
-        <UsersOnboardingStatusHistoryDialogCP
-          open={isHistoryOpen}
-          onClose={handleCloseHistory}
-          user={selectedItem.userId}
+        <UsersOnboardingStatusActionsDialogCP
+          open={isActionsOpen}
+          onClose={handleCloseActions}
+          item={actionsItem}
         />
-      ) : null}
-
-      <UsersOnboardingStatusActionsDialogCP
-        open={isActionsOpen}
-        onClose={handleCloseActions}
-        item={actionsItem}
-      />
-    </TableContainer>
+      </TableContainer>
+    </Box>
   )
 }
