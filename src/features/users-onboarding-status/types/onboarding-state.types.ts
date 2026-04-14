@@ -52,6 +52,26 @@ export type OnboardingTriggerResponse = {
   message: string
 }
 
+/** `POST /ms-events/onboarding/send-confirmar-capacitacion` — success body */
+export type SendConfirmarCapacitacionResponse = {
+  success: true
+  triggerAction: string
+  flowId: string
+  userId: string
+  phoneNumber: string
+  nameUsed: string
+}
+
+/** `POST /ms-events/onboarding/start-voice-call` — success body */
+export type StartOnboardingVoiceCallResponse = {
+  success: true
+  flowId: string
+  userId: string
+  phoneNumber: string
+  nameUsed: string
+  voiceCallDispatchedToAgent: boolean
+}
+
 /** `GET /onboarding-state/user/:userId/flows` → `result.flows[]` */
 export type OnboardingFlowSummaryType = {
   flowId: string

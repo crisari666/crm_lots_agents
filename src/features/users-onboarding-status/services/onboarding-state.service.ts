@@ -9,7 +9,9 @@ import type {
   OnboardingFlowSummaryType,
   OnboardingFlowDetailType,
   OnboardingFlowsDeleteResponse,
-  OnboardingRecreateSchedulesResponse
+  OnboardingRecreateSchedulesResponse,
+  SendConfirmarCapacitacionResponse,
+  StartOnboardingVoiceCallResponse
 } from "../types/onboarding-state.types"
 
 export async function getOnboardingStateListReq({
@@ -63,6 +65,99 @@ export async function triggerOnboardingFlowReq({
     return response
   } catch (error) {
     console.error("ERROR ON triggerOnboardingFlowReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function sendConfirmarCapacitacionReq({
+  userId,
+  name,
+  phoneNumber,
+  contactName
+}: {
+  userId: string
+  name: string
+  phoneNumber: string
+  contactName?: string
+}): Promise<SendConfirmarCapacitacionResponse> {
+  try {
+    const api = Api.getInstance()
+    const data: Record<string, string> = { userId, name, phoneNumber }
+    const trimmedContact = contactName?.trim()
+    if (trimmedContact) data.contactName = trimmedContact
+    const response = (await api.post({
+      path: "ms-events/onboarding/send-confirmar-capacitacion",
+      data
+    })) as SendConfirmarCapacitacionResponse | { message?: string; error?: string } | undefined
+
+    if (response == null) {
+      throw new Error("Request failed")
+    }
+    if (
+      typeof response === "object" &&
+      "success" in response &&
+      response.success === true &&
+      typeof (response as SendConfirmarCapacitacionResponse).flowId === "string"
+    ) {
+      return response as SendConfirmarCapacitacionResponse
+    }
+    const errMsg =
+      typeof response === "object" && response != null && "message" in response && response.message != null
+        ? String(response.message)
+        : typeof response === "object" && response != null && "error" in response && response.error != null
+          ? String(response.error)
+          : "Request failed"
+    throw new Error(errMsg)
+  } catch (error) {
+    console.error("ERROR ON sendConfirmarCapacitacionReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function startOnboardingVoiceCallReq({
+  userId,
+  name,
+  phoneNumber,
+  contactName
+}: {
+  userId: string
+  name: string
+  phoneNumber: string
+  contactName?: string
+}): Promise<StartOnboardingVoiceCallResponse> {
+  try {
+    const api = Api.getInstance()
+    const data: Record<string, string> = { userId, name, phoneNumber }
+    const trimmedContact = contactName?.trim()
+    if (trimmedContact) data.contactName = trimmedContact
+    const response = (await api.post({
+      path: "ms-events/onboarding/start-voice-call",
+      data
+    })) as StartOnboardingVoiceCallResponse | { message?: string; error?: string } | undefined
+
+    if (response == null) {
+      throw new Error("Request failed")
+    }
+    if (
+      typeof response === "object" &&
+      "success" in response &&
+      response.success === true &&
+      typeof (response as StartOnboardingVoiceCallResponse).flowId === "string" &&
+      typeof (response as StartOnboardingVoiceCallResponse).voiceCallDispatchedToAgent === "boolean"
+    ) {
+      return response as StartOnboardingVoiceCallResponse
+    }
+    const errMsg =
+      typeof response === "object" && response != null && "message" in response && response.message != null
+        ? String(response.message)
+        : typeof response === "object" && response != null && "error" in response && response.error != null
+          ? String(response.error)
+          : "Request failed"
+    throw new Error(errMsg)
+  } catch (error) {
+    console.error("ERROR ON startOnboardingVoiceCallReq")
     console.error({ error })
     throw error
   }

@@ -2,12 +2,12 @@ import { Button } from "@mui/material"
 import { useCallback } from "react"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
-import { startOnboardingVoiceCallReq } from "../services/onboarding-state.service"
+import { sendConfirmarCapacitacionReq } from "../services/onboarding-state.service"
 import {
   fetchUsersOnboardingStatusThunk,
   selectUsersOnboardingStatusState
 } from "../slice/users-onboarding-status.slice"
-import { phoneToE164 } from "../utils/onboarding-phone.utils"
+import { phoneToWhatsAppTo } from "../utils/onboarding-phone.utils"
 import type { OnboardingDialogActionProps } from "./users-onboarding-status-actions.types"
 
 const LIST_REFRESH_DELAY_MS = 2000
@@ -17,7 +17,7 @@ type Props = OnboardingDialogActionProps & {
   firstName: string
 }
 
-export default function UsersOnboardingStatusTriggerCallCP({
+export default function UsersOnboardingStatusSendConfirmarCapacitacionCP({
   user,
   loadingKey,
   setLoadingKey,
@@ -36,29 +36,22 @@ export default function UsersOnboardingStatusTriggerCallCP({
     }, LIST_REFRESH_DELAY_MS)
   }, [dispatch, statusFilter, lastUpdateFrom, lastUpdateTo])
 
-  const onTriggerCall = async () => {
+  const onSend = async () => {
     if (!user) return
-    const phoneNumber = phoneToE164(user.phone)
-    if (!phoneNumber || phoneNumber === "+") {
+    const phoneNumber = phoneToWhatsAppTo(user.phone)
+    if (!phoneNumber) {
       setFeedback({ type: "error", text: s.missingPhone })
       return
     }
     resetFeedback()
-    setLoadingKey("call")
+    setLoadingKey("confirmarCapacitacion")
     try {
-      const name = displayName.trim() || firstName
-      const res = await startOnboardingVoiceCallReq({
+      const res = await sendConfirmarCapacitacionReq({
         userId: user._id,
-        name,
-        phoneNumber,
-        contactName: firstName
+        name: displayName.trim() || firstName,
+        phoneNumber
       })
-      setFeedback({
-        type: "success",
-        text: res.voiceCallDispatchedToAgent
-          ? s.voiceCallStartSuccessDispatched(res.flowId)
-          : s.voiceCallStartSuccessScheduled(res.flowId)
-      })
+      setFeedback({ type: "success", text: s.sendConfirmarCapacitacionSuccess(res.flowId) })
       refreshListSoon()
     } catch (err) {
       const text = err instanceof Error && err.message ? err.message : s.errorGeneric
@@ -71,11 +64,11 @@ export default function UsersOnboardingStatusTriggerCallCP({
   return (
     <Button
       variant="contained"
-      color="secondary"
+      color="primary"
       disabled={loadingKey !== null || !user}
-      onClick={onTriggerCall}
+      onClick={onSend}
     >
-      {loadingKey === "call" ? s.sending : s.triggerCall}
+      {loadingKey === "confirmarCapacitacion" ? s.sending : s.sendConfirmarCapacitacion}
     </Button>
   )
 }

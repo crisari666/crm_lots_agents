@@ -12,6 +12,7 @@ import { useCallback, useState } from "react"
 import type { OnboardingStateType } from "../types/onboarding-state.types"
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
 import UsersOnboardingStatusSendProposalCP from "./users-onboarding-status-send-proposal.cp"
+import UsersOnboardingStatusSendConfirmarCapacitacionCP from "./users-onboarding-status-send-confirmar-capacitacion.cp"
 import UsersOnboardingStatusTriggerOnboardingFlowCP from "./users-onboarding-status-trigger-onboarding-flow.cp"
 import UsersOnboardingStatusSendGreetingCP from "./users-onboarding-status-send-greeting.cp"
 import UsersOnboardingStatusTriggerCallCP from "./users-onboarding-status-trigger-call.cp"
@@ -73,6 +74,16 @@ export default function UsersOnboardingStatusActionsDialogCP({ open, onClose, it
             setLoadingKey={setLoadingKey}
             resetFeedback={resetFeedback}
             setFeedback={setFeedback}
+            displayName={displayName}
+            firstName={firstName}
+          />
+          <UsersOnboardingStatusSendConfirmarCapacitacionCP
+            user={user}
+            loadingKey={loadingKey}
+            setLoadingKey={setLoadingKey}
+            resetFeedback={resetFeedback}
+            setFeedback={setFeedback}
+            displayName={displayName}
             firstName={firstName}
           />
           <UsersOnboardingStatusSendProposalCP

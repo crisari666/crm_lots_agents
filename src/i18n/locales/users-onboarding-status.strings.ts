@@ -71,6 +71,9 @@ export const usersOnboardingStatusStrings = {
   triggerGreeting: "Saludo inicial",
   triggerCall: "Llamada",
   triggerProposal: "Mensaje confirmación a capacitación",
+  sendConfirmarCapacitacion: "Enviar flujo confirmar capacitación",
+  sendConfirmarCapacitacionSuccess: (flowId: string) =>
+    `Confirmar capacitación enviado. Nuevo flow ID: ${flowId}`,
   trainingDateLabel: "Training date",
   trainingDatePlaceholder: "Select a training date",
   missingTrainingDate: "Select a training date before sending",
@@ -82,6 +85,10 @@ export const usersOnboardingStatusStrings = {
   errorGeneric: "Something went wrong",
   missingPhone: "User has no phone number",
   missingVoiceConfig: "Configure VITE_VOICE_AGENT_FROM_NUMBER in .env",
+  voiceCallStartSuccessDispatched: (flowId: string) =>
+    `Voice call sent to agent. Flow ID: ${flowId}`,
+  voiceCallStartSuccessScheduled: (flowId: string) =>
+    `Voice call scheduled (no free line yet; will retry). Flow ID: ${flowId}`,
   statusFilterLabel: "Estado del proceso",
   searchUserLabel: "Search user",
   refresh: "Refresh",
@@ -168,7 +175,9 @@ export const onboardingFlowEventLabels: Record<string, string> = {
   "call.notification_sent": "Call notification sent; voice handoff",
   "call.transcript_complete": "Voice transcript completed",
   "call.completed_successfully": "Call completed; training booking follows",
-  "sent.training_message": "Training message sent"
+  "sent.training_message": "Training message sent",
+  "onboarding.manual_send_confirmar_capacitacion": "Manual: confirmar capacitación (CRM)",
+  "whatsapp.confirmar_capacitacion_dispatched": "Confirmar capacitación template dispatched"
 }
 
 export function onboardingFlowEventLabel(eventKey: string): string {
@@ -182,6 +191,7 @@ export const onboardingFlowDetailFieldLabels: Record<string, string> = {
   greetingMessageId: "Greeting message ID",
   videoMessageId: "Video message ID",
   trainingMessageId: "Training message ID",
+  confirmarCapacitacionMessageId: "Confirmar capacitación message ID",
   callNotificationMessageId: "Call notification message ID",
   buttonPayload: "Button payload",
   fromWaId: "From WhatsApp ID",
