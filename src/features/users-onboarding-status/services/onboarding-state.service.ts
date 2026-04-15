@@ -10,6 +10,7 @@ import type {
   OnboardingFlowDetailType,
   OnboardingFlowsDeleteResponse,
   OnboardingRecreateSchedulesResponse,
+  OnboardingStatsByLogStatusResponse,
   SendConfirmarCapacitacionResponse,
   StartOnboardingVoiceCallResponse
 } from "../types/onboarding-state.types"
@@ -18,12 +19,14 @@ export async function getOnboardingStateListReq({
   status,
   lastUpdateFrom,
   lastUpdateTo,
-  includeSpecificUpdate
+  includeSpecificUpdate,
+  containsStatusInLogs
 }: {
   status?: OnboardingStatusType
   lastUpdateFrom?: string
   lastUpdateTo?: string
   includeSpecificUpdate?: boolean
+  containsStatusInLogs?: boolean
 }): Promise<OnboardingStateType[]> {
   try {
     const api = Api.getInstance()
@@ -32,6 +35,7 @@ export async function getOnboardingStateListReq({
     if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.lastUpdateFrom = lastUpdateFrom
     if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.lastUpdateTo = lastUpdateTo
     const shouldMatchStatusInLogs = includeSpecificUpdate === true && status != null
+    if (shouldMatchStatusInLogs) query.containsStatus = containsStatusInLogs === false ? "false" : "true"
     const response: OnboardingStateListResponse = await api.get({
       path: shouldMatchStatusInLogs
         ? "onboarding-state/list-by-log-status"
@@ -47,6 +51,35 @@ export async function getOnboardingStateListReq({
     throw error
   } catch (error) {
     console.error("ERROR ON getOnboardingStateListReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function getOnboardingStatsByLogStatusReq({
+  lastUpdateFrom,
+  lastUpdateTo
+}: {
+  lastUpdateFrom?: string
+  lastUpdateTo?: string
+}): Promise<OnboardingStatsByLogStatusResponse["result"]> {
+  try {
+    const api = Api.getInstance()
+    const query: Record<string, string> = {}
+    if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.lastUpdateFrom = lastUpdateFrom
+    if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.lastUpdateTo = lastUpdateTo
+    const response = (await api.get({
+      path: "onboarding-state/stats-by-log-status",
+      data: Object.keys(query).length > 0 ? query : undefined
+    })) as OnboardingStatsByLogStatusResponse
+
+    if (response.error != null) throw new Error(response.error)
+    if (response.result == null || !Array.isArray(response.result.statusStats)) {
+      throw new Error("Invalid stats response")
+    }
+    return response.result
+  } catch (error) {
+    console.error("ERROR ON getOnboardingStatsByLogStatusReq")
     console.error({ error })
     throw error
   }

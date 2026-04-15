@@ -24,6 +24,7 @@ import {
 } from "../../../i18n/locales/users-onboarding-status.strings"
 import UsersOnboardingDeleteFlowsConfirmDialogCP from "./users-onboarding-delete-flows-confirm-dialog.cp"
 import UsersOnboardingStatusChartDialogCP from "./users-onboarding-status-chart-dialog.cp"
+import UsersOnboardingStatusLogStatsDialogCP from "./users-onboarding-status-log-stats-dialog.cp"
 import {
   onboardingStatuses,
   useUsersOnboardingStatusControlsContext
@@ -32,10 +33,12 @@ import { selectUsersOnboardingStatusFilteredItems } from "../slice/users-onboard
 
 export default function OnboardinControlsCP() {
   const [chartDialogOpen, setChartDialogOpen] = useState(false)
+  const [logStatsDialogOpen, setLogStatsDialogOpen] = useState(false)
   const filteredItems = useAppSelector(selectUsersOnboardingStatusFilteredItems)
   const {
     statusFilter,
     includeSpecificUpdate,
+    containsStatusInLogs,
     searchTerm,
     lastUpdateFrom,
     lastUpdateTo,
@@ -54,6 +57,7 @@ export default function OnboardinControlsCP() {
     setRescheduleFirstStep,
     onChangeStatusFilter,
     onChangeIncludeSpecificUpdate,
+    onChangeContainsStatusInLogs,
     onChangeSearchTerm,
     onChangeDateRange,
     onRefresh,
@@ -71,6 +75,15 @@ export default function OnboardinControlsCP() {
   return (
     <Stack spacing={2}>
       <Stack direction="row" justifyContent="flex-end">
+        <Button
+          variant="outlined"
+          startIcon={<QueryStatsOutlinedIcon />}
+          onClick={() => setLogStatsDialogOpen(true)}
+          disabled={isLoading}
+          sx={{ mr: 1 }}
+        >
+          {s.logStatusStatsChartOpen}
+        </Button>
         <Button
           variant="outlined"
           startIcon={<QueryStatsOutlinedIcon />}
@@ -123,6 +136,17 @@ export default function OnboardinControlsCP() {
           }
           label={s.includeSpecificUpdateLabel}
         />
+        {includeSpecificUpdate ? (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={containsStatusInLogs}
+                onChange={(e) => onChangeContainsStatusInLogs(e.target.checked)}
+              />
+            }
+            label={s.containsStatusInLogsLabel}
+          />
+        ) : null}
 
         <Stack spacing={0.5} sx={{ minWidth: 280 }}>
           <Typography variant="caption" color="text.secondary">
@@ -239,6 +263,12 @@ export default function OnboardinControlsCP() {
         open={chartDialogOpen}
         onClose={() => setChartDialogOpen(false)}
         items={filteredItems}
+      />
+      <UsersOnboardingStatusLogStatsDialogCP
+        open={logStatsDialogOpen}
+        onClose={() => setLogStatsDialogOpen(false)}
+        lastUpdateFrom={lastUpdateFrom}
+        lastUpdateTo={lastUpdateTo}
       />
     </Stack>
   )

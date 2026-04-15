@@ -27,16 +27,23 @@ export default function UsersOnboardingStatusTriggerCallCP({
   firstName
 }: Props) {
   const dispatch = useAppDispatch()
-  const { statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate } = useAppSelector(
-    selectUsersOnboardingStatusState
-  )
+  const { statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate, containsStatusInLogs } =
+    useAppSelector(selectUsersOnboardingStatusState)
 
   const refreshListSoon = useCallback(() => {
     const status = statusFilter === "all" ? undefined : statusFilter
     window.setTimeout(() => {
-      dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate }))
+      dispatch(
+        fetchUsersOnboardingStatusThunk({
+          status,
+          lastUpdateFrom,
+          lastUpdateTo,
+          includeSpecificUpdate,
+          containsStatusInLogs
+        })
+      )
     }, LIST_REFRESH_DELAY_MS)
-  }, [dispatch, includeSpecificUpdate, statusFilter, lastUpdateFrom, lastUpdateTo])
+  }, [dispatch, includeSpecificUpdate, containsStatusInLogs, statusFilter, lastUpdateFrom, lastUpdateTo])
 
   const onTriggerCall = async () => {
     if (!user) return

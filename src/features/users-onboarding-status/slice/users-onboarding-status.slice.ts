@@ -33,6 +33,7 @@ const initialState: UsersOnboardingStatusState = {
   error: null,
   statusFilter: "all",
   includeSpecificUpdate: false,
+  containsStatusInLogs: true,
   lastUpdateFrom: "",
   lastUpdateTo: "",
   searchTerm: "",
@@ -50,14 +51,22 @@ export const fetchUsersOnboardingStatusThunk = createAsyncThunk(
     status,
     lastUpdateFrom,
     lastUpdateTo,
-    includeSpecificUpdate
+    includeSpecificUpdate,
+    containsStatusInLogs
   }: {
     status?: OnboardingStatusType
     lastUpdateFrom?: string
     lastUpdateTo?: string
     includeSpecificUpdate?: boolean
+    containsStatusInLogs?: boolean
   }) => {
-    return getOnboardingStateListReq({ status, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate })
+    return getOnboardingStateListReq({
+      status,
+      lastUpdateFrom,
+      lastUpdateTo,
+      includeSpecificUpdate,
+      containsStatusInLogs
+    })
   }
 )
 
@@ -103,7 +112,7 @@ export const deleteOnboardingFlowsBySelectedIdsThunk = createAsyncThunk<
         return rejectWithValue("noSelection")
       }
       const { deletedCount } = await deleteOnboardingFlowsReq(flowIds)
-      const { statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate } =
+      const { statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate, containsStatusInLogs } =
         getState().usersOnboardingStatus
       const status = statusFilter === "all" ? undefined : statusFilter
       await dispatch(
@@ -111,7 +120,8 @@ export const deleteOnboardingFlowsBySelectedIdsThunk = createAsyncThunk<
           status,
           lastUpdateFrom,
           lastUpdateTo,
-          includeSpecificUpdate
+          includeSpecificUpdate,
+          containsStatusInLogs
         })
       )
       return { deletedCount }
@@ -130,8 +140,14 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
   "usersOnboardingStatus/recreateImportSchedulesForNeedsHumanWhatsapp",
   async (_, { dispatch, getState, rejectWithValue }) => {
     try {
-      const { items, statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate } =
-        getState().usersOnboardingStatus
+      const {
+        items,
+        statusFilter,
+        lastUpdateFrom,
+        lastUpdateTo,
+        includeSpecificUpdate,
+        containsStatusInLogs
+      } = getState().usersOnboardingStatus
       const userIds = Array.from(
         new Set(
           items
@@ -155,7 +171,8 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
           status,
           lastUpdateFrom,
           lastUpdateTo,
-          includeSpecificUpdate
+          includeSpecificUpdate,
+          containsStatusInLogs
         })
       )
       return { updatedCount: result.length }
@@ -179,7 +196,8 @@ export const recreateImportSchedulesForSelectedUserIdsThunk = createAsyncThunk<
         statusFilter,
         lastUpdateFrom,
         lastUpdateTo,
-        includeSpecificUpdate
+        includeSpecificUpdate,
+        containsStatusInLogs
       } = getState().usersOnboardingStatus
       const userIds = Array.from(
         new Set(
@@ -198,7 +216,8 @@ export const recreateImportSchedulesForSelectedUserIdsThunk = createAsyncThunk<
           status,
           lastUpdateFrom,
           lastUpdateTo,
-          includeSpecificUpdate
+          includeSpecificUpdate,
+          containsStatusInLogs
         })
       )
       return { updatedCount: result.length }
@@ -221,6 +240,9 @@ const usersOnboardingStatusSlice = createSlice({
     },
     setIncludeSpecificUpdateAct: (state, action: PayloadAction<boolean>) => {
       state.includeSpecificUpdate = action.payload
+    },
+    setContainsStatusInLogsAct: (state, action: PayloadAction<boolean>) => {
+      state.containsStatusInLogs = action.payload
     },
     setOnboardingSearchTermAct: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload
@@ -390,6 +412,7 @@ const usersOnboardingStatusSlice = createSlice({
 export const {
   setOnboardingStatusFilterAct,
   setIncludeSpecificUpdateAct,
+  setContainsStatusInLogsAct,
   setOnboardingSearchTermAct,
   setOnboardingDateRangeAct,
   clearUsersOnboardingStatusErrorAct,

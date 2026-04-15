@@ -12,6 +12,7 @@ import {
   selectSelectedRescheduleUserIds,
   selectUsersOnboardingStatusFilteredItems,
   selectUsersOnboardingStatusState,
+  setContainsStatusInLogsAct,
   setIncludeSpecificUpdateAct,
   setOnboardingDateRangeAct,
   setOnboardingSearchTermAct,
@@ -22,6 +23,7 @@ import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-o
 type UsersOnboardingStatusControlsContextType = {
   statusFilter: OnboardingStatusType | "all"
   includeSpecificUpdate: boolean
+  containsStatusInLogs: boolean
   searchTerm: string
   lastUpdateFrom: string
   lastUpdateTo: string
@@ -40,6 +42,7 @@ type UsersOnboardingStatusControlsContextType = {
   setRescheduleFirstStep: (next: UserImportFirstStepType | "") => void
   onChangeStatusFilter: (next: OnboardingStatusType | "all") => void
   onChangeIncludeSpecificUpdate: (next: boolean) => void
+  onChangeContainsStatusInLogs: (next: boolean) => void
   onChangeSearchTerm: (next: string) => void
   onChangeDateRange: (next: { lastUpdateFrom: string; lastUpdateTo: string }) => void
   onRefresh: () => void
@@ -98,6 +101,7 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
     items,
     statusFilter,
     includeSpecificUpdate,
+    containsStatusInLogs,
     searchTerm,
     isLoading,
     bulkDeleteFlowsLoading,
@@ -128,8 +132,16 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
       return
     }
     const status = statusFilter === "all" ? undefined : statusFilter
-    dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate }))
-  }, [dispatch, includeSpecificUpdate, statusFilter, lastUpdateFrom, lastUpdateTo])
+    dispatch(
+      fetchUsersOnboardingStatusThunk({
+        status,
+        lastUpdateFrom,
+        lastUpdateTo,
+        includeSpecificUpdate,
+        containsStatusInLogs
+      })
+    )
+  }, [dispatch, includeSpecificUpdate, containsStatusInLogs, statusFilter, lastUpdateFrom, lastUpdateTo])
 
   const onChangeStatusFilter = useCallback(
     (next: OnboardingStatusType | "all") => {
@@ -141,6 +153,13 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
   const onChangeIncludeSpecificUpdate = useCallback(
     (next: boolean) => {
       dispatch(setIncludeSpecificUpdateAct(next))
+    },
+    [dispatch]
+  )
+
+  const onChangeContainsStatusInLogs = useCallback(
+    (next: boolean) => {
+      dispatch(setContainsStatusInLogsAct(next))
     },
     [dispatch]
   )
@@ -166,8 +185,16 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
 
   const onRefresh = useCallback(() => {
     const status = resolvedFilter === "all" ? undefined : resolvedFilter
-    dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate }))
-  }, [dispatch, includeSpecificUpdate, lastUpdateFrom, lastUpdateTo, resolvedFilter])
+    dispatch(
+      fetchUsersOnboardingStatusThunk({
+        status,
+        lastUpdateFrom,
+        lastUpdateTo,
+        includeSpecificUpdate,
+        containsStatusInLogs
+      })
+    )
+  }, [dispatch, includeSpecificUpdate, containsStatusInLogs, lastUpdateFrom, lastUpdateTo, resolvedFilter])
 
   const onExportVisibleRows = useCallback(() => {
     const rows = filteredOnboardingRows.map((x) => ({
@@ -261,6 +288,7 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
     () => ({
       statusFilter: resolvedFilter,
       includeSpecificUpdate,
+      containsStatusInLogs,
       searchTerm,
       lastUpdateFrom,
       lastUpdateTo,
@@ -279,6 +307,7 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
       setRescheduleFirstStep,
       onChangeStatusFilter,
       onChangeIncludeSpecificUpdate,
+      onChangeContainsStatusInLogs,
       onChangeSearchTerm,
       onChangeDateRange,
       onRefresh,
@@ -296,11 +325,13 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
       deleteDialogOpen,
       filteredOnboardingRows.length,
       includeSpecificUpdate,
+      containsStatusInLogs,
       isLoading,
       items.length,
       lastUpdateFrom,
       lastUpdateTo,
       onChangeDateRange,
+      onChangeContainsStatusInLogs,
       onChangeIncludeSpecificUpdate,
       onChangeSearchTerm,
       onChangeStatusFilter,

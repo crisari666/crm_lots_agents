@@ -50,6 +50,15 @@ export type OnboardingStateListResponse = {
   error?: string
 }
 
+export type OnboardingStatsByLogStatusResponse = {
+  result: {
+    totalRecords: number
+    statusStats: Array<{ status: string | null; count: number }>
+  }
+  message: string
+  error?: string
+}
+
 export type OnboardingTriggerResponse = {
   flowId: string
   message: string
