@@ -17,11 +17,13 @@ import type {
 export async function getOnboardingStateListReq({
   status,
   lastUpdateFrom,
-  lastUpdateTo
+  lastUpdateTo,
+  includeSpecificUpdate
 }: {
   status?: OnboardingStatusType
   lastUpdateFrom?: string
   lastUpdateTo?: string
+  includeSpecificUpdate?: boolean
 }): Promise<OnboardingStateType[]> {
   try {
     const api = Api.getInstance()
@@ -29,8 +31,11 @@ export async function getOnboardingStateListReq({
     if (status != null) query.status = status
     if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.lastUpdateFrom = lastUpdateFrom
     if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.lastUpdateTo = lastUpdateTo
+    const shouldMatchStatusInLogs = includeSpecificUpdate === true && status != null
     const response: OnboardingStateListResponse = await api.get({
-      path: `onboarding-state/list`,
+      path: shouldMatchStatusInLogs
+        ? "onboarding-state/list-by-log-status"
+        : "onboarding-state/list",
       data: Object.keys(query).length > 0 ? query : undefined
     })
 

@@ -32,6 +32,7 @@ const initialState: UsersOnboardingStatusState = {
   isLoading: false,
   error: null,
   statusFilter: "all",
+  includeSpecificUpdate: false,
   lastUpdateFrom: "",
   lastUpdateTo: "",
   searchTerm: "",
@@ -48,13 +49,15 @@ export const fetchUsersOnboardingStatusThunk = createAsyncThunk(
   async ({
     status,
     lastUpdateFrom,
-    lastUpdateTo
+    lastUpdateTo,
+    includeSpecificUpdate
   }: {
     status?: OnboardingStatusType
     lastUpdateFrom?: string
     lastUpdateTo?: string
+    includeSpecificUpdate?: boolean
   }) => {
-    return getOnboardingStateListReq({ status, lastUpdateFrom, lastUpdateTo })
+    return getOnboardingStateListReq({ status, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate })
   }
 )
 
@@ -100,9 +103,17 @@ export const deleteOnboardingFlowsBySelectedIdsThunk = createAsyncThunk<
         return rejectWithValue("noSelection")
       }
       const { deletedCount } = await deleteOnboardingFlowsReq(flowIds)
-      const { statusFilter, lastUpdateFrom, lastUpdateTo } = getState().usersOnboardingStatus
+      const { statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate } =
+        getState().usersOnboardingStatus
       const status = statusFilter === "all" ? undefined : statusFilter
-      await dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo }))
+      await dispatch(
+        fetchUsersOnboardingStatusThunk({
+          status,
+          lastUpdateFrom,
+          lastUpdateTo,
+          includeSpecificUpdate
+        })
+      )
       return { deletedCount }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "deleteFailed"
@@ -119,7 +130,8 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
   "usersOnboardingStatus/recreateImportSchedulesForNeedsHumanWhatsapp",
   async (_, { dispatch, getState, rejectWithValue }) => {
     try {
-      const { items, statusFilter, lastUpdateFrom, lastUpdateTo } = getState().usersOnboardingStatus
+      const { items, statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate } =
+        getState().usersOnboardingStatus
       const userIds = Array.from(
         new Set(
           items
@@ -138,7 +150,14 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
         importFirstStep: "scheduled_whatsapp_import_greeting"
       })
       const status = statusFilter === "all" ? undefined : statusFilter
-      await dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo }))
+      await dispatch(
+        fetchUsersOnboardingStatusThunk({
+          status,
+          lastUpdateFrom,
+          lastUpdateTo,
+          includeSpecificUpdate
+        })
+      )
       return { updatedCount: result.length }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "recreateSchedulesFailed"
@@ -155,8 +174,13 @@ export const recreateImportSchedulesForSelectedUserIdsThunk = createAsyncThunk<
   "usersOnboardingStatus/recreateImportSchedulesForSelectedUserIds",
   async ({ importFirstStep }, { dispatch, getState, rejectWithValue }) => {
     try {
-      const { selectedRescheduleUserIds, statusFilter, lastUpdateFrom, lastUpdateTo } =
-        getState().usersOnboardingStatus
+      const {
+        selectedRescheduleUserIds,
+        statusFilter,
+        lastUpdateFrom,
+        lastUpdateTo,
+        includeSpecificUpdate
+      } = getState().usersOnboardingStatus
       const userIds = Array.from(
         new Set(
           selectedRescheduleUserIds.filter((id) => typeof id === "string" && id.trim() !== "")
@@ -169,7 +193,14 @@ export const recreateImportSchedulesForSelectedUserIdsThunk = createAsyncThunk<
 
       const result = await recreateImportSchedulesReq({ userIds, importFirstStep })
       const status = statusFilter === "all" ? undefined : statusFilter
-      await dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo }))
+      await dispatch(
+        fetchUsersOnboardingStatusThunk({
+          status,
+          lastUpdateFrom,
+          lastUpdateTo,
+          includeSpecificUpdate
+        })
+      )
       return { updatedCount: result.length }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "recreateSchedulesFailed"
@@ -187,6 +218,9 @@ const usersOnboardingStatusSlice = createSlice({
       action: PayloadAction<OnboardingStatusType | "all">
     ) => {
       state.statusFilter = action.payload
+    },
+    setIncludeSpecificUpdateAct: (state, action: PayloadAction<boolean>) => {
+      state.includeSpecificUpdate = action.payload
     },
     setOnboardingSearchTermAct: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload
@@ -355,6 +389,7 @@ const usersOnboardingStatusSlice = createSlice({
 
 export const {
   setOnboardingStatusFilterAct,
+  setIncludeSpecificUpdateAct,
   setOnboardingSearchTermAct,
   setOnboardingDateRangeAct,
   clearUsersOnboardingStatusErrorAct,

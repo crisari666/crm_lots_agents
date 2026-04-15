@@ -1,7 +1,9 @@
 import {
   Alert,
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   InputLabel,
   ListItemText,
   MenuItem,
@@ -33,6 +35,7 @@ export default function OnboardinControlsCP() {
   const filteredItems = useAppSelector(selectUsersOnboardingStatusFilteredItems)
   const {
     statusFilter,
+    includeSpecificUpdate,
     searchTerm,
     lastUpdateFrom,
     lastUpdateTo,
@@ -50,6 +53,7 @@ export default function OnboardinControlsCP() {
     deleteDialogError,
     setRescheduleFirstStep,
     onChangeStatusFilter,
+    onChangeIncludeSpecificUpdate,
     onChangeSearchTerm,
     onChangeDateRange,
     onRefresh,
@@ -109,6 +113,16 @@ export default function OnboardinControlsCP() {
             })}
           </Select>
         </FormControl>
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={includeSpecificUpdate}
+              onChange={(e) => onChangeIncludeSpecificUpdate(e.target.checked)}
+            />
+          }
+          label={s.includeSpecificUpdateLabel}
+        />
 
         <Stack spacing={0.5} sx={{ minWidth: 280 }}>
           <Typography variant="caption" color="text.secondary">

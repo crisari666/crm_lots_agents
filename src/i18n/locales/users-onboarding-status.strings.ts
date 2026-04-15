@@ -25,6 +25,18 @@ export const onboardingStatusFilterI18n: Record<
     title: "Video o siguiente mensaje enviado",
     description: "Ya se le envió el video o el mensaje que sigue al saludo en WhatsApp"
   },
+  WS_confirmar_capacitacion_dispatched: {
+    title: "Confirmar capacitación enviado",
+    description: "Se despachó el template de confirmación de capacitación por WhatsApp"
+  },
+  WS_training_slots_list_sent: {
+    title: "Lista de cupos enviada",
+    description: "Se envió la lista interactiva de horarios de capacitación por WhatsApp"
+  },
+  WS_training_slot_selected: {
+    title: "Cupo seleccionado",
+    description: "El usuario eligió un horario desde la lista de capacitación"
+  },
   Needs_human_whatsapp: {
     title: "Requiere atención humana (WhatsApp)",
     description: "Reportado como spam por Whatsapp Business"
@@ -90,6 +102,7 @@ export const usersOnboardingStatusStrings = {
   voiceCallStartSuccessScheduled: (flowId: string) =>
     `Voice call scheduled (no free line yet; will retry). Flow ID: ${flowId}`,
   statusFilterLabel: "Estado del proceso",
+  includeSpecificUpdateLabel: "Buscar estado en historial de actualizaciones",
   searchUserLabel: "Search user",
   refresh: "Refresh",
   lastUpdateFromLabel: "Last update from",

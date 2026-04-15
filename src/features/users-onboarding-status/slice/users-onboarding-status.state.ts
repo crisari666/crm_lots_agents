@@ -24,6 +24,7 @@ export type UsersOnboardingStatusState = {
   isLoading: boolean
   error: string | null
   statusFilter: OnboardingStatusType | "all"
+  includeSpecificUpdate: boolean
   lastUpdateFrom: string
   lastUpdateTo: string
   searchTerm: string

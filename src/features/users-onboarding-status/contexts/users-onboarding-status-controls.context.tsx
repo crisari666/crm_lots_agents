@@ -12,6 +12,7 @@ import {
   selectSelectedRescheduleUserIds,
   selectUsersOnboardingStatusFilteredItems,
   selectUsersOnboardingStatusState,
+  setIncludeSpecificUpdateAct,
   setOnboardingDateRangeAct,
   setOnboardingSearchTermAct,
   setOnboardingStatusFilterAct
@@ -20,6 +21,7 @@ import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-o
 
 type UsersOnboardingStatusControlsContextType = {
   statusFilter: OnboardingStatusType | "all"
+  includeSpecificUpdate: boolean
   searchTerm: string
   lastUpdateFrom: string
   lastUpdateTo: string
@@ -37,6 +39,7 @@ type UsersOnboardingStatusControlsContextType = {
   deleteDialogError: string | null
   setRescheduleFirstStep: (next: UserImportFirstStepType | "") => void
   onChangeStatusFilter: (next: OnboardingStatusType | "all") => void
+  onChangeIncludeSpecificUpdate: (next: boolean) => void
   onChangeSearchTerm: (next: string) => void
   onChangeDateRange: (next: { lastUpdateFrom: string; lastUpdateTo: string }) => void
   onRefresh: () => void
@@ -57,6 +60,9 @@ export const onboardingStatuses: Array<OnboardingStatusType | "all"> = [
   "Scheduled",
   "WS_sent",
   "WS_video_sent",
+  "WS_confirmar_capacitacion_dispatched",
+  "WS_training_slots_list_sent",
+  "WS_training_slot_selected",
   "Needs_human_whatsapp",
   "Interested",
   "Call_programmed",
@@ -91,6 +97,7 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
   const {
     items,
     statusFilter,
+    includeSpecificUpdate,
     searchTerm,
     isLoading,
     bulkDeleteFlowsLoading,
@@ -121,12 +128,19 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
       return
     }
     const status = statusFilter === "all" ? undefined : statusFilter
-    dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo }))
-  }, [dispatch, statusFilter, lastUpdateFrom, lastUpdateTo])
+    dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate }))
+  }, [dispatch, includeSpecificUpdate, statusFilter, lastUpdateFrom, lastUpdateTo])
 
   const onChangeStatusFilter = useCallback(
     (next: OnboardingStatusType | "all") => {
       dispatch(setOnboardingStatusFilterAct(next))
+    },
+    [dispatch]
+  )
+
+  const onChangeIncludeSpecificUpdate = useCallback(
+    (next: boolean) => {
+      dispatch(setIncludeSpecificUpdateAct(next))
     },
     [dispatch]
   )
@@ -152,8 +166,8 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
 
   const onRefresh = useCallback(() => {
     const status = resolvedFilter === "all" ? undefined : resolvedFilter
-    dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo }))
-  }, [dispatch, lastUpdateFrom, lastUpdateTo, resolvedFilter])
+    dispatch(fetchUsersOnboardingStatusThunk({ status, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate }))
+  }, [dispatch, includeSpecificUpdate, lastUpdateFrom, lastUpdateTo, resolvedFilter])
 
   const onExportVisibleRows = useCallback(() => {
     const rows = filteredOnboardingRows.map((x) => ({
@@ -246,6 +260,7 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
   const value = useMemo(
     () => ({
       statusFilter: resolvedFilter,
+      includeSpecificUpdate,
       searchTerm,
       lastUpdateFrom,
       lastUpdateTo,
@@ -263,6 +278,7 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
       deleteDialogError,
       setRescheduleFirstStep,
       onChangeStatusFilter,
+      onChangeIncludeSpecificUpdate,
       onChangeSearchTerm,
       onChangeDateRange,
       onRefresh,
@@ -279,11 +295,13 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
       deleteDialogError,
       deleteDialogOpen,
       filteredOnboardingRows.length,
+      includeSpecificUpdate,
       isLoading,
       items.length,
       lastUpdateFrom,
       lastUpdateTo,
       onChangeDateRange,
+      onChangeIncludeSpecificUpdate,
       onChangeSearchTerm,
       onChangeStatusFilter,
       onExportVisibleRows,
