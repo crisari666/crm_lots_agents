@@ -62,11 +62,66 @@ const PREVIEW_TABLE_HEIGHT = 400
 
 export default function ImportUsersPreviewTable() {
   const { previewRows } = useAppSelector((state: RootState) => state.importUsers)
+  const summary = React.useMemo(() => {
+    return previewRows.reduce(
+      (acc, row) => {
+        if (row.status === "created") {
+          acc.created += 1
+          return acc
+        }
+
+        if (row.status === "already_exists") {
+          acc.alreadyExists += 1
+          return acc
+        }
+
+        acc.unknown += 1
+        return acc
+      },
+      { created: 0, alreadyExists: 0, unknown: 0 }
+    )
+  }, [previewRows])
 
   if (previewRows.length === 0) return null
 
   return (
-    <Box sx={{ height: PREVIEW_TABLE_HEIGHT, mt: 2 }}>
+    <Box sx={{ mt: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          flexWrap: "wrap",
+          mb: 1
+        }}
+      >
+        <Typography variant="subtitle2" color="text.secondary">
+          Resumen:
+        </Typography>
+        <Chip
+          size="small"
+          icon={<CheckCircle />}
+          label={`Importados: ${summary.created}`}
+          color="success"
+          variant="outlined"
+        />
+        <Chip
+          size="small"
+          icon={<Info />}
+          label={`Ya existen: ${summary.alreadyExists}`}
+          color="warning"
+          variant="outlined"
+        />
+        {summary.unknown > 0 && (
+          <Chip
+            size="small"
+            label={`Sin estado: ${summary.unknown}`}
+            color="default"
+            variant="outlined"
+          />
+        )}
+      </Box>
+      <Box sx={{ height: PREVIEW_TABLE_HEIGHT }}>
       <TableVirtuoso
         data={previewRows}
         components={VirtuosoTableComponents}
@@ -91,6 +146,7 @@ export default function ImportUsersPreviewTable() {
           </>
         )}
       />
+      </Box>
     </Box>
   )
 }
