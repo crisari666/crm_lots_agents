@@ -16,13 +16,13 @@ import type {
 } from "../types/onboarding-state.types"
 
 export async function getOnboardingStateListReq({
-  status,
+  statuses,
   lastUpdateFrom,
   lastUpdateTo,
   includeSpecificUpdate,
   containsStatusInLogs
 }: {
-  status?: OnboardingStatusType
+  statuses?: OnboardingStatusType[]
   lastUpdateFrom?: string
   lastUpdateTo?: string
   includeSpecificUpdate?: boolean
@@ -30,17 +30,22 @@ export async function getOnboardingStateListReq({
 }): Promise<OnboardingStateType[]> {
   try {
     const api = Api.getInstance()
-    const query: Record<string, string> = {}
-    if (status != null) query.status = status
-    if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.lastUpdateFrom = lastUpdateFrom
-    if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.lastUpdateTo = lastUpdateTo
-    const shouldMatchStatusInLogs = includeSpecificUpdate === true && status != null
-    if (shouldMatchStatusInLogs) query.containsStatus = containsStatusInLogs === false ? "false" : "true"
+    const query = new URLSearchParams()
+    const validStatuses = (statuses ?? []).filter(
+      (status): status is OnboardingStatusType =>
+        typeof status === "string" && status.trim() !== ""
+    )
+    validStatuses.forEach((status) => query.append("status", status))
+    if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.append("lastUpdateFrom", lastUpdateFrom)
+    if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.append("lastUpdateTo", lastUpdateTo)
+    const shouldMatchStatusInLogs = includeSpecificUpdate === true && validStatuses.length > 0
+    if (shouldMatchStatusInLogs) {
+      query.append("containsStatus", containsStatusInLogs === false ? "false" : "true")
+    }
     const response: OnboardingStateListResponse = await api.get({
-      path: shouldMatchStatusInLogs
-        ? "onboarding-state/list-by-log-status"
-        : "onboarding-state/list",
-      data: Object.keys(query).length > 0 ? query : undefined
+      path: `onboarding-state/${
+        shouldMatchStatusInLogs ? "list-by-log-status" : "list"
+      }${query.size > 0 ? `?${query.toString()}` : ""}`
     })
 
     const { error } = response
@@ -57,20 +62,26 @@ export async function getOnboardingStateListReq({
 }
 
 export async function getOnboardingStatsByLogStatusReq({
+  statuses,
   lastUpdateFrom,
   lastUpdateTo
 }: {
+  statuses?: OnboardingStatusType[]
   lastUpdateFrom?: string
   lastUpdateTo?: string
 }): Promise<OnboardingStatsByLogStatusResponse["result"]> {
   try {
     const api = Api.getInstance()
-    const query: Record<string, string> = {}
-    if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.lastUpdateFrom = lastUpdateFrom
-    if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.lastUpdateTo = lastUpdateTo
+    const query = new URLSearchParams()
+    const validStatuses = (statuses ?? []).filter(
+      (status): status is OnboardingStatusType =>
+        typeof status === "string" && status.trim() !== ""
+    )
+    validStatuses.forEach((status) => query.append("status", status))
+    if (lastUpdateFrom != null && lastUpdateFrom.trim() !== "") query.append("lastUpdateFrom", lastUpdateFrom)
+    if (lastUpdateTo != null && lastUpdateTo.trim() !== "") query.append("lastUpdateTo", lastUpdateTo)
     const response = (await api.get({
-      path: "onboarding-state/stats-by-log-status",
-      data: Object.keys(query).length > 0 ? query : undefined
+      path: `onboarding-state/stats-by-log-status${query.size > 0 ? `?${query.toString()}` : ""}`
     })) as OnboardingStatsByLogStatusResponse
 
     if (response.error != null) throw new Error(response.error)

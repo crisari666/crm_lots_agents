@@ -4,6 +4,7 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
+  Grid,
   InputLabel,
   ListItemText,
   MenuItem,
@@ -12,11 +13,11 @@ import {
   TextField,
   Typography
 } from "@mui/material"
+import type { SelectChangeEvent } from "@mui/material/Select"
 import DeleteOutline from "@mui/icons-material/DeleteOutline"
 import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined"
 import { useState } from "react"
 import type { UserImportFirstStepType } from "../../../app/services/users.service"
-import AppDateRangeSelector from "../../../app/components/app-date-range-selector"
 import { useAppSelector } from "../../../app/hooks"
 import {
   onboardingStatusFilterI18n,
@@ -30,6 +31,7 @@ import {
   useUsersOnboardingStatusControlsContext
 } from "../contexts/users-onboarding-status-controls.context"
 import { selectUsersOnboardingStatusFilteredItems } from "../slice/users-onboarding-status.slice"
+import OnboardingDateTimeRangePickerCP from "./onboarding-date-time-range-picker.cp"
 
 export default function OnboardinControlsCP() {
   const [chartDialogOpen, setChartDialogOpen] = useState(false)
@@ -69,8 +71,16 @@ export default function OnboardinControlsCP() {
     confirmDeleteFlows
   } = useUsersOnboardingStatusControlsContext()
 
-  const fromDateInput = lastUpdateFrom ? new Date(lastUpdateFrom) : new Date()
-  const toDateInput = lastUpdateTo ? new Date(lastUpdateTo) : new Date()
+  const fromDateInput = lastUpdateFrom ? new Date(lastUpdateFrom) : null
+  const toDateInput = lastUpdateTo ? new Date(lastUpdateTo) : null
+
+  const handleStatusFilterChange = (event: SelectChangeEvent<typeof statusFilter>) => {
+    const value = event.target.value
+    const nextStatuses = typeof value === "string" ? value.split(",") : value
+    onChangeStatusFilter(nextStatuses.filter((item): item is (typeof onboardingStatuses)[number] =>
+      onboardingStatuses.includes(item as (typeof onboardingStatuses)[number])
+    ))
+  }
 
   return (
     <Stack spacing={2}>
@@ -102,76 +112,97 @@ export default function OnboardinControlsCP() {
         </Button>
       </Stack>
 
-      <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
-        <FormControl size="small" sx={{ minWidth: 300, maxWidth: 420 }}>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} md={4}>
+          <FormControl size="small" fullWidth>
           <InputLabel id="onboarding-status-filter-label">{s.statusFilterLabel}</InputLabel>
           <Select
+            multiple
             labelId="onboarding-status-filter-label"
             label={s.statusFilterLabel}
             value={statusFilter}
-            onChange={(e) =>
-              onChangeStatusFilter(e.target.value as (typeof onboardingStatuses)[number])
-            }
+            onChange={handleStatusFilterChange}
             renderValue={(value) =>
-              onboardingStatusFilterI18n[value as keyof typeof onboardingStatusFilterI18n].title
+              Array.isArray(value) && value.length > 0
+                ? value
+                    .map((statusKey) => onboardingStatusFilterI18n[statusKey].title)
+                    .join(", ")
+                : onboardingStatusFilterI18n.all.title
             }
           >
+            <MenuItem value="" disabled>
+              <ListItemText
+                primary={onboardingStatusFilterI18n.all.title}
+                secondary={onboardingStatusFilterI18n.all.description}
+              />
+            </MenuItem>
             {onboardingStatuses.map((statusKey) => {
               const copy = onboardingStatusFilterI18n[statusKey]
               return (
                 <MenuItem key={statusKey} value={statusKey}>
+                  <Checkbox checked={statusFilter.includes(statusKey)} />
                   <ListItemText primary={copy.title} secondary={copy.description} />
                 </MenuItem>
               )
             })}
           </Select>
-        </FormControl>
+          </FormControl>
+        </Grid>
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={includeSpecificUpdate}
-              onChange={(e) => onChangeIncludeSpecificUpdate(e.target.checked)}
-            />
-          }
-          label={s.includeSpecificUpdateLabel}
-        />
-        {includeSpecificUpdate ? (
+        <Grid item xs={12} md={3}>
           <FormControlLabel
             control={
               <Checkbox
-                checked={containsStatusInLogs}
-                onChange={(e) => onChangeContainsStatusInLogs(e.target.checked)}
+                checked={includeSpecificUpdate}
+                onChange={(e) => onChangeIncludeSpecificUpdate(e.target.checked)}
               />
             }
-            label={s.containsStatusInLogsLabel}
+            label={s.includeSpecificUpdateLabel}
           />
+        </Grid>
+        {includeSpecificUpdate ? (
+          <Grid item xs={12} md={3}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={containsStatusInLogs}
+                  onChange={(e) => onChangeContainsStatusInLogs(e.target.checked)}
+                />
+              }
+              label={s.containsStatusInLogsLabel}
+            />
+          </Grid>
         ) : null}
 
-        <Stack spacing={0.5} sx={{ minWidth: 280 }}>
-          <Typography variant="caption" color="text.secondary">
-            {`${s.lastUpdateFromLabel} - ${s.lastUpdateToLabel}`}
-          </Typography>
-          <AppDateRangeSelector
-            id="onboarding-last-update-range"
-            dateStart={fromDateInput}
-            dateEnd={toDateInput}
-            onChange={({ dateStart, dateEnd }) =>
-              onChangeDateRange({
-                lastUpdateFrom: dateStart.toISOString().slice(0, 10),
-                lastUpdateTo: dateEnd.toISOString().slice(0, 10)
-              })
-            }
-          />
-        </Stack>
+        <Grid item xs={12} md={includeSpecificUpdate ? 10 : 7}>
+          <Stack spacing={0.5}>
+            <Typography variant="caption" color="text.secondary">
+              {s.lastUpdateRangeLabel}
+            </Typography>
+            <OnboardingDateTimeRangePickerCP
+              id="onboarding-last-update-range"
+              value={[fromDateInput, toDateInput]}
+              disabled={isLoading}
+              helperText={`${s.lastUpdateFromLabel} / ${s.lastUpdateToLabel}`}
+              onChange={([dateStart, dateEnd]) =>
+                onChangeDateRange({
+                  lastUpdateFrom: dateStart?.toISOString() ?? "",
+                  lastUpdateTo: dateEnd?.toISOString() ?? ""
+                })
+              }
+            />
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md="auto">
+          <Button variant="contained" onClick={onRefresh} disabled={isLoading}>
+            {s.refresh}
+          </Button>
+        </Grid>
+      </Grid>
 
-        <Button variant="contained" onClick={onRefresh} disabled={isLoading}>
-          {s.refresh}
-        </Button>
-      </Stack>
-
-      <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
-        <FormControl size="small" sx={{ minWidth: 280 }}>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} md={4}>
+          <FormControl size="small" fullWidth>
           <InputLabel id="reschedule-first-step-label">{s.rescheduleFirstStepLabel}</InputLabel>
           <Select
             labelId="reschedule-first-step-label"
@@ -192,45 +223,52 @@ export default function OnboardinControlsCP() {
             </MenuItem>
             <MenuItem value="voice_call">{s.rescheduleFirstStepVoice}</MenuItem>
           </Select>
-        </FormControl>
+          </FormControl>
+        </Grid>
 
-        <Button
-          variant="contained"
-          color="secondary"
-          disabled={
-            selectedRescheduleUserIdsCount === 0 ||
-            rescheduleFirstStep === "" ||
-            isLoading ||
-            bulkRecreateSchedulesLoading
-          }
-          onClick={onRescheduleSelected}
-        >
-          {s.rescheduleSelectedUsers}
-        </Button>
+        <Grid item xs={12} sm={6} md="auto">
+          <Button
+            variant="contained"
+            color="secondary"
+            disabled={
+              selectedRescheduleUserIdsCount === 0 ||
+              rescheduleFirstStep === "" ||
+              isLoading ||
+              bulkRecreateSchedulesLoading
+            }
+            onClick={onRescheduleSelected}
+          >
+            {s.rescheduleSelectedUsers}
+          </Button>
+        </Grid>
 
-        <Button
-          variant="outlined"
-          disabled={isLoading || bulkRecreateSchedulesLoading}
-          onClick={onRecreateSchedules}
-        >
-          {s.recreateSchedulesNeedsHumanWhatsapp}
-        </Button>
+        <Grid item xs={12} sm={6} md="auto">
+          <Button
+            variant="outlined"
+            disabled={isLoading || bulkRecreateSchedulesLoading}
+            onClick={onRecreateSchedules}
+          >
+            {s.recreateSchedulesNeedsHumanWhatsapp}
+          </Button>
+        </Grid>
 
-        <Button
-          variant="outlined"
-          color="error"
-          startIcon={<DeleteOutline />}
-          disabled={
-            selectedOrphanRowIdsCount === 0 ||
-            isLoading ||
-            bulkDeleteFlowsLoading ||
-            bulkRecreateSchedulesLoading
-          }
-          onClick={openDeleteDialog}
-        >
-          {s.deleteOrphanFlows}
-        </Button>
-      </Stack>
+        <Grid item xs={12} sm={6} md="auto">
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteOutline />}
+            disabled={
+              selectedOrphanRowIdsCount === 0 ||
+              isLoading ||
+              bulkDeleteFlowsLoading ||
+              bulkRecreateSchedulesLoading
+            }
+            onClick={openDeleteDialog}
+          >
+            {s.deleteOrphanFlows}
+          </Button>
+        </Grid>
+      </Grid>
 
       <Stack spacing={0.5} sx={{ minWidth: 260 }}>
         <TextField
@@ -267,6 +305,7 @@ export default function OnboardinControlsCP() {
       <UsersOnboardingStatusLogStatsDialogCP
         open={logStatsDialogOpen}
         onClose={() => setLogStatsDialogOpen(false)}
+        statuses={statusFilter}
         lastUpdateFrom={lastUpdateFrom}
         lastUpdateTo={lastUpdateTo}
       />

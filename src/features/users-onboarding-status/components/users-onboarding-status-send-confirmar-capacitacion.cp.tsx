@@ -31,11 +31,10 @@ export default function UsersOnboardingStatusSendConfirmarCapacitacionCP({
     useAppSelector(selectUsersOnboardingStatusState)
 
   const refreshListSoon = useCallback(() => {
-    const status = statusFilter === "all" ? undefined : statusFilter
     window.setTimeout(() => {
       dispatch(
         fetchUsersOnboardingStatusThunk({
-          status,
+          statuses: statusFilter,
           lastUpdateFrom,
           lastUpdateTo,
           includeSpecificUpdate,

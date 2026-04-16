@@ -23,7 +23,7 @@ export type UsersOnboardingStatusState = {
   items: OnboardingStateType[]
   isLoading: boolean
   error: string | null
-  statusFilter: OnboardingStatusType | "all"
+  statusFilter: OnboardingStatusType[]
   includeSpecificUpdate: boolean
   containsStatusInLogs: boolean
   lastUpdateFrom: string

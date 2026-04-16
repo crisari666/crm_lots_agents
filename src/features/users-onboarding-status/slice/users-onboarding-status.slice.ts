@@ -31,7 +31,7 @@ const initialState: UsersOnboardingStatusState = {
   items: [],
   isLoading: false,
   error: null,
-  statusFilter: "all",
+  statusFilter: [],
   includeSpecificUpdate: false,
   containsStatusInLogs: true,
   lastUpdateFrom: "",
@@ -48,20 +48,20 @@ const initialState: UsersOnboardingStatusState = {
 export const fetchUsersOnboardingStatusThunk = createAsyncThunk(
   "usersOnboardingStatus/fetchList",
   async ({
-    status,
+    statuses,
     lastUpdateFrom,
     lastUpdateTo,
     includeSpecificUpdate,
     containsStatusInLogs
   }: {
-    status?: OnboardingStatusType
+    statuses?: OnboardingStatusType[]
     lastUpdateFrom?: string
     lastUpdateTo?: string
     includeSpecificUpdate?: boolean
     containsStatusInLogs?: boolean
   }) => {
     return getOnboardingStateListReq({
-      status,
+      statuses,
       lastUpdateFrom,
       lastUpdateTo,
       includeSpecificUpdate,
@@ -114,10 +114,9 @@ export const deleteOnboardingFlowsBySelectedIdsThunk = createAsyncThunk<
       const { deletedCount } = await deleteOnboardingFlowsReq(flowIds)
       const { statusFilter, lastUpdateFrom, lastUpdateTo, includeSpecificUpdate, containsStatusInLogs } =
         getState().usersOnboardingStatus
-      const status = statusFilter === "all" ? undefined : statusFilter
       await dispatch(
         fetchUsersOnboardingStatusThunk({
-          status,
+          statuses: statusFilter,
           lastUpdateFrom,
           lastUpdateTo,
           includeSpecificUpdate,
@@ -165,10 +164,9 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
         userIds,
         importFirstStep: "scheduled_whatsapp_import_greeting"
       })
-      const status = statusFilter === "all" ? undefined : statusFilter
       await dispatch(
         fetchUsersOnboardingStatusThunk({
-          status,
+          statuses: statusFilter,
           lastUpdateFrom,
           lastUpdateTo,
           includeSpecificUpdate,
@@ -210,10 +208,9 @@ export const recreateImportSchedulesForSelectedUserIdsThunk = createAsyncThunk<
       }
 
       const result = await recreateImportSchedulesReq({ userIds, importFirstStep })
-      const status = statusFilter === "all" ? undefined : statusFilter
       await dispatch(
         fetchUsersOnboardingStatusThunk({
-          status,
+          statuses: statusFilter,
           lastUpdateFrom,
           lastUpdateTo,
           includeSpecificUpdate,
@@ -234,7 +231,7 @@ const usersOnboardingStatusSlice = createSlice({
   reducers: {
     setOnboardingStatusFilterAct: (
       state,
-      action: PayloadAction<OnboardingStatusType | "all">
+      action: PayloadAction<OnboardingStatusType[]>
     ) => {
       state.statusFilter = action.payload
     },

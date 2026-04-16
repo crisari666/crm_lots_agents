@@ -8,6 +8,7 @@ import type { OnboardingStatusType } from "../types/onboarding-state.types"
 type UsersOnboardingStatusLogStatsDialogCPProps = {
   open: boolean
   onClose: () => void
+  statuses: OnboardingStatusType[]
   lastUpdateFrom: string
   lastUpdateTo: string
 }
@@ -27,6 +28,7 @@ const normalizeStatusLabel = (status: string | null) => {
 export default function UsersOnboardingStatusLogStatsDialogCP({
   open,
   onClose,
+  statuses,
   lastUpdateFrom,
   lastUpdateTo
 }: UsersOnboardingStatusLogStatsDialogCPProps) {
@@ -40,7 +42,7 @@ export default function UsersOnboardingStatusLogStatsDialogCP({
     let mounted = true
     setIsLoading(true)
     setError(null)
-    getOnboardingStatsByLogStatusReq({ lastUpdateFrom, lastUpdateTo })
+    getOnboardingStatsByLogStatusReq({ statuses, lastUpdateFrom, lastUpdateTo })
       .then((result) => {
         if (!mounted) return
         setRows(result.statusStats)
@@ -58,7 +60,7 @@ export default function UsersOnboardingStatusLogStatsDialogCP({
     return () => {
       mounted = false
     }
-  }, [open, lastUpdateFrom, lastUpdateTo])
+  }, [open, statuses, lastUpdateFrom, lastUpdateTo])
 
   const sortedRows = useMemo(() => [...rows].sort((a, b) => b.count - a.count), [rows])
   const xLabels = useMemo(() => sortedRows.map((x) => normalizeStatusLabel(x.status)), [sortedRows])

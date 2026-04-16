@@ -21,7 +21,7 @@ import {
 import { usersOnboardingStatusStrings as s } from "../../../i18n/locales/users-onboarding-status.strings"
 
 type UsersOnboardingStatusControlsContextType = {
-  statusFilter: OnboardingStatusType | "all"
+  statusFilter: OnboardingStatusType[]
   includeSpecificUpdate: boolean
   containsStatusInLogs: boolean
   searchTerm: string
@@ -40,7 +40,7 @@ type UsersOnboardingStatusControlsContextType = {
   deleteDialogOpen: boolean
   deleteDialogError: string | null
   setRescheduleFirstStep: (next: UserImportFirstStepType | "") => void
-  onChangeStatusFilter: (next: OnboardingStatusType | "all") => void
+  onChangeStatusFilter: (next: OnboardingStatusType[]) => void
   onChangeIncludeSpecificUpdate: (next: boolean) => void
   onChangeContainsStatusInLogs: (next: boolean) => void
   onChangeSearchTerm: (next: string) => void
@@ -57,8 +57,7 @@ type UsersOnboardingStatusControlsContextType = {
 const UsersOnboardingStatusControlsContext =
   createContext<UsersOnboardingStatusControlsContextType | null>(null)
 
-export const onboardingStatuses: Array<OnboardingStatusType | "all"> = [
-  "all",
+export const onboardingStatuses: OnboardingStatusType[] = [
   "Imported",
   "Scheduled",
   "WS_sent",
@@ -77,22 +76,29 @@ export const onboardingStatuses: Array<OnboardingStatusType | "all"> = [
   "Reschedule_due_twilio_number_occupiedt"
 ]
 
-const isValidStatusFilter = (v: string): v is OnboardingStatusType | "all" =>
-  (onboardingStatuses as readonly string[]).includes(v)
+const isValidStatusFilter = (value: string): value is OnboardingStatusType =>
+  onboardingStatuses.includes(value as OnboardingStatusType)
 
 const sanitizeCsvCell = (value: string) => {
   const escaped = value.replaceAll(`"`, `""`)
   return `"${escaped}"`
 }
 
-const toUtcStartIso = (dateValue: string) => {
-  if (dateValue.trim() === "") return ""
-  return new Date(`${dateValue}T00:00:00`).toISOString()
+const normalizeStatuses = (values: unknown): OnboardingStatusType[] => {
+  if (!Array.isArray(values)) return []
+  return Array.from(
+    new Set(
+      values.filter((value): value is OnboardingStatusType =>
+        typeof value === "string" && isValidStatusFilter(value)
+      )
+    )
+  )
 }
 
-const toUtcEndIso = (dateValue: string) => {
+const normalizeIsoDate = (dateValue: string) => {
   if (dateValue.trim() === "") return ""
-  return new Date(`${dateValue}T23:59:59.999`).toISOString()
+  const parsed = new Date(dateValue)
+  return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString()
 }
 
 export function UsersOnboardingStatusControlsProvider({ children }: { children: ReactNode }) {
@@ -118,34 +124,21 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
   const [rescheduleSelectedError, setRescheduleSelectedError] = useState<string | null>(null)
   const [rescheduleFirstStep, setRescheduleFirstStep] = useState<UserImportFirstStepType | "">("")
 
-  const resolvedFilter: OnboardingStatusType | "all" = isValidStatusFilter(statusFilter)
-    ? statusFilter
-    : "all"
+  const resolvedFilter = useMemo(() => normalizeStatuses(statusFilter), [statusFilter])
 
   useEffect(() => {
     if (!deleteDialogOpen) setDeleteDialogError(null)
   }, [deleteDialogOpen])
 
   useEffect(() => {
-    if (!isValidStatusFilter(statusFilter)) {
-      dispatch(setOnboardingStatusFilterAct("all"))
-      return
+    if (resolvedFilter.length !== statusFilter.length) {
+      dispatch(setOnboardingStatusFilterAct(resolvedFilter))
     }
-    const status = statusFilter === "all" ? undefined : statusFilter
-    dispatch(
-      fetchUsersOnboardingStatusThunk({
-        status,
-        lastUpdateFrom,
-        lastUpdateTo,
-        includeSpecificUpdate,
-        containsStatusInLogs
-      })
-    )
-  }, [dispatch, includeSpecificUpdate, containsStatusInLogs, statusFilter, lastUpdateFrom, lastUpdateTo])
+  }, [dispatch, resolvedFilter, statusFilter.length])
 
   const onChangeStatusFilter = useCallback(
-    (next: OnboardingStatusType | "all") => {
-      dispatch(setOnboardingStatusFilterAct(next))
+    (next: OnboardingStatusType[]) => {
+      dispatch(setOnboardingStatusFilterAct(normalizeStatuses(next)))
     },
     [dispatch]
   )
@@ -175,8 +168,8 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
     (next: { lastUpdateFrom: string; lastUpdateTo: string }) => {
       dispatch(
         setOnboardingDateRangeAct({
-          lastUpdateFrom: toUtcStartIso(next.lastUpdateFrom),
-          lastUpdateTo: toUtcEndIso(next.lastUpdateTo)
+          lastUpdateFrom: normalizeIsoDate(next.lastUpdateFrom),
+          lastUpdateTo: normalizeIsoDate(next.lastUpdateTo)
         })
       )
     },
@@ -184,10 +177,9 @@ export function UsersOnboardingStatusControlsProvider({ children }: { children: 
   )
 
   const onRefresh = useCallback(() => {
-    const status = resolvedFilter === "all" ? undefined : resolvedFilter
     dispatch(
       fetchUsersOnboardingStatusThunk({
-        status,
+        statuses: resolvedFilter,
         lastUpdateFrom,
         lastUpdateTo,
         includeSpecificUpdate,
