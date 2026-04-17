@@ -70,3 +70,9 @@ export type ConfirmStatusResponse = {
   }
 }
 
+export type RemoveAttendeeResponse = {
+  data: {
+    removed: boolean
+  }
+}
+

@@ -14,6 +14,7 @@ import {
   declineAttendeeReq,
   getTrainingDetailReq,
   getTrainingsReq,
+  removeAttendeeReq,
   toggleCheckInReq,
   updateTrainingReq
 } from "../services/training-traking.service"
@@ -83,6 +84,16 @@ export const declineAttendeeThunk = createAsyncThunk(
   "trainingTraking/declineAttendee",
   async (params: { trainingId: string; attendeeId: string; reason: string }, { dispatch }) => {
     const response = await declineAttendeeReq(params.attendeeId, params.reason)
+    await dispatch(fetchTrainingDetailThunk(params.trainingId))
+    await dispatch(fetchTrainingsThunk())
+    return response
+  }
+)
+
+export const removeAttendeeThunk = createAsyncThunk(
+  "trainingTraking/removeAttendee",
+  async (params: { trainingId: string; attendeeId: string }, { dispatch }) => {
+    const response = await removeAttendeeReq(params)
     await dispatch(fetchTrainingDetailThunk(params.trainingId))
     await dispatch(fetchTrainingsThunk())
     return response
@@ -224,6 +235,18 @@ const trainingTrakingSlice = createSlice({
       .addCase(declineAttendeeThunk.rejected, (state, action) => {
         state.isUpdatingAttendeeStatus = false
         state.error = action.error.message ?? "Error declining attendee"
+      })
+
+      .addCase(removeAttendeeThunk.pending, (state) => {
+        state.isUpdatingAttendeeStatus = true
+        state.error = null
+      })
+      .addCase(removeAttendeeThunk.fulfilled, (state) => {
+        state.isUpdatingAttendeeStatus = false
+      })
+      .addCase(removeAttendeeThunk.rejected, (state, action) => {
+        state.isUpdatingAttendeeStatus = false
+        state.error = action.error.message ?? "Error removing attendee"
       })
 
       .addCase(toggleCheckInThunk.pending, (state) => {

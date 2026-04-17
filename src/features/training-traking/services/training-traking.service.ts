@@ -3,6 +3,7 @@ import type {
   AddUserByEmailPayload,
   ConfirmStatusResponse,
   CreateTrainingPayload,
+  RemoveAttendeeResponse,
   TrainingAttendeeType,
   TrainingDetailResponse,
   TrainingDetailType,
@@ -128,6 +129,22 @@ export async function declineAttendeeReq(
     return response.data
   } catch (error) {
     console.error("ERROR ON declineAttendeeReq", error)
+    throw error
+  }
+}
+
+export async function removeAttendeeReq(params: {
+  trainingId: string
+  attendeeId: string
+}): Promise<RemoveAttendeeResponse["data"]> {
+  try {
+    const api = Api.getInstance()
+    const response: RemoveAttendeeResponse = await api.delete({
+      path: `/trainings/${params.trainingId}/attendees/${params.attendeeId}`
+    })
+    return response.data
+  } catch (error) {
+    console.error("ERROR ON removeAttendeeReq", error)
     throw error
   }
 }

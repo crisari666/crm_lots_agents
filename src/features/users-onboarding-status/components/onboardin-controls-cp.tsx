@@ -195,7 +195,6 @@ export default function OnboardinControlsCP() {
         variant="outlined"
         sx={{
           position: "relative",
-          overflow: "hidden",
           p: 2,
           borderRadius: 1,
           transition: (theme) =>
@@ -285,14 +284,6 @@ export default function OnboardinControlsCP() {
             </Grid>
 
             <Grid item xs={12} md={8}>
-              <Stack spacing={2}>
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={{ xs: 0.5, sm: 2 }}
-                  alignItems={{ xs: "flex-start", sm: "center" }}
-                  flexWrap="wrap"
-                  useFlexGap
-                >
                   <FormControlLabel
                     sx={{ mr: 0 }}
                     control={
@@ -319,44 +310,37 @@ export default function OnboardinControlsCP() {
                       label={s.containsStatusInLogsLabel}
                     />
                   ) : null}
-                </Stack>
-
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2}
-                  alignItems={{ xs: "stretch", sm: "flex-end" }}
-                >
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-                        {s.lastUpdateRangeLabel}
-                      </Typography>
-                      <OnboardingDateTimeRangePickerCP
-                        id="onboarding-last-update-range"
-                        value={[fromDateInput, toDateInput]}
-                        disabled={isLoading}
-                        helperText={`${s.lastUpdateFromLabel} / ${s.lastUpdateToLabel}`}
-                        onChange={([dateStart, dateEnd]) =>
-                          onChangeDateRange({
-                            lastUpdateFrom: dateStart?.toISOString() ?? "",
-                            lastUpdateTo: dateEnd?.toISOString() ?? ""
-                          })
-                        }
-                      />
-                    </Stack>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    onClick={onRefresh}
-                    disabled={isLoading}
-                    startIcon={<Refresh />}
-                    sx={{ alignSelf: { xs: "stretch", sm: "center" }, flexShrink: 0 }}
-                  >
-                    {s.refresh}
-                  </Button>
-                </Stack>
-              </Stack>
             </Grid>
+          </Grid>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={8} md={6} lg={3}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  {s.lastUpdateRangeLabel}
+                </Typography>
+                <OnboardingDateTimeRangePickerCP
+                  id="onboarding-last-update-range"
+                  value={[fromDateInput, toDateInput]}
+                  disabled={isLoading}
+                  helperText={`${s.lastUpdateFromLabel} / ${s.lastUpdateToLabel}`}
+                  onChange={([dateStart, dateEnd]) =>
+                    onChangeDateRange({
+                      lastUpdateFrom: dateStart?.toISOString() ?? "",
+                      lastUpdateTo: dateEnd?.toISOString() ?? ""
+                    })
+                  }
+                />
+            </Grid>
+            <Grid item xs={12} md="auto" display="flex" alignItems="center">
+              <Button
+                variant="contained"
+                onClick={onRefresh}
+                disabled={isLoading}
+                startIcon={<Refresh />}
+              >
+                {s.refresh}
+              </Button>
+            </Grid>
+
           </Grid>
 
           <Divider />

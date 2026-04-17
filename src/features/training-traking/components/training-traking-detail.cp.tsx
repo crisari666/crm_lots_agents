@@ -1,19 +1,9 @@
 import {
-  Alert,
-  Box,
-  Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
-  Menu,
-  MenuItem,
-  TextField,
-  Tooltip,
-  IconButton,
   Typography
 } from "@mui/material"
-import { alpha } from "@mui/material/styles"
 import { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
@@ -21,17 +11,15 @@ import {
   addUserToTrainingByEmailThunk,
   declineAttendeeThunk,
   fetchTrainingDetailThunk,
+  removeAttendeeThunk,
   selectTrainingTrakingDetail,
   selectTrainingTrakingState
 } from "../slice/training-traking.slice"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import DownloadIcon from "@mui/icons-material/Download"
-import EditIcon from "@mui/icons-material/Edit"
-import MoreVertIcon from "@mui/icons-material/MoreVert"
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
 import type { TrainingAttendeeType } from "../types/training-traking.types"
 import { toggleCheckInThunk } from "../slice/training-traking.slice"
 import TrainingTrakingCreateDialogCP from "./training-traking-create-dialog.cp"
+import TrainingTrakingAttendeesSectionCP from "./training-traking-attendees-section.cp"
+import TrainingTrakingMainSectionCP from "./training-traking-main-section.cp"
 
 export default function TrainingTrakingDetailCP() {
   const dispatch = useAppDispatch()
@@ -46,8 +34,6 @@ export default function TrainingTrakingDetailCP() {
   } = useAppSelector(selectTrainingTrakingState)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [addUserEmail, setAddUserEmail] = useState("")
-  const [actionsAnchorEl, setActionsAnchorEl] = useState<null | HTMLElement>(null)
-  const [actionsAttendee, setActionsAttendee] = useState<TrainingAttendeeType | null>(null)
 
   useEffect(() => {
     if (selectedId) {
@@ -122,17 +108,13 @@ export default function TrainingTrakingDetailCP() {
     )
   }
 
-  const handleOpenAttendeeMenu = (
-    event: React.MouseEvent<HTMLElement>,
-    attendee: TrainingAttendeeType
-  ) => {
-    setActionsAnchorEl(event.currentTarget)
-    setActionsAttendee(attendee)
-  }
-
-  const handleCloseAttendeeMenu = () => {
-    setActionsAnchorEl(null)
-    setActionsAttendee(null)
+  const handleRemoveAttendee = (attendee: TrainingAttendeeType) => {
+    dispatch(
+      removeAttendeeThunk({
+        trainingId: detail.id,
+        attendeeId: attendee.id
+      })
+    )
   }
 
   const escapeCsvValue = (value: string) => `"${value.replace(/"/g, `""`)}"`
@@ -165,240 +147,32 @@ export default function TrainingTrakingDetailCP() {
   return (
     <Card>
       <CardContent>
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
-          <Typography variant="h6" gutterBottom>
-            {detail.name}
-          </Typography>
-          <Tooltip title="Editar capacitación">
-            <IconButton size="small" onClick={() => setIsEditOpen(true)}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-        <Typography variant="body2" color="text.secondary">
-          {detail.date} · {detail.time} · {detail.location}
-        </Typography>
+        <TrainingTrakingMainSectionCP
+          trainingName={detail.name}
+          date={detail.date}
+          time={detail.time}
+          location={detail.location}
+          error={error}
+          addUserEmail={addUserEmail}
+          isAddingUserToTraining={isAddingUserToTraining}
+          confirmed={confirmed}
+          declined={declined}
+          pending={pending}
+          onEditTraining={() => setIsEditOpen(true)}
+          onChangeAddUserEmail={setAddUserEmail}
+          onAddUserByEmail={handleAddUserByEmail}
+        />
 
-        {error != null ? (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        ) : null}
-
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="subtitle2">Agregar usuario por email</Typography>
-          <Box sx={{ display: "flex", gap: 1.5, mt: 1, flexWrap: "wrap" }}>
-            <TextField
-              label="Email del usuario"
-              type="email"
-              size="small"
-              value={addUserEmail}
-              onChange={(e) => setAddUserEmail(e.target.value)}
-              fullWidth
-              sx={{ minWidth: 260, flex: 1 }}
-            />
-            <Button
-              variant="outlined"
-              onClick={handleAddUserByEmail}
-              disabled={isAddingUserToTraining || addUserEmail.trim().length === 0}
-            >
-              Agregar
-            </Button>
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-            gap: 2,
-            mt: 2
-          }}
-        >
-          <Box
-            sx={{
-              borderRadius: 2,
-              p: 1.5,
-              textAlign: "center",
-              bgcolor: (theme) => alpha(theme.palette.success.main, 0.08)
-            }}
-          >
-            <Typography
-              variant="h5"
-              component="p"
-              sx={{
-                fontWeight: 700,
-                color: "success.main",
-                fontVariantNumeric: "tabular-nums",
-                lineHeight: 1.2
-              }}
-            >
-              {confirmed}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" display="block">
-              Confirmados
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              borderRadius: 2,
-              p: 1.5,
-              textAlign: "center",
-              bgcolor: (theme) => alpha(theme.palette.error.main, 0.08)
-            }}
-          >
-            <Typography
-              variant="h5"
-              component="p"
-              sx={{
-                fontWeight: 700,
-                color: "error.main",
-                fontVariantNumeric: "tabular-nums",
-                lineHeight: 1.2
-              }}
-            >
-              {declined}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" display="block">
-              No asisten
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              borderRadius: 2,
-              p: 1.5,
-              textAlign: "center",
-              bgcolor: "action.hover"
-            }}
-          >
-            <Typography
-              variant="h5"
-              component="p"
-              sx={{
-                fontWeight: 700,
-                color: "text.secondary",
-                fontVariantNumeric: "tabular-nums",
-                lineHeight: 1.2
-              }}
-            >
-              {pending}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" display="block">
-              Pendientes
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ mt: 3 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 1
-            }}
-          >
-            <Typography variant="subtitle2">Asistentes</Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<DownloadIcon />}
-              onClick={handleDownloadAttendeesCsv}
-              disabled={detail.attendees.length === 0}
-            >
-              Descargar CSV
-            </Button>
-          </Box>
-
-          {detail.attendees.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              No hay inscritos aún.
-            </Typography>
-          ) : (
-            detail.attendees.map((attendee) => (
-              <Box
-                key={attendee.id}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  py: 1,
-                  borderBottom: "1px solid",
-                  borderColor: "divider"
-                }}
-              >
-                <Box>
-                  <Typography variant="body2">{attendee.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {attendee.email}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Chip label={attendee.status} size="small" />
-                  <Tooltip title="Acciones">
-                    <IconButton
-                      size="small"
-                      onClick={(event) => handleOpenAttendeeMenu(event, attendee)}
-                    >
-                      <MoreVertIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <IconButton
-                    size="small"
-                    color={attendee.checkedIn ? "success" : "default"}
-                    onClick={() => handleToggleCheckIn(attendee)}
-                    disabled={
-                      attendee.status !== "confirmed" || isTogglingCheckIn || isUpdatingAttendeeStatus
-                    }
-                  >
-                    {attendee.checkedIn ? (
-                      <CheckCircleIcon fontSize="small" />
-                    ) : (
-                      <RadioButtonUncheckedIcon fontSize="small" />
-                    )}
-                  </IconButton>
-                </Box>
-              </Box>
-            ))
-          )}
-        </Box>
-        <Menu
-          anchorEl={actionsAnchorEl}
-          open={actionsAnchorEl != null}
-          onClose={handleCloseAttendeeMenu}
-        >
-          <MenuItem
-            disabled={
-              actionsAttendee == null ||
-              actionsAttendee.status !== "pending" ||
-              isUpdatingAttendeeStatus
-            }
-            onClick={() => {
-              if (actionsAttendee != null) {
-                handleAcceptAttendee(actionsAttendee)
-              }
-              handleCloseAttendeeMenu()
-            }}
-          >
-            Confirmar
-          </MenuItem>
-          <MenuItem
-            disabled={
-              actionsAttendee == null ||
-              actionsAttendee.status !== "pending" ||
-              isUpdatingAttendeeStatus
-            }
-            onClick={() => {
-              if (actionsAttendee != null) {
-                handleDeclineAttendee(actionsAttendee)
-              }
-              handleCloseAttendeeMenu()
-            }}
-          >
-            Rechazar
-          </MenuItem>
-          <MenuItem disabled>Pendiente</MenuItem>
-        </Menu>
+        <TrainingTrakingAttendeesSectionCP
+          attendees={detail.attendees}
+          isTogglingCheckIn={isTogglingCheckIn}
+          isUpdatingAttendeeStatus={isUpdatingAttendeeStatus}
+          onToggleCheckIn={handleToggleCheckIn}
+          onAcceptAttendee={handleAcceptAttendee}
+          onDeclineAttendee={handleDeclineAttendee}
+          onRemoveAttendee={handleRemoveAttendee}
+          onDownloadCsv={handleDownloadAttendeesCsv}
+        />
       </CardContent>
       <TrainingTrakingCreateDialogCP
         open={isEditOpen}
