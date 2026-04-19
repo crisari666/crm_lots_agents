@@ -38,6 +38,10 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/projects", Icon: <CreditScore />, title: "Proyectos" },
     ]},
 
+    { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
+      { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
+    ]},
+
     // { Icon: <CampaignOutlined />, title: "Campaña", 
     //   children: [
     //     { to: "/dashboard/campaign", Icon: <Campaign />, title: "Campaña" },
