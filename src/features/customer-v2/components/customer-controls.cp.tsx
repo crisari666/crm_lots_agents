@@ -8,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Grid,
   TextField,
   Typography,
 } from "@mui/material"
@@ -25,6 +26,8 @@ export default function CustomerControlsCP() {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [assignUserId, setAssignUserId] = useState("")
+  const [projectId, setProjectId] = useState("")
+  const [note, setNote] = useState("")
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitOk, setSubmitOk] = useState(false)
@@ -66,6 +69,8 @@ export default function CustomerControlsCP() {
         ...(lastName.trim() && { lastName: lastName.trim() }),
         ...(email.trim() && { email: email.trim() }),
         ...(assignUserId && { user: assignUserId }),
+        ...(projectId.trim() && { projectId: projectId.trim() }),
+        ...(note.trim() && { note: note.trim() }),
       })
       setSubmitOk(true)
       setPhone("")
@@ -73,6 +78,8 @@ export default function CustomerControlsCP() {
       setLastName("")
       setEmail("")
       setAssignUserId("")
+      setProjectId("")
+      setNote("")
     } catch (err: unknown) {
       let message = "No se pudo crear el cliente."
       if (axios.isAxiosError(err)) {
@@ -105,59 +112,99 @@ export default function CustomerControlsCP() {
         Nuevo cliente
       </Button>
       <Dialog open={dialogOpen} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Nuevo cliente</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ pb: 0.5 }}>Nuevo cliente</DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
           {submitError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 1 }} onClose={() => setSubmitError(null)}>
               {submitError}
             </Alert>
           )}
           {submitOk && (
-            <Alert severity="success" sx={{ mb: 2 }}>
+            <Alert severity="success" sx={{ mb: 1 }}>
               Cliente creado correctamente.
             </Alert>
           )}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
-            <TextField
-              required
-              label="Teléfono"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              fullWidth
-              margin="dense"
-            />
-            <TextField
-              label="Nombre"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-              margin="dense"
-            />
-            <TextField
-              label="Apellido"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              fullWidth
-              margin="dense"
-            />
-            <TextField
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              fullWidth
-              margin="dense"
-            />
-            <AssignUserAutocompleteCP
-              users={users}
-              value={assignUserId}
-              onChange={setAssignUserId}
-              disabled={loading}
-            />
-          </Box>
+          <Grid container spacing={1} sx={{ pt: 0.5 }}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                required
+                label="Teléfono"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                fullWidth
+                size="small"
+                margin="none"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                fullWidth
+                size="small"
+                margin="none"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Nombre"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                fullWidth
+                size="small"
+                margin="none"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Apellido"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                fullWidth
+                size="small"
+                margin="none"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Proyecto (id)"
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                fullWidth
+                size="small"
+                margin="none"
+                placeholder="Opcional"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <AssignUserAutocompleteCP
+                users={users}
+                value={assignUserId}
+                onChange={setAssignUserId}
+                disabled={loading}
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Nota / descripción"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                fullWidth
+                size="small"
+                margin="none"
+                multiline
+                minRows={2}
+                maxRows={6}
+                placeholder="Opcional — queda en historial CRM"
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} disabled={loading} sx={{ cursor: "pointer" }}>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={handleClose} disabled={loading} sx={{ cursor: "pointer" }} size="small">
             Cerrar
           </Button>
           <Button
@@ -165,6 +212,7 @@ export default function CustomerControlsCP() {
             variant="contained"
             disabled={loading}
             sx={{ cursor: "pointer" }}
+            size="small"
           >
             {loading ? "Guardando…" : "Guardar"}
           </Button>

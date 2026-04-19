@@ -6,6 +6,10 @@ export type CreateCustomerAdminBody = {
   lastName?: string
   email?: string
   user?: string
+  /** Initial CRM note → CustomerDescription on customer */
+  note?: string
+  /** First interestedProjects[].projectId */
+  projectId?: string
 }
 
 export async function createCustomerAdmin(

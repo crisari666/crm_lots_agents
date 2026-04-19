@@ -8,6 +8,7 @@ export type AssignUserAutocompleteProps = {
   onChange: (userId: string) => void
   disabled?: boolean
   label?: string
+  size?: "small" | "medium"
 }
 
 /**
@@ -19,12 +20,14 @@ export default function AssignUserAutocompleteCP({
   onChange,
   disabled = false,
   label = "Usuario asignado",
+  size = "medium",
 }: AssignUserAutocompleteProps) {
   const options = users.filter((u) => u._id)
   const selected = options.find((u) => u._id === value) ?? null
   return (
     <Autocomplete<UserInterface, false, false, false>
       fullWidth
+      size={size}
       disabled={disabled}
       options={options}
       value={selected}
@@ -36,7 +39,7 @@ export default function AssignUserAutocompleteCP({
         `${u.name ?? ""} ${u.lastName ?? ""}`.trim() + (u.email ? ` (${u.email})` : "")
       }
       renderInput={(params) => (
-        <TextField {...params} label={label} margin="dense" />
+        <TextField {...params} label={label} margin="none" size={size} />
       )}
       ListboxProps={{
         sx: { "& .MuiAutocomplete-option": { cursor: "pointer" } },
