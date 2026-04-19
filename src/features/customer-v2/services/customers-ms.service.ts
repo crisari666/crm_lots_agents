@@ -15,7 +15,7 @@ export type CreateCustomerAdminBody = {
 export async function createCustomerAdmin(
   body: CreateCustomerAdminBody
 ): Promise<unknown> {
-  const response = await customersMsAxios.post<unknown>("customer/admin", body)
+  const response = await customersMsAxios.post<unknown>("admin/customer", body)
   return response.data
 }
 
@@ -56,8 +56,19 @@ export async function listCustomersAdmin(
   params: ListCustomersAdminParams
 ): Promise<CustomerAdminListResponse> {
   const response = await customersMsAxios.get<CustomerAdminListResponse>(
-    "customer/admin",
+    "admin/customer",
     { params }
+  )
+  return response.data
+}
+
+export async function assignCustomerAssignee(
+  customerId: string,
+  assignedTo: string
+): Promise<unknown> {
+  const response = await customersMsAxios.patch<unknown>(
+    `admin/customer/${encodeURIComponent(customerId)}/assignee`,
+    { assignedTo }
   )
   return response.data
 }

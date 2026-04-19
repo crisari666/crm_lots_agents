@@ -331,8 +331,10 @@ export default function CustomerListCP({
                   <CustomerListItemCP
                     key={row.id}
                     row={row}
+                    users={users}
                     assignedLabel={assignedLabel}
                     createdLabel={createdLabel}
+                    onAssigneeUpdated={() => void load()}
                   />
                 )
               })

@@ -1,11 +1,15 @@
 import React from "react"
 import { Chip, TableCell, TableRow, Typography } from "@mui/material"
+import UserInterface from "../../../app/models/user-interface"
 import type { CustomerAdminListItem } from "../services/customers-ms.service"
+import CustomerAssigneeCellCP from "./customer-assignee-cell.cp"
 
 export type CustomerListItemCPProps = {
   row: CustomerAdminListItem
+  users: UserInterface[]
   assignedLabel: string
   createdLabel: string
+  onAssigneeUpdated: () => void
 }
 
 function displayName(row: CustomerAdminListItem): string {
@@ -15,8 +19,10 @@ function displayName(row: CustomerAdminListItem): string {
 
 export default function CustomerListItemCP({
   row,
+  users,
   assignedLabel,
   createdLabel,
+  onAssigneeUpdated,
 }: CustomerListItemCPProps) {
   return (
     <TableRow
@@ -42,19 +48,12 @@ export default function CustomerListItemCP({
         </Typography>
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>
-        {row.assignedTo ? (
-          <Chip
-            title={assignedLabel}
-            label={assignedLabel}
-            size="small"
-            variant="outlined"
-            sx={{ maxWidth: 260, "& .MuiChip-label": { display: "block", overflow: "hidden", textOverflow: "ellipsis" } }}
-          />
-        ) : (
-          <Typography variant="body2" color="text.disabled">
-            Sin asignar
-          </Typography>
-        )}
+        <CustomerAssigneeCellCP
+          row={row}
+          users={users}
+          assignedLabel={assignedLabel}
+          onAssigneeUpdated={onAssigneeUpdated}
+        />
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>
         {row.enabled ? (
