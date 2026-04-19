@@ -50,6 +50,7 @@ import importUsersSlice from "../features/import-users/import-users.slice"
 import usersOnboardingStatusSlice from "../features/users-onboarding-status/slice/users-onboarding-status.slice"
 import trainingTrakingSlice from "../features/training-traking/slice/training-traking.slice"
 import paymentRouteTemplateSlice from "../features/payment-route-template/slice/pay-route-template.slice"
+import customerV2Reducer from "../features/customer-v2/redux/customer-v2.slice"
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -113,6 +114,7 @@ export const store = configureStore({
     //Raffle
   //Unused 
     closure: closureSlice,
+    customerV2: customerV2Reducer,
     reports: reportsSlice
   },
 })

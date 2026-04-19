@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
-import axios from "axios"
 import {
   Alert,
   Box,
@@ -24,11 +23,10 @@ import type { Moment } from "moment"
 import moment from "moment"
 import { fetchUsers } from "../../../app/services/users.service"
 import UserInterface from "../../../app/models/user-interface"
-import {
-  CustomerAdminListItem,
-  listCustomersAdmin,
-} from "../services/customers-ms.service"
+import { useAppDispatch, useAppSelector } from "../../../app/hooks"
+import { clearListErrorAct, fetchCustomerListAdminThunk } from "../redux/customer-v2.slice"
 import AssignUserAutocompleteCP from "./assign-user-autocomplete.cp"
+import CustomerDetailDialogCP from "./customer-detail-dialog.cp"
 import CustomerListItemCP from "./customer-list-item.cp"
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50] as const
@@ -74,14 +72,16 @@ export default function CustomerListCP({
   onApplyFilters,
   refreshVersion = 0,
 }: CustomerListCPProps) {
+  const dispatch = useAppDispatch()
+  const items = useAppSelector((s) => s.customerV2.listItems)
+  const total = useAppSelector((s) => s.customerV2.listTotal)
+  const loading = useAppSelector((s) => s.customerV2.listLoading)
+  const error = useAppSelector((s) => s.customerV2.listError)
+
   const [users, setUsers] = useState<UserInterface[]>([])
 
-  const [items, setItems] = useState<CustomerAdminListItem[]>([])
-  const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(25)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const userLabelById = useMemo(() => {
     const m = new Map<string, string>()
@@ -101,48 +101,27 @@ export default function CustomerListCP({
   }, [])
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const search = applied.search.trim()
-      const params = {
-        ...(applied.excludeFecha ? { omitDateRange: true } : {}),
-        ...(!applied.excludeFecha && applied.createdFrom
-          ? { createdFrom: applied.createdFrom.clone().startOf("day").toISOString() }
+    const search = applied.search.trim()
+    const params = {
+      ...(applied.excludeFecha ? { omitDateRange: true } : {}),
+      ...(!applied.excludeFecha && applied.createdFrom
+        ? { createdFrom: applied.createdFrom.clone().startOf("day").toISOString() }
+        : {}),
+      ...(!applied.excludeFecha && applied.createdTo
+        ? { createdTo: applied.createdTo.clone().endOf("day").toISOString() }
+        : {}),
+      ...(applied.assignedTo
+        ? { assignedTo: applied.assignedTo }
+        : applied.unassignedOnly
+          ? { unassignedOnly: true }
           : {}),
-        ...(!applied.excludeFecha && applied.createdTo
-          ? { createdTo: applied.createdTo.clone().endOf("day").toISOString() }
-          : {}),
-        ...(applied.assignedTo
-          ? { assignedTo: applied.assignedTo }
-          : applied.unassignedOnly
-            ? { unassignedOnly: true }
-            : {}),
-        ...(applied.enabledOnly ? { enabled: true } : {}),
-        ...(search ? { search } : {}),
-        limit: rowsPerPage,
-        skip: page * rowsPerPage,
-      }
-      const res = await listCustomersAdmin(params)
-      setItems(res.items)
-      setTotal(res.total)
-    } catch (err: unknown) {
-      let message = "No se pudo cargar la lista de clientes."
-      if (axios.isAxiosError(err)) {
-        const data = err.response?.data as { message?: string | string[] }
-        if (Array.isArray(data?.message)) {
-          message = data.message.join(", ")
-        } else if (typeof data?.message === "string") {
-          message = data.message
-        }
-      }
-      setError(message)
-      setItems([])
-      setTotal(0)
-    } finally {
-      setLoading(false)
+      ...(applied.enabledOnly ? { enabled: true } : {}),
+      ...(search ? { search } : {}),
+      limit: rowsPerPage,
+      skip: page * rowsPerPage,
     }
-  }, [applied, page, rowsPerPage, refreshVersion])
+    await dispatch(fetchCustomerListAdminThunk(params))
+  }, [applied, page, rowsPerPage, refreshVersion, dispatch])
 
   useEffect(() => {
     void load()
@@ -178,6 +157,7 @@ export default function CustomerListCP({
         bgcolor: "background.paper",
       }}
     >
+      <CustomerDetailDialogCP users={users} />
       <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
         <Stack spacing={2}>
           <Stack
@@ -280,7 +260,11 @@ export default function CustomerListCP({
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ m: 2, mb: 0 }} onClose={() => setError(null)}>
+        <Alert
+          severity="error"
+          sx={{ m: 2, mb: 0 }}
+          onClose={() => dispatch(clearListErrorAct())}
+        >
           {error}
         </Alert>
       )}
@@ -304,6 +288,7 @@ export default function CustomerListCP({
         <Table size="small" aria-label="Lista de clientes">
           <TableHead>
             <TableRow sx={{ bgcolor: "grey.100" }}>
+              <TableCell sx={{ fontWeight: 700, width: 48 }} aria-label="Ver detalle" />
               <TableCell sx={{ fontWeight: 700 }}>Cliente</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Teléfono</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
@@ -315,7 +300,7 @@ export default function CustomerListCP({
           <TableBody>
             {!loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                   <Typography color="text.secondary">
                     No hay resultados con los filtros actuales.
                   </Typography>

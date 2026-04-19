@@ -72,3 +72,68 @@ export async function assignCustomerAssignee(
   )
   return response.data
 }
+
+export type CustomerAdminNote = {
+  id: string
+  user: string
+  date: string
+  description: string
+}
+
+export type CustomerAdminInterestedProject = {
+  projectId: string
+  date: string
+  addedBy?: string
+}
+
+/** Matches `GET admin/customer/:id` and `PATCH` response body. */
+export type CustomerAdminDetail = {
+  id: string
+  name?: string
+  lastName?: string
+  phone: string
+  whatsapp?: string
+  email?: string
+  documentType?: "cc" | "passport"
+  document?: string
+  interestedProjects: CustomerAdminInterestedProject[]
+  assignedTo?: string
+  enabled: boolean
+  createdBy: string
+  createdAt: string
+  updatedAt?: string
+  notes: CustomerAdminNote[]
+}
+
+export async function getCustomerAdminDetail(
+  customerId: string
+): Promise<CustomerAdminDetail> {
+  const response = await customersMsAxios.get<CustomerAdminDetail>(
+    `admin/customer/${encodeURIComponent(customerId)}`
+  )
+  return response.data
+}
+
+export type UpdateCustomerAdminBody = {
+  name?: string
+  lastName?: string
+  phone?: string
+  whatsapp?: string
+  email?: string
+  documentType?: "cc" | "passport"
+  document?: string
+  interestedProjects?: { projectId: string; date?: string }[]
+  assignedTo?: string
+  enabled?: boolean
+}
+
+export async function updateCustomerAdmin(
+  customerId: string,
+  body: UpdateCustomerAdminBody
+): Promise<CustomerAdminDetail> {
+  const response = await customersMsAxios.patch<CustomerAdminDetail>(
+    `admin/customer/${encodeURIComponent(customerId)}`,
+    body
+  )
+  return response.data
+}

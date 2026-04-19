@@ -1,7 +1,10 @@
 import React from "react"
-import { Chip, TableCell, TableRow, Typography } from "@mui/material"
+import { Chip, IconButton, TableCell, TableRow, Tooltip, Typography } from "@mui/material"
+import { Visibility as VisibilityIcon } from "@mui/icons-material"
 import UserInterface from "../../../app/models/user-interface"
+import { useAppDispatch } from "../../../app/hooks"
 import type { CustomerAdminListItem } from "../services/customers-ms.service"
+import { fetchCustomerAdminDetailThunk } from "../redux/customer-v2.slice"
 import CustomerAssigneeCellCP from "./customer-assignee-cell.cp"
 
 export type CustomerListItemCPProps = {
@@ -24,6 +27,7 @@ export default function CustomerListItemCP({
   createdLabel,
   onAssigneeUpdated,
 }: CustomerListItemCPProps) {
+  const dispatch = useAppDispatch()
   return (
     <TableRow
       hover
@@ -32,6 +36,18 @@ export default function CustomerListItemCP({
         "&:hover": { bgcolor: "action.hover" },
       }}
     >
+      <TableCell sx={{ py: 1, width: 48 }} padding="checkbox">
+        <Tooltip title="Ver detalle">
+          <IconButton
+            size="small"
+            aria-label="Ver detalle del cliente"
+            onClick={() => void dispatch(fetchCustomerAdminDetailThunk(row.id))}
+            sx={{ cursor: "pointer" }}
+          >
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
       <TableCell sx={{ py: 1.5 }}>
         <Typography variant="body2" fontWeight={500}>
           {displayName(row)}
