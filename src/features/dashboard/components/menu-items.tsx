@@ -40,6 +40,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
 
     { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
+      { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
     ]},
 
     // { Icon: <CampaignOutlined />, title: "Campaña", 

@@ -56,6 +56,7 @@ import LeadAlertsView from "../views/lead-alerts-view"
 import UsersOnboardingStatusView from "../features/users-onboarding-status/users-onboarding-status-view"
 import TrainingTrakingPage from "../features/training-traking/pages/training-traking-page"
 import CustomersPage from "../features/customer-v2/pages/customers-page"
+import StepsV2Page from "../features/steps-v2/pages/steps-v2-page"
 
 
 const router = createBrowserRouter([
@@ -84,6 +85,7 @@ const router = createBrowserRouter([
     //Numbers / ClientesV2
     { path: "numbers", element: <CustomerListView /> },
     { path: "customers-v2", element: <CustomersPage /> },
+    { path: "steps-v2", element: <StepsV2Page /> },
     { path: "customer/:customerId", element: <CustomerView /> },
     { path: "imports-numbers", element: <ImportNumbersView /> },
     { path: "customers-center", element: <CustomerCenterView /> },
