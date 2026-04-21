@@ -57,6 +57,7 @@ import UsersOnboardingStatusView from "../features/users-onboarding-status/users
 import TrainingTrakingPage from "../features/training-traking/pages/training-traking-page"
 import CustomersPage from "../features/customer-v2/pages/customers-page"
 import StepsV2Page from "../features/steps-v2/pages/steps-v2-page"
+import ProjectReleasesPage from "../features/project-release/pages/project-releases-page"
 
 
 const router = createBrowserRouter([
@@ -102,6 +103,7 @@ const router = createBrowserRouter([
     { path: "alerted-payments", element: <AlertedPaymentsView/> },
     { path: "check-customers", element: <CustomersCheckView/> },
     { path: "projects", element: <ProjectListPage /> },
+    { path: "project-releases", element: <ProjectReleasesPage /> },
     { path: "create-project", element: <CreateProjectPage /> },
     { path: "edit-project/:projectId", element: <EditProjectPage /> },
     { path: "traninng-traking", element: <TrainingTrakingPage /> },

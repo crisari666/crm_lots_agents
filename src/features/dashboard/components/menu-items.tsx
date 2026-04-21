@@ -29,13 +29,15 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     // { to: "/dashboard/create-card", Icon: <Margin />, title: "Crear Tarjeta" },
 
     { to: "", Icon: <Dashboard />, title: "Resume" },
-    { to: "/dashboard/projects", Icon: <BusinessOutlined />, title: "Projects" },
+    { Icon: <BusinessOutlined />, title: "Projects", children: [
+      { to: "/dashboard/projects", Icon: <BusinessOutlined />, title: "Proyectos" },
+      { to: "/dashboard/project-releases", Icon: <Done />, title: "Proyectos finalizado" },
+    ]},
     { Icon: <Person2Outlined />, title: "Clientes", children: [
       { to: "/dashboard/numbers", Icon: <Dvr />, title: "Clientes" },
       { to: "/dashboard/customers-center", Icon: <SupportAgent />, title: "Customer Center" },
       { to: "/dashboard/customers-database", Icon: <FaceRetouchingNatural />, title: "Customer Database" },
       { to: "/dashboard/verify-payments", Icon: <CreditScore />, title: "verificar pagos" },
-      { to: "/dashboard/projects", Icon: <CreditScore />, title: "Proyectos" },
     ]},
 
     { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
