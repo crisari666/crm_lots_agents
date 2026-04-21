@@ -15,6 +15,7 @@ type TrainingTrakingMainSectionCPProps = {
   date: string
   time: string
   location: string
+  googleMeetUrl?: string
   error: string | null
   addUserEmail: string
   isAddingUserToTraining: boolean
@@ -31,6 +32,7 @@ export default function TrainingTrakingMainSectionCP({
   date,
   time,
   location,
+  googleMeetUrl,
   error,
   addUserEmail,
   isAddingUserToTraining,
@@ -56,6 +58,14 @@ export default function TrainingTrakingMainSectionCP({
       <Typography variant="body2" color="text.secondary">
         {date} · {time} · {location}
       </Typography>
+      {googleMeetUrl ? (
+        <Typography variant="body2" sx={{ mt: 0.5 }}>
+          Meet:{" "}
+          <a href={googleMeetUrl} target="_blank" rel="noopener noreferrer">
+            {googleMeetUrl}
+          </a>
+        </Typography>
+      ) : null}
 
       {error != null ? (
         <Alert severity="error" sx={{ mt: 2 }}>

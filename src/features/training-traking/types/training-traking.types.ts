@@ -1,4 +1,5 @@
 export type TrainingAttendeeStatusType = "pending" | "confirmed" | "declined"
+export type TrainingListFilterType = "all" | "todayAndFuture"
 
 export type TrainingType = {
   id: string
@@ -7,6 +8,7 @@ export type TrainingType = {
   time: string
   location: string
   mapsUrl: string
+  googleMeetUrl: string
   maxSlots: number
   createdAt: string
   updatedAt: string
@@ -53,6 +55,7 @@ export type CreateTrainingPayload = {
   time: string
   location: string
   mapsUrl: string
+  googleMeetUrl?: string
   maxSlots: number
 }
 

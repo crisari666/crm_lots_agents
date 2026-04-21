@@ -16,8 +16,13 @@ import {
 } from "../slice/training-traking.slice"
 import { dateToInputDate } from "../../../utils/date.utils"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
+import type { TrainingListFilterType } from "../types/training-traking.types"
 
-export default function TrainingTrakingListCP() {
+type TrainingTrakingListCPProps = {
+  filter: TrainingListFilterType
+}
+
+export default function TrainingTrakingListCP({ filter }: TrainingTrakingListCPProps) {
   const dispatch = useAppDispatch()
   const list = useAppSelector(selectTrainingTrakingList)
   const { isLoadingList, selectedId } = useAppSelector(selectTrainingTrakingState)
@@ -25,6 +30,19 @@ export default function TrainingTrakingListCP() {
   useEffect(() => {
     dispatch(fetchTrainingsThunk())
   }, [dispatch])
+
+  const todayAsDate = new Date()
+  const todayValue = new Date(
+    todayAsDate.getFullYear(),
+    todayAsDate.getMonth(),
+    todayAsDate.getDate()
+  ).getTime()
+
+  const filteredList = list.filter((training) => {
+    if (filter === "all") return true
+    const trainingDate = new Date(`${training.date}T00:00:00`)
+    return trainingDate.getTime() >= todayValue
+  })
 
   return (
     <Card>
@@ -41,7 +59,7 @@ export default function TrainingTrakingListCP() {
           {isLoadingList ? <CircularProgress size={20} /> : null}
         </Box>
 
-        {list.map((training) => {
+        {filteredList.map((training) => {
           const confirmed = training.attendeeCounts.confirmed
           const fillPercent = (confirmed / training.maxSlots) * 100
           const isNearFull = fillPercent >= 90
@@ -95,9 +113,9 @@ export default function TrainingTrakingListCP() {
           )
         })}
 
-        {!isLoadingList && list.length === 0 ? (
+        {!isLoadingList && filteredList.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            No hay capacitaciones creadas.
+            No hay capacitaciones para este filtro.
           </Typography>
         ) : null}
       </CardContent>

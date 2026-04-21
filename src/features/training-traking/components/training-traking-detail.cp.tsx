@@ -152,6 +152,7 @@ export default function TrainingTrakingDetailCP() {
           date={detail.date}
           time={detail.time}
           location={detail.location}
+          googleMeetUrl={detail.googleMeetUrl}
           error={error}
           addUserEmail={addUserEmail}
           isAddingUserToTraining={isAddingUserToTraining}
