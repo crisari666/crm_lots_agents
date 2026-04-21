@@ -51,6 +51,7 @@ import usersOnboardingStatusSlice from "../features/users-onboarding-status/slic
 import trainingTrakingSlice from "../features/training-traking/slice/training-traking.slice"
 import paymentRouteTemplateSlice from "../features/payment-route-template/slice/pay-route-template.slice"
 import customerV2Reducer from "../features/customer-v2/redux/customer-v2.slice"
+import projectReleasesReducer from "../features/project-release/slice/project-releases.slice"
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -96,6 +97,7 @@ export const store = configureStore({
     penance: penancesSlice,
     paymentRouteTemplate: paymentRouteTemplateSlice,
     projects: projectsSlice,
+    projectReleases: projectReleasesReducer,
     amenities: amenitiesSlice,
     qrArrive: qrArriveSlice,
     situations: clientSituationsSlice,
