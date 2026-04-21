@@ -1,14 +1,24 @@
 import { Close } from "@mui/icons-material";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+} from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { changeUserToRelToNumberAct, displayRelUserToNumberFormAct, relUserToTwilioNumberThunk } from "../slice/twilio-numbers.slice";
 import AppTextField from "../../../app/components/app-textfield";
 import AppAutoComplete, { AppAutocompleteOption } from "../../../app/components/app-autocomplete";
+import type { FormEvent } from "react";
+
 export default function RelUserToTwilioNumberDialog() {
   const dispatch = useAppDispatch()
   const {displayRelUserToNumberForm, users, relUserToNumberDialog, twilioNumbers} = useAppSelector((state) => state.twilioNumbers) 
 
-  const { twilioNumber, userId } = relUserToNumberDialog
+  const { twilioNumber, userId, PNID } = relUserToNumberDialog
 
   const closeDialog = () => dispatch(displayRelUserToNumberFormAct(false))
 
@@ -28,14 +38,27 @@ export default function RelUserToTwilioNumberDialog() {
   }
   
 
-  const submitForm = (e: any) => {
+  const resolvedPNID = PNID || twilioNumbers.find((twilio) => twilio.number === twilioNumber)?.PNID
+
+  const submitForm = (e: FormEvent) => {
     e.preventDefault()
-    const PNID  = twilioNumbers.find((twilio) => twilio.number === twilioNumber)?.PNID!
-    if(PNID) {
-      dispatch(relUserToTwilioNumberThunk({PNID, userId}))
-    } else {
+    if (!resolvedPNID) {
       alert("Twilio number not found")
+      return
     }
+    if (!userId) {
+      alert("Select a user or use Remove user")
+      return
+    }
+    dispatch(relUserToTwilioNumberThunk({ PNID: resolvedPNID, userId }))
+  }
+
+  const removeUser = () => {
+    if (!resolvedPNID) {
+      alert("Twilio number not found")
+      return
+    }
+    dispatch(relUserToTwilioNumberThunk({ PNID: resolvedPNID }))
   }
 
   return (
@@ -50,12 +73,32 @@ export default function RelUserToTwilioNumberDialog() {
                 <AppTextField label="Twilio number" value={twilioNumber} readonly disabled />
               </Grid>
               <Grid item xs={12}>
-                <AppAutoComplete onChange={(d) => dispatch(changeUserToRelToNumberAct({userId: d.val._id, twilioNumber}))} name="userId" label="User" value={userValue()} options={options()}/>
+                <AppAutoComplete
+                  onChange={(d) =>
+                    dispatch(
+                      changeUserToRelToNumberAct({
+                        userId: d.val._id,
+                        twilioNumber,
+                        PNID:
+                          PNID || twilioNumbers.find((t) => t.number === twilioNumber)?.PNID || "",
+                      }),
+                    )
+                  }
+                  name="userId"
+                  label="User"
+                  value={userValue()}
+                  options={options()}
+                />
               </Grid>
             </Grid>
           </DialogContent>
-          <DialogActions sx={{paddingRight: 3}}>
-            <Button type="submit" variant="outlined"> Save </Button>
+          <DialogActions sx={{ paddingRight: 3, gap: 1 }}>
+            <Button type="button" variant="text" color="warning" onClick={removeUser} disabled={!resolvedPNID}>
+              Remove user
+            </Button>
+            <Button type="submit" variant="outlined">
+              Save
+            </Button>
           </DialogActions>
         </form>
       </Dialog>

@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RelUserToNumberDialog, TwilioListFilter, TwilioNumbersForm, TwilioNumbersState } from "./twilio-numbers.state";
-import { addTwilioNumberReq, getEnableUsersReq, getTwilioNumbersReq, relUserToTwilioNumberReq, updateTwilioNumberReq } from "../../../app/services/twilio-numbers-service"
+import { addTwilioNumberReq, getEnableUsersReq, getTwilioNumbersReq, relUserToTwilioNumberReq, toggleTwilioNumberPurposeReq, updateTwilioNumberReq } from "../../../app/services/twilio-numbers-service"
 const twilioNumberFormInit: TwilioNumbersForm = {
   friendlyNumber: '', number: "", PNID: ""
 }
 
 
-const relUserToNumberDialogInit: RelUserToNumberDialog = { twilioNumber: '', userId: ''  }
+const relUserToNumberDialogInit: RelUserToNumberDialog = { twilioNumber: '', userId: '', PNID: '' }
 
 const twilioListFilterInit: TwilioListFilter = { officeId: '', search: '' }
 
@@ -26,8 +26,14 @@ export const getTwilioNumbersThunk = createAsyncThunk( "TwilioNumbers/getTwilioN
 
 export const getEnableUsersThunk = createAsyncThunk( "TwilioNumbers/getTwilioNumbers", async () => await getEnableUsersReq())
 
-export const relUserToTwilioNumberThunk = createAsyncThunk( "TwilioNumbers/relUserToTwilioNumberThunk", async ({PNID, userId} : {userId: string, PNID: string}) =>
-  await relUserToTwilioNumberReq({PNID, userId})
+export const relUserToTwilioNumberThunk = createAsyncThunk(
+  "TwilioNumbers/relUserToTwilioNumberThunk",
+  async ({ PNID, userId }: { PNID: string; userId?: string }) => await relUserToTwilioNumberReq({ PNID, userId }),
+)
+
+export const toggleTwilioNumberPurposeThunk = createAsyncThunk(
+  "TwilioNumbers/toggleTwilioNumberPurposeThunk",
+  async (PNID: string) => await toggleTwilioNumberPurposeReq(PNID),
 )
 
 export const registerTwilioNumberThunk = createAsyncThunk( "TwilioNumbers/registerTwilioNumberThunk", async (params: {PNID: string, number: string, friendlyNumber: string}) =>
@@ -65,7 +71,7 @@ export const twilioNumbersSlice = createSlice({
       const { name, val } = action.payload
       state.twilioNumberForm[name] = val
     },
-    changeUserToRelToNumberAct: (state, action: PayloadAction<{userId: string, twilioNumber: string}>) => {
+    changeUserToRelToNumberAct: (state, action: PayloadAction<{ userId: string; twilioNumber: string; PNID: string }>) => {
       state.relUserToNumberDialog = action.payload
     },
     updateTwilioListFilterAct: (state, action: PayloadAction<{ key: keyof TwilioListFilter; value: string }>) => {
@@ -98,6 +104,11 @@ export const twilioNumbersSlice = createSlice({
       state.displayTwilioNumberForm = false
       state.twilioNumberForm = twilioNumberFormInit
       state.editingPNID = null
+    }).addCase(toggleTwilioNumberPurposeThunk.fulfilled, (state, action) => {
+      const index = state.twilioNumbers.findIndex((twilio) => twilio.PNID === action.payload.PNID)
+      if (index !== -1) {
+        state.twilioNumbers[index] = action.payload
+      }
     })
 
     builder.addMatcher((action) => action.type.endsWith("/pending") && action.type.includes("TwilioNumbers"), (state) => {

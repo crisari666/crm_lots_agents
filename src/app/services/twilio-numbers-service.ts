@@ -40,10 +40,20 @@ export async function getEnableUsersReq(): Promise<UserInterface[]>{
   }
 }
 
-export async function relUserToTwilioNumberReq({userId, PNID} : {userId : string, PNID: string}): Promise<TwilioNumberType>{
+export async function relUserToTwilioNumberReq({
+  userId,
+  PNID,
+}: {
+  PNID: string
+  userId?: string
+}): Promise<TwilioNumberType> {
   try {
     const api = Api.getInstance()
-    const response = await api.patch({path: `twilio-numbers/rel-user-to-number`, data: {userId, PNID}})
+    const data =
+      userId !== undefined && userId !== ''
+        ? { userId, PNID }
+        : { PNID }
+    const response = await api.patch({ path: `twilio-numbers/rel-user-to-number`, data })
     console.log('relUserToTwilioNumber', {response});
     const { error } = response
     if(error == null) {
@@ -88,6 +98,25 @@ export async function updateTwilioNumberReq({PNID, friendlyNumber, number}: {PNI
   } catch (error) {
     console.error('ERROR ON updateTwilioNumberReq')
     console.error({error})
+    throw error
+  }
+}
+
+export async function toggleTwilioNumberPurposeReq(PNID: string): Promise<TwilioNumberType> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.patch({
+      path: `twilio-numbers/toggle-number-purpose`,
+      data: { PNID },
+    })
+    const { error } = response
+    if (error == null) {
+      return response.result
+    }
+    throw error
+  } catch (error) {
+    console.error('ERROR ON toggleTwilioNumberPurposeReq')
+    console.error({ error })
     throw error
   }
 }

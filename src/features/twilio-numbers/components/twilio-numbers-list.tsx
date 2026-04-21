@@ -1,8 +1,27 @@
-import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import {
+  FormControlLabel,
+  IconButton,
+  Paper,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+} from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import LoadingIndicator from "../../../app/components/loading-indicator";
 import { useEffect, useMemo } from "react";
-import { changeUserToRelToNumberAct, displayRelUserToNumberFormAct, getEnableUsersThunk, getTwilioNumbersThunk, openTwilioFormForEditAct } from "../slice/twilio-numbers.slice"
+import {
+  changeUserToRelToNumberAct,
+  displayRelUserToNumberFormAct,
+  getEnableUsersThunk,
+  getTwilioNumbersThunk,
+  openTwilioFormForEditAct,
+  toggleTwilioNumberPurposeThunk,
+} from "../slice/twilio-numbers.slice"
 import { Edit, Person } from "@mui/icons-material"
 import { TwilioNumberType } from "../../../app/models/twilio-number.type";
 
@@ -58,6 +77,7 @@ export default function TwilioNumbersList() {
               <TableCell> Number </TableCell>
               <TableCell> Number friendly </TableCell>
               <TableCell> User </TableCell>
+              <TableCell align="center"> Voice pool </TableCell>
               <TableCell> Options </TableCell>
             </TableRow>
           </TableHead>
@@ -67,18 +87,41 @@ export default function TwilioNumbersList() {
                 <TableCell> {twilioNumber.PNID} </TableCell>
                 <TableCell> {twilioNumber.number} </TableCell>
                 <TableCell> {twilioNumber.friendlyNumber} </TableCell>
-                <TableCell> {twilioNumber.user?.email}  
-                  <IconButton 
+                <TableCell>
+                  {twilioNumber.user?.email ?? "—"}
+                  <IconButton
                     size="small"
                     onClick={() => {
                       dispatch(displayRelUserToNumberForm())
-                      dispatch(changeUserToRelToNumberAct({
-                        userId: twilioNumber.user?._id,
-                        twilioNumber: twilioNumber.number
-                      }))
+                      dispatch(
+                        changeUserToRelToNumberAct({
+                          userId: twilioNumber.user?._id ?? "",
+                          twilioNumber: twilioNumber.number,
+                          PNID: twilioNumber.PNID,
+                        }),
+                      )
                     }}
                     color="secondary"
-                    > <Person fontSize="small"/> </IconButton> 
+                    aria-label="Assign user to number"
+                  >
+                    <Person fontSize="small" />
+                  </IconButton>
+                </TableCell>
+                <TableCell align="center">
+                  <Tooltip title="When on, number is in voice-agent pool (onboarding can lease it). Off = staff caller ID only.">
+                    <FormControlLabel
+                      sx={{ margin: 0 }}
+                      control={
+                        <Switch
+                          size="small"
+                          checked={twilioNumber.numberPurpose === "voice_agent"}
+                          onChange={() => dispatch(toggleTwilioNumberPurposeThunk(twilioNumber.PNID))}
+                          inputProps={{ "aria-label": `Voice pool ${twilioNumber.PNID}` }}
+                        />
+                      }
+                      label=""
+                    />
+                  </Tooltip>
                 </TableCell>
                 <TableCell>
                   <IconButton

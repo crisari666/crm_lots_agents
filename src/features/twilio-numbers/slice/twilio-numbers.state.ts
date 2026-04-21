@@ -28,4 +28,5 @@ export type TwilioNumbersForm = {
 export type RelUserToNumberDialog = {
   twilioNumber: string
   userId: string
+  PNID: string
 }
