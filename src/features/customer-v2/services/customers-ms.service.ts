@@ -27,6 +27,8 @@ export type CustomerAdminListItem = {
   phone: string
   email?: string
   assignedTo?: string
+  /** Office user id who created the customer (customers-ms). */
+  createdBy?: string
   /** False when customer disabled in customers-ms. */
   enabled: boolean
   createdAt: string

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import axios from "axios"
 import {
   Box,
@@ -33,6 +33,17 @@ export default function CustomerAssigneeCellCP({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const open = Boolean(anchorEl)
+
+  /** Assignee picker: only office users with `physical` (monolith user schema); keep current assignee in list if not physical. */
+  const usersForAssigneePicker = useMemo(
+    () =>
+      users.filter(
+        (u) =>
+          u._id &&
+          (u.physical === true || (Boolean(row.assignedTo) && u._id === row.assignedTo)),
+      ),
+    [users, row.assignedTo],
+  )
 
   useEffect(() => {
     setDraftUserId(row.assignedTo ?? "")
@@ -129,7 +140,7 @@ export default function CustomerAssigneeCellCP({
             Usuario asignado
           </Typography>
           <AssignUserAutocompleteCP
-            users={users}
+            users={usersForAssigneePicker}
             value={draftUserId}
             onChange={setDraftUserId}
             disabled={saving}

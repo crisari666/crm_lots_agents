@@ -11,6 +11,7 @@ export type CustomerListItemCPProps = {
   row: CustomerAdminListItem
   users: UserInterface[]
   assignedLabel: string
+  creatorLabel: string
   createdLabel: string
   onAssigneeUpdated: () => void
 }
@@ -24,6 +25,7 @@ export default function CustomerListItemCP({
   row,
   users,
   assignedLabel,
+  creatorLabel,
   createdLabel,
   onAssigneeUpdated,
 }: CustomerListItemCPProps) {
@@ -70,6 +72,11 @@ export default function CustomerListItemCP({
           assignedLabel={assignedLabel}
           onAssigneeUpdated={onAssigneeUpdated}
         />
+      </TableCell>
+      <TableCell sx={{ py: 1.5 }}>
+        <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 220 }}>
+          {creatorLabel}
+        </Typography>
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>
         {row.enabled ? (

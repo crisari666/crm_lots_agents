@@ -293,6 +293,7 @@ export default function CustomerListCP({
               <TableCell sx={{ fontWeight: 700 }}>Teléfono</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Asignado</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Creador</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Creación</TableCell>
             </TableRow>
@@ -300,7 +301,7 @@ export default function CustomerListCP({
           <TableBody>
             {!loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
                   <Typography color="text.secondary">
                     No hay resultados con los filtros actuales.
                   </Typography>
@@ -311,6 +312,9 @@ export default function CustomerListCP({
                 const assignedLabel = row.assignedTo
                   ? userLabelById.get(row.assignedTo) ?? row.assignedTo
                   : ""
+                const creatorLabel = row.createdBy
+                  ? userLabelById.get(row.createdBy) ?? row.createdBy
+                  : "—"
                 const createdLabel = moment(row.createdAt).format("DD/MM/YYYY HH:mm")
                 return (
                   <CustomerListItemCP
@@ -318,6 +322,7 @@ export default function CustomerListCP({
                     row={row}
                     users={users}
                     assignedLabel={assignedLabel}
+                    creatorLabel={creatorLabel}
                     createdLabel={createdLabel}
                     onAssigneeUpdated={() => void load()}
                   />
