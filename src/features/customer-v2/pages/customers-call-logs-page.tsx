@@ -18,18 +18,22 @@ import {
   TableRow,
   Typography,
 } from "@mui/material"
-import { Search as SearchIcon } from "@mui/icons-material"
+import { Person as PersonIcon, Search as SearchIcon } from "@mui/icons-material"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import type { Moment } from "moment"
 import moment from "moment"
+import { fetchUsers } from "../../../app/services/users.service"
+import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
   clearCallLogsErrorAct,
   fetchCallLogsAdminThunk,
 } from "../redux/customer-call-logs.slice"
+import { fetchCustomerAdminDetailThunk } from "../redux/customer-v2.slice"
 import type { ListCallLogsAdminParams } from "../services/customers-ms.service"
 import CallLogStatusAvatarCP from "../components/customer-detail/call-log-status-avatar.cp"
 import CustomerCallTranscriptDialogCP from "../components/customer-detail/customer-call-transcript-dialog.cp"
+import CustomerDetailDialogCP from "../components/customer-detail-dialog.cp"
 import { directionLabelEs, formatCallDurationSeconds, outcomeLabelEs } from "../components/customer-detail/call-log-utils"
 
 type OutcomeFilter = NonNullable<ListCallLogsAdminParams["outcome"]>
@@ -37,6 +41,8 @@ type OutcomeFilter = NonNullable<ListCallLogsAdminParams["outcome"]>
 export default function CustomersCallLogsPage() {
   const dispatch = useAppDispatch()
   const { items, total, loading, error } = useAppSelector((s) => s.customerCallLogs)
+
+  const [users, setUsers] = useState<UserInterface[]>([])
 
   const [from, setFrom] = useState<Moment | null>(() => moment().subtract(7, "days").startOf("day"))
   const [to, setTo] = useState<Moment | null>(() => moment().endOf("day"))
@@ -79,6 +85,21 @@ export default function CustomersCallLogsPage() {
   const onOutcomeChange = (e: SelectChangeEvent<OutcomeFilter>) => {
     setOutcome(e.target.value as OutcomeFilter)
   }
+
+  useEffect(() => {
+    void fetchUsers({ enable: true }).then((list) => {
+      if (Array.isArray(list)) {
+        setUsers(list)
+      }
+    })
+  }, [])
+
+  const openCustomerDetail = useCallback(
+    (customerId: string) => {
+      void dispatch(fetchCustomerAdminDetailThunk(customerId))
+    },
+    [dispatch]
+  )
 
   return (
     <Box sx={{ p: 3 }}>
