@@ -53,6 +53,7 @@ import paymentRouteTemplateSlice from "../features/payment-route-template/slice/
 import customerV2Reducer from "../features/customer-v2/redux/customer-v2.slice"
 import projectReleasesReducer from "../features/project-release/slice/project-releases.slice"
 import signedContractReducer from "../features/signed-contract/slice/signed-contract.slice"
+import ceoOperationsSummaryReducer from "../features/ceo-operations-summary/slice/ceo-operations-summary.slice"
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -67,7 +68,7 @@ export const store = configureStore({
     alerts: alertsSlice,
     auditResume: auditResumeSlice,
     authFace: authFaceSlice,
-    collectors: collectorsSlice,
+    // collectors: collectorsSlice,
     campaignCustomers: campaignCustomersSlice,
     currentCampaign: currentCampaignSlice,
     customers: customersSlice,
@@ -95,7 +96,7 @@ export const store = configureStore({
     officeCampaign: campaignLeadSlice,
     officeDashboard: officeDashboardSlice,
     officesLevel: OfficesLevelSlice,
-    penance: penancesSlice,
+    // penance: penancesSlice,
     paymentRouteTemplate: paymentRouteTemplateSlice,
     projects: projectsSlice,
     projectReleases: projectReleasesReducer,
@@ -120,6 +121,7 @@ export const store = configureStore({
     customerV2: customerV2Reducer,
     reports: reportsSlice,
     signedContract: signedContractReducer,
+    ceoOperationsSummary: ceoOperationsSummaryReducer,
   },
 })
 

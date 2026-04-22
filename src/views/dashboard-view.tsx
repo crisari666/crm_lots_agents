@@ -1,15 +1,18 @@
-import { useAppSelector } from "../app/hooks";
-import PayGraph from "../features/statistics/components/pays-graph";
-import StepsGraph from "../features/statistics/components/step-graph";
+import { Stack, Typography } from "@mui/material"
+import { useAppSelector } from "../app/hooks"
+import CeoOperationsSummaryCP from "../features/ceo-operations-summary/components/ceo-operations-summary.cp"
+import StepsGraph from "../features/statistics/components/step-graph"
 
 export default function DashboardContent() {
   const { currentUser } = useAppSelector((state) => state.login)
-  const users = ['kdev999', 'alcatron', 'arsan'];
+  const showCeoSummary = currentUser !== undefined && (currentUser.level === 0 || currentUser.level === 1)
   return (
-    <>
-      <h1>Dashboard</h1>
+    <Stack spacing={2}>
+      <Typography variant="h5" component="h1">
+        Dashboard
+      </Typography>
+      {showCeoSummary && <CeoOperationsSummaryCP />}
       {currentUser?.level === 0 && <StepsGraph />}
-      {/* {currentUser?.level === 0 && (users.includes(currentUser?.email)) && <PayGraph />} */}
-    </>
+    </Stack>
   )
 }
