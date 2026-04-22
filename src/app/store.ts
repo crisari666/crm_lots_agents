@@ -52,6 +52,7 @@ import trainingTrakingSlice from "../features/training-traking/slice/training-tr
 import paymentRouteTemplateSlice from "../features/payment-route-template/slice/pay-route-template.slice"
 import customerV2Reducer from "../features/customer-v2/redux/customer-v2.slice"
 import projectReleasesReducer from "../features/project-release/slice/project-releases.slice"
+import signedContractReducer from "../features/signed-contract/slice/signed-contract.slice"
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -117,7 +118,8 @@ export const store = configureStore({
   //Unused 
     closure: closureSlice,
     customerV2: customerV2Reducer,
-    reports: reportsSlice
+    reports: reportsSlice,
+    signedContract: signedContractReducer,
   },
 })
 

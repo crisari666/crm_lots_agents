@@ -58,6 +58,7 @@ import TrainingTrakingPage from "../features/training-traking/pages/training-tra
 import CustomersPage from "../features/customer-v2/pages/customers-page"
 import StepsV2Page from "../features/steps-v2/pages/steps-v2-page"
 import ProjectReleasesPage from "../features/project-release/pages/project-releases-page"
+import SignedContractView from "../features/signed-contract/signed-contract-view"
 
 
 const router = createBrowserRouter([
@@ -144,6 +145,7 @@ const router = createBrowserRouter([
     { path: "import-users", element: <ImportUsersPage /> },
     { path: "collectors", element: <CollectorsView /> },
     { path: "users-onboarding-status", element: <UsersOnboardingStatusView /> },
+    { path: "signed-contracts", element: <SignedContractView /> },
 
 
     { path: "expenses", element: <HandleExpensesView /> },

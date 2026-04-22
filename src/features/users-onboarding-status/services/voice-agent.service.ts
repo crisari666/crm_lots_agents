@@ -1,4 +1,4 @@
-import { getVoiceAgentWebsocketUrl, VoiceAgentHttp } from "../../../app/voice-agent-http"
+import {VoiceAgentHttp } from "../../../app/voice-agent-http"
 
 const PATH_INICIAR_LLAMADA = "iniciar-llamada"
 
@@ -11,26 +11,6 @@ export type IniciarLlamadaPayload = {
   agentId: string
   is_dev: boolean
 }
-
-export function buildIniciarLlamadaPayload(params: {
-  fromNumber: string
-  toNumber: string
-  customer_name: string
-  customer_id: string
-  agentId: string
-  is_dev?: boolean
-}): IniciarLlamadaPayload {
-  return {
-    websocketUrl: getVoiceAgentWebsocketUrl(),
-    fromNumber: params.fromNumber,
-    toNumber: params.toNumber,
-    customer_name: params.customer_name,
-    customer_id: params.customer_id,
-    agentId: params.agentId,
-    is_dev: params.is_dev ?? import.meta.env.DEV
-  }
-}
-
 export async function iniciarLlamadaReq(payload: IniciarLlamadaPayload): Promise<unknown> {
   try {
     const http = VoiceAgentHttp.getInstance()
