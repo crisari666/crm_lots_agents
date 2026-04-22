@@ -5,6 +5,7 @@ export type CeoOperationsSummaryResult = {
   metaLeadsTotal: number
   metaLeadsDistinctUserTotal: number
   contractsSentTotal: number
+  /** Distinct ventors (user level 4) with a signature in range. */
   contractsSignedTotal: number
   trainingAttendeesTotal: number
 }

@@ -168,7 +168,7 @@ export default function CeoOperationsSummaryCP() {
           value={summary?.contractsSentTotal ?? "—"}
           subtitle={
             summary !== null
-              ? `Firmados: ${summary.contractsSignedTotal}${contractRate !== null ? ` · ${contractRate}%` : ""}`
+              ? `Contratos firmados: ${summary.contractsSignedTotal}${contractRate !== null ? ` · ${contractRate}%` : ""}`
               : undefined
           }
           icon={<DescriptionOutlined fontSize="small" />}
