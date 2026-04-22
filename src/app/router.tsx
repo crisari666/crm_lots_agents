@@ -31,7 +31,6 @@ import DownloadPaymentView from "../views/download-payment-view"
 import DownloadPayHistoryView from "../views/download-pays-history-view"
 import HandleExpensesView from "../features/handle-expenses/handle-expenses"
 import CalculatorMultiplePaysView from "../views/calculator-view"
-import CollectorsView from "../views/collectors-view"
 import DashboardContent from "../views/dashboard-view"
 import QrArriveView from "../views/qr-arrive-view"
 import SettingsView from "../views/settings-view"
@@ -143,7 +142,6 @@ const router = createBrowserRouter([
     { path: "handle-user/:userId", element: <HandleUserView /> },
     { path: "users", element: <UsersList /> },
     { path: "import-users", element: <ImportUsersPage /> },
-    { path: "collectors", element: <CollectorsView /> },
     { path: "users-onboarding-status", element: <UsersOnboardingStatusView /> },
     { path: "signed-contracts", element: <SignedContractView /> },
 

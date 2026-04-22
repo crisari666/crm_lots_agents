@@ -1,22 +1,24 @@
 import { useEffect, useState } from "react"
 import AppAutoComplete, { AppAutocompleteOption } from "../../../../app/components/app-autocomplete"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
-import { fetchCollectorsThunk } from "../../../collectors/slice/collectors.slice"
 import { Check, Close, Edit } from "@mui/icons-material"
 import { Button } from "@mui/material"
 import { Grid } from "@mui/material"
 import { changePaymentCollectorThunk } from "../slice/handle-payment.slice"
 import { FeePaymentType } from "../slice/handle-payment.state"
+import { fetchCollectorsReq } from "../../../../app/services/collectors.service"
 
 export default function ChangePaymentColector({fee} : {fee: FeePaymentType}) {
   const dispatch = useAppDispatch()
   const [disabled, setDisabled] = useState<boolean>(true)
-  const {collectors} = useAppSelector((state) => state.collectors) 
+  const [collectors, setCollectors] = useState<any[]>([])
   const {payment} = useAppSelector((state) => state.handlePayment)
   const [collector, setCollector] = useState<AppAutocompleteOption>({name: "", _id: ""})
 
   useEffect(() => {
-    dispatch(fetchCollectorsThunk())
+    fetchCollectorsReq()
+      .then((response) => setCollectors(response))
+      .catch((error) => console.error("ERROR ON fetchCollectorsReq", error))
   }, [])
 
 

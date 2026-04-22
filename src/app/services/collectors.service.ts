@@ -1,8 +1,7 @@
-import { CollectorForm } from "../../features/collectors/slice/collectors.state";
 import Api from "../axios";
-import { CollectorType } from "../models/collector.type";
+type AnyObject = Record<string, any>
 
-export async function fetchCollectorsReq(): Promise<CollectorType[]> {
+export async function fetchCollectorsReq(): Promise<AnyObject[]> {
   try {
     const api = Api.getInstance()
     const response = await api.get({ path: `collectors` })
@@ -19,7 +18,7 @@ export async function fetchCollectorsReq(): Promise<CollectorType[]> {
   }
 }
 
-export async function addCollectorReq({ collector }: { collector: CollectorForm }): Promise<CollectorType> {
+export async function addCollectorReq({ collector }: { collector: AnyObject }): Promise<AnyObject> {
   try {
     const api = Api.getInstance()
     const response = await api.post({ path: `collectors`, data: collector })
@@ -53,7 +52,7 @@ export async function getCollectorByIdReq({ collectorId }: { collectorId: string
   }
 }
 
-export async function updateCollectorReq({ collectorId, collector }: { collectorId: string, collector: CollectorForm }): Promise<CollectorType> {
+export async function updateCollectorReq({ collectorId, collector }: { collectorId: string, collector: AnyObject }): Promise<AnyObject> {
   try {
     const api = Api.getInstance()
     const response = await api.patch({ path: `collectors/${collectorId}`, data: collector })
@@ -70,7 +69,7 @@ export async function updateCollectorReq({ collectorId, collector }: { collector
   }
 }
 
-export async function addOfficeToCollectorReq({ officeId, collectorId }: { officeId: string, collectorId: string }): Promise<CollectorType> {
+export async function addOfficeToCollectorReq({ officeId, collectorId }: { officeId: string, collectorId: string }): Promise<AnyObject> {
   try {
     const api = Api.getInstance()
     const response = await api.patch({ path: `collectors/${collectorId}/add-office`, data: { officeId } })
@@ -87,7 +86,7 @@ export async function addOfficeToCollectorReq({ officeId, collectorId }: { offic
   }
 }
 
-export async function removeOfficeFromCollectorReq({ officeId, collectorId }: { officeId: string, collectorId: string }): Promise<CollectorType> {
+export async function removeOfficeFromCollectorReq({ officeId, collectorId }: { officeId: string, collectorId: string }): Promise<AnyObject> {
   try {
     const api = Api.getInstance()
     const response = await api.patch({ path: `collectors/${collectorId}/remove-office`, data: { officeId } })
@@ -104,7 +103,7 @@ export async function removeOfficeFromCollectorReq({ officeId, collectorId }: { 
   }
 }
 
-export async function getCollectorsForUserReq({ userId }: { userId: string }): Promise<CollectorType[]> {
+export async function getCollectorsForUserReq({ userId }: { userId: string }): Promise<AnyObject[]> {
   try {
     const api = Api.getInstance()
     const response = await api.get({ path: `collectors/collectors-for-user/${userId}` })
@@ -122,7 +121,7 @@ export async function getCollectorsForUserReq({ userId }: { userId: string }): P
   }
 }
 
-export async function toggleEnableCollectorReq({ collectorId, enable }: { collectorId: string, enable: boolean }): Promise<CollectorType> {
+export async function toggleEnableCollectorReq({ collectorId, enable }: { collectorId: string, enable: boolean }): Promise<AnyObject> {
   try {
     const api = Api.getInstance()
     const response = await api.patch({ path: `collectors/${collectorId}/enable`, data: { enable } })

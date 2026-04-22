@@ -32,7 +32,6 @@ import customersActivesSnapShotSlice from "../features/users-actives-snap-shot/b
 import usersWithoutCustomersSlice from "../features/users-without-customers/slice/users-without-customers.slice"
 import downloadPaymentSlice from "../features/download-payment/business-logic/download-payment.slice"
 import downloadedPaysLogsSlice from "../features/download-payment/business-logic/download-payment-history.slice"
-import collectorsSlice from "../features/collectors/slice/collectors.slice"
 import statisticsSlice from "../features/statistics/store/statistics.slice"
 import qrArriveSlice from "../features/qr-arrived/slice/qr-arrive.slice"
 import settingsSlice from "../features/settings/slice/settings.slice"
@@ -68,7 +67,6 @@ export const store = configureStore({
     alerts: alertsSlice,
     auditResume: auditResumeSlice,
     authFace: authFaceSlice,
-    collectors: collectorsSlice,
     campaignCustomers: campaignCustomersSlice,
     currentCampaign: currentCampaignSlice,
     customers: customersSlice,
