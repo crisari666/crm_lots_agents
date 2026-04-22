@@ -1,4 +1,3 @@
-import { CollectorType } from "../../../app/models/collector.type"
 import { CustomerCallActionsInterface } from "../../../app/models/customer-call-actions.interface"
 import { CustomerDocPayType } from "../../../app/models/customer-doc-pay.type"
 import { CustomerLogSituationsI } from "../../../app/models/customer-logs.inteface"
@@ -28,7 +27,7 @@ export type CustomerViewStateI = {
   customerResume?: CustomerResume
   customerWasTreated?: CustomerWasTreatedType,
   customerChangeUserForm: CustomerChangeUserForm,
-  collectors: CollectorType[]
+  collectors: any[]
   customerCallActions: CustomerCallActionsInterface[]
   openModalPayDocs: boolean
   customerDocPays: CustomerDocPayType[]
