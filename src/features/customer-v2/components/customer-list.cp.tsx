@@ -62,10 +62,7 @@ export default function CustomerListCP({
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(25)
 
-  const users = useMemo(
-    () => usersFromSlice.filter((user) => user.physical === true),
-    [usersFromSlice],
-  )
+  const users = usersFromSlice
 
   const userById = useMemo(() => {
     const m = new Map<string, UserInterface>()
