@@ -13,8 +13,10 @@ import {
   fetchTrainingDetailThunk,
   removeAttendeeThunk,
   selectTrainingTrakingDetail,
-  selectTrainingTrakingState
+  selectTrainingTrakingState,
+  sendTrainingReminderThunk
 } from "../slice/training-traking.slice"
+import type { TrainingReminderTemplateName } from "../lib/training-reminder-templates"
 import type { TrainingAttendeeType } from "../types/training-traking.types"
 import { toggleCheckInThunk } from "../slice/training-traking.slice"
 import TrainingTrakingCreateDialogCP from "./training-traking-create-dialog.cp"
@@ -30,6 +32,7 @@ export default function TrainingTrakingDetailCP() {
     isAddingUserToTraining,
     isUpdatingAttendeeStatus,
     isTogglingCheckIn,
+    isSendingTrainingReminder,
     error
   } = useAppSelector(selectTrainingTrakingState)
   const [isEditOpen, setIsEditOpen] = useState(false)
@@ -117,6 +120,23 @@ export default function TrainingTrakingDetailCP() {
     )
   }
 
+  const handleSendTrainingReminder = async (
+    attendee: TrainingAttendeeType,
+    templateName: TrainingReminderTemplateName
+  ) => {
+    if (detail == null) return
+    const userId = attendee.userId != null ? String(attendee.userId).trim() : ""
+    if (userId.length === 0) return
+    await dispatch(
+      sendTrainingReminderThunk({
+        trainingId: detail.id,
+        trackingId: attendee.id,
+        userId,
+        templateName
+      })
+    ).unwrap()
+  }
+
   const escapeCsvValue = (value: string) => `"${value.replace(/"/g, `""`)}"`
 
   const handleDownloadAttendeesCsv = () => {
@@ -168,11 +188,13 @@ export default function TrainingTrakingDetailCP() {
           attendees={detail.attendees}
           isTogglingCheckIn={isTogglingCheckIn}
           isUpdatingAttendeeStatus={isUpdatingAttendeeStatus}
+          isSendingTrainingReminder={isSendingTrainingReminder}
           onToggleCheckIn={handleToggleCheckIn}
           onAcceptAttendee={handleAcceptAttendee}
           onDeclineAttendee={handleDeclineAttendee}
           onRemoveAttendee={handleRemoveAttendee}
           onDownloadCsv={handleDownloadAttendeesCsv}
+          onSendTrainingReminder={handleSendTrainingReminder}
         />
       </CardContent>
       <TrainingTrakingCreateDialogCP

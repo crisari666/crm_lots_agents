@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   IconButton,
   Menu,
   MenuItem,
@@ -13,6 +14,10 @@ import {
   Typography
 } from "@mui/material"
 import { useState, type MouseEvent } from "react"
+import {
+  TRAINING_REMINDER_TEMPLATE_OPTIONS,
+  type TrainingReminderTemplateName
+} from "../lib/training-reminder-templates"
 import type { TrainingAttendeeType } from "../types/training-traking.types"
 
 type TrainingTrakingAttendeesSectionCPProps = {
@@ -24,6 +29,11 @@ type TrainingTrakingAttendeesSectionCPProps = {
   onDeclineAttendee: (attendee: TrainingAttendeeType) => void
   onRemoveAttendee: (attendee: TrainingAttendeeType) => void
   onDownloadCsv: () => void
+  isSendingTrainingReminder: boolean
+  onSendTrainingReminder: (
+    attendee: TrainingAttendeeType,
+    templateName: TrainingReminderTemplateName
+  ) => Promise<void>
 }
 
 export default function TrainingTrakingAttendeesSectionCP({
@@ -34,7 +44,9 @@ export default function TrainingTrakingAttendeesSectionCP({
   onAcceptAttendee,
   onDeclineAttendee,
   onRemoveAttendee,
-  onDownloadCsv
+  onDownloadCsv,
+  isSendingTrainingReminder,
+  onSendTrainingReminder
 }: TrainingTrakingAttendeesSectionCPProps) {
   const [actionsAnchorEl, setActionsAnchorEl] = useState<null | HTMLElement>(null)
   const [actionsAttendee, setActionsAttendee] = useState<TrainingAttendeeType | null>(null)
@@ -58,6 +70,23 @@ export default function TrainingTrakingAttendeesSectionCP({
     if (!shouldRemove) return
     onRemoveAttendee(actionsAttendee)
     handleCloseAttendeeMenu()
+  }
+
+  const canSendWhatsappReminder = (attendee: TrainingAttendeeType): boolean => {
+    const uid = attendee.userId != null ? String(attendee.userId).trim() : ""
+    const phone = attendee.phoneNumber != null ? String(attendee.phoneNumber).trim() : ""
+    if (uid.length === 0 || phone.length === 0) return false
+    return attendee.status === "confirmed" || attendee.status === "pending"
+  }
+
+  const handlePickReminderTemplate = async (templateName: TrainingReminderTemplateName) => {
+    if (actionsAttendee == null) return
+    try {
+      await onSendTrainingReminder(actionsAttendee, templateName)
+      handleCloseAttendeeMenu()
+    } catch {
+      /* error handled in Redux */
+    }
   }
 
   return (
@@ -158,6 +187,28 @@ export default function TrainingTrakingAttendeesSectionCP({
         <MenuItem disabled={actionsAttendee == null || isUpdatingAttendeeStatus} onClick={handleRemoveAttendee}>
           Remover de capacitación
         </MenuItem>
+        <Divider />
+        <Box sx={{ px: 2, py: 0.75 }}>
+          <Typography variant="caption" color="text.secondary">
+            Recordatorio WhatsApp
+          </Typography>
+        </Box>
+        {TRAINING_REMINDER_TEMPLATE_OPTIONS.map((option) => (
+          <MenuItem
+            key={option.templateName}
+            disabled={
+              actionsAttendee == null ||
+              !canSendWhatsappReminder(actionsAttendee) ||
+              isSendingTrainingReminder ||
+              isUpdatingAttendeeStatus
+            }
+            onClick={() => {
+              void handlePickReminderTemplate(option.templateName)
+            }}
+          >
+            {option.label}
+          </MenuItem>
+        ))}
       </Menu>
     </Box>
   )

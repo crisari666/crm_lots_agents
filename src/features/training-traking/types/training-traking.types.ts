@@ -26,6 +26,7 @@ export type TrainingWithCountsType = TrainingType & {
 export type TrainingAttendeeType = {
   id: string
   trainingId: string
+  userId?: string | null
   uniqueCode: string
   name: string
   phoneNumber?: string | null
@@ -77,5 +78,11 @@ export type RemoveAttendeeResponse = {
   data: {
     removed: boolean
   }
+}
+
+export type SendTrainingReminderPayload = {
+  trackingId: string
+  userId: string
+  template_name: string
 }
 

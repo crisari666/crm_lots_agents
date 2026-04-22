@@ -7,6 +7,7 @@ import type {
   TrainingWithCountsType,
   UpdateTrainingPayload
 } from "../types/training-traking.types"
+import type { TrainingReminderTemplateName } from "../lib/training-reminder-templates"
 import {
   acceptAttendeeReq,
   addUserByEmailReq,
@@ -15,6 +16,7 @@ import {
   getTrainingDetailReq,
   getTrainingsReq,
   removeAttendeeReq,
+  sendTrainingReminderReq,
   toggleCheckInReq,
   updateTrainingReq
 } from "../services/training-traking.service"
@@ -97,6 +99,22 @@ export const removeAttendeeThunk = createAsyncThunk(
     await dispatch(fetchTrainingDetailThunk(params.trainingId))
     await dispatch(fetchTrainingsThunk())
     return response
+  }
+)
+
+export const sendTrainingReminderThunk = createAsyncThunk(
+  "trainingTraking/sendTrainingReminder",
+  async (params: {
+    trainingId: string
+    trackingId: string
+    userId: string
+    templateName: TrainingReminderTemplateName
+  }) => {
+    return sendTrainingReminderReq({
+      trackingId: params.trackingId,
+      userId: params.userId,
+      template_name: params.templateName
+    })
   }
 )
 
@@ -270,6 +288,18 @@ const trainingTrakingSlice = createSlice({
       .addCase(toggleCheckInThunk.rejected, (state, action) => {
         state.isTogglingCheckIn = false
         state.error = action.error.message ?? "Error updating check-in"
+      })
+
+      .addCase(sendTrainingReminderThunk.pending, (state) => {
+        state.isSendingTrainingReminder = true
+        state.error = null
+      })
+      .addCase(sendTrainingReminderThunk.fulfilled, (state) => {
+        state.isSendingTrainingReminder = false
+      })
+      .addCase(sendTrainingReminderThunk.rejected, (state, action) => {
+        state.isSendingTrainingReminder = false
+        state.error = action.error.message ?? "Error al enviar recordatorio"
       })
   }
 })

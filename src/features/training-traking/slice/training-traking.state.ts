@@ -11,6 +11,7 @@ export type TrainingTrakingSliceState = {
   isAddingUserToTraining: boolean
   isUpdatingAttendeeStatus: boolean
   isTogglingCheckIn: boolean
+  isSendingTrainingReminder: boolean
   error: string | null
 }
 
@@ -25,6 +26,7 @@ export const trainingTrakingInitialState: TrainingTrakingSliceState = {
   isAddingUserToTraining: false,
   isUpdatingAttendeeStatus: false,
   isTogglingCheckIn: false,
+  isSendingTrainingReminder: false,
   error: null
 }
 

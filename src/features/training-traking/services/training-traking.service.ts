@@ -4,6 +4,7 @@ import type {
   ConfirmStatusResponse,
   CreateTrainingPayload,
   RemoveAttendeeResponse,
+  SendTrainingReminderPayload,
   TrainingAttendeeType,
   TrainingDetailResponse,
   TrainingDetailType,
@@ -145,6 +146,21 @@ export async function removeAttendeeReq(params: {
     return response.data
   } catch (error) {
     console.error("ERROR ON removeAttendeeReq", error)
+    throw error
+  }
+}
+
+export async function sendTrainingReminderReq(
+  payload: SendTrainingReminderPayload
+): Promise<unknown> {
+  try {
+    const api = Api.getInstance()
+    return await api.post({
+      path: "/trainings/reminders/send",
+      data: payload
+    })
+  } catch (error) {
+    console.error("ERROR ON sendTrainingReminderReq", error)
     throw error
   }
 }
