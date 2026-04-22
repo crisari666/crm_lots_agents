@@ -43,7 +43,6 @@ import UsersGoalsView from "../views/user-goals-view"
 import AlertedPaymentsView from "../views/alerted-payments-view"
 import CampaignCustomersView from "../views/campaign-customers-view"
 import CustomersCheckView from "../views/customers-chek-view"
-import PenancesView from "../views/penances-view"
 import ArrivalHistoryView from "../views/arrival-history-view"
 import AuditsPage from "../views/audits-page"
 import WorkerPaymentsView from "../views/worker-payments-view"
@@ -120,7 +119,6 @@ const router = createBrowserRouter([
     { path: "handle-office/:officeId", element: <HandleOfficeView /> },
     { path: "office-levels", element: <OfficeLevelView /> },
     { path: "campaign-customers", element: <CampaignCustomersView /> },
-    { path: "penances", element: <PenancesView /> },
     { path: "user-log-arrive", element: <ArrivalHistoryView /> },
     
     //Socket

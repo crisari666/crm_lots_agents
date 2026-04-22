@@ -2,13 +2,12 @@ import { Box, Button, ButtonGroup, createTheme, IconButton, Table, TableBody, Ta
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { RootState } from "../../../../app/store"
 import { getCallsResume } from "../../../../utils/customer.utils"
-import { AddIcCall, CrisisAlert, Gavel, PhoneForwarded, PhoneMissed, Recycling, SimCardAlert, TimerOff, Visibility, Warning, WarningAmber } from "@mui/icons-material"
+import { AddIcCall, CrisisAlert, PhoneForwarded, PhoneMissed, Recycling, SimCardAlert, TimerOff, Visibility, Warning, WarningAmber } from "@mui/icons-material"
 import { ThemeProvider } from "@emotion/react"
 import { Call, RowCallAssignedCustomer } from "../../reports.state"
 import { dateUTCToFriendly } from "../../../../utils/date.utils"
 import { getCallLogByIdWittCallNotesRelatedThunk, logCustomerAtNotCalledThunk, recycleCustomerThunk } from "../reports.slice"
 import { useState } from "react"
-import SureAddPenanceToUserDialog, { PenanceToUser } from "./dialog-sure-add-penance-to-user"
 import CustomerAlertsDialog, { CustomerAlertsDialogCustomer } from "./customer-alerts-dialog"
 
 const theme = createTheme({
@@ -24,7 +23,6 @@ const theme = createTheme({
 export default function ResultCallAssignedReports() {
   const dispatch = useAppDispatch() 
   const {filter, callAssignedCustomer} = useAppSelector((state: RootState) => state.reports)
-  const [userToPenance, setUserToPenance] = useState<PenanceToUser | null>(null)
   const [alertsDialogCustomer, setAlertsDialogCustomer] = useState<CustomerAlertsDialogCustomer | null>(null)
 
   const resolveUser = (user: any): string => {
@@ -79,7 +77,6 @@ export default function ResultCallAssignedReports() {
   return(
     <ThemeProvider theme={theme}>
          {filter.type === "call-customers-assigned" && callAssignedCustomer !== undefined && <>
-        {userToPenance && <SureAddPenanceToUserDialog userToPenance={userToPenance} setUserToPenance={setUserToPenance} />}
         <CustomerAlertsDialog
           open={alertsDialogCustomer !== null}
           onClose={() => setAlertsDialogCustomer(null)}
@@ -99,7 +96,6 @@ export default function ResultCallAssignedReports() {
                 <TableCell>Acciones</TableCell>
                 <TableCell>Reciclar</TableCell>
                 <TableCell> <SimCardAlert/> </TableCell>
-                <TableCell> <Gavel/> </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -172,9 +168,6 @@ export default function ResultCallAssignedReports() {
                     </TableCell>
                     <TableCell>
                       <Button disabled={row.notCalled} onClick={() => logCustomerAtNotCalled({row, index: i })} variant="outlined"> <SimCardAlert/> </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Button title="Penalizar" color="error" onClick={() => setUserToPenance({_id: row.user[0]._id, name: row.user[0].name, customer: row._id})} variant="outlined"> <Gavel/> </Button>
                     </TableCell>
                   </TableRow>
                 )}

@@ -41,7 +41,6 @@ import OfficesLevelSlice from "../features/offices/office-levels/slice/office-le
 import verifyCustomerPaymentsSlice from "../features/payments/verify-payments/slice/verify-customer-payments.slice"
 import handlePaymentSlice from "../features/payments/handle-payment/slice/handle-payment.slice"
 import campaignCustomersSlice from "../features/campaigns/campaign-customers/redux/campaign-customers-slice"
-import penancesSlice from "../features/penance/slice/penances.slice"
 import projectsSlice from "../features/project/slice/projects.slice"
 import amenitiesSlice from "../features/project/slice/amenities.slice"
 import alertsSlice from "../features/alerts/alerts.slice"
@@ -94,7 +93,6 @@ export const store = configureStore({
     officeCampaign: campaignLeadSlice,
     officeDashboard: officeDashboardSlice,
     officesLevel: OfficesLevelSlice,
-    penance: penancesSlice,
     paymentRouteTemplate: paymentRouteTemplateSlice,
     projects: projectsSlice,
     projectReleases: projectReleasesReducer,

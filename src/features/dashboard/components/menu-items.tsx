@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import {  AddAlertTwoTone, AdminPanelSettings, AnalyticsOutlined,  AppsOutage,  ArrowDropDown,  ArrowRight,  BusinessOutlined, Calculate, Campaign, CampaignOutlined, CampaignRounded, Category, ChecklistRtl, Collections, CollectionsOutlined, ContactPhone, CreditScore, Dashboard, Description, Done, Dvr, ElectricalServices, FaceRetouchingNatural, Gavel, HistoryEdu, HistorySharp, ListAlt, Money, PaymentRounded, PeopleAltTwoTone, PercentOutlined, Person2Outlined, PersonPin, PersonPinCircle, PhoneAndroid, PriceChange, Route, Settings, SupportAgent, UploadFileSharp, WebStories, WifiTetheringErrorRoundedSharp } from "@mui/icons-material"
+import {  AddAlertTwoTone, AdminPanelSettings, AnalyticsOutlined,  AppsOutage,  ArrowDropDown,  ArrowRight,  BusinessOutlined, Calculate, Campaign, CampaignOutlined, CampaignRounded, Category, ChecklistRtl, Collections, CollectionsOutlined, ContactPhone, CreditScore, Dashboard, Description, Done, Dvr, ElectricalServices, FaceRetouchingNatural, HistoryEdu, HistorySharp, ListAlt, Money, PaymentRounded, PeopleAltTwoTone, PercentOutlined, Person2Outlined, PersonPin, PersonPinCircle, PhoneAndroid, PriceChange, Route, Settings, SupportAgent, UploadFileSharp, WebStories, WifiTetheringErrorRoundedSharp } from "@mui/icons-material"
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
@@ -87,7 +87,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/users-goal-view", Icon: <Done />, title: "Metas usuarios" },
       { to: "/dashboard/alerted-payments", Icon: <AddAlertTwoTone />, title: "Payments alert" },
       { to: "/dashboard/check-customers", Icon: <PersonPin />, title: "Validacion clientes" },
-      { to: "/dashboard/penances", Icon: <Gavel />, title: "Multas" },
     ] },
     
     { to: "/dashboard/situations", Icon: <ListAlt />, title: "Situaciones" },
