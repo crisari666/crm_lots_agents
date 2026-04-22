@@ -153,12 +153,7 @@ export default function CeoOperationsSummaryCP() {
         sx={{
           display: "grid",
           gap: 1.25,
-          gridTemplateColumns: {
-            xs: "minmax(0, 1fr)",
-            sm: "repeat(2, minmax(0, 1fr))",
-            md: "repeat(3, minmax(0, 1fr))",
-            lg: "repeat(5, minmax(0, 1fr))",
-          },
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))",
         }}
       >
         <KpiCard title="Leads Meta" value={summary?.metaLeadsTotal ?? "—"} subtitle="Registros en rango" icon={<CampaignOutlined fontSize="small" />} />
