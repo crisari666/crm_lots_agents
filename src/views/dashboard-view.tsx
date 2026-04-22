@@ -1,7 +1,7 @@
 import { Stack, Typography } from "@mui/material"
 import { useAppSelector } from "../app/hooks"
 import CeoOperationsSummaryCP from "../features/ceo-operations-summary/components/ceo-operations-summary.cp"
-import StepsGraph from "../features/statistics/components/step-graph"
+// import StepsGraph from "../features/statistics/components/step-graph"
 
 export default function DashboardContent() {
   const { currentUser } = useAppSelector((state) => state.login)
@@ -12,7 +12,7 @@ export default function DashboardContent() {
         Dashboard
       </Typography>
       {showCeoSummary && <CeoOperationsSummaryCP />}
-      {currentUser?.level === 0 && <StepsGraph />}
+      {/* {currentUser?.level === 0 && <StepsGraph />} */}
     </Stack>
   )
 }
