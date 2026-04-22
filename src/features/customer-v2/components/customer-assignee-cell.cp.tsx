@@ -85,60 +85,55 @@ export default function CustomerAssigneeCellCP({
     }
   }
 
+  const assignedDisplayName =
+    `${assignedUser?.name ?? ""} ${assignedUser?.lastName ?? ""}`.trim() || "—"
+
   const trigger = row.assignedTo ? (
-    <Chip
-      label={
-        <Stack spacing={0} sx={{ py: 0.25 }}>
-          <Typography variant="caption" sx={{ lineHeight: 1.2 }}>
-            {`${assignedUser?.name ?? ""} ${assignedUser?.lastName ?? ""}`.trim() || "Sin nombre"}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
-            {assignedUser?.email?.trim() ? assignedUser.email : "Sin email"}
-          </Typography>
-        </Stack>
-      }
-      size="small"
-      variant="outlined"
-      onClick={handleOpen}
-      sx={{
-        cursor: "pointer",
-        height: "auto",
-        maxWidth: 260,
-        "& .MuiChip-label": {
-          display: "block",
-          py: 0.5,
-          whiteSpace: "normal",
-        },
-      }}
-    />
-  ) : (
-    <Typography
-      component="button"
-      type="button"
-      variant="body2"
-      color="text.disabled"
-      onClick={handleOpen}
-      sx={{
-        cursor: "pointer",
-        border: "none",
-        background: "none",
-        p: 0,
-        font: "inherit",
-        textAlign: "left",
-        textDecoration: "underline",
-      }}
+    <Tooltip
+      title={assignedUser?.email?.trim() ? assignedUser.email : "Sin email"}
+      placement="top"
+      enterDelay={400}
     >
-      Sin asignar
-    </Typography>
+      <Chip
+        label={assignedDisplayName}
+        size="small"
+        variant="outlined"
+        onClick={handleOpen}
+        sx={{
+          cursor: "pointer",
+          maxWidth: 220,
+          "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
+        }}
+      />
+    </Tooltip>
+  ) : (
+    <Tooltip title="Clic para asignar usuario" placement="top" enterDelay={400}>
+      <Typography
+        component="button"
+        type="button"
+        variant="body2"
+        color="text.disabled"
+        onClick={handleOpen}
+        sx={{
+          cursor: "pointer",
+          border: "none",
+          background: "none",
+          p: 0,
+          font: "inherit",
+          textAlign: "left",
+          textDecoration: "underline",
+        }}
+      >
+        Sin asignar
+      </Typography>
+    </Tooltip>
   )
 
   return (
     <>
-      <Tooltip title="Clic para cambiar usuario asignado" placement="top" enterDelay={400}>
-        <Box component="span" sx={{ display: "inline-block" }}>
-          {trigger}
-        </Box>
-      </Tooltip>
+      <Box component="span" sx={{ display: "inline-block" }}>
+        {trigger}
+      </Box>
       <Popover
         open={open}
         anchorEl={anchorEl}

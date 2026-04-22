@@ -21,6 +21,10 @@ function displayName(row: CustomerAdminListItem): string {
   return full || "—"
 }
 
+function userFullName(u: Pick<UserInterface, "name" | "lastName">): string {
+  return `${u.name ?? ""} ${u.lastName ?? ""}`.trim() || "—"
+}
+
 export default function CustomerListItemCP({
   row,
   users,
@@ -75,29 +79,22 @@ export default function CustomerListItemCP({
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>
         {creatorUser ? (
-          <Chip
-            size="small"
-            variant="outlined"
-            label={
-              <span>
-                <Typography variant="caption" sx={{ lineHeight: 1.2 }}>
-                  {`${creatorUser.name ?? ""} ${creatorUser.lastName ?? ""}`.trim() || "Sin nombre"}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
-                  {creatorUser.email?.trim() ? creatorUser.email : "Sin email"}
-                </Typography>
-              </span>
-            }
-            sx={{
-              height: "auto",
-              maxWidth: 260,
-              "& .MuiChip-label": {
-                display: "block",
-                py: 0.5,
-                whiteSpace: "normal",
-              },
-            }}
-          />
+          <Tooltip
+            title={creatorUser.email?.trim() ? creatorUser.email : "Sin email"}
+            placement="top"
+            enterDelay={400}
+          >
+            <Chip
+              size="small"
+              variant="outlined"
+              label={userFullName(creatorUser)}
+              sx={{
+                cursor: "default",
+                maxWidth: 220,
+                "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
+              }}
+            />
+          </Tooltip>
         ) : (
           <Typography variant="body2" color="text.secondary">
             —
