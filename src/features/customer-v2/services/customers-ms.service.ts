@@ -29,8 +29,12 @@ export type CustomerAdminListItem = {
   assignedTo?: string
   /** Office user id who created the customer (customers-ms). */
   createdBy?: string
+  /** Current pipeline step id when set. */
+  customerStepId?: string
   /** Current pipeline step name. */
   currentStep?: string
+  /** Color from customer_steps when available. */
+  currentStepColor?: string
   /** False when customer disabled in customers-ms. */
   enabled: boolean
   createdAt: string
@@ -39,6 +43,13 @@ export type CustomerAdminListItem = {
 export type CustomerAdminListResponse = {
   items: CustomerAdminListItem[]
   total: number
+}
+
+export type CustomerStepDistributionItem = {
+  customerStepId: string | null
+  name: string
+  color?: string
+  count: number
 }
 
 export type ListCustomersAdminParams = {
@@ -52,6 +63,8 @@ export type ListCustomersAdminParams = {
   /** When true, only active customers (`enabled !== false`, includes legacy docs). Omit = no filter. */
   enabled?: boolean
   search?: string
+  /** Filter list to customers currently on this pipeline step. */
+  customerStepId?: string
   limit?: number
   skip?: number
 }

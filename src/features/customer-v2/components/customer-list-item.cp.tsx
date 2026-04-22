@@ -1,5 +1,6 @@
 import React from "react"
 import { Chip, IconButton, TableCell, TableRow, Tooltip, Typography } from "@mui/material"
+import { alpha } from "@mui/material/styles"
 import { Visibility as VisibilityIcon } from "@mui/icons-material"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch } from "../../../app/hooks"
@@ -34,6 +35,10 @@ export default function CustomerListItemCP({
   onAssigneeUpdated,
 }: CustomerListItemCPProps) {
   const dispatch = useAppDispatch()
+  const stepLabel = row.currentStep?.trim() ? row.currentStep : "Sin paso"
+  const stepColor = row.currentStepColor?.trim()
+  const hasStep = Boolean(row.currentStep?.trim())
+
   return (
     <TableRow
       hover
@@ -103,10 +108,22 @@ export default function CustomerListItemCP({
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>
         <Chip
-          label={row.currentStep?.trim() ? row.currentStep : "Sin paso"}
+          label={stepLabel}
           size="small"
-          color={row.currentStep?.trim() ? "info" : "default"}
           variant="outlined"
+          sx={{
+            cursor: "default",
+            ...(stepColor && hasStep
+              ? {
+                  borderColor: stepColor,
+                  bgcolor: alpha(stepColor, 0.14),
+                  color: "text.primary",
+                }
+              : hasStep
+                ? { borderColor: "info.main", color: "info.dark" }
+                : {}),
+          }}
+          color={!stepColor && hasStep ? "info" : "default"}
         />
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>

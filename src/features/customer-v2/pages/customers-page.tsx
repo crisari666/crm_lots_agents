@@ -1,10 +1,8 @@
 import React, { useCallback, useState } from "react"
 import { Box } from "@mui/material"
 import CustomerControlsCP from "../components/customer-controls.cp"
-import CustomerListCP, {
-  emptyFilters,
-  type FilterFormState,
-} from "../components/customer-list.cp"
+import CustomerListCP from "../components/customer-list.cp"
+import { emptyFilters, type FilterFormState } from "../types/filter-form.types"
 
 export default function CustomersPage() {
   const [listVersion, setListVersion] = useState(0)
@@ -20,6 +18,7 @@ export default function CustomersPage() {
       createdTo: draft.createdTo ? draft.createdTo.clone() : null,
       assignedTo: draft.assignedTo,
       search: draft.search,
+      customerStepId: draft.customerStepId,
     })
   }, [draft])
 

@@ -2,9 +2,8 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } fro
 import {
   Alert,
   Box,
-  Button,
+  Chip,
   CircularProgress,
-  InputAdornment,
   Paper,
   Stack,
   Table,
@@ -14,47 +13,23 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TextField,
   Typography,
 } from "@mui/material"
-import { Search as SearchIcon } from "@mui/icons-material"
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"
-import type { Moment } from "moment"
-import moment from "moment"
+import { alpha } from "@mui/material/styles"
 import { fetchUsers } from "../../../app/services/users.service"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { clearListErrorAct, fetchCustomerListAdminThunk } from "../redux/customer-v2.slice"
-import AssignUserAutocompleteCP from "./assign-user-autocomplete.cp"
+import moment from "moment"
+import { listCustomerStepsV2, type CustomerStepV2 } from "../../steps-v2/services/customer-steps-v2.service"
+import type { FilterFormState } from "../types/filter-form.types"
+import { aggregateStepsFromListItems } from "../utils/aggregate-steps-from-list-items"
+import { buildCustomerListQueryParams } from "../utils/build-customer-list-query"
 import CustomerDetailDialogCP from "./customer-detail-dialog.cp"
+import CustomerListFiltersCP from "./customer-list-filters.cp"
 import CustomerListItemCP from "./customer-list-item.cp"
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50] as const
-
-export type FilterFormState = {
-  /** When true, date range is not sent (`omitDateRange`); dates pickers disabled. */
-  excludeFecha: boolean
-  /** When true and no assignee selected, API returns only customers without `assignedTo`. */
-  unassignedOnly: boolean
-  /** When true, API filters `enabled !== false` (active customers). */
-  enabledOnly: boolean
-  createdFrom: Moment | null
-  createdTo: Moment | null
-  assignedTo: string
-  search: string
-}
-
-export function emptyFilters(): FilterFormState {
-  return {
-    excludeFecha: true,
-    unassignedOnly: true,
-    enabledOnly: false,
-    createdFrom: null,
-    createdTo: null,
-    assignedTo: "",
-    search: "",
-  }
-}
 
 export type CustomerListCPProps = {
   draft: FilterFormState
@@ -79,6 +54,7 @@ export default function CustomerListCP({
   const error = useAppSelector((s) => s.customerV2.listError)
 
   const [users, setUsers] = useState<UserInterface[]>([])
+  const [steps, setSteps] = useState<CustomerStepV2[]>([])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(25)
@@ -99,23 +75,19 @@ export default function CustomerListCP({
     })
   }, [])
 
+  useEffect(() => {
+    void listCustomerStepsV2()
+      .then((list) => {
+        if (Array.isArray(list)) setSteps(list)
+      })
+      .catch(() => {
+        setSteps([])
+      })
+  }, [])
+
   const load = useCallback(async () => {
-    const search = applied.search.trim()
     const params = {
-      ...(applied.excludeFecha ? { omitDateRange: true } : {}),
-      ...(!applied.excludeFecha && applied.createdFrom
-        ? { createdFrom: applied.createdFrom.clone().startOf("day").toISOString() }
-        : {}),
-      ...(!applied.excludeFecha && applied.createdTo
-        ? { createdTo: applied.createdTo.clone().endOf("day").toISOString() }
-        : {}),
-      ...(applied.assignedTo
-        ? { assignedTo: applied.assignedTo }
-        : applied.unassignedOnly
-          ? { unassignedOnly: true }
-          : {}),
-      ...(applied.enabledOnly ? { enabled: true } : {}),
-      ...(search ? { search } : {}),
+      ...buildCustomerListQueryParams(applied),
       limit: rowsPerPage,
       skip: page * rowsPerPage,
     }
@@ -125,6 +97,8 @@ export default function CustomerListCP({
   useEffect(() => {
     void load()
   }, [load])
+
+  const stepDigest = useMemo(() => aggregateStepsFromListItems(items), [items])
 
   useLayoutEffect(() => {
     setPage(0)
@@ -143,10 +117,6 @@ export default function CustomerListCP({
     setPage(0)
   }
 
-  const clearDateFilters = () => {
-    setDraft((prev) => ({ ...prev, createdFrom: null, createdTo: null }))
-  }
-
   return (
     <Paper
       variant="outlined"
@@ -157,106 +127,46 @@ export default function CustomerListCP({
       }}
     >
       <CustomerDetailDialogCP users={users} />
-      <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
-        <Stack spacing={2}>
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={2}
-            alignItems={{ xs: "stretch", md: "center" }}
-            justifyContent="space-between"
-          >
-            <Typography variant="subtitle1" fontWeight={600}>
-              Filtros
-            </Typography>
-            <TextField
-              size="small"
-              placeholder="Buscar por nombre, email o teléfono…"
-              value={draft.search}
-              onChange={(e) => setDraft((prev) => ({ ...prev, search: e.target.value }))}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !loading) {
-                  e.preventDefault()
-                  handleSearch()
-                }
-              }}
-              sx={{ minWidth: { xs: 1, md: 320 }, maxWidth: 480 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Button
-              variant="contained"
-              startIcon={<SearchIcon />}
-              onClick={handleSearch}
-              disabled={loading}
-              sx={{ cursor: "pointer", alignSelf: { xs: "stretch", md: "center" } }}
-            >
-              Buscar
-            </Button>
+      <CustomerListFiltersCP
+        draft={draft}
+        setDraft={setDraft}
+        loading={loading}
+        onSearch={handleSearch}
+        users={users}
+        steps={steps}
+      />
+
+      {stepDigest.length > 0 && (
+        <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+            Total por paso en filas mostradas (esta página)
+          </Typography>
+          <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
+            {stepDigest.map((row) => {
+              const c = row.color?.trim()
+              return (
+                <Chip
+                  key={row.customerStepId ?? "__none__"}
+                  size="small"
+                  variant="outlined"
+                  label={`${row.name}: ${row.count}`}
+                  sx={{
+                    cursor: "default",
+                    maxWidth: 320,
+                    "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
+                    ...(c
+                      ? {
+                          borderColor: c,
+                          bgcolor: alpha(c, 0.12),
+                        }
+                      : {}),
+                  }}
+                />
+              )
+            })}
           </Stack>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            flexWrap="wrap"
-            useFlexGap
-            alignItems={{ xs: "stretch", sm: "center" }}
-          >
-            <DatePicker
-              label="Creado desde"
-              value={draft.createdFrom}
-              onChange={(v) => setDraft((prev) => ({ ...prev, createdFrom: v }))}
-              disabled={draft.excludeFecha}
-              slotProps={{ textField: { size: "small", sx: { minWidth: 160 } } }}
-            />
-            <DatePicker
-              label="Creado hasta"
-              value={draft.createdTo}
-              onChange={(v) => setDraft((prev) => ({ ...prev, createdTo: v }))}
-              disabled={draft.excludeFecha}
-              slotProps={{ textField: { size: "small", sx: { minWidth: 160 } } }}
-            />
-            <Box sx={{ minWidth: { xs: "100%", sm: 280 }, flex: { sm: "1 1 280px" } }}>
-              <AssignUserAutocompleteCP
-                users={users}
-                value={draft.unassignedOnly ? "" : draft.assignedTo}
-                onChange={(userId) =>
-                  setDraft((prev) => ({
-                    ...prev,
-                    assignedTo: userId,
-                    ...(userId ? { unassignedOnly: false } : {}),
-                  }))
-                }
-                disabled={draft.unassignedOnly}
-                label="Usuario asignado"
-                size="small"
-              />
-            </Box>
-            {!draft.excludeFecha && (draft.createdFrom || draft.createdTo) && (
-              <Typography
-                component="button"
-                type="button"
-                onClick={clearDateFilters}
-                sx={{
-                  cursor: "pointer",
-                  border: "none",
-                  background: "none",
-                  color: "primary.main",
-                  textDecoration: "underline",
-                  fontSize: "0.875rem",
-                  p: 0,
-                  alignSelf: "center",
-                }}
-              >
-                Limpiar fechas
-              </Typography>
-            )}
-          </Stack>
-        </Stack>
-      </Box>
+        </Box>
+      )}
 
       {error && (
         <Alert
