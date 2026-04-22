@@ -226,6 +226,7 @@ export default function CustomerListCP({
               items.map((row) => {
                 const assignedUser = row.assignedTo ? userById.get(row.assignedTo) ?? null : null
                 const creatorUser = row.createdBy ? userById.get(row.createdBy) ?? null : null
+                const creatorIsPhysical = creatorUser?.physical ?? null
                 const createdLabel = moment(row.createdAt).format("DD/MM/YYYY HH:mm")
                 return (
                   <CustomerListItemCP
@@ -234,6 +235,7 @@ export default function CustomerListCP({
                     users={users}
                     assignedUser={assignedUser}
                     creatorUser={creatorUser}
+                    creatorIsPhysical={creatorIsPhysical}
                     createdLabel={createdLabel}
                     onAssigneeUpdated={() => void load()}
                   />

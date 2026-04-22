@@ -13,6 +13,7 @@ export type CustomerListItemCPProps = {
   users: UserInterface[]
   assignedUser: Pick<UserInterface, "name" | "lastName" | "email"> | null
   creatorUser: Pick<UserInterface, "name" | "lastName" | "email"> | null
+  creatorIsPhysical?: boolean | null
   createdLabel: string
   onAssigneeUpdated: () => void
 }
@@ -31,6 +32,7 @@ export default function CustomerListItemCP({
   users,
   assignedUser,
   creatorUser,
+  creatorIsPhysical = null,
   createdLabel,
   onAssigneeUpdated,
 }: CustomerListItemCPProps) {
@@ -38,6 +40,7 @@ export default function CustomerListItemCP({
   const stepLabel = row.currentStep?.trim() ? row.currentStep : "Sin paso"
   const stepColor = row.currentStepColor?.trim()
   const hasStep = Boolean(row.currentStep?.trim())
+  const isCreatorNonPhysical = creatorIsPhysical === false
 
   return (
     <TableRow
@@ -97,6 +100,13 @@ export default function CustomerListItemCP({
                 cursor: "default",
                 maxWidth: 220,
                 "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
+                ...(isCreatorNonPhysical
+                  ? {
+                      borderColor: "#7e57c2",
+                      bgcolor: alpha("#7e57c2", 0.14),
+                      color: "#5e35b1",
+                    }
+                  : {}),
               }}
             />
           </Tooltip>
