@@ -9,14 +9,22 @@ import TableContainer from "@mui/material/TableContainer"
 import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import Typography from "@mui/material/Typography"
+import { useMemo } from "react"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
+import { groupSignedContractsByEmail } from "../utils/group-signed-contracts-by-email"
 import SignedContractItem from "./signed-contract-item"
 
 export default function SignedContractList() {
-  const { items, error, isLoading } = useAppSelector(
-    (state: RootState) => state.signedContract
+  const { items, error, isLoading, groupRepeatedByEmail } = useAppSelector(
+    (state: RootState) => state.signedContract,
   )
+  const displayRows = useMemo(() => {
+    if (groupRepeatedByEmail) {
+      return groupSignedContractsByEmail(items)
+    }
+    return items
+  }, [items, groupRepeatedByEmail])
   if (error != null && error !== "") {
     return <Alert severity="error">{error}</Alert>
   }
@@ -27,7 +35,7 @@ export default function SignedContractList() {
       </Box>
     )
   }
-  if (!isLoading && items.length === 0) {
+  if (!isLoading && displayRows.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
         Sin registros. Ajusta fechas y pulsa Filtrar, o deja fechas vacías para los últimos envíos.
@@ -41,14 +49,21 @@ export default function SignedContractList() {
           <TableRow>
             <TableCell>Email</TableCell>
             <TableCell>Nombre</TableCell>
+            {groupRepeatedByEmail ? (
+              <TableCell align="right">Envíos</TableCell>
+            ) : null}
             <TableCell>Fecha envío</TableCell>
             <TableCell>Fecha firma</TableCell>
             <TableCell>Estado</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {items.map((row) => (
-            <SignedContractItem key={row.id} item={row} />
+          {displayRows.map((row) => (
+            <SignedContractItem
+              key={row.id}
+              item={row}
+              showSendCountColumn={groupRepeatedByEmail}
+            />
           ))}
         </TableBody>
       </Table>

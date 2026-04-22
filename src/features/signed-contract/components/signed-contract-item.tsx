@@ -21,13 +21,18 @@ function formatDateTime(iso: string | null): string {
 
 export default function SignedContractItem({
   item,
+  showSendCountColumn,
 }: {
   readonly item: SignedContractListItem
+  readonly showSendCountColumn: boolean
 }) {
   return (
     <TableRow hover>
       <TableCell>{item.userEmail}</TableCell>
       <TableCell>{item.name}</TableCell>
+      {showSendCountColumn ? (
+        <TableCell align="right">{item.sendCount ?? 1}</TableCell>
+      ) : null}
       <TableCell>{formatDateTime(item.dateSent)}</TableCell>
       <TableCell>{formatDateTime(item.dateSigned)}</TableCell>
       <TableCell>

@@ -6,6 +6,7 @@ const initialState: SignedContractState = {
   items: [],
   sentFrom: "",
   sentTo: "",
+  groupRepeatedByEmail: false,
   isLoading: false,
   error: null,
 }
@@ -29,6 +30,9 @@ const signedContractSlice = createSlice({
     },
     clearSignedContractErrorAct: (state) => {
       state.error = null
+    },
+    setGroupRepeatedByEmailAct: (state, action: PayloadAction<boolean>) => {
+      state.groupRepeatedByEmail = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -55,6 +59,7 @@ export const {
   setSentFromFilterAct,
   setSentToFilterAct,
   clearSignedContractErrorAct,
+  setGroupRepeatedByEmailAct,
 } = signedContractSlice.actions
 
 export default signedContractSlice.reducer
