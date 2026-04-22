@@ -89,7 +89,12 @@ export const usersListSlice = createSlice({
       } else {
         users = state.usersOriginal
       }
-      state.users = users.filter((el) => (el.name.toLowerCase().includes(action.payload.toLowerCase()) || el.email.toLowerCase().includes(action.payload.toLowerCase())) || el.lastName.toLowerCase().includes(action.payload.toLowerCase()))
+      const q = action.payload.toLowerCase()
+      state.users = users.filter((el) =>
+        (el.name ?? '').toLowerCase().includes(q) ||
+        (el.email ?? '').toLowerCase().includes(q) ||
+        (el.lastName ?? '').toLowerCase().includes(q),
+      )
     },
     setLeadForUserAct: (state, action: PayloadAction<string>) => {
       state.modalChangeofficeState!.lead = action.payload

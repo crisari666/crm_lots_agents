@@ -42,7 +42,7 @@ export default function UserControlsCP() {
                 <Button variant="contained" color="primary" onClick={goToAddUser}>Add User <PersonAddAlt1/></Button>
             </Grid>
             <Grid item>
-              <Button color="warning" onClick={() => dispatch(loadUsers)} variant="outlined" fullWidth> <Refresh/> </Button>
+              <Button color="warning" onClick={loadUsers} variant="outlined" fullWidth> <Refresh/> </Button>
             </Grid>
             <Grid item xs={6} md={3}>
               <AppSelector 

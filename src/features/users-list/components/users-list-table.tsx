@@ -19,7 +19,7 @@ import DialogSetUserLink from "./dialog-set-user-link"
 
 export default function UsersListTable(){
 
-  const { users, gotUsers, loading } = useAppSelector((state: RootState) => state.users)
+  const { users, gotUsers, loading, onlyEnableUsers } = useAppSelector((state: RootState) => state.users)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
@@ -31,11 +31,12 @@ export default function UsersListTable(){
 
   useEffect(() => {
     if(users.length === 0 && gotUsers === false){
-      setTimeout(() => {
-        dispatch(fetchUsersThunk({enable: true}))
+      const t = window.setTimeout(() => {
+        dispatch(fetchUsersThunk({ enable: onlyEnableUsers }))
       }, 1000)
+      return () => window.clearTimeout(t)
     }
-  }, [users, gotUsers])
+  }, [users, gotUsers, onlyEnableUsers, dispatch])
 
   const goToEditUser = (userId: string) => navigate(`/dashboard/handle-user/${userId}`)
 
@@ -101,7 +102,7 @@ export default function UsersListTable(){
                     </ButtonGroup>
                   </TableCell>
                   <TableCell align="center">
-                    {el.lead && (el.lead as any).name}
+                    {(el.lead as { name?: string } | undefined)?.name}
                   </TableCell>
                   
                   {currentUser!.level === 0 && <TableCell padding="checkbox" align="center" sx={{whiteSpace: "nowrap"}}>
