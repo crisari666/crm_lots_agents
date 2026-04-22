@@ -129,7 +129,6 @@ export default function CustomerCallHistoryTabCP({ customerId }: CustomerCallHis
                       {(row.from || row.to) && (
                         <Typography component="span" variant="caption" color="text.secondary">
                           {[row.from, row.to].filter(Boolean).join(" → ")}
-                          {peer ? ` · ${peer}` : ""}
                         </Typography>
                       )}
                     </Stack>

@@ -198,7 +198,9 @@ export default function CustomersCallLogsPage() {
               const when = moment(row.completedAt ?? row.updatedAt ?? row.createdAt)
               const transcriptAvailable = (row.transcript ?? row.text ?? "").trim() !== ""
               const showTranscript = row.resolvedOutcome === "answered" && transcriptAvailable
-              const ref = row.customerId ?? row.customerExternalRef ?? "—"
+              const customerKey = row.customerId ?? row.customerExternalRef
+              const refLabel = customerKey ?? "—"
+              const canOpenCustomer = customerKey !== undefined && customerKey !== ""
               return (
                 <TableRow key={row.id} hover>
                   <TableCell>
@@ -211,24 +213,68 @@ export default function CustomersCallLogsPage() {
                   <TableCell sx={{ maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {[row.from, row.to].filter(Boolean).join(" → ") || "—"}
                   </TableCell>
-                  <TableCell sx={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis" }}>{ref}</TableCell>
-                  <TableCell align="right">
-                    {showTranscript ? (
+                  <TableCell sx={{ maxWidth: 160 }}>
+                    {canOpenCustomer ? (
                       <Button
+                        variant="text"
                         size="small"
-                        variant="outlined"
-                        onClick={() => {
-                          setTranscriptBody((row.transcript ?? row.text ?? "").trim())
-                          setTranscriptTitle(`Transcripción · ${row.callSid}`)
-                          setTranscriptOpen(true)
+                        onClick={() => openCustomerDetail(customerKey)}
+                        title="Abrir ficha del cliente"
+                        sx={{
+                          cursor: "pointer",
+                          textTransform: "none",
+                          p: 0,
+                          minWidth: 0,
+                          maxWidth: "100%",
+                          justifyContent: "flex-start",
+                          fontWeight: 600,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          "&:hover": { bgcolor: "action.hover" },
                         }}
-                        sx={{ cursor: "pointer" }}
                       >
-                        Transcripción
+                        {refLabel}
                       </Button>
                     ) : (
-                      "—"
+                      <Typography variant="body2" color="text.secondary" component="span">
+                        —
+                      </Typography>
                     )}
+                  </TableCell>
+                  <TableCell align="right">
+                    <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap" useFlexGap>
+                      {canOpenCustomer ? (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<PersonIcon fontSize="small" />}
+                          onClick={() => openCustomerDetail(customerKey)}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          Cliente
+                        </Button>
+                      ) : null}
+                      {showTranscript ? (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => {
+                            setTranscriptBody((row.transcript ?? row.text ?? "").trim())
+                            setTranscriptTitle(`Transcripción · ${row.callSid}`)
+                            setTranscriptOpen(true)
+                          }}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          Transcripción
+                        </Button>
+                      ) : null}
+                      {!canOpenCustomer && !showTranscript ? (
+                        <Typography variant="body2" color="text.secondary" component="span">
+                          —
+                        </Typography>
+                      ) : null}
+                    </Stack>
                   </TableCell>
                 </TableRow>
               )
@@ -243,6 +289,8 @@ export default function CustomersCallLogsPage() {
         transcript={transcriptBody}
         onClose={() => setTranscriptOpen(false)}
       />
+
+      <CustomerDetailDialogCP users={users} />
     </Box>
   )
 }
