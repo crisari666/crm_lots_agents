@@ -16,7 +16,6 @@ import {
   Typography,
 } from "@mui/material"
 import { alpha } from "@mui/material/styles"
-import { fetchUsers } from "../../../app/services/users.service"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { clearListErrorAct, fetchCustomerListAdminThunk } from "../redux/customer-v2.slice"
@@ -28,6 +27,7 @@ import { buildCustomerListQueryParams } from "../utils/build-customer-list-query
 import CustomerDetailDialogCP from "./customer-detail-dialog.cp"
 import CustomerListFiltersCP from "./customer-list-filters.cp"
 import CustomerListItemCP from "./customer-list-item.cp"
+import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50] as const
 
@@ -52,12 +52,20 @@ export default function CustomerListCP({
   const total = useAppSelector((s) => s.customerV2.listTotal)
   const loading = useAppSelector((s) => s.customerV2.listLoading)
   const error = useAppSelector((s) => s.customerV2.listError)
+  const usersFromSlice = useAppSelector((s) =>
+    s.users.usersOriginal.length > 0 ? s.users.usersOriginal : s.users.users,
+  )
+  const gotUsers = useAppSelector((s) => s.users.gotUsers)
 
-  const [users, setUsers] = useState<UserInterface[]>([])
   const [steps, setSteps] = useState<CustomerStepV2[]>([])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(25)
+
+  const users = useMemo(
+    () => usersFromSlice.filter((user) => user.physical === true),
+    [usersFromSlice],
+  )
 
   const userById = useMemo(() => {
     const m = new Map<string, UserInterface>()
@@ -70,10 +78,10 @@ export default function CustomerListCP({
   }, [users])
 
   useEffect(() => {
-    void fetchUsers({ enable: true }).then((list) => {
-      if (Array.isArray(list)) setUsers(list)
-    })
-  }, [])
+    if (!gotUsers) {
+      void dispatch(fetchUsersThunk({ enable: true }))
+    }
+  }, [dispatch, gotUsers])
 
   useEffect(() => {
     void listCustomerStepsV2()
@@ -92,7 +100,7 @@ export default function CustomerListCP({
       skip: page * rowsPerPage,
     }
     await dispatch(fetchCustomerListAdminThunk(params))
-  }, [applied, page, rowsPerPage, refreshVersion, dispatch])
+  }, [applied, page, rowsPerPage, dispatch])
 
   useEffect(() => {
     void load()
