@@ -10,8 +10,8 @@ import CustomerAssigneeCellCP from "./customer-assignee-cell.cp"
 export type CustomerListItemCPProps = {
   row: CustomerAdminListItem
   users: UserInterface[]
-  assignedLabel: string
-  creatorLabel: string
+  assignedUser: Pick<UserInterface, "name" | "lastName" | "email"> | null
+  creatorUser: Pick<UserInterface, "name" | "lastName" | "email"> | null
   createdLabel: string
   onAssigneeUpdated: () => void
 }
@@ -24,8 +24,8 @@ function displayName(row: CustomerAdminListItem): string {
 export default function CustomerListItemCP({
   row,
   users,
-  assignedLabel,
-  creatorLabel,
+  assignedUser,
+  creatorUser,
   createdLabel,
   onAssigneeUpdated,
 }: CustomerListItemCPProps) {
@@ -69,14 +69,48 @@ export default function CustomerListItemCP({
         <CustomerAssigneeCellCP
           row={row}
           users={users}
-          assignedLabel={assignedLabel}
+          assignedUser={assignedUser}
           onAssigneeUpdated={onAssigneeUpdated}
         />
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>
-        <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 220 }}>
-          {creatorLabel}
-        </Typography>
+        {creatorUser ? (
+          <Chip
+            size="small"
+            variant="outlined"
+            label={
+              <span>
+                <Typography variant="caption" sx={{ lineHeight: 1.2 }}>
+                  {`${creatorUser.name ?? ""} ${creatorUser.lastName ?? ""}`.trim() || "Sin nombre"}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+                  {creatorUser.email?.trim() ? creatorUser.email : "Sin email"}
+                </Typography>
+              </span>
+            }
+            sx={{
+              height: "auto",
+              maxWidth: 260,
+              "& .MuiChip-label": {
+                display: "block",
+                py: 0.5,
+                whiteSpace: "normal",
+              },
+            }}
+          />
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            —
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell sx={{ py: 1.5 }}>
+        <Chip
+          label={row.currentStep?.trim() ? row.currentStep : "Sin paso"}
+          size="small"
+          color={row.currentStep?.trim() ? "info" : "default"}
+          variant="outlined"
+        />
       </TableCell>
       <TableCell sx={{ py: 1.5 }}>
         {row.enabled ? (

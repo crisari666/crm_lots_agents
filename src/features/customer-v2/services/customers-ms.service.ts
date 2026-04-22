@@ -29,6 +29,8 @@ export type CustomerAdminListItem = {
   assignedTo?: string
   /** Office user id who created the customer (customers-ms). */
   createdBy?: string
+  /** Current pipeline step name. */
+  currentStep?: string
   /** False when customer disabled in customers-ms. */
   enabled: boolean
   createdAt: string

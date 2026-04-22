@@ -83,12 +83,11 @@ export default function CustomerListCP({
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(25)
 
-  const userLabelById = useMemo(() => {
-    const m = new Map<string, string>()
+  const userById = useMemo(() => {
+    const m = new Map<string, UserInterface>()
     for (const u of users) {
       if (u._id) {
-        const label = `${u.name ?? ""} ${u.lastName ?? ""}`.trim() + (u.email ? ` (${u.email})` : "")
-        m.set(u._id, label || u.email || u._id)
+        m.set(u._id, u)
       }
     }
     return m
@@ -294,6 +293,7 @@ export default function CustomerListCP({
               <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Asignado</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Creador</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Paso actual</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Creación</TableCell>
             </TableRow>
@@ -301,7 +301,7 @@ export default function CustomerListCP({
           <TableBody>
             {!loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
+                <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
                   <Typography color="text.secondary">
                     No hay resultados con los filtros actuales.
                   </Typography>
@@ -309,20 +309,16 @@ export default function CustomerListCP({
               </TableRow>
             ) : (
               items.map((row) => {
-                const assignedLabel = row.assignedTo
-                  ? userLabelById.get(row.assignedTo) ?? row.assignedTo
-                  : ""
-                const creatorLabel = row.createdBy
-                  ? userLabelById.get(row.createdBy) ?? row.createdBy
-                  : "—"
+                const assignedUser = row.assignedTo ? userById.get(row.assignedTo) ?? null : null
+                const creatorUser = row.createdBy ? userById.get(row.createdBy) ?? null : null
                 const createdLabel = moment(row.createdAt).format("DD/MM/YYYY HH:mm")
                 return (
                   <CustomerListItemCP
                     key={row.id}
                     row={row}
                     users={users}
-                    assignedLabel={assignedLabel}
-                    creatorLabel={creatorLabel}
+                    assignedUser={assignedUser}
+                    creatorUser={creatorUser}
                     createdLabel={createdLabel}
                     onAssigneeUpdated={() => void load()}
                   />

@@ -18,14 +18,14 @@ import AssignUserAutocompleteCP from "./assign-user-autocomplete.cp"
 export type CustomerAssigneeCellCPProps = {
   row: CustomerAdminListItem
   users: UserInterface[]
-  assignedLabel: string
+  assignedUser: Pick<UserInterface, "name" | "lastName" | "email"> | null
   onAssigneeUpdated: () => void
 }
 
 export default function CustomerAssigneeCellCP({
   row,
   users,
-  assignedLabel,
+  assignedUser,
   onAssigneeUpdated,
 }: CustomerAssigneeCellCPProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
@@ -87,14 +87,28 @@ export default function CustomerAssigneeCellCP({
 
   const trigger = row.assignedTo ? (
     <Chip
-      label={assignedLabel}
+      label={
+        <Stack spacing={0} sx={{ py: 0.25 }}>
+          <Typography variant="caption" sx={{ lineHeight: 1.2 }}>
+            {`${assignedUser?.name ?? ""} ${assignedUser?.lastName ?? ""}`.trim() || "Sin nombre"}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+            {assignedUser?.email?.trim() ? assignedUser.email : "Sin email"}
+          </Typography>
+        </Stack>
+      }
       size="small"
       variant="outlined"
       onClick={handleOpen}
       sx={{
         cursor: "pointer",
+        height: "auto",
         maxWidth: 260,
-        "& .MuiChip-label": { display: "block", overflow: "hidden", textOverflow: "ellipsis" },
+        "& .MuiChip-label": {
+          display: "block",
+          py: 0.5,
+          whiteSpace: "normal",
+        },
       }}
     />
   ) : (
