@@ -42,6 +42,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
 
     { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
+      { to: "/dashboard/customers-v2/call-logs", Icon: <HistorySharp />, title: "Registro de llamadas" },
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
     ]},
 

@@ -154,3 +154,75 @@ export async function updateCustomerAdmin(
   )
   return response.data
 }
+
+export type CustomerCallLogAdminOutcome =
+  | "answered"
+  | "busy"
+  | "no_answer"
+  | "failed"
+  | "canceled"
+  | "ringing"
+  | "in_progress"
+  | "unknown"
+
+export type CustomerCallLogAdminEvent = {
+  eventType: string
+  timestamp: string
+  status?: string
+  durationSeconds?: number
+  recordingUrl?: string
+  transcript?: string
+  metadata?: Record<string, unknown>
+}
+
+export type CustomerCallLogAdminItem = {
+  id: string
+  callSid: string
+  provider: string
+  from?: string
+  to?: string
+  direction?: string
+  durationSeconds?: number
+  recordingUrl?: string
+  transcript?: string
+  text?: string
+  status?: string
+  customerId?: string
+  customerExternalRef?: string
+  agentExternalRef?: string
+  resolvedOutcome: CustomerCallLogAdminOutcome
+  preCompleteEventType?: string
+  completedAt?: string
+  createdAt: string
+  updatedAt: string
+  events: CustomerCallLogAdminEvent[]
+}
+
+export type ListCallLogsAdminParams = {
+  callFrom?: string
+  callTo?: string
+  outcome?: "all" | "answered" | "busy" | "no_answer"
+  limit?: number
+  skip?: number
+}
+
+export type ListCallLogsAdminResponse = {
+  items: CustomerCallLogAdminItem[]
+  total: number
+}
+
+export async function listCustomerCallLogs(customerId: string): Promise<CustomerCallLogAdminItem[]> {
+  const response = await customersMsAxios.get<CustomerCallLogAdminItem[]>(
+    `admin/customer/${encodeURIComponent(customerId)}/call-logs`
+  )
+  return response.data
+}
+
+export async function listCallLogsAdmin(
+  params: ListCallLogsAdminParams
+): Promise<ListCallLogsAdminResponse> {
+  const response = await customersMsAxios.get<ListCallLogsAdminResponse>("admin/customer/call-logs", {
+    params,
+  })
+  return response.data
+}

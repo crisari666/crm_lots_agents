@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useState } from "react"
 import {
   Alert,
   Box,
@@ -8,33 +8,23 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
-  FormControl,
-  FormControlLabel,
   IconButton,
-  InputLabel,
-  List,
-  ListItem,
-  MenuItem,
-  Select,
-  Stack,
-  Switch,
-  TextField,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material"
 import { Close as CloseIcon } from "@mui/icons-material"
-import moment from "moment"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import type { CustomerAdminDetail, UpdateCustomerAdminBody } from "../services/customers-ms.service"
 import {
   closeCustomerDetailDialogAct,
   fetchCustomerListAdminThunk,
-  setCustomerDetailFormAct,
-  setCustomerDetailInterestedProjectsAct,
   updateCustomerAdminThunk,
 } from "../redux/customer-v2.slice"
-import AssignUserAutocompleteCP from "./assign-user-autocomplete.cp"
+import CustomerCallHistoryTabCP from "./customer-detail/customer-call-history-tab.cp"
+import CustomerDetailFormTabCP from "./customer-detail/customer-detail-form-tab.cp"
+import CustomerDetailNotesTabCP from "./customer-detail/customer-detail-notes-tab.cp"
 
 function buildUpdateBody(form: CustomerAdminDetail): UpdateCustomerAdminBody {
   const interestedProjects = form.interestedProjects
@@ -63,6 +53,7 @@ export type CustomerDetailDialogCPProps = {
 
 export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCPProps) {
   const dispatch = useAppDispatch()
+  const [tab, setTab] = useState(0)
   const dialogOpen = useAppSelector((s) => s.customerV2.dialogOpen)
   const detailForm = useAppSelector((s) => s.customerV2.detailForm)
   const detailLoading = useAppSelector((s) => s.customerV2.detailLoading)
@@ -73,6 +64,7 @@ export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCP
   const handleClose = useCallback(() => {
     if (!detailSaving) {
       dispatch(closeCustomerDetailDialogAct())
+      setTab(0)
     }
   }, [dispatch, detailSaving])
 
@@ -113,195 +105,24 @@ export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCP
           </Alert>
         )}
         {!detailLoading && form && (
-          <Stack spacing={2}>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                label="Nombre"
-                value={form.name ?? ""}
-                onChange={(e) => dispatch(setCustomerDetailFormAct({ name: e.target.value }))}
-                fullWidth
-                size="small"
-                disabled={detailSaving}
-              />
-              <TextField
-                label="Apellido"
-                value={form.lastName ?? ""}
-                onChange={(e) => dispatch(setCustomerDetailFormAct({ lastName: e.target.value }))}
-                fullWidth
-                size="small"
-                disabled={detailSaving}
-              />
-            </Stack>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                label="Teléfono"
-                value={form.phone}
-                onChange={(e) => dispatch(setCustomerDetailFormAct({ phone: e.target.value }))}
-                fullWidth
-                size="small"
-                required
-                disabled={detailSaving}
-              />
-              <TextField
-                label="WhatsApp"
-                value={form.whatsapp ?? ""}
-                onChange={(e) => dispatch(setCustomerDetailFormAct({ whatsapp: e.target.value }))}
-                fullWidth
-                size="small"
-                disabled={detailSaving}
-              />
-            </Stack>
-            <TextField
-              label="Email"
-              value={form.email ?? ""}
-              onChange={(e) => dispatch(setCustomerDetailFormAct({ email: e.target.value }))}
-              fullWidth
-              size="small"
-              disabled={detailSaving}
-            />
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <FormControl size="small" fullWidth disabled={detailSaving}>
-                <InputLabel>Tipo documento</InputLabel>
-                <Select
-                  label="Tipo documento"
-                  value={form.documentType ?? ""}
-                  onChange={(e) =>
-                    dispatch(
-                      setCustomerDetailFormAct({
-                        documentType:
-                          e.target.value === ""
-                            ? undefined
-                            : (e.target.value as "cc" | "passport"),
-                      })
-                    )
-                  }
-                >
-                  <MenuItem value="">
-                    <em>Sin especificar</em>
-                  </MenuItem>
-                  <MenuItem value="cc">Cédula</MenuItem>
-                  <MenuItem value="passport">Pasaporte</MenuItem>
-                </Select>
-              </FormControl>
-              <TextField
-                label="Número documento"
-                value={form.document ?? ""}
-                onChange={(e) => dispatch(setCustomerDetailFormAct({ document: e.target.value }))}
-                fullWidth
-                size="small"
-                disabled={detailSaving}
-              />
-            </Stack>
-            <Box sx={{ minWidth: 280 }}>
-              <AssignUserAutocompleteCP
-                users={users}
-                value={form.assignedTo ?? ""}
-                onChange={(userId) => dispatch(setCustomerDetailFormAct({ assignedTo: userId || undefined }))}
-                disabled={detailSaving}
-                label="Usuario asignado"
-                size="small"
-              />
-            </Box>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={form.enabled}
-                  onChange={(_, v) => dispatch(setCustomerDetailFormAct({ enabled: v }))}
-                  disabled={detailSaving}
-                />
-              }
-              label="Cliente activo"
-            />
-            <Divider />
-            <Typography variant="subtitle2" fontWeight={600}>
-              Proyectos de interés
-            </Typography>
-            <Stack spacing={1}>
-              {form.interestedProjects.map((row, index) => (
-                <Stack key={`${row.projectId}-${index}`} direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="flex-start">
-                  <TextField
-                    label="Project ID"
-                    value={row.projectId}
-                    onChange={(e) => {
-                      const next = [...form.interestedProjects]
-                      next[index] = { ...next[index], projectId: e.target.value }
-                      dispatch(setCustomerDetailInterestedProjectsAct(next))
-                    }}
-                    size="small"
-                    fullWidth
-                    disabled={detailSaving}
-                  />
-                  <TextField
-                    label="Fecha (ISO)"
-                    value={row.date}
-                    onChange={(e) => {
-                      const next = [...form.interestedProjects]
-                      next[index] = { ...next[index], date: e.target.value }
-                      dispatch(setCustomerDetailInterestedProjectsAct(next))
-                    }}
-                    size="small"
-                    fullWidth
-                    disabled={detailSaving}
-                    helperText="Ej. fecha del interés"
-                  />
-                  <Button
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      const next = form.interestedProjects.filter((_, i) => i !== index)
-                      dispatch(setCustomerDetailInterestedProjectsAct(next))
-                    }}
-                    disabled={detailSaving}
-                    sx={{ cursor: "pointer", mt: { xs: 0, sm: 0.5 } }}
-                  >
-                    Quitar
-                  </Button>
-                </Stack>
-              ))}
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() =>
-                  dispatch(
-                    setCustomerDetailInterestedProjectsAct([
-                      ...form.interestedProjects,
-                      { projectId: "", date: new Date().toISOString() },
-                    ])
-                  )
-                }
-                disabled={detailSaving}
-                sx={{ cursor: "pointer", alignSelf: "flex-start" }}
-              >
-                Añadir proyecto
-              </Button>
-            </Stack>
-            <Divider />
-            <Typography variant="subtitle2" fontWeight={600}>
-              Notas ({form.notes.length})
-            </Typography>
-            {form.notes.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                Sin notas registradas.
-              </Typography>
-            ) : (
-              <List dense sx={{ bgcolor: "grey.50", borderRadius: 1, maxHeight: 240, overflow: "auto" }}>
-                {form.notes.map((n) => (
-                  <ListItem key={n.id} sx={{ flexDirection: "column", alignItems: "stretch", borderBottom: 1, borderColor: "divider" }}>
-                    <Typography variant="caption" color="text.secondary">
-                      {moment(n.date).format("DD/MM/YYYY HH:mm")} · usuario {n.user}
-                    </Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", pt: 0.5 }}>
-                      {n.description}
-                    </Typography>
-                  </ListItem>
-                ))}
-              </List>
+          <>
+            <Tabs
+              value={tab}
+              onChange={(_, v) => setTab(v)}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}
+            >
+              <Tab label="Cliente" sx={{ cursor: "pointer", textTransform: "none" }} />
+              <Tab label={`Notas (${form.notes.length})`} sx={{ cursor: "pointer", textTransform: "none" }} />
+              <Tab label="Llamadas" sx={{ cursor: "pointer", textTransform: "none" }} />
+            </Tabs>
+            {tab === 0 && (
+              <CustomerDetailFormTabCP form={form} users={users} detailSaving={detailSaving} dispatch={dispatch} />
             )}
-            <Typography variant="caption" color="text.secondary">
-              Creado: {moment(form.createdAt).format("DD/MM/YYYY HH:mm")} · creado por {form.createdBy}
-              {form.updatedAt !== undefined ? ` · actualizado ${moment(form.updatedAt).format("DD/MM/YYYY HH:mm")}` : ""}
-            </Typography>
-          </Stack>
+            {tab === 1 && <CustomerDetailNotesTabCP notes={form.notes} />}
+            {tab === 2 && <CustomerCallHistoryTabCP customerId={form.id} />}
+          </>
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>
