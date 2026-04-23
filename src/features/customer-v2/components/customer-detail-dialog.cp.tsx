@@ -23,6 +23,7 @@ import {
   updateCustomerAdminThunk,
 } from "../redux/customer-v2.slice"
 import CustomerCallHistoryTabCP from "./customer-detail/customer-call-history-tab.cp"
+import CustomerConversationsTabCP from "./customer-detail/customer-conversations-tab.cp"
 import CustomerDetailFormTabCP from "./customer-detail/customer-detail-form-tab.cp"
 import CustomerDetailNotesTabCP from "./customer-detail/customer-detail-notes-tab.cp"
 
@@ -116,12 +117,14 @@ export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCP
               <Tab label="Cliente" sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label={`Notas (${form.notes.length})`} sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label="Llamadas" sx={{ cursor: "pointer", textTransform: "none" }} />
+              <Tab label="Conversaciones" sx={{ cursor: "pointer", textTransform: "none" }} />
             </Tabs>
             {tab === 0 && (
               <CustomerDetailFormTabCP form={form} users={users} detailSaving={detailSaving} dispatch={dispatch} />
             )}
             {tab === 1 && <CustomerDetailNotesTabCP notes={form.notes} />}
             {tab === 2 && <CustomerCallHistoryTabCP customerId={form.id} />}
+            {tab === 3 && <CustomerConversationsTabCP />}
           </>
         )}
       </DialogContent>
