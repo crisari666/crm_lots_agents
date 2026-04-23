@@ -12,6 +12,12 @@ export const customersMsAxios = axios.create({
   },
 })
 
+/** Merge into request `headers` so admin routes always carry office JWT (same key as interceptor). */
+export function customersMsAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem(OmegaSoftConstants.localstorageTokenKey)
+  return token ? { token } : {}
+}
+
 customersMsAxios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem(OmegaSoftConstants.localstorageTokenKey)
   if (token) {
