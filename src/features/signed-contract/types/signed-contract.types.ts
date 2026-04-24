@@ -1,3 +1,5 @@
+export type SignedContractSignStatusFilter = "all" | "signed" | "unsigned"
+
 export type SignedContractListItem = {
   readonly id: string
   readonly userId: string
@@ -7,6 +9,8 @@ export type SignedContractListItem = {
   readonly dateSigned: string | null
   readonly signed: boolean
   readonly signedPdfLink: string | null
+  /** Agent-app signing URL (resend if email missing). */
+  readonly signUrl: string | null
   /** Present when row is grouped by email in UI. */
   readonly sendCount?: number
 }

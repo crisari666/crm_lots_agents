@@ -20,6 +20,7 @@ export function groupSignedContractsByEmail(
         new Date(b.dateSent).getTime() - new Date(a.dateSent).getTime(),
     )
     const latest = sorted[0]
+    const linkSource = sorted.find((r) => !r.signed) ?? latest
     const anySigned = sorted.some((r) => r.signed)
     const signedRows = sorted.filter((r) => r.signed)
     const signedTimes = signedRows
@@ -44,6 +45,7 @@ export function groupSignedContractsByEmail(
       dateSigned: anySigned ? maxSignedIso : null,
       dateSent: latest.dateSent,
       signedPdfLink: anySigned ? latestSignedPdfLink : null,
+      signUrl: linkSource.signUrl ?? null,
       sendCount: group.length,
     })
   }

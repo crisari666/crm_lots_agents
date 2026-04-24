@@ -1,12 +1,16 @@
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"
+import ContentCopyIcon from "@mui/icons-material/ContentCopy"
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import IconButton from "@mui/material/IconButton"
 import Chip from "@mui/material/Chip"
 import Link from "@mui/material/Link"
+import Stack from "@mui/material/Stack"
 import TableCell from "@mui/material/TableCell"
 import TableRow from "@mui/material/TableRow"
 import Tooltip from "@mui/material/Tooltip"
+import Typography from "@mui/material/Typography"
+import { useCallback, useState } from "react"
 import type { SignedContractListItem } from "../types/signed-contract.types"
 
 function formatDateTime(iso: string | null): string {
@@ -23,6 +27,69 @@ function formatDateTime(iso: string | null): string {
   })
 }
 
+function SigningLinkCell({ signUrl }: { readonly signUrl: string }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(signUrl)
+      setCopied(true)
+      window.setTimeout(() => {
+        setCopied(false)
+      }, 2000)
+    } catch {
+      setCopied(false)
+    }
+  }, [signUrl])
+  return (
+    <TableCell sx={{ maxWidth: 320 }}>
+      <Stack direction="row" alignItems="center" spacing={0.5}>
+        <Tooltip title={signUrl}>
+          <Typography
+            variant="body2"
+            component="span"
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {signUrl}
+          </Typography>
+        </Tooltip>
+        <Tooltip title={copied ? "Copiado" : "Copiar enlace"}>
+          <span>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() => {
+                void handleCopy()
+              }}
+              aria-label="Copiar enlace de firma"
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Abrir en nueva pestaña">
+          <IconButton
+            component={Link}
+            href={signUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+            color="primary"
+            aria-label="Abrir enlace de firma en nueva pestaña"
+          >
+            <OpenInNewIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+    </TableCell>
+  )
+}
+
 export default function SignedContractItem({
   item,
   showSendCountColumn,
@@ -34,6 +101,15 @@ export default function SignedContractItem({
     <TableRow hover>
       <TableCell>{item.userEmail}</TableCell>
       <TableCell>{item.name}</TableCell>
+      {item.signUrl != null && item.signUrl !== "" ? (
+        <SigningLinkCell signUrl={item.signUrl} />
+      ) : (
+        <TableCell>
+          <Typography variant="body2" color="text.secondary">
+            —
+          </Typography>
+        </TableCell>
+      )}
       {showSendCountColumn ? (
         <TableCell align="right">{item.sendCount ?? 1}</TableCell>
       ) : null}
@@ -58,6 +134,7 @@ export default function SignedContractItem({
               rel="noopener noreferrer"
               size="small"
               color="primary"
+              aria-label="Abrir PDF firmado"
             >
               <OpenInNewIcon fontSize="small" />
             </IconButton>

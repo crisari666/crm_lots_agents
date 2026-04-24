@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import { fetchSignedContractHistoryReq } from "../services/agent-contract-sign-admin.service"
+import type { SignedContractSignStatusFilter } from "../types/signed-contract.types"
 import type { SignedContractState } from "./signed-contract.state"
 
 const initialState: SignedContractState = {
@@ -7,7 +8,7 @@ const initialState: SignedContractState = {
   sentFrom: "",
   sentTo: "",
   groupRepeatedByEmail: false,
-  onlySigned: false,
+  signStatusFilter: "all",
   isLoading: false,
   error: null,
 }
@@ -35,8 +36,11 @@ const signedContractSlice = createSlice({
     setGroupRepeatedByEmailAct: (state, action: PayloadAction<boolean>) => {
       state.groupRepeatedByEmail = action.payload
     },
-    setOnlySignedFilterAct: (state, action: PayloadAction<boolean>) => {
-      state.onlySigned = action.payload
+    setSignStatusFilterAct: (
+      state,
+      action: PayloadAction<SignedContractSignStatusFilter>,
+    ) => {
+      state.signStatusFilter = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -64,7 +68,7 @@ export const {
   setSentToFilterAct,
   clearSignedContractErrorAct,
   setGroupRepeatedByEmailAct,
-  setOnlySignedFilterAct,
+  setSignStatusFilterAct,
 } = signedContractSlice.actions
 
 export default signedContractSlice.reducer
