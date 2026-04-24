@@ -29,6 +29,10 @@ export function groupSignedContractsByEmail(
       signedTimes.length > 0
         ? new Date(Math.max(...signedTimes)).toISOString()
         : signedRows[0]?.dateSigned ?? null
+    const latestSignedPdfLink =
+      signedRows.find(
+        (row) => row.signedPdfLink != null && row.signedPdfLink.trim() !== "",
+      )?.signedPdfLink ?? null
     const bestName =
       sorted.find((r) => r.name.trim() !== "")?.name ?? latest.name
     const emailKey = latest.userEmail.trim().toLowerCase()
@@ -39,6 +43,7 @@ export function groupSignedContractsByEmail(
       signed: anySigned,
       dateSigned: anySigned ? maxSignedIso : null,
       dateSent: latest.dateSent,
+      signedPdfLink: anySigned ? latestSignedPdfLink : null,
       sendCount: group.length,
     })
   }

@@ -6,6 +6,7 @@ export type SignedContractListItem = {
   readonly dateSent: string
   readonly dateSigned: string | null
   readonly signed: boolean
+  readonly signedPdfLink: string | null
   /** Present when row is grouped by email in UI. */
   readonly sendCount?: number
 }

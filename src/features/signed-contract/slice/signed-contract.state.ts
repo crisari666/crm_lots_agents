@@ -5,6 +5,7 @@ export type SignedContractState = {
   readonly sentFrom: string
   readonly sentTo: string
   readonly groupRepeatedByEmail: boolean
+  readonly onlySigned: boolean
   readonly isLoading: boolean
   readonly error: string | null
 }

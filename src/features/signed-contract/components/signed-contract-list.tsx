@@ -16,15 +16,16 @@ import { groupSignedContractsByEmail } from "../utils/group-signed-contracts-by-
 import SignedContractItem from "./signed-contract-item"
 
 export default function SignedContractList() {
-  const { items, error, isLoading, groupRepeatedByEmail } = useAppSelector(
+  const { items, error, isLoading, groupRepeatedByEmail, onlySigned } = useAppSelector(
     (state: RootState) => state.signedContract,
   )
   const displayRows = useMemo(() => {
+    const filteredItems = onlySigned ? items.filter((item) => item.signed) : items
     if (groupRepeatedByEmail) {
-      return groupSignedContractsByEmail(items)
+      return groupSignedContractsByEmail(filteredItems)
     }
-    return items
-  }, [items, groupRepeatedByEmail])
+    return filteredItems
+  }, [items, groupRepeatedByEmail, onlySigned])
   if (error != null && error !== "") {
     return <Alert severity="error">{error}</Alert>
   }
@@ -55,6 +56,7 @@ export default function SignedContractList() {
             <TableCell>Fecha envío</TableCell>
             <TableCell>Fecha firma</TableCell>
             <TableCell>Estado</TableCell>
+            <TableCell align="center">Abrir firmado</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
