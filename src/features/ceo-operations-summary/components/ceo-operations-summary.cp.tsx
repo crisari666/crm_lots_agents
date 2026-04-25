@@ -1,7 +1,9 @@
 import CampaignOutlined from "@mui/icons-material/CampaignOutlined"
 import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined"
 import GroupsOutlined from "@mui/icons-material/GroupsOutlined"
+import PersonAddAltOutlined from "@mui/icons-material/PersonAddAltOutlined"
 import SchoolOutlined from "@mui/icons-material/SchoolOutlined"
+import VerifiedOutlined from "@mui/icons-material/VerifiedOutlined"
 import {
   Alert,
   Box,
@@ -156,6 +158,18 @@ export default function CeoOperationsSummaryCP() {
           gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))",
         }}
       >
+        <KpiCard
+          title="Usuarios nuevos (rango)"
+          value={summary?.usersCreatedInRangeTotal ?? "—"}
+          subtitle="Altas en el rango (todos los niveles de cuenta)"
+          icon={<PersonAddAltOutlined fontSize="small" />}
+        />
+        <KpiCard
+          title="Ventores activos (nivel 4)"
+          value={summary?.activeVentorsTotal ?? "—"}
+          subtitle="Cuentas ventor habilitadas, sin fecha de salida (no depende del rango)"
+          icon={<VerifiedOutlined fontSize="small" />}
+        />
         <KpiCard title="Leads Meta" value={summary?.metaLeadsTotal ?? "—"} subtitle="Registros en rango" icon={<CampaignOutlined fontSize="small" />} />
         <KpiCard
           title="Usuarios únicos (leads)"

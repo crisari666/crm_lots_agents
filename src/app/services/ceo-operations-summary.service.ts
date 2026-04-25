@@ -4,6 +4,10 @@ export type CeoOperationsSummaryResult = {
   range: { fromIso: string; toIso: string }
   metaLeadsTotal: number
   metaLeadsDistinctUserTotal: number
+  /** Users created in range (`createdAt`), all levels. */
+  usersCreatedInRangeTotal: number
+  /** Ventors (level 4) with enable true and no leaveDate; snapshot total. */
+  activeVentorsTotal: number
   contractsSentTotal: number
   /** Distinct ventors (user level 4) with a signature in range. */
   contractsSignedTotal: number
