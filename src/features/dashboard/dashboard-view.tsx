@@ -114,7 +114,7 @@ export default function DashboardView() {
         <SessionHandler onSessionStart={() => handleSocket()} socket={socket} />
         {showModalConnection === true &&  <NotConnectedDialog/>}
         {showModalConnection === false && <Box sx={{ display: "flex", width: "100%", position: "relative", minHeight: '100%' }}>
-          <HandleGeolocation/>
+          {/* <HandleGeolocation/> */}
           <AlertsStack/>
           <AppDrawer />
           {/* <CssBaseline /> */}
