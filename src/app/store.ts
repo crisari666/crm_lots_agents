@@ -53,6 +53,7 @@ import customerCallLogsReducer from "../features/customer-v2/redux/customer-call
 import customerConversationsReducer from "../features/customer-v2/redux/customer-conversations.slice"
 import projectReleasesReducer from "../features/project-release/slice/project-releases.slice"
 import signedContractReducer from "../features/signed-contract/slice/signed-contract.slice"
+import signupCampaignReducer from "../features/signup-campaign/slice/signup-campaign.slice"
 import ceoOperationsSummaryReducer from "../features/ceo-operations-summary/slice/ceo-operations-summary.slice"
 
 export const store = configureStore({
@@ -121,6 +122,7 @@ export const store = configureStore({
     customerConversations: customerConversationsReducer,
     reports: reportsSlice,
     signedContract: signedContractReducer,
+    signupCampaign: signupCampaignReducer,
     ceoOperationsSummary: ceoOperationsSummaryReducer,
   },
 })
