@@ -197,17 +197,17 @@ export const recreateImportSchedulesForSelectedUserIdsThunk = createAsyncThunk<
         includeSpecificUpdate,
         containsStatusInLogs
       } = getState().usersOnboardingStatus
-      const userIds = Array.from(
+      const leadCandidateIds = Array.from(
         new Set(
           selectedRescheduleUserIds.filter((id) => typeof id === "string" && id.trim() !== "")
         )
       )
 
-      if (userIds.length === 0) {
+      if (leadCandidateIds.length === 0) {
         return rejectWithValue("noRescheduleSelection")
       }
 
-      const result = await recreateImportSchedulesReq({ userIds, importFirstStep })
+      const result = await recreateImportSchedulesReq({ leadCandidateIds, importFirstStep })
       await dispatch(
         fetchUsersOnboardingStatusThunk({
           statuses: statusFilter,

@@ -134,12 +134,12 @@ export type OnboardingFlowsDeleteResponse = {
 export type OnboardingRecreateScheduleItemStatus =
   | "scheduled"
   | "immediate_triggered"
-  | "user_not_found"
+  | "lead_candidate_not_found"
   | "missing_phone"
 
 export type OnboardingRecreateSchedulesResponse = {
   result: Array<{
-    userId: string
+    leadCandidateId: string
     status: OnboardingRecreateScheduleItemStatus
   }>
   message: string

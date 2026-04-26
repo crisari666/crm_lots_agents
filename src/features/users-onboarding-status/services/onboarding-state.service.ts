@@ -288,17 +288,17 @@ export async function deleteOnboardingFlowsReq(flowIds: string[]): Promise<{ del
 }
 
 export async function recreateImportSchedulesReq({
-  userIds,
+  leadCandidateIds,
   importFirstStep
 }: {
-  userIds: string[]
+  leadCandidateIds: string[]
   importFirstStep: UserImportFirstStepType
 }): Promise<OnboardingRecreateSchedulesResponse["result"]> {
   try {
     const api = Api.getInstance()
     const response = (await api.post({
       path: "onboarding-state/import/recreate-schedules",
-      data: { userIds, importFirstStep }
+      data: { leadCandidateIds, importFirstStep }
     })) as OnboardingRecreateSchedulesResponse | { message: string; error: string } | undefined
 
     if (response == null) {
