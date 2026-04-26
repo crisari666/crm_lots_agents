@@ -147,7 +147,7 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
         includeSpecificUpdate,
         containsStatusInLogs
       } = getState().usersOnboardingStatus
-      const userIds = Array.from(
+      const leadCandidateIds = Array.from(
         new Set(
           items
             .filter((x) => x.status === "Needs_human_whatsapp")
@@ -156,12 +156,12 @@ export const recreateImportSchedulesForNeedsHumanWhatsappThunk = createAsyncThun
         )
       )
 
-      if (userIds.length === 0) {
+      if (leadCandidateIds.length === 0) {
         return rejectWithValue("noNeedsHumanWhatsappUsers")
       }
 
       const result = await recreateImportSchedulesReq({
-        userIds,
+        leadCandidateIds,
         importFirstStep: "scheduled_whatsapp_import_greeting"
       })
       await dispatch(
