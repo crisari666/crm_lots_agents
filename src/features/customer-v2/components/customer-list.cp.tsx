@@ -49,6 +49,7 @@ export default function CustomerListCP({
 }: CustomerListCPProps) {
   const dispatch = useAppDispatch()
   const items = useAppSelector((s) => s.customerV2.listItems)
+  const stepDistribution = useAppSelector((s) => s.customerV2.listStepDistribution)
   const total = useAppSelector((s) => s.customerV2.listTotal)
   const loading = useAppSelector((s) => s.customerV2.listLoading)
   const error = useAppSelector((s) => s.customerV2.listError)
@@ -104,6 +105,7 @@ export default function CustomerListCP({
   }, [load])
 
   const stepDigest = useMemo(() => aggregateStepsFromListItems(items), [items])
+  const hasStepSummary = stepDigest.length > 0 || stepDistribution.length > 0
 
   useLayoutEffect(() => {
     setPage(0)
@@ -141,35 +143,71 @@ export default function CustomerListCP({
         steps={steps}
       />
 
-      {stepDigest.length > 0 && (
+      {hasStepSummary && (
         <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
             Total por paso en filas mostradas (esta página)
           </Typography>
-          <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
-            {stepDigest.map((row) => {
-              const c = row.color?.trim()
-              return (
-                <Chip
-                  key={row.customerStepId ?? "__none__"}
-                  size="small"
-                  variant="outlined"
-                  label={`${row.name}: ${row.count}`}
-                  sx={{
-                    cursor: "default",
-                    maxWidth: 320,
-                    "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
-                    ...(c
-                      ? {
-                          borderColor: c,
-                          bgcolor: alpha(c, 0.12),
-                        }
-                      : {}),
-                  }}
-                />
-              )
-            })}
-          </Stack>
+          {stepDigest.length === 0 ? (
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+              Sin filas visibles en esta página.
+            </Typography>
+          ) : (
+            <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1} sx={{ mb: 1 }}>
+              {stepDigest.map((row) => {
+                const c = row.color?.trim()
+                return (
+                  <Chip
+                    key={`page_${row.customerStepId ?? "__none__"}`}
+                    size="small"
+                    variant="outlined"
+                    label={`${row.name}: ${row.count}`}
+                    sx={{
+                      cursor: "default",
+                      maxWidth: 320,
+                      "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
+                      ...(c
+                        ? {
+                            borderColor: c,
+                            bgcolor: alpha(c, 0.12),
+                          }
+                        : {}),
+                    }}
+                  />
+                )
+              })}
+            </Stack>
+          )}
+          {stepDistribution.length === 0 ? (
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+              Sin resultados en backend para resumir por paso.
+            </Typography>
+          ) : (
+            <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
+              {stepDistribution.map((row) => {
+                const c = row.color?.trim()
+                return (
+                  <Chip
+                    key={`all_${row.customerStepId ?? "__none__"}`}
+                    size="small"
+                    variant="outlined"
+                    label={`${row.name}: ${row.count}`}
+                    sx={{
+                      cursor: "default",
+                      maxWidth: 320,
+                      "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
+                      ...(c
+                        ? {
+                            borderColor: c,
+                            bgcolor: alpha(c, 0.12),
+                          }
+                        : {}),
+                    }}
+                  />
+                )
+              })}
+            </Stack>
+          )}
         </Box>
       )}
 

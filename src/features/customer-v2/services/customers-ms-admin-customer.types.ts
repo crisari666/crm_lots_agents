@@ -34,6 +34,7 @@ export type CustomerAdminListItem = {
 export type CustomerAdminListResponse = {
   items: CustomerAdminListItem[]
   total: number
+  stepDistribution: CustomerStepDistributionItem[]
 }
 
 export type CustomerStepDistributionItem = {

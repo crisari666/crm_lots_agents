@@ -12,6 +12,7 @@ import {
 
 export type CustomerV2State = {
   listItems: CustomerAdminListResponse["items"]
+  listStepDistribution: CustomerAdminListResponse["stepDistribution"]
   listTotal: number
   listLoading: boolean
   listError: string | null
@@ -27,6 +28,7 @@ export type CustomerV2State = {
 
 const initialState: CustomerV2State = {
   listItems: [],
+  listStepDistribution: [],
   listTotal: 0,
   listLoading: false,
   listError: null,
@@ -136,6 +138,7 @@ const customerV2Slice = createSlice({
       .addCase(fetchCustomerListAdminThunk.fulfilled, (state, action) => {
         state.listLoading = false
         state.listItems = action.payload.items
+        state.listStepDistribution = action.payload.stepDistribution
         state.listTotal = action.payload.total
       })
       .addCase(fetchCustomerListAdminThunk.rejected, (state, action) => {
@@ -145,6 +148,7 @@ const customerV2Slice = createSlice({
           action.error.message ??
           "No se pudo cargar la lista de clientes."
         state.listItems = []
+        state.listStepDistribution = []
         state.listTotal = 0
       })
       .addCase(fetchCustomerAdminDetailThunk.pending, (state) => {
