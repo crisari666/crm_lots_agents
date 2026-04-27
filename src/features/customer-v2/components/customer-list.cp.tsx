@@ -178,6 +178,9 @@ export default function CustomerListCP({
               })}
             </Stack>
           )}
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+            Total por paso en todos los resultados filtrados (backend): {total}
+          </Typography>
           {stepDistribution.length === 0 ? (
             <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
               Sin resultados en backend para resumir por paso.
