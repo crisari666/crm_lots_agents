@@ -59,6 +59,7 @@ import StepsV2Page from "../features/steps-v2/pages/steps-v2-page"
 import ProjectReleasesPage from "../features/project-release/pages/project-releases-page"
 import SignedContractView from "../features/signed-contract/signed-contract-view"
 import SignupCampaignView from "../features/signup-campaign/signup-campaign-view"
+import CeoLeadsResumePage from "../features/ceo-operations-summary/pages/ceo-leads-resume-page"
 
 
 const router = createBrowserRouter([
@@ -137,6 +138,7 @@ const router = createBrowserRouter([
     { path: "audits", element: <AuditsPage /> },
     { path: "alerts", element: <AlertsView /> },
     { path: "lead-alerts", element: <LeadAlertsView /> },
+    { path: "ceo-leads-resume", element: <CeoLeadsResumePage /> },
     
     //User
     { path: "handle-user", element: <HandleUserView /> },

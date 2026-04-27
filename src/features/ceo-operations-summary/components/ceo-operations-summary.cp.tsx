@@ -10,6 +10,9 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Paper,
   Stack,
   Typography,
@@ -25,23 +28,34 @@ import {
   clearCeoOperationsSummaryErrorAct,
   fetchCeoOperationsSummaryThunk,
 } from "../slice/ceo-operations-summary.slice"
+import CeoLeadsResumePanelCP from "./ceo-leads-resume-panel.cp"
 
 function KpiCard(props: {
   title: string
   value: string | number
   subtitle?: string
   icon: ReactNode
+  onClick?: () => void
 }) {
+  const isClickable = props.onClick !== undefined
   return (
     <Paper
       variant="outlined"
+      onClick={props.onClick}
       sx={{
         p: 1.25,
         height: "100%",
         minHeight: 118,
-        cursor: "default",
+        cursor: isClickable ? "pointer" : "default",
         display: "flex",
         flexDirection: "column",
+        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": isClickable
+          ? {
+              borderColor: "primary.main",
+              boxShadow: (theme) => theme.shadows[2],
+            }
+          : undefined,
       }}
     >
       <Stack direction="row" spacing={1} alignItems="flex-start" justifyContent="space-between" sx={{ flex: 1 }}>
@@ -71,6 +85,8 @@ export default function CeoOperationsSummaryCP() {
   )
   const [from, setFrom] = useState<Moment>(() => moment().subtract(29, "days").startOf("day"))
   const [to, setTo] = useState<Moment>(() => moment().endOf("day"))
+  const [isLeadsResumeOpen, setIsLeadsResumeOpen] = useState<boolean>(false)
+  const [includeDetails, setIncludeDetails] = useState<boolean>(false)
 
   const dispatchFetch = useCallback(() => {
     const fromIso = from.clone().startOf("day").toISOString()
@@ -105,6 +121,8 @@ export default function CeoOperationsSummaryCP() {
       : null
 
   const crmV2Display = crmV2Total !== null ? crmV2Total : crmV2Skipped ? "N/A" : "—"
+  const fromIso = from.clone().startOf("day").toISOString()
+  const toDayStartIso = to.clone().startOf("day").toISOString()
 
   return (
     <Stack spacing={1.5} sx={{ mb: 2 }}>
@@ -170,7 +188,13 @@ export default function CeoOperationsSummaryCP() {
           subtitle="Cuentas ventor habilitadas, sin fecha de salida (no depende del rango)"
           icon={<VerifiedOutlined fontSize="small" />}
         />
-        <KpiCard title="Leads Meta" value={summary?.metaLeadsTotal ?? "—"} subtitle="Registros en rango" icon={<CampaignOutlined fontSize="small" />} />
+        <KpiCard
+          title="Leads Meta"
+          value={summary?.metaLeadsTotal ?? "—"}
+          subtitle="Registros en rango"
+          icon={<CampaignOutlined fontSize="small" />}
+          onClick={() => setIsLeadsResumeOpen(true)}
+        />
         <KpiCard
           title="Usuarios únicos (leads)"
           value={summary?.metaLeadsDistinctUserTotal ?? "—"}
@@ -190,6 +214,26 @@ export default function CeoOperationsSummaryCP() {
         <KpiCard title="Capacitaciones (asistentes)" value={summary?.trainingAttendeesTotal ?? "—"} subtitle="Filas en rango" icon={<SchoolOutlined fontSize="small" />} />
         <KpiCard title="Clientes CRM (V2)" value={crmV2Display} subtitle="Alta en customers-ms" icon={<GroupsOutlined fontSize="small" />} />
       </Box>
+      <Dialog
+        open={isLeadsResumeOpen}
+        onClose={() => {
+          setIsLeadsResumeOpen(false)
+          setIncludeDetails(false)
+        }}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>Leads Resume By Day</DialogTitle>
+        <DialogContent>
+          <CeoLeadsResumePanelCP
+            fromIso={fromIso}
+            toMonolithIso={toDayStartIso}
+            isEnabled={isLeadsResumeOpen}
+            includeDetails={includeDetails}
+            onToggleIncludeDetails={setIncludeDetails}
+          />
+        </DialogContent>
+      </Dialog>
     </Stack>
   )
 }

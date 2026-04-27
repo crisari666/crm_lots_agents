@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { getCeoOperationsSummaryReq } from "../../../app/services/ceo-operations-summary.service"
+import {
+  getCeoLeadsResumeReq,
+  getCeoOperationsSummaryReq,
+} from "../../../app/services/ceo-operations-summary.service"
 import { listCustomersAdmin } from "../../customer-v2/services/customers-ms.service"
 import type { CeoOperationsSummaryState } from "./ceo-operations-summary.state"
 
@@ -10,6 +13,9 @@ const initialState: CeoOperationsSummaryState = {
   isLoading: false,
   error: null,
   crmError: null,
+  leadsResume: null,
+  isLeadsResumeLoading: false,
+  leadsResumeError: null,
 }
 
 export type FetchCeoOperationsSummaryParams = {
@@ -46,6 +52,22 @@ export const fetchCeoOperationsSummaryThunk = createAsyncThunk(
   }
 )
 
+export type FetchCeoLeadsResumeParams = {
+  readonly fromIso: string
+  readonly toMonolithIso: string
+  readonly includeDetails: boolean
+}
+
+export const fetchCeoLeadsResumeThunk = createAsyncThunk(
+  "ceoOperationsSummary/fetchLeadsResume",
+  async (params: FetchCeoLeadsResumeParams) =>
+    getCeoLeadsResumeReq({
+      from: params.fromIso,
+      to: params.toMonolithIso,
+      includeDetails: params.includeDetails,
+    })
+)
+
 const ceoOperationsSummarySlice = createSlice({
   name: "ceoOperationsSummary",
   initialState,
@@ -55,6 +77,9 @@ const ceoOperationsSummarySlice = createSlice({
     },
     clearCeoOperationsSummaryCrmErrorAct: (state) => {
       state.crmError = null
+    },
+    clearCeoLeadsResumeErrorAct: (state) => {
+      state.leadsResumeError = null
     },
   },
   extraReducers: (builder) => {
@@ -79,10 +104,30 @@ const ceoOperationsSummarySlice = createSlice({
         state.error =
           action.error.message != null ? action.error.message : "Error al cargar datos"
       })
+      .addCase(fetchCeoLeadsResumeThunk.pending, (state) => {
+        state.isLeadsResumeLoading = true
+        state.leadsResumeError = null
+      })
+      .addCase(fetchCeoLeadsResumeThunk.fulfilled, (state, action) => {
+        state.isLeadsResumeLoading = false
+        state.leadsResume = action.payload
+      })
+      .addCase(fetchCeoLeadsResumeThunk.rejected, (state, action) => {
+        state.isLeadsResumeLoading = false
+        state.leadsResume = null
+        state.leadsResumeError =
+          action.error.message != null
+            ? action.error.message
+            : "Error al cargar el resumen de leads"
+      })
   },
 })
 
-export const { clearCeoOperationsSummaryErrorAct, clearCeoOperationsSummaryCrmErrorAct } =
+export const {
+  clearCeoOperationsSummaryErrorAct,
+  clearCeoOperationsSummaryCrmErrorAct,
+  clearCeoLeadsResumeErrorAct,
+} =
   ceoOperationsSummarySlice.actions
 
 export default ceoOperationsSummarySlice.reducer
