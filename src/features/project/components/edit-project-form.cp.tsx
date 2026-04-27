@@ -64,6 +64,7 @@ function projectToFormState(project: {
   lat: number
   lng: number
   priceSell: number
+  priceSellUsd?: number
   commissionPercentage: number
   commissionValue: number
   separation?: number
@@ -84,12 +85,14 @@ function projectToFormState(project: {
     lat: project.lat,
     lng: project.lng,
     priceSell: project.priceSell,
+    priceSellUsd: project.priceSellUsd ?? 0,
     commissionPercentage: project.commissionPercentage,
     commissionValue: project.commissionValue,
     separation: project.separation ?? 0,
     lotOptions: lotOptionsFromApi.map((o) => ({
       area: o.area ?? 0,
-      price: o.price ?? 0
+      price: o.price ?? 0,
+      priceUsd: o.priceUsd ?? 0
     })),
     amenitiesGroups: groupsFromApi.map((g) => ({
       icon: g.icon ?? "category",
@@ -275,6 +278,7 @@ export default function EditProjectFormCP() {
       lat: form.lat,
       lng: form.lng,
       priceSell: form.priceSell,
+      priceSellUsd: form.priceSellUsd,
       commissionPercentage: form.commissionPercentage,
       commissionValue: (form.priceSell * form.commissionPercentage) / 100,
       separation: form.separation,

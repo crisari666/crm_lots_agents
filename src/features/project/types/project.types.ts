@@ -10,10 +10,11 @@ export type ProjectAmenitiesGroup = {
   amenities: string[]
 }
 
-/** Lot variant for sale (area e.g. m² and price) — API subdocuments without _id */
+/** Lot variant: area, COP `price`, optional USD reference `priceUsd` — API subdocuments without _id */
 export type ProjectLotOption = {
   area: number
   price: number
+  priceUsd?: number
 }
 
 export type ProjectType = {
@@ -28,7 +29,10 @@ export type ProjectType = {
   country?: string
   lat: number
   lng: number
+  /** Primary list price in COP */
   priceSell: number
+  /** Optional parallel list price in USD */
+  priceSellUsd?: number
   deleted?: boolean
   enabled?: boolean
   commissionPercentage: number
@@ -66,6 +70,7 @@ export type CreateProjectDto = {
   lat: number
   lng: number
   priceSell: number
+  priceSellUsd?: number
   commissionPercentage: number
   commissionValue: number
   separation?: number
@@ -88,6 +93,7 @@ export type UpdateProjectDto = {
   lat?: number
   lng?: number
   priceSell?: number
+  priceSellUsd?: number
   commissionPercentage?: number
   commissionValue?: number
   separation?: number
@@ -110,6 +116,7 @@ export type ProjectFormState = {
   lat: number
   lng: number
   priceSell: number
+  priceSellUsd: number
   commissionPercentage: number
   commissionValue: number
   separation: number

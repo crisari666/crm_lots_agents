@@ -72,9 +72,10 @@ export default function ProjectFormFieldsCP({
   onChange,
   disabled = false
 }: ProjectFormFieldsCPProps) {
-  const commissionValueCop = form.priceSell && form.commissionPercentage
-    ? (form.priceSell * form.commissionPercentage) / 100
-    : 0
+  const commissionValueCop =
+    form.priceSell && form.commissionPercentage
+      ? (form.priceSell * form.commissionPercentage) / 100
+      : 0
 
   const lotOptions = form.lotOptions ?? []
 
@@ -82,7 +83,10 @@ export default function ProjectFormFieldsCP({
   const slugInvalid =
     slugNormalized.length > 0 && !isValidProjectSlugForApi(slugNormalized)
 
-  const updateLotRow = (index: number, patch: { area?: number; price?: number }) => {
+  const updateLotRow = (
+    index: number,
+    patch: { area?: number; price?: number; priceUsd?: number }
+  ) => {
     const next = lotOptions.map((row, i) => (i === index ? { ...row, ...patch } : row))
     onChange({ lotOptions: next })
   }
@@ -92,7 +96,7 @@ export default function ProjectFormFieldsCP({
   }
 
   const addLotRow = () => {
-    onChange({ lotOptions: [...lotOptions, { area: 0, price: 0 }] })
+    onChange({ lotOptions: [...lotOptions, { area: 0, price: 0, priceUsd: 0 }] })
   }
 
   return (
@@ -248,13 +252,28 @@ export default function ProjectFormFieldsCP({
           <TextField
             fullWidth
             type="number"
-            label={s.formFieldSellPrice}
+            label={s.formFieldSellPriceCop}
             value={form.priceSell || ""}
             onChange={(e) => onChange({ priceSell: Number(e.target.value) || 0 })}
             disabled={disabled}
             InputProps={{
-              startAdornment: <InputAdornment position="start">$</InputAdornment>
+              startAdornment: <InputAdornment position="start">COP</InputAdornment>
             }}
+            inputProps={{ min: 0, step: 1 }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            type="number"
+            label={s.formFieldSellPriceUsd}
+            value={form.priceSellUsd || ""}
+            onChange={(e) => onChange({ priceSellUsd: Number(e.target.value) || 0 })}
+            disabled={disabled}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">US$</InputAdornment>
+            }}
+            inputProps={{ min: 0, step: 1 }}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -270,14 +289,14 @@ export default function ProjectFormFieldsCP({
             inputProps={{ min: 0, max: 100, step: 0.01 }}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
             label={s.formFieldCommissionCop}
             value={commissionValueCop}
             disabled
             InputProps={{
-              startAdornment: <InputAdornment position="start">$</InputAdornment>
+              startAdornment: <InputAdornment position="start">COP</InputAdornment>
             }}
           />
         </Grid>
@@ -305,7 +324,7 @@ export default function ProjectFormFieldsCP({
           <Stack spacing={1.5}>
             {lotOptions.map((row, index) => (
               <Grid container spacing={1} alignItems="flex-start" key={`lot-${index}`}>
-                <Grid item xs={12} sm={5}>
+                <Grid item xs={12} sm={4}>
                   <TextField
                     fullWidth
                     type="number"
@@ -319,19 +338,38 @@ export default function ProjectFormFieldsCP({
                     inputProps={{ min: 0, step: 0.01 }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={5}>
+                <Grid item xs={12} sm={3}>
                   <TextField
                     fullWidth
                     type="number"
                     size="small"
-                    label={s.formLotOptionsPrice}
+                    label={s.formLotOptionsPriceCop}
                     value={row.price || ""}
                     onChange={(e) =>
                       updateLotRow(index, { price: Math.max(0, Number(e.target.value) || 0) })
                     }
                     disabled={disabled}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">$</InputAdornment>
+                      startAdornment: <InputAdornment position="start">COP</InputAdornment>
+                    }}
+                    inputProps={{ min: 0, step: 1 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    size="small"
+                    label={s.formLotOptionsPriceUsd}
+                    value={row.priceUsd ?? ""}
+                    onChange={(e) =>
+                      updateLotRow(index, {
+                        priceUsd: Math.max(0, Number(e.target.value) || 0)
+                      })
+                    }
+                    disabled={disabled}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">US$</InputAdornment>
                     }}
                     inputProps={{ min: 0, step: 1 }}
                   />

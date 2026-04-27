@@ -43,10 +43,18 @@ export default function ProjectListCP() {
     })
   }
 
-  const formatMoney = (n: number) => {
+  const formatMoneyCop = (n: number) => {
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
+      maximumFractionDigits: 0
+    }).format(n)
+  }
+
+  const formatMoneyUsd = (n: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       maximumFractionDigits: 0
     }).format(n)
   }
@@ -78,7 +86,8 @@ export default function ProjectListCP() {
             <TableCell>Título</TableCell>
             <TableCell align="center">Habilitado</TableCell>
             <TableCell>Ubicación</TableCell>
-            <TableCell align="right">Precio venta</TableCell>
+            <TableCell align="right">Precio venta (COP)</TableCell>
+            <TableCell align="right">Precio (USD)</TableCell>
             <TableCell align="right">Comisión (COP)</TableCell>
             <TableCell>Creado</TableCell>
             <TableCell align="center">Acciones</TableCell>
@@ -123,8 +132,11 @@ export default function ProjectListCP() {
                   formatLocation(project)
                 )}
               </TableCell>
-              <TableCell align="right">{formatMoney(project.priceSell)}</TableCell>
-              <TableCell align="right">{formatMoney(project.commissionValue)}</TableCell>
+              <TableCell align="right">{formatMoneyCop(project.priceSell)}</TableCell>
+              <TableCell align="right">
+                {formatMoneyUsd(project.priceSellUsd ?? 0)}
+              </TableCell>
+              <TableCell align="right">{formatMoneyCop(project.commissionValue)}</TableCell>
               <TableCell>{formatDate(project.createdAt)}</TableCell>
               <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                 <IconButton
@@ -140,7 +152,7 @@ export default function ProjectListCP() {
           ))}
           {projects.length === 0 && !isLoading && (
             <TableRow>
-              <TableCell colSpan={7} align="center">
+              <TableCell colSpan={8} align="center">
                 <Typography variant="body2" color="text.secondary">
                   No se encontraron proyectos
                 </Typography>
