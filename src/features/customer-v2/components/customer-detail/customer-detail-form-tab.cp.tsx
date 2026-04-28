@@ -28,6 +28,7 @@ export type CustomerDetailFormTabCPProps = {
   users: UserInterface[]
   detailSaving: boolean
   dispatch: AppDispatch
+  onToggleReferral: (isReferral: boolean) => Promise<void>
 }
 
 export default function CustomerDetailFormTabCP({
@@ -35,6 +36,7 @@ export default function CustomerDetailFormTabCP({
   users,
   detailSaving,
   dispatch,
+  onToggleReferral,
 }: CustomerDetailFormTabCPProps) {
   return (
     <Stack spacing={2}>
@@ -133,6 +135,16 @@ export default function CustomerDetailFormTabCP({
           />
         }
         label="Cliente activo"
+      />
+      <FormControlLabel
+        control={
+          <Switch
+            checked={form.isReferral}
+            onChange={(_, v) => void onToggleReferral(v)}
+            disabled={detailSaving}
+          />
+        }
+        label="Cliente referido"
       />
       <Divider />
       <Typography variant="subtitle2" fontWeight={600}>

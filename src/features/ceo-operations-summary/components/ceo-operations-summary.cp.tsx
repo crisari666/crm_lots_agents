@@ -80,7 +80,7 @@ function KpiCard(props: {
 
 export default function CeoOperationsSummaryCP() {
   const dispatch = useAppDispatch()
-  const { summary, crmV2Total, crmV2Skipped, isLoading, error, crmError } = useAppSelector(
+  const { summary, crmV2Total, crmV2ReferralTotal, crmV2Skipped, isLoading, error, crmError } = useAppSelector(
     (state: RootState) => state.ceoOperationsSummary
   )
   const [from, setFrom] = useState<Moment>(() => moment().subtract(29, "days").startOf("day"))
@@ -121,6 +121,8 @@ export default function CeoOperationsSummaryCP() {
       : null
 
   const crmV2Display = crmV2Total !== null ? crmV2Total : crmV2Skipped ? "N/A" : "—"
+  const crmV2ReferralDisplay =
+    crmV2ReferralTotal !== null ? crmV2ReferralTotal : crmV2Skipped ? "N/A" : "—"
   const fromIso = from.clone().startOf("day").toISOString()
   const toDayStartIso = to.clone().startOf("day").toISOString()
 
@@ -213,6 +215,7 @@ export default function CeoOperationsSummaryCP() {
         />
         <KpiCard title="Capacitaciones (asistentes)" value={summary?.trainingAttendeesTotal ?? "—"} subtitle="Filas en rango" icon={<SchoolOutlined fontSize="small" />} />
         <KpiCard title="Clientes CRM (V2)" value={crmV2Display} subtitle="Alta en customers-ms" icon={<GroupsOutlined fontSize="small" />} />
+        <KpiCard title="Clientes por referidos" value={crmV2ReferralDisplay} subtitle="Alta en customers-ms con referral" icon={<GroupsOutlined fontSize="small" />} />
       </Box>
       <Dialog
         open={isLeadsResumeOpen}

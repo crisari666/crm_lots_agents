@@ -6,6 +6,7 @@ import {
   type ListCustomersAdminParams,
   getCustomerAdminDetail,
   listCustomersAdmin,
+  updateCustomerReferral,
   updateCustomerAdmin,
   type UpdateCustomerAdminBody,
 } from "../services/customers-ms.service"
@@ -91,6 +92,17 @@ export const updateCustomerAdminThunk = createAsyncThunk(
       return await updateCustomerAdmin(payload.customerId, payload.body)
     } catch (err: unknown) {
       return rejectWithValue(axiosMessage(err, "No se pudo guardar el cliente."))
+    }
+  }
+)
+
+export const updateCustomerReferralThunk = createAsyncThunk(
+  "customerV2/updateCustomerReferral",
+  async (payload: { customerId: string; isReferral: boolean }, { rejectWithValue }) => {
+    try {
+      return await updateCustomerReferral(payload.customerId, payload.isReferral)
+    } catch (err: unknown) {
+      return rejectWithValue(axiosMessage(err, "No se pudo actualizar estado de referido."))
     }
   }
 )
@@ -184,6 +196,23 @@ const customerV2Slice = createSlice({
           (action.payload as string) ??
           action.error.message ??
           "No se pudo guardar el cliente."
+      })
+      .addCase(updateCustomerReferralThunk.pending, (state) => {
+        state.detailSaving = true
+        state.detailError = null
+      })
+      .addCase(updateCustomerReferralThunk.fulfilled, (state, action) => {
+        state.detailSaving = false
+        state.detailError = null
+        state.detail = action.payload
+        state.detailForm = cloneDetail(action.payload)
+      })
+      .addCase(updateCustomerReferralThunk.rejected, (state, action) => {
+        state.detailSaving = false
+        state.detailError =
+          (action.payload as string) ??
+          action.error.message ??
+          "No se pudo actualizar estado de referido."
       })
   },
 })

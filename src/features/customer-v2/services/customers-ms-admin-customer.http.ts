@@ -59,6 +59,18 @@ export async function updateCustomerAdmin(
   return response.data
 }
 
+export async function updateCustomerReferral(
+  customerId: string,
+  isReferral: boolean
+): Promise<CustomerAdminDetail> {
+  const response = await customersMsAxios.patch<CustomerAdminDetail>(
+    `admin/customer/${encodeURIComponent(customerId)}/referral`,
+    { isReferral },
+    auth()
+  )
+  return response.data
+}
+
 export async function listCustomerCallLogs(customerId: string): Promise<CustomerCallLogAdminItem[]> {
   const response = await customersMsAxios.get<CustomerCallLogAdminItem[]>(
     `admin/customer/${encodeURIComponent(customerId)}/call-logs`,

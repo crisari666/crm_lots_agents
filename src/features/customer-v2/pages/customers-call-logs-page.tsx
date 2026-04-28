@@ -22,8 +22,6 @@ import { Person as PersonIcon, Search as SearchIcon } from "@mui/icons-material"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import type { Moment } from "moment"
 import moment from "moment"
-import { fetchUsers } from "../../../app/services/users.service"
-import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import {
   clearCallLogsErrorAct,
@@ -41,8 +39,6 @@ type OutcomeFilter = NonNullable<ListCallLogsAdminParams["outcome"]>
 export default function CustomersCallLogsPage() {
   const dispatch = useAppDispatch()
   const { items, total, loading, error } = useAppSelector((s) => s.customerCallLogs)
-
-  const [users, setUsers] = useState<UserInterface[]>([])
 
   const [from, setFrom] = useState<Moment | null>(() => moment().subtract(7, "days").startOf("day"))
   const [to, setTo] = useState<Moment | null>(() => moment().endOf("day"))
@@ -85,14 +81,6 @@ export default function CustomersCallLogsPage() {
   const onOutcomeChange = (e: SelectChangeEvent<OutcomeFilter>) => {
     setOutcome(e.target.value as OutcomeFilter)
   }
-
-  useEffect(() => {
-    void fetchUsers({ enable: true }).then((list) => {
-      if (Array.isArray(list)) {
-        setUsers(list)
-      }
-    })
-  }, [])
 
   const openCustomerDetail = useCallback(
     (customerId: string) => {
@@ -290,7 +278,7 @@ export default function CustomersCallLogsPage() {
         onClose={() => setTranscriptOpen(false)}
       />
 
-      <CustomerDetailDialogCP users={users} />
+      <CustomerDetailDialogCP />
     </Box>
   )
 }

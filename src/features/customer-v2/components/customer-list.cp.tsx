@@ -19,7 +19,6 @@ import { alpha } from "@mui/material/styles"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { clearListErrorAct, fetchCustomerListAdminThunk } from "../redux/customer-v2.slice"
-import moment from "moment"
 import { listCustomerStepsV2, type CustomerStepV2 } from "../../steps-v2/services/customer-steps-v2.service"
 import type { FilterFormState } from "../types/filter-form.types"
 import { aggregateStepsFromListItems } from "../utils/aggregate-steps-from-list-items"
@@ -133,7 +132,7 @@ export default function CustomerListCP({
         bgcolor: "background.paper",
       }}
     >
-      <CustomerDetailDialogCP users={users} />
+      <CustomerDetailDialogCP />
       <CustomerListFiltersCP
         draft={draft}
         setDraft={setDraft}
@@ -264,24 +263,15 @@ export default function CustomerListCP({
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((row) => {
-                const assignedUser = row.assignedTo ? userById.get(row.assignedTo) ?? null : null
-                const creatorUser = row.createdBy ? userById.get(row.createdBy) ?? null : null
-                const creatorIsPhysical = creatorUser?.physical ?? null
-                const createdLabel = moment(row.createdAt).format("DD/MM/YYYY HH:mm")
-                return (
-                  <CustomerListItemCP
-                    key={row.id}
-                    row={row}
-                    users={users}
-                    assignedUser={assignedUser}
-                    creatorUser={creatorUser}
-                    creatorIsPhysical={creatorIsPhysical}
-                    createdLabel={createdLabel}
-                    onAssigneeUpdated={() => void load()}
-                  />
-                )
-              })
+              items.map((row) => (
+                <CustomerListItemCP
+                  key={row.id}
+                  row={row}
+                  users={users}
+                  userById={userById}
+                  onAssigneeUpdated={() => void load()}
+                />
+              ))
             )}
           </TableBody>
         </Table>

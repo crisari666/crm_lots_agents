@@ -28,6 +28,8 @@ export type CustomerAdminListItem = {
   currentStepColor?: string
   /** False when customer disabled in customers-ms. */
   enabled: boolean
+  /** True when created from referral flow. */
+  isReferral: boolean
   createdAt: string
 }
 
@@ -54,6 +56,8 @@ export type ListCustomersAdminParams = {
   unassignedOnly?: boolean
   /** When true, only active customers (`enabled !== false`, includes legacy docs). Omit = no filter. */
   enabled?: boolean
+  /** When set, filter by referral flag. */
+  isReferral?: boolean
   search?: string
   /** Filter list to customers currently on this pipeline step. */
   customerStepId?: string
@@ -87,6 +91,7 @@ export type CustomerAdminDetail = {
   interestedProjects: CustomerAdminInterestedProject[]
   assignedTo?: string
   enabled: boolean
+  isReferral: boolean
   createdBy: string
   createdAt: string
   updatedAt?: string
@@ -104,6 +109,7 @@ export type UpdateCustomerAdminBody = {
   interestedProjects?: { projectId: string; date?: string }[]
   assignedTo?: string
   enabled?: boolean
+  isReferral?: boolean
 }
 
 export type CustomerCallLogAdminOutcome =

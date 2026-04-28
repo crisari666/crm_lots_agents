@@ -11,10 +11,7 @@ import CustomerAssigneeCellCP from "./customer-assignee-cell.cp"
 export type CustomerListItemCPProps = {
   row: CustomerAdminListItem
   users: UserInterface[]
-  assignedUser: Pick<UserInterface, "name" | "lastName" | "email"> | null
-  creatorUser: Pick<UserInterface, "name" | "lastName" | "email"> | null
-  creatorIsPhysical?: boolean | null
-  createdLabel: string
+  userById: Map<string, UserInterface>
   onAssigneeUpdated: () => void
 }
 
@@ -30,13 +27,21 @@ function userFullName(u: Pick<UserInterface, "name" | "lastName">): string {
 export default function CustomerListItemCP({
   row,
   users,
-  assignedUser,
-  creatorUser,
-  creatorIsPhysical = null,
-  createdLabel,
+  userById,
   onAssigneeUpdated,
 }: CustomerListItemCPProps) {
   const dispatch = useAppDispatch()
+  const assignedUser = row.assignedTo ? userById.get(row.assignedTo) ?? null : null
+  const creatorUser = row.createdBy ? userById.get(row.createdBy) ?? null : null
+  const creatorIsPhysical = creatorUser?.physical ?? null
+  const createdLabel = new Date(row.createdAt).toLocaleString("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
   const stepLabel = row.currentStep?.trim() ? row.currentStep : "Sin paso"
   const stepColor = row.currentStepColor?.trim()
   const hasStep = Boolean(row.currentStep?.trim())

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import {
   Alert,
   Box,
@@ -14,14 +14,15 @@ import {
   Typography,
 } from "@mui/material"
 import { Close as CloseIcon } from "@mui/icons-material"
-import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import type { CustomerAdminDetail, UpdateCustomerAdminBody } from "../services/customers-ms.service"
 import {
   closeCustomerDetailDialogAct,
   fetchCustomerListAdminThunk,
+  updateCustomerReferralThunk,
   updateCustomerAdminThunk,
 } from "../redux/customer-v2.slice"
+import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 import CustomerCallHistoryTabCP from "./customer-detail/customer-call-history-tab.cp"
 import CustomerConversationsTabCP from "./customer-detail/customer-conversations-tab.cp"
 import CustomerDetailFormTabCP from "./customer-detail/customer-detail-form-tab.cp"
@@ -48,11 +49,7 @@ function buildUpdateBody(form: CustomerAdminDetail): UpdateCustomerAdminBody {
   }
 }
 
-export type CustomerDetailDialogCPProps = {
-  users: UserInterface[]
-}
-
-export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCPProps) {
+export default function CustomerDetailDialogCP() {
   const dispatch = useAppDispatch()
   const [tab, setTab] = useState(0)
   const dialogOpen = useAppSelector((s) => s.customerV2.dialogOpen)
@@ -61,6 +58,16 @@ export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCP
   const detailSaving = useAppSelector((s) => s.customerV2.detailSaving)
   const detailError = useAppSelector((s) => s.customerV2.detailError)
   const lastListFetchParams = useAppSelector((s) => s.customerV2.lastListFetchParams)
+  const users = useAppSelector((s) =>
+    s.users.usersOriginal.length > 0 ? s.users.usersOriginal : s.users.users,
+  )
+  const gotUsers = useAppSelector((s) => s.users.gotUsers)
+
+  useEffect(() => {
+    if (!gotUsers) {
+      void dispatch(fetchUsersThunk({ enable: true }))
+    }
+  }, [dispatch, gotUsers])
 
   const handleClose = useCallback(() => {
     if (!detailSaving) {
@@ -78,6 +85,18 @@ export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCP
       updateCustomerAdminThunk({ customerId: detailForm.id, body })
     )
     if (updateCustomerAdminThunk.fulfilled.match(result) && lastListFetchParams !== null) {
+      void dispatch(fetchCustomerListAdminThunk(lastListFetchParams))
+    }
+  }
+
+  const handleToggleReferral = async (isReferral: boolean) => {
+    if (detailForm === null) {
+      return
+    }
+    const result = await dispatch(
+      updateCustomerReferralThunk({ customerId: detailForm.id, isReferral })
+    )
+    if (updateCustomerReferralThunk.fulfilled.match(result) && lastListFetchParams !== null) {
       void dispatch(fetchCustomerListAdminThunk(lastListFetchParams))
     }
   }
@@ -120,7 +139,13 @@ export default function CustomerDetailDialogCP({ users }: CustomerDetailDialogCP
               <Tab label="Conversaciones" sx={{ cursor: "pointer", textTransform: "none" }} />
             </Tabs>
             {tab === 0 && (
-              <CustomerDetailFormTabCP form={form} users={users} detailSaving={detailSaving} dispatch={dispatch} />
+              <CustomerDetailFormTabCP
+                form={form}
+                users={users}
+                detailSaving={detailSaving}
+                dispatch={dispatch}
+                onToggleReferral={handleToggleReferral}
+              />
             )}
             {tab === 1 && <CustomerDetailNotesTabCP notes={form.notes} />}
             {tab === 2 && <CustomerCallHistoryTabCP customerId={form.id} />}

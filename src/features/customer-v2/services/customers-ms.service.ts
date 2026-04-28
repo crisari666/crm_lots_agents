@@ -22,4 +22,5 @@ export {
   listCustomerCallLogs,
   listCustomersAdmin,
   updateCustomerAdmin,
+  updateCustomerReferral,
 } from "./customers-ms-admin-customer.http"
