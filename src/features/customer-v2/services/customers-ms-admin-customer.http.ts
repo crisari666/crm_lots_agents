@@ -6,6 +6,8 @@ import type {
   CustomerCallLogAdminItem,
   ListCallLogsAdminParams,
   ListCallLogsAdminResponse,
+  ListCustomerEventsParams,
+  ListCustomerEventsResponse,
   ListCustomersAdminParams,
   UpdateCustomerAdminBody,
 } from "./customers-ms-admin-customer.types"
@@ -86,5 +88,29 @@ export async function listCallLogsAdmin(
     params,
     ...auth(),
   })
+  return response.data
+}
+
+export async function listCustomerEventsAdmin(
+  params: ListCustomerEventsParams
+): Promise<ListCustomerEventsResponse> {
+  const response = await customersMsAxios.get<ListCustomerEventsResponse>("admin/customer/events", {
+    params,
+    ...auth(),
+  })
+  return response.data
+}
+
+export async function listCustomerEventsByCustomerId(
+  customerId: string,
+  params?: Omit<ListCustomerEventsParams, "customerId">
+): Promise<ListCustomerEventsResponse> {
+  const response = await customersMsAxios.get<ListCustomerEventsResponse>(
+    `customer/${encodeURIComponent(customerId)}/events`,
+    {
+      params,
+      ...auth(),
+    }
+  )
   return response.data
 }

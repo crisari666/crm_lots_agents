@@ -51,6 +51,7 @@ import paymentRouteTemplateSlice from "../features/payment-route-template/slice/
 import customerV2Reducer from "../features/customer-v2/redux/customer-v2.slice"
 import customerCallLogsReducer from "../features/customer-v2/redux/customer-call-logs.slice"
 import customerConversationsReducer from "../features/customer-v2/redux/customer-conversations.slice"
+import customerEventsReducer from "../features/customer-v2/redux/customer-events.slice"
 import projectReleasesReducer from "../features/project-release/slice/project-releases.slice"
 import signedContractReducer from "../features/signed-contract/slice/signed-contract.slice"
 import signupCampaignReducer from "../features/signup-campaign/slice/signup-campaign.slice"
@@ -120,6 +121,7 @@ export const store = configureStore({
     customerV2: customerV2Reducer,
     customerCallLogs: customerCallLogsReducer,
     customerConversations: customerConversationsReducer,
+    customerEvents: customerEventsReducer,
     reports: reportsSlice,
     signedContract: signedContractReducer,
     signupCampaign: signupCampaignReducer,

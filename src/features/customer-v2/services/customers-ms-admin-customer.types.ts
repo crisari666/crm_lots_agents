@@ -167,3 +167,41 @@ export type ListCallLogsAdminResponse = {
   items: CustomerCallLogAdminItem[]
   total: number
 }
+
+export type CustomerEventType =
+  | "WHATSAPP_CALL"
+  | "WHATSAPP_MESSAGE"
+  | "PHONE_CALL"
+  | "VIDEO_CALL"
+  | "CALL_CRM"
+
+export type CustomerEventItem = {
+  id: string
+  eventType: CustomerEventType
+  description: string
+  score?: number
+  customerId: string
+  userId: string
+  officeId?: string
+  metadata?: Record<string, unknown>
+  createdAt: string
+  updatedAt: string
+}
+
+export type ListCustomerEventsParams = {
+  customerId?: string
+  dateFrom?: string
+  dateTo?: string
+  eventType?: CustomerEventType
+  officeId?: string
+  userId?: string
+  limit?: 100 | 200 | 500
+  skip?: number
+}
+
+export type ListCustomerEventsResponse = {
+  items: CustomerEventItem[]
+  total: number
+  limit: number
+  skip: number
+}

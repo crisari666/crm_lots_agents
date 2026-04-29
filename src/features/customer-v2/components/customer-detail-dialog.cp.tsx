@@ -25,6 +25,7 @@ import {
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 import CustomerCallHistoryTabCP from "./customer-detail/customer-call-history-tab.cp"
 import CustomerConversationsTabCP from "./customer-detail/customer-conversations-tab.cp"
+import CustomerEventsTabCP from "./customer-detail/customer-events-tab.cp"
 import CustomerDetailFormTabCP from "./customer-detail/customer-detail-form-tab.cp"
 import CustomerDetailNotesTabCP from "./customer-detail/customer-detail-notes-tab.cp"
 
@@ -137,6 +138,7 @@ export default function CustomerDetailDialogCP() {
               <Tab label={`Notas (${form.notes.length})`} sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label="Llamadas" sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label="Conversaciones" sx={{ cursor: "pointer", textTransform: "none" }} />
+              <Tab label="Eventos" sx={{ cursor: "pointer", textTransform: "none" }} />
             </Tabs>
             {tab === 0 && (
               <CustomerDetailFormTabCP
@@ -150,6 +152,7 @@ export default function CustomerDetailDialogCP() {
             {tab === 1 && <CustomerDetailNotesTabCP notes={form.notes} />}
             {tab === 2 && <CustomerCallHistoryTabCP customerId={form.id} />}
             {tab === 3 && <CustomerConversationsTabCP />}
+            {tab === 4 && <CustomerEventsTabCP customerId={form.id} />}
           </>
         )}
       </DialogContent>
