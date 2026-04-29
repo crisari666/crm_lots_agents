@@ -22,6 +22,9 @@ const EVENT_TYPE_OPTIONS: EventTypeOption[] = [
   { id: "PHONE_CALL", label: "Phone Call" },
   { id: "VIDEO_CALL", label: "Video Call" },
   { id: "CALL_CRM", label: "Call CRM" },
+  { id: "CUSTOM_SENT_LAND", label: "Sent to land (scheduled)" },
+  { id: "CUSTOMER_CANCELLED_VISIT_LAND", label: "Land visit cancelled" },
+  { id: "CUSTOMER_VISIT_LAND", label: "Land visit completed" },
 ]
 
 function getOfficeIdFromUser(user: { office?: unknown }): string {
