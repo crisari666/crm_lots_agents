@@ -44,7 +44,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
       { to: "/dashboard/customers-v2/call-logs", Icon: <HistorySharp />, title: "Registro de llamadas" },
       { to: "/dashboard/customers-v2/events", Icon: <HistorySharp />, title: "Eventos" },
-      { to: "/dashboard/customers-v2/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
       { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
     ]},
@@ -59,15 +58,16 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
 
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios", children: [
       { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios"},
+      { to: "/dashboard/users/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
       { to: "/dashboard/users-onboarding-status", Icon: <ChecklistRtl />, title: "Onboarding status" },
       { to: "/dashboard/import-users", Icon: <UploadFileSharp />, title: "Importar usuarios" },
       { to: "/dashboard/offices-list", Icon: <BusinessOutlined />, title: "Oficinas" },
       { to: "/dashboard/traninng-traking", Icon: <ChecklistRtl />, title: "Capacitaciones" },
-      //{ to: "/dashboard/collectors", Icon: <Collections />, title: "Cobradores" },
-      { to: "/dashboard/user-log-arrive", Icon: <HistoryEdu />, title: "Historial llegadas" },
       { to: "/dashboard/signed-contracts", Icon: <Description />, title: "Contratos enviados a firma" },
       { to: "/dashboard/signup-campaigns", Icon: <Campaign />, title: "Campañas de registro" },
-      { to: "/dashboard/audits", Icon: <AdminPanelSettings />, title: "Auditoria" },
+      //{ to: "/dashboard/collectors", Icon: <Collections />, title: "Cobradores" },
+      // { to: "/dashboard/user-log-arrive", Icon: <HistoryEdu />, title: "Historial llegadas" },
+      // { to: "/dashboard/audits", Icon: <AdminPanelSettings />, title: "Auditoria" },
 
     ] },
 

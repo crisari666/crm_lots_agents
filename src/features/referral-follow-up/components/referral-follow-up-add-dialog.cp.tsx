@@ -12,7 +12,6 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import {
   createReferralSituationThunk,
-  fetchEligibleReferralUsersThunk,
   selectReferralFollowUpState,
 } from "../slice/referral-follow-up.slice"
 import type { ReferralEligibleUser } from "../types/referral-follow-up.types"
@@ -46,15 +45,6 @@ export default function ReferralFollowUpAddDialogCp({
     null,
   )
   const [description, setDescription] = React.useState<string>("")
-
-  React.useEffect(() => {
-    if (!open) {
-      return
-    }
-    if (eligibleUsers.length === 0 && !isLoadingEligible) {
-      void dispatch(fetchEligibleReferralUsersThunk())
-    }
-  }, [open, eligibleUsers.length, isLoadingEligible, dispatch])
 
   const eventOptions = React.useMemo(
     () =>
