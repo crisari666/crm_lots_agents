@@ -9,6 +9,8 @@ import type {
   ListCustomerEventsParams,
   ListCustomerEventsResponse,
   ListCustomersAdminParams,
+  StaffPerformanceReportBody,
+  StaffPerformanceReportDto,
   UpdateCustomerAdminBody,
 } from "./customers-ms-admin-customer.types"
 
@@ -111,6 +113,17 @@ export async function listCustomerEventsByCustomerId(
       params,
       ...auth(),
     }
+  )
+  return response.data
+}
+
+export async function postStaffPerformanceReport(
+  body: StaffPerformanceReportBody
+): Promise<StaffPerformanceReportDto> {
+  const response = await customersMsAxios.post<StaffPerformanceReportDto>(
+    "admin/customer/staff-performance",
+    body,
+    auth()
   )
   return response.data
 }

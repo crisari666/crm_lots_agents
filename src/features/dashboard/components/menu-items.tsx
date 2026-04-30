@@ -45,6 +45,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/customers-v2/call-logs", Icon: <HistorySharp />, title: "Registro de llamadas" },
       { to: "/dashboard/customers-v2/events", Icon: <HistorySharp />, title: "Eventos" },
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
+      { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
     ]},
 
     // { Icon: <CampaignOutlined />, title: "Campaña", 

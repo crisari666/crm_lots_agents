@@ -208,3 +208,32 @@ export type ListCustomerEventsResponse = {
   limit: number
   skip: number
 }
+
+export type StaffPerformanceReportBody = {
+  userIds: string[]
+  userDisplayNames?: Record<string, string>
+  assignedFrom: string
+  assignedTo: string
+  callFrom?: string
+  callTo?: string
+}
+
+export type StaffPerformanceReportRow = {
+  userId: string
+  displayName: string
+  totalAssignedInRange: number
+  calls: {
+    totalCalls: number
+    answered: number
+    dontAnswered: number
+    failed: number
+  }
+  steps: Record<string, number>
+}
+
+export type StaffPerformanceReportDto = {
+  assignedFrom: string
+  assignedTo: string
+  stepsMeta: Array<{ id: string; name: string; order: number }>
+  rows: StaffPerformanceReportRow[]
+}

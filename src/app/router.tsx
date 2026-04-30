@@ -61,6 +61,7 @@ import ProjectReleasesPage from "../features/project-release/pages/project-relea
 import SignedContractView from "../features/signed-contract/signed-contract-view"
 import SignupCampaignView from "../features/signup-campaign/signup-campaign-view"
 import CeoLeadsResumePage from "../features/ceo-operations-summary/pages/ceo-leads-resume-page"
+import StaffPerformanceReportPage from "../features/staff-performance-report/pages/staff-performance-report-page"
 
 
 const router = createBrowserRouter([
@@ -92,6 +93,7 @@ const router = createBrowserRouter([
     { path: "customers-v2/call-logs", element: <CustomersCallLogsPage /> },
     { path: "customers-v2/events", element: <CustomersEventsPage /> },
     { path: "steps-v2", element: <StepsV2Page /> },
+    { path: "staff-performance", element: <StaffPerformanceReportPage /> },
     { path: "customer/:customerId", element: <CustomerView /> },
     { path: "imports-numbers", element: <ImportNumbersView /> },
     { path: "customers-center", element: <CustomerCenterView /> },
