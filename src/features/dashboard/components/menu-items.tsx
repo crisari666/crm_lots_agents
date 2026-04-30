@@ -33,17 +33,18 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/projects", Icon: <BusinessOutlined />, title: "Proyectos" },
       { to: "/dashboard/project-releases", Icon: <Done />, title: "Proyectos finalizado" },
     ]},
-    { Icon: <Person2Outlined />, title: "Clientes", children: [
-      { to: "/dashboard/numbers", Icon: <Dvr />, title: "Clientes" },
-      { to: "/dashboard/customers-center", Icon: <SupportAgent />, title: "Customer Center" },
-      { to: "/dashboard/customers-database", Icon: <FaceRetouchingNatural />, title: "Customer Database" },
-      { to: "/dashboard/verify-payments", Icon: <CreditScore />, title: "verificar pagos" },
-    ]},
+    // { Icon: <Person2Outlined />, title: "Clientes", children: [
+    //   { to: "/dashboard/numbers", Icon: <Dvr />, title: "Clientes" },
+    //   { to: "/dashboard/customers-center", Icon: <SupportAgent />, title: "Customer Center" },
+    //   { to: "/dashboard/customers-database", Icon: <FaceRetouchingNatural />, title: "Customer Database" },
+    //   { to: "/dashboard/verify-payments", Icon: <CreditScore />, title: "verificar pagos" },
+    // ]},
 
     { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
       { to: "/dashboard/customers-v2/call-logs", Icon: <HistorySharp />, title: "Registro de llamadas" },
       { to: "/dashboard/customers-v2/events", Icon: <HistorySharp />, title: "Eventos" },
+      { to: "/dashboard/customers-v2/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
       { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
     ]},

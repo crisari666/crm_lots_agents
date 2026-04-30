@@ -57,12 +57,13 @@ import signedContractReducer from "../features/signed-contract/slice/signed-cont
 import signupCampaignReducer from "../features/signup-campaign/slice/signup-campaign.slice"
 import ceoOperationsSummaryReducer from "../features/ceo-operations-summary/slice/ceo-operations-summary.slice"
 import staffPerformanceReportReducer from "../features/staff-performance-report/redux/staff-performance-report.slice"
+import referralFollowUpReducer from "../features/referral-follow-up/slice/referral-follow-up.slice"
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
     
     serializableCheck: {
-      ignoredActions: ["eventsGatewaySlice/setSocketAct", "CustomersCenter/changeDateFilterAct", "UserCustomersSlice/changeDateRangeUserCustomerResumeAct","UserCustomersSlice/changeDateRangeUserPaymentsAct", "LeadsAuditory/changeDateRangeAct", 'OfficeDashboard/changeFilterCustomersResumeOfficeAct', 'OfficeDashboard/changeFilterPaymentsResumeOfficeAct', 'Statistics/getStepStatsThunk/fulfilled', 'UserList/updateUserConnectedAct', "dashboardSlice/pushAlertAction"],
+      ignoredActions: ["eventsGatewaySlice/setSocketAct", "CustomersCenter/changeDateFilterAct", "UserCustomersSlice/changeDateRangeUserCustomerResumeAct","UserCustomersSlice/changeDateRangeUserPaymentsAct", "LeadsAuditory/changeDateRangeAct", 'OfficeDashboard/changeFilterCustomersResumeOfficeAct', 'OfficeDashboard/changeFilterPaymentsResumeOfficeAct', 'Statistics/getStepStatsThunk/fulfilled', 'UserList/updateUserConnectedAct', "dashboardSlice/pushAlertAction", "referralFollowUp/fetchSituations/pending"],
       ignoredPaths: ["eventsGateway.socket", 'customerCenter.filter', 'userCustomer.customerFilter', 'userCustomer.userPaymentsFilter', 'payload.actions', 'leadsAuditory.filterDate', 'officeDashboard.customersResumeFilter', 'officeDashboard.paymentResumeFilter', 'authFace.descriptorFromBack', 'logArrive.userPickedDescriptor', 'dashboard.alerts', 'statistics.stepGraphData']
     }
   }),
@@ -128,6 +129,7 @@ export const store = configureStore({
     signupCampaign: signupCampaignReducer,
     ceoOperationsSummary: ceoOperationsSummaryReducer,
     staffPerformanceReport: staffPerformanceReportReducer,
+    referralFollowUp: referralFollowUpReducer,
   },
 })
 
