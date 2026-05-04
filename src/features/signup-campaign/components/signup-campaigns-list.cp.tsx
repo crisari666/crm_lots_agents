@@ -46,8 +46,16 @@ function formatDateTime(iso: string): string {
   })
 }
 
+function resolveAgentSignupBaseUrl(): string {
+  const fromAgent = (import.meta.env.VITE_AGENT_BASE_URL as string | undefined)?.trim() ?? ""
+  if (fromAgent !== "") {
+    return fromAgent
+  }
+  return (import.meta.env.VITE_SIGNUP_PUBLIC_BASE_URL as string | undefined)?.trim() ?? ""
+}
+
 function buildPublicLinkFallback(code: string): string {
-  const base = (import.meta.env.VITE_SIGNUP_PUBLIC_BASE_URL as string | undefined)?.trim() ?? ""
+  const base = resolveAgentSignupBaseUrl()
   if (base === "") {
     return ""
   }
@@ -96,7 +104,7 @@ function CampaignPublicLinkCell({ campaign }: { readonly campaign: SignupCampaig
               fontFamily: "monospace",
             }}
           >
-            {campaign.code}
+            {link}
           </Typography>
         </Tooltip>
         <Tooltip title={copied ? "Copiado" : "Copiar enlace público"}>
