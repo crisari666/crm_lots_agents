@@ -36,11 +36,15 @@ export function groupSignedContractsByEmail(
       )?.signedPdfLink ?? null
     const bestName =
       sorted.find((r) => r.name.trim() !== "")?.name ?? latest.name
+    const bestPhone =
+      sorted.find((r) => (r.phone ?? "").trim() !== "")?.phone?.trim() ??
+      (latest.phone ?? "").trim()
     const emailKey = latest.userEmail.trim().toLowerCase()
     out.push({
       ...latest,
       id: `group:${emailKey}`,
       name: bestName,
+      phone: bestPhone,
       signed: anySigned,
       dateSigned: anySigned ? maxSignedIso : null,
       dateSent: latest.dateSent,

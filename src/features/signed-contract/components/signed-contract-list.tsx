@@ -54,6 +54,7 @@ export default function SignedContractList() {
           <TableRow>
             <TableCell>Email</TableCell>
             <TableCell>Nombre</TableCell>
+            <TableCell>Teléfono</TableCell>
             <TableCell>Enlace para firmar</TableCell>
             {groupRepeatedByEmail ? (
               <TableCell align="right">Envíos</TableCell>

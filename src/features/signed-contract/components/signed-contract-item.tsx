@@ -101,6 +101,9 @@ export default function SignedContractItem({
     <TableRow hover>
       <TableCell>{item.userEmail}</TableCell>
       <TableCell>{item.name}</TableCell>
+      <TableCell>
+        {item.phone != null && item.phone.trim() !== "" ? item.phone : "—"}
+      </TableCell>
       {item.signUrl != null && item.signUrl !== "" ? (
         <SigningLinkCell signUrl={item.signUrl} />
       ) : (

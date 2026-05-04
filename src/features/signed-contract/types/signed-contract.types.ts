@@ -4,6 +4,8 @@ export type SignedContractListItem = {
   readonly id: string
   readonly userId: string
   readonly userEmail: string
+  /** From contract session at send time; may be empty for legacy rows. */
+  readonly phone?: string
   readonly name: string
   readonly dateSent: string
   readonly dateSigned: string | null
