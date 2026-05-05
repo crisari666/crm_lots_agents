@@ -124,6 +124,14 @@ export default function TrainingTrakingAttendeesSectionCP({
               alignItems: "center",
               justifyContent: "space-between",
               py: 1,
+              px: 1,
+              borderRadius: 1,
+              backgroundColor:
+                attendee.status === "confirmed" ? "success.light" : "transparent",
+              transition: (theme) =>
+                theme.transitions.create("background-color", {
+                  duration: theme.transitions.duration.shortest
+                }),
               borderBottom: "1px solid",
               borderColor: "divider"
             }}

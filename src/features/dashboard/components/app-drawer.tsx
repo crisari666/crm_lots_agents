@@ -1,4 +1,5 @@
 import {
+  Box,
   IconButton,
   ListItemButton,
   ListItemIcon,
@@ -19,6 +20,12 @@ import { ChevronRight, Logout } from "@mui/icons-material"
 import { Link } from "react-router-dom"
 import logoApp from './../../../assets/omega-icon.png'
 const drawerWidth: number = 240
+
+const DRAWER_DISPLAY_NAMES: readonly string[] = [
+  "Selene", "Orion", "Atlas", "Nova", "Lyra", "Vega", "Artemis", "Leo", "Phoenix", "Aurora",
+  "Luna", "Stella", "Cosmo", "Apollo", "Gaia", "Hera", "Hermes", "Echo", "Rhea", "Triton",
+  "Helios", "Zephyr", "Callisto", "Oberon", "Electra", "Ceres", "Hydra", "Nyx", "Dione", "Pandora",
+]
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -49,6 +56,10 @@ const Drawer = styled(MuiDrawer, {
 
 export default function AppDrawer() {
   const [open, setOpen] = React.useState(false)
+  const [randomDrawerName] = React.useState(() => {
+    const index = Math.floor(Math.random() * DRAWER_DISPLAY_NAMES.length)
+    return DRAWER_DISPLAY_NAMES[index]
+  })
   const toggleDrawer = () => {
     setOpen(!open)
   }
@@ -68,7 +79,12 @@ export default function AppDrawer() {
         }}
       >
         <img src={logoApp} className="logo-drawer" alt="888" onClick={toggleDrawer}/>
-        {open && <Typography variant="h6" sx={{marginLeft: 8}}>Selene</Typography>}
+        {open && (
+          <Box sx={{ marginLeft: 8 }}>
+            <Typography variant="h6">{randomDrawerName}</Typography>
+          </Box>
+        )}
+   
         <IconButton onClick={toggleDrawer} sx={{position: "absolute", right: -5, padding: 0, margin: 0}}>
           {open ? <ChevronLeftIcon /> : <ChevronRight />}
         </IconButton>
