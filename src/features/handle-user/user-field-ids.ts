@@ -17,3 +17,12 @@ export function leadFieldToId(lead: UserInterface["lead"]): string {
   }
   return ""
 }
+
+export function subadminFieldToId(subadmin: UserInterface["subadmin"]): string {
+  if (subadmin == null || subadmin === "") return ""
+  if (typeof subadmin === "string") return subadmin
+  if (typeof subadmin === "object" && subadmin !== null && "_id" in subadmin) {
+    return String((subadmin as { _id: string })._id)
+  }
+  return ""
+}

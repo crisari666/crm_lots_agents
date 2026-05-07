@@ -13,13 +13,15 @@ import {
   Chip,
   Box,
   CircularProgress,
-  Dialog
+  Dialog,
+  Button
 } from "@mui/material"
-import { Circle } from "@mui/icons-material"
+import { Circle, Person } from "@mui/icons-material"
 import SubadminOfficeSelector from "./subadmin-office-selector"
 import UserInterface from "../../../../app/models/user-interface"
-import OfficesTableList from "../../../offices/offices-list/components/offices-table-list"
 import { getOfficesThunk } from "../../../offices/offices-list/offices-list.slice"
+import SubadminVentorSelector from "./subadmin-ventor-selector"
+import { getSubadminVentorsReq } from "../../../../app/services/users.service"
 
 export default function AuditsList() {
   const dispatch = useAppDispatch()
@@ -27,6 +29,8 @@ export default function AuditsList() {
   const { offices, gotOffices } = useAppSelector((state) => state.offices)
   const [selectedAudit, setSelectedAudit] = useState<UserInterface | null>(null)
   const [showOfficeDialog, setShowOfficeDialog] = useState(false)
+  const [showUsersDialog, setShowUsersDialog] = useState(false)
+  const [ventorCountBySubadmin, setVentorCountBySubadmin] = useState<Record<string, number>>({})
 
   useEffect(() => {
     dispatch(fetchSubadminsThunk())
@@ -38,6 +42,29 @@ export default function AuditsList() {
     }
   }, [gotOffices, dispatch])
 
+  useEffect(() => {
+    const loadCounts = async (): Promise<void> => {
+      try {
+        const pairs = await Promise.all(
+          audits
+            .filter((audit) => Boolean(audit._id))
+            .map(async (audit) => {
+              const ventors = await getSubadminVentorsReq(String(audit._id))
+              return [String(audit._id), ventors.length] as const
+            }),
+        )
+        setVentorCountBySubadmin(Object.fromEntries(pairs))
+      } catch (error) {
+        console.error("Error loading subadmin ventor totals", error)
+      }
+    }
+    if (audits.length > 0) {
+      loadCounts()
+    } else {
+      setVentorCountBySubadmin({})
+    }
+  }, [audits, showUsersDialog])
+
   const handleOfficeClick = (audit: UserInterface) => {
     setSelectedAudit(audit)
     setShowOfficeDialog(true)
@@ -45,21 +72,18 @@ export default function AuditsList() {
 
   const handleCloseDialog = () => {
     setShowOfficeDialog(false)
+    setShowUsersDialog(false)
     setSelectedAudit(null)
+  }
+
+  const handleUsersClick = (audit: UserInterface) => {
+    setSelectedAudit(audit)
+    setShowUsersDialog(true)
   }
 
   // Helper function to get offices where this subadmin is assigned as subadmin
   const getSubadminOffices = (audit: UserInterface) => {
     return offices.filter(office => office.subadmin === audit._id)
-  }
-
-  // Helper function to get office display text for subadmin assignments
-  const getSubadminOfficeDisplayText = (audit: UserInterface) => {
-    const subadminOffices = getSubadminOffices(audit)
-    if (subadminOffices.length > 0) {
-      return subadminOffices.map(office => office.name).join(', ')
-    }
-    return 'No offices assigned'
   }
 
   // Helper function to get office chips for subadmin assignments
@@ -90,18 +114,19 @@ export default function AuditsList() {
 
   return (
     <Box>
-      <Typography variant="h4" component="h1" gutterBottom>
+      <Typography variant="h5" component="h1" gutterBottom>
         Audits/Subadmins
       </Typography>
       
       <TableContainer component={Paper} elevation={2}>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow sx={{ backgroundColor: 'grey.100' }}>
               <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Assigned Offices</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Connected</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -145,6 +170,16 @@ export default function AuditsList() {
                     variant="outlined"
                   />
                 </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Person />}
+                    onClick={() => handleUsersClick(audit)}
+                    size="small"
+                  >
+                    Usuarios ({ventorCountBySubadmin[String(audit._id)] ?? 0})
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -174,6 +209,19 @@ export default function AuditsList() {
           <SubadminOfficeSelector 
             audit={selectedAudit} 
             onClose={handleCloseDialog} 
+          />
+        )}
+      </Dialog>
+      <Dialog
+        open={showUsersDialog}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        {selectedAudit && (
+          <SubadminVentorSelector
+            audit={selectedAudit}
+            onClose={handleCloseDialog}
           />
         )}
       </Dialog>

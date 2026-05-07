@@ -47,7 +47,7 @@ export function HandleUserView() {
       <CheckUserAllowedComponent checkIfAdmin={true} onCheckPermission={notAllowed}>
         <LoadingIndicator open={loading} onClose={() => {}} />
         <CtrlsUserCP/>
-        <UserResumeComponent/>
+        {/* <UserResumeComponent/> */}
         <UserForm />
         <UserDocumentsLoad />
         <UserTools />

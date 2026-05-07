@@ -19,6 +19,7 @@ export default interface UserInterface {
   office?: string | OfficeDataNameI;
   offices?: OfficeDataNameI[];
   lead?: string;
+  subadmin?: string | SubadminDataNameI;
   connected: boolean
   percentage: number
   lastConnection?: string
@@ -38,5 +39,11 @@ export default interface UserInterface {
 export type OfficeDataNameI = {
   name: string
   enable: boolean
+  _id: string
+}
+
+export type SubadminDataNameI = {
+  name: string
+  lastName?: string
   _id: string
 }

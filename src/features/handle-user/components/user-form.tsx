@@ -23,7 +23,7 @@ import {
   toggleShowPassAct,
   updateUserTnunk,
 } from "../handle-user.slice"
-import { useEffect, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import { RootState } from "../../../app/store"
 import AppTextField from "../../../app/components/app-textfield"
 import { ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material"
@@ -33,6 +33,10 @@ import { getOfficesThunk } from "../../offices/offices-list/offices-list.slice"
 import { handleUserStrings as s } from "../../../i18n/locales/handle-user.strings"
 import { pushAlertAction } from "../../dashboard/dashboard.slice"
 import { officeFieldToId } from "../user-field-ids"
+import { subadminFieldToId } from "../user-field-ids"
+import { fetchSubadmins } from "../../../app/services/users.service"
+import AppSelector from "../../../app/components/app-select"
+import UserInterface from "../../../app/models/user-interface"
 
 const levelsForOffice = [2, 3, 4, 5, 6]
 
@@ -41,6 +45,7 @@ export default function UserForm() {
   const { currentUser: userLogged } = useAppSelector((state: RootState) => state.login)
   const { currentUser, showPass } = useAppSelector((state: RootState) => state.handleUser)
   const { offices, gotOffices } = useAppSelector((state: RootState) => state.offices)
+  const [subadmins, setSubadmins] = useState<UserInterface[]>([])
 
   const dispatch = useAppDispatch()
 
@@ -68,6 +73,14 @@ export default function UserForm() {
     }
   }, [])
 
+  useEffect(() => {
+    const loadSubadmins = async (): Promise<void> => {
+      const users = await fetchSubadmins()
+      setSubadmins(users ?? [])
+    }
+    loadSubadmins()
+  }, [])
+
   const handleChangeInput = ({ name, val }: { name?: string | undefined, val: any }) => {
     dispatch(changeInputUserFormActionAct({ name: name!.toString(), val }))
   }
@@ -81,6 +94,7 @@ export default function UserForm() {
   }, [userId, dispatch])
 
   const officeSelectValue = officeFieldToId(currentUser?.office)
+  const subadminSelectValue = subadminFieldToId(currentUser?.subadmin)
 
   return (
     <Accordion defaultExpanded>
@@ -210,6 +224,17 @@ export default function UserForm() {
               {currentUser?.level === 4 && (
                 <Grid item xs={12} md={6}>
                   <OfficeLeadSelector />
+                </Grid>
+              )}
+              {currentUser?.level === 4 && (
+                <Grid item xs={12} md={6}>
+                  <AppSelector
+                    options={subadmins}
+                    label="Coordinador"
+                    name="subadmin"
+                    value={subadminSelectValue}
+                    onChange={handleChangeInput}
+                  />
                 </Grid>
               )}
             </Grid>

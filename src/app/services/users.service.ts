@@ -19,6 +19,7 @@ export type UserCreateRequestBody = {
   percentage?: number
   document?: string
   city?: string
+  subadmin?: string
 }
 
 export type UserUpdateRequestBody = {
@@ -38,6 +39,11 @@ export type UserUpdateRequestBody = {
   password?: string
   document: string
   city: string
+  subadmin?: string
+}
+
+export type SetSubadminVentorsRequestBody = {
+  userIds: string[]
 }
 
 export async function fetchUsers({enable = false} : {enable?: boolean}): Promise<any> {
@@ -130,6 +136,42 @@ export async function updateUserService({
     return updateUser.result as boolean | string
   }
   throw new Error(typeof error === "string" ? error : "Update user failed")
+}
+
+export async function getSubadminVentorsReq(subadminId: string): Promise<UserInterface[]> {
+  const response = await api.get({ path: `users/subadmin/${subadminId}/ventors` })
+  const { error } = response
+  if (error == null) {
+    return response.result as UserInterface[]
+  }
+  throw error
+}
+
+export async function getAvailableSubadminVentorsReq(subadminId: string): Promise<UserInterface[]> {
+  const response = await api.get({ path: `users/subadmin/${subadminId}/ventors/available` })
+  const { error } = response
+  if (error == null) {
+    return response.result as UserInterface[]
+  }
+  throw error
+}
+
+export async function setSubadminVentorsReq({
+  subadminId,
+  userIds,
+}: {
+  subadminId: string
+  userIds: string[]
+}): Promise<UserInterface[]> {
+  const response = await api.put({
+    path: `users/subadmin/${subadminId}/ventors`,
+    data: { userIds } as SetSubadminVentorsRequestBody,
+  })
+  const { error } = response
+  if (error == null) {
+    return response.result as UserInterface[]
+  }
+  throw error
 }
 
 export async function siginReq({user, lat, lng, password} : {user: string, password: string, lat: number, lng: number}): Promise<boolean | UserInterface | undefined> {

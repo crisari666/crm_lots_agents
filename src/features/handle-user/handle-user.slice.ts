@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
 import { generateContractReq, type GenerateContractPayload } from "../../app/services/google.service"
 import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq, type UserCreateRequestBody } from "../../app/services/users.service"
-import { leadFieldToId, officeFieldToId } from "./user-field-ids"
+import { leadFieldToId, officeFieldToId, subadminFieldToId } from "./user-field-ids"
 import { pushAlertAction } from "../dashboard/dashboard.slice"
 import { store } from "../../app/store"
 import { HandleUserState } from "./handle-user-state.interface"
@@ -48,6 +48,8 @@ function buildCreateUserRequestBody(u: UserInterface): UserCreateRequestBody {
   if (oid !== "") body.office = oid
   const lid = leadFieldToId(u.lead)
   if (lid !== "") body.lead = lid
+  const sid = subadminFieldToId(u.subadmin)
+  if ((u.level ?? 4) === 4 && sid !== "") body.subadmin = sid
   body.city = (u.city ?? "").trim()
   return body
 }
@@ -85,7 +87,7 @@ export const uploadUserDocThunk = createAsyncThunk( "handleUser/uploadUserDocThu
 
 export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({dataUser, userId}:{dataUser: UserInterface, userId: string}) => {
   try {
-    const { name, lastName, email, phone, password, level, phoneJob, lead, office, connected, percentage, enable, link, root, document, city } = dataUser
+    const { name, lastName, email, phone, password, level, phoneJob, lead, subadmin, office, connected, percentage, enable, link, root, document, city } = dataUser
     const updateUser = await updateUserService({
       user: {
         name,
@@ -95,6 +97,7 @@ export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({
         level: level ?? 4,
         phoneJob: (phoneJob ?? "").trim(),
         lead: leadFieldToId(lead),
+        subadmin: (level ?? 4) === 4 ? subadminFieldToId(subadmin) : "",
         office: officeFieldToId(office),
         connected,
         percentage,
