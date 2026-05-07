@@ -13,7 +13,6 @@ import LeadsAuditoryView from "../views/leads-auditory-view";
 import OfficeDashboardView from "../views/office-dashboard-view";
 import FaceAuthView from "../views/face-auth-view";
 import FaceAuthFaceDetection from "../views/face-auth-face-detection";
-import AuditResumeView from "../views/auditory-resume-view";
 import UserDocumentsView from "../views/user-documents-view";
 import UsersWithoutCustomersView from "../views/users-without-customers.view";
 import DashboardContent from "../views/dashboard-view";
@@ -59,7 +58,6 @@ const router = createBrowserRouter([
       { path: "staff-performance", element: <StaffPerformanceReportPage /> },
       { path: "leads-auditory", element: <LeadsAuditoryView /> },
       { path: "office-dashboard/:officeId", element: <OfficeDashboardView /> },
-      { path: "audit-resume", element: <AuditResumeView /> },
       { path: "documents", element: <UserDocumentsView /> },
       { path: "twilio-numbers", element: <TwilioNumbersView /> },
       { path: "users-goal-view", element: <UsersGoalsView /> },

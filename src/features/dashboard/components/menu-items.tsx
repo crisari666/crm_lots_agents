@@ -77,7 +77,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     { Icon: <ChecklistRtl />, title: "Auditoria", children: [
       // { to: "/dashboard/leads-auditory", Icon: <ChecklistRtl />, title: "Leads Auditory" },
       { to: "/dashboard/ceo-leads-resume", Icon: <CampaignOutlined />, title: "Leads Resume" },
-      // { to: "/dashboard/audit-resume", Icon: <HistoryEdu />, title: "Resumen Auditoria" },
       // { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
       // { to: "/dashboard/steps", Icon: <Category />, title: "Pasos" },
       // { to: "/dashboard/step-logs", Icon: <WebStories />, title: "Historial Pasos" },

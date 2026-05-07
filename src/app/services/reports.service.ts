@@ -1,11 +1,8 @@
-import { AuditResumeFilter } from "../../features/auditory-resume/audit-resume.state";
 import { LeadPendingChecksRow } from "../../features/leads-auditory/leads-auditory.state";
 import { ReportsFilterI, UserGoalResumeRow } from "../../features/reports/reports.state";
 import Api from "../axios";
 import { AuditCallLogType } from "../models/audit-call-mode.type";
-import { AuditResumeItem } from "../models/audit-resume-item";
 import { AuditCallLogSituationType } from "../models/audit-situation-log.type";
-import { AuditUserResume } from "../models/audit-user-resume-item";
 import { CustomerCallActionsInterface } from "../models/customer-call-actions.interface";
 import { CustomerLogSituationsI } from "../models/customer-logs.inteface";
 import { CustomerInterface } from "../models/customer.interface";
@@ -112,42 +109,6 @@ export async function audtiCallNoteSituationReq({situationLogId, checked} : {sit
     }
   } catch (error) {
     console.error('ERROR ON auditCallReq');
-    console.error({error});
-    throw error;
-  }
-}
-
-export async function getAuditResumeReq({param} : {param : AuditResumeFilter}): Promise<AuditResumeItem[]>{
-  try {
-    const api = Api.getInstance()
-    const response = await api.post({path: `reports/get-resume-audit`, data: param})
-    //console.log('getAuditResume', {response});
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON getAuditResume');
-    console.error({error});
-    throw error;
-  }
-}
-
-export async function getUserAuditResumeReq(params : {userId: string, startDate: string, endDate: string}): Promise<AuditUserResume[]>{
-  try {
-    const api = Api.getInstance()
-    const response = await api.post({path: `reports/get-resume-audit-user`, data: params})
-    //console.log('getUserAuditResume', {response});
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON getUserAuditResume');
     console.error({error});
     throw error;
   }

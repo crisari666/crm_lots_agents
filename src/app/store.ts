@@ -15,7 +15,6 @@ import stepMetadataReducer from "../features/step-metadata/step-metadata.slice";
 import imagePreviewSlice from "../features/image-preview/image-preview.slice";
 import authFaceSlice from "../features/auth-face/auth-face.slice";
 import logArriveSlice from "../features/log-arrive/log-arrive.slice";
-import auditResumeSlice from "../features/auditory-resume/audit-resume.slice";
 import usersWithoutCustomersSlice from "../features/users-without-customers/slice/users-without-customers.slice";
 import statisticsSlice from "../features/statistics/store/statistics.slice";
 import qrArriveSlice from "../features/qr-arrived/slice/qr-arrive.slice";
@@ -71,7 +70,6 @@ export const store = configureStore({
       },
     }),
   reducer: {
-    auditResume: auditResumeSlice,
     authFace: authFaceSlice,
     dashboard: dashboardSlice,
     eventsGateway: eventsGatewaySlice,
