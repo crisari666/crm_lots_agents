@@ -54,6 +54,10 @@ export type ProjectType = {
   reelVideo?: string
   plane?: string
   brochure?: string
+  legalRut?: string
+  legalBusinessRegistration?: string
+  legalBankCertificate?: string
+  legalLibertarianCertificate?: string
   createdAt?: string
   updatedAt?: string
   __v?: number
@@ -103,6 +107,10 @@ export type UpdateProjectDto = {
   cardProject?: string
   horizontalImages?: string[]
   verticalVideos?: string[]
+  legalRut?: string
+  legalBusinessRegistration?: string
+  legalBankCertificate?: string
+  legalLibertarianCertificate?: string
 }
 
 export type ProjectFormState = {

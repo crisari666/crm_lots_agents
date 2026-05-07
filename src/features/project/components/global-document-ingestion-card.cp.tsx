@@ -28,6 +28,12 @@ import type {
   ProjectIngestionSourceMode
 } from "../types/project-document-ingestion.types"
 import { ALL_INGESTION_DOC_TYPES } from "../utils/global-document-ingestion-load.utils"
+import {
+  docTypeNeedsLongDescription,
+  fileIsPdfOrWordUpload,
+  ingestionRowMeetsDescriptionRules,
+  MIN_LONG_MEDIA_DESCRIPTION
+} from "../utils/project-document-ingestion-rules"
 
 function docTypeLabel(docType: ProjectIngestionDocType): string {
   switch (docType) {
@@ -52,20 +58,12 @@ function docTypeLabel(docType: ProjectIngestionDocType): string {
   }
 }
 
-function isValidHttpUrl(value: string): boolean {
-  try {
-    const u = new URL(value.trim())
-    return u.protocol === "http:" || u.protocol === "https:"
-  } catch {
-    return false
-  }
+function formatMin(template: string, min: number) {
+  return template.replace(/\{\{min\}\}/g, String(min))
 }
 
 export function globalIngestionRowReady(row: ProjectIngestionDocumentRow): boolean {
-  if (row.rawText.trim().length === 0) return false
-  if (row.docType === "other" && row.documentKeyName.trim().length === 0) return false
-  if (row.sourceMode === "upload") return !!row.file
-  return isValidHttpUrl(row.externalUrl)
+  return ingestionRowMeetsDescriptionRules(row)
 }
 
 type Props = {
@@ -85,6 +83,20 @@ export default function GlobalDocumentIngestionCardCP({
 }: Props) {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const ready = globalIngestionRowReady(row)
+  const descOptionalPdfWord =
+    row.sourceMode === "upload" && row.file && fileIsPdfOrWordUpload(row.file)
+  const descLong = docTypeNeedsLongDescription(row.docType)
+  const descriptionPlaceholder = descOptionalPdfWord
+    ? s.documentIngestionDescriptionPlaceholderOptionalPdfWord
+    : descLong
+      ? formatMin(s.documentIngestionDescriptionPlaceholderLong, MIN_LONG_MEDIA_DESCRIPTION)
+      : s.documentIngestionDescriptionPlaceholder
+  const descriptionHelper = descOptionalPdfWord
+    ? s.documentIngestionDescriptionHelperOptionalPdfWord
+    : descLong
+      ? formatMin(s.documentIngestionDescriptionHelperLong, MIN_LONG_MEDIA_DESCRIPTION)
+      : s.documentIngestionDescriptionHelper
+  const descriptionRequired = !descOptionalPdfWord
 
   const handleSourceMode = (_: React.MouseEvent<HTMLElement>, mode: ProjectIngestionSourceMode | null) => {
     if (!mode) return
@@ -176,14 +188,14 @@ export default function GlobalDocumentIngestionCardCP({
 
           <TextField
             label={s.documentIngestionDescriptionLabel}
-            placeholder={s.documentIngestionDescriptionPlaceholder}
-            helperText={s.documentIngestionDescriptionHelper}
+            placeholder={descriptionPlaceholder}
+            helperText={descriptionHelper}
             value={row.rawText}
             onChange={(e) => onUpdate(row.id, { rawText: e.target.value })}
             multiline
-            minRows={3}
+            minRows={descLong ? 5 : 3}
             fullWidth
-            required
+            required={descriptionRequired}
           />
 
           {row.docType === "other" && (
@@ -230,7 +242,7 @@ export default function GlobalDocumentIngestionCardCP({
                 type="file"
                 hidden
                 onChange={handleFileChange}
-                accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp,.xls,.xlsx,.csv"
+                accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp,.xls,.xlsx,.csv,.mp4,.webm,.mov"
               />
               <Button
                 variant="outlined"

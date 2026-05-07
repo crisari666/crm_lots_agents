@@ -29,6 +29,7 @@ import {
   UpdateProjectDto
 } from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
+import ProjectLegalDocumentsPanelCP from "./project-legal-documents-panel.cp"
 import { ExistingProjectImage } from "./project-image-picker.cp"
 import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { buildProjectAssetUrl } from "../utils/project-uploads.util"
@@ -388,6 +389,9 @@ export default function EditProjectFormCP() {
           onUploadBrochure={handleUploadBrochure}
           onRemoveBrochure={handleRemoveBrochure}
         />
+        {currentProject && (
+          <ProjectLegalDocumentsPanelCP uploadsBaseUrl={uploadsBaseUrl} project={currentProject} />
+        )}
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>
             Cancel

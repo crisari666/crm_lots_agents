@@ -42,9 +42,15 @@ type Props = {
   open: boolean
   onClose: () => void
   projectId: string
+  onIngestSuccess?: () => void
 }
 
-export default function ProjectDocumentIngestionDialogCP({ open, onClose, projectId }: Props) {
+export default function ProjectDocumentIngestionDialogCP({
+  open,
+  onClose,
+  projectId,
+  onIngestSuccess
+}: Props) {
   const [rows, setRows] = useState<ProjectIngestionDocumentRow[]>(initialEmptyRows)
   const [submittedIds, setSubmittedIds] = useState<Set<string>>(() => new Set())
   const [submitting, setSubmitting] = useState(false)
@@ -241,6 +247,7 @@ export default function ProjectDocumentIngestionDialogCP({ open, onClose, projec
             (failed > 0 ? ` ${formatCount(s.documentIngestionPartialFailure, failed)}` : "")
         })
         await refreshIngestedRows({ showLoading: false })
+        onIngestSuccess?.()
       } else if (failed > 0) {
         const firstErr = results.find((r) => r.status === "rejected") as PromiseRejectedResult | undefined
         const msg = firstErr ? getRagIngestionErrorMessage(firstErr.reason) : ""

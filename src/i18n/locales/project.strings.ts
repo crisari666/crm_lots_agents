@@ -154,7 +154,7 @@ export const projectStrings = {
   documentIngestionButton: "Ingestions de Documentos",
   documentIngestionDialogTitle: "Ingesta de documentos del proyecto",
   documentIngestionDialogDescription:
-    "Cada documento estándar usa el tipo fijo del sistema (imágenes, plano, brochure, etc.). Indique siempre una descripción en texto y elija subir un archivo o una URL. Los documentos adicionales requieren además una clave o nombre identificador.",
+    "Cada documento usa un tipo fijo del sistema. Para PDF o Word por archivo, la descripción es opcional (el texto incrustado se extrae del archivo). Para imágenes, reel/video, plano o brochure se exige una descripción larga. Elija archivo o URL. Los documentos adicionales requieren una clave identificadora.",
   documentIngestionStandardSection: "Documentos estándar",
   documentIngestionAdditionalSection: "Documentos adicionales",
   documentIngestionAddOther: "Agregar otro documento",
@@ -165,9 +165,17 @@ export const projectStrings = {
   documentIngestionModeUpload: "Subir archivo",
   documentIngestionModeUrl: "URL externa",
   documentIngestionDescriptionLabel: "Descripción en texto",
-  documentIngestionDescriptionPlaceholder: "Describa el documento (texto obligatorio para la ingesta).",
+  documentIngestionDescriptionPlaceholder: "Describa el documento (obligatorio salvo PDF/Word subidos como archivo).",
   documentIngestionDescriptionHelper:
-    "Obligatorio. Se envía como rawText en el API junto al archivo o la URL.",
+    "Obligatorio para este tipo. Se envía como rawText junto al archivo o la URL.",
+  documentIngestionDescriptionPlaceholderOptionalPdfWord:
+    "Opcional para PDF/Word: el texto para búsqueda se toma del archivo.",
+  documentIngestionDescriptionHelperOptionalPdfWord:
+    "Opcional si el archivo es PDF o Word. Tras ingerir, aquí verá el texto extraído al recargar la lista.",
+  documentIngestionDescriptionPlaceholderLong:
+    "Descripción detallada del contenido (mín. {{min}} caracteres)…",
+  documentIngestionDescriptionHelperLong:
+    "Obligatorio para imágenes, reel/video, plano o brochure: mínimo {{min}} caracteres.",
   documentIngestionOtherDocumentKey: "Clave o nombre del documento",
   documentIngestionOtherDocumentKeyPlaceholder: "Ej. contrato_apto_101",
   documentIngestionOtherDocumentKeyHelper:
@@ -189,7 +197,7 @@ export const projectStrings = {
   globalIngestionButton: "Ingesta global",
   globalIngestionDialogTitle: "Ingesta global de conocimiento",
   globalIngestionDialogDescription:
-    "Información general no ligada a un proyecto (leyes, normativa, conceptos). Se almacena con projectId GLOBAL en el vector store.",
+    "Información general no ligada a un proyecto (leyes, normativa, conceptos). Se almacena con projectId GLOBAL. Mismas reglas de descripción: PDF/Word por archivo pueden ir sin texto; imágenes/video/plano/brochure requieren descripción larga.",
   globalIngestionDocumentsSection: "Documentos",
   globalIngestionDocTypeLabel: "Tipo de documento",
   globalIngestionLoadingDocuments: "Cargando documentos globales (GLOBAL)…",
@@ -207,4 +215,13 @@ export const projectStrings = {
   ingestionDocTypeBankCertificate: "Certificado bancario",
   ingestionDocTypeLibertarianCertificate: "Certificado de libertad",
   ingestionDocTypeOther: "Otro",
+
+  formSectionLegalDocuments: "Documentos legales (ingesta RAG)",
+  legalDocumentsSectionHint:
+    "Archivos guardados al ingerir tipos RUT, registro mercantil, certificado bancario o certificado de libertad. Enlaces de solo lectura.",
+  legalDocOpenFile: "Abrir archivo",
+  legalDocRut: "RUT",
+  legalDocBusinessRegistration: "Registro mercantil",
+  legalDocBankCertificate: "Certificado bancario",
+  legalDocLibertarianCertificate: "Certificado de libertad",
 } as const
