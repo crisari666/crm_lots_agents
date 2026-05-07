@@ -120,17 +120,7 @@ export const usersListSlice = createSlice({
   },
   extraReducers(builder) {
     builder.addCase(fetchUsersThunk.fulfilled, (state, action: PayloadAction<UserInterface[]>) => {            
-      const users = action.payload.filter(
-        (el) => {
-          if(state.onlyEnableUsers) {
-            if(el.level === 1 || el.level === 0 ) return true;
-            return el.office  ? (el.office as any).enable : false
-          } else {
-            return true
-          }
-        }
-        
-      )
+      const users = action.payload
       state.usersOriginal = users.slice()
       state.users = users
       state.gotUsers = true
