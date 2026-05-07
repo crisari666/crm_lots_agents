@@ -15,6 +15,7 @@ type TrainingTrakingMainSectionCPProps = {
   date: string
   time: string
   location: string
+  responsibleLabel?: string | null
   googleMeetUrl?: string
   error: string | null
   addUserEmail: string
@@ -32,6 +33,7 @@ export default function TrainingTrakingMainSectionCP({
   date,
   time,
   location,
+  responsibleLabel,
   googleMeetUrl,
   error,
   addUserEmail,
@@ -58,6 +60,11 @@ export default function TrainingTrakingMainSectionCP({
       <Typography variant="body2" color="text.secondary">
         {date} · {time} · {location}
       </Typography>
+      {responsibleLabel != null && responsibleLabel.trim() !== "" ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Responsable: {responsibleLabel}
+        </Typography>
+      ) : null}
       {googleMeetUrl ? (
         <Typography variant="body2" sx={{ mt: 0.5 }}>
           Meet:{" "}

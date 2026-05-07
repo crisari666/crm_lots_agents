@@ -190,6 +190,7 @@ const trainingTrakingSlice = createSlice({
             mapsUrl: action.payload.mapsUrl,
             googleMeetUrl: action.payload.googleMeetUrl,
             maxSlots: action.payload.maxSlots,
+            responsibleUserId: action.payload.responsibleUserId,
             createdAt: action.payload.createdAt,
             updatedAt: action.payload.updatedAt,
             attendeeCounts: {

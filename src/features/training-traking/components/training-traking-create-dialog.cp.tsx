@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -8,7 +9,9 @@ import {
   TextField
 } from "@mui/material"
 import { useEffect, useMemo, useState } from "react"
+import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
+import { fetchSubadminsThunk } from "../../users-list/slice/user-list.slice"
 import {
   createTrainingThunk,
   selectTrainingTrakingState,
@@ -29,6 +32,7 @@ export default function TrainingTrakingCreateDialogCP({
 }: TrainingTrakingCreateDialogCPProps) {
   const dispatch = useAppDispatch()
   const { isCreating, isUpdatingTraining } = useAppSelector(selectTrainingTrakingState)
+  const subadmins = useAppSelector((state) => state.users.audits) as UserInterface[]
   const isEditMode = trainingToEdit != null
   const initialForm = useMemo(
     () => ({
@@ -37,7 +41,8 @@ export default function TrainingTrakingCreateDialogCP({
       time: trainingToEdit?.time ?? "",
       location: trainingToEdit?.location ?? "",
       mapsUrl: trainingToEdit?.mapsUrl ?? "",
-      maxSlots: trainingToEdit?.maxSlots ?? 30
+      maxSlots: trainingToEdit?.maxSlots ?? 30,
+      responsibleUserId: trainingToEdit?.responsibleUserId ?? ""
     }),
     [trainingToEdit]
   )
@@ -48,12 +53,18 @@ export default function TrainingTrakingCreateDialogCP({
     setForm(initialForm)
   }, [initialForm, open])
 
+  useEffect(() => {
+    if (!open || subadmins.length > 0) return
+    void dispatch(fetchSubadminsThunk())
+  }, [dispatch, open, subadmins.length])
+
   const handleChange = (key: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (!isEditMode && form.responsibleUserId.trim() === "") return
     if (isEditMode && trainingToEdit != null) {
       await dispatch(
         updateTrainingThunk({
@@ -64,7 +75,10 @@ export default function TrainingTrakingCreateDialogCP({
             time: form.time,
             location: form.location,
             mapsUrl: form.mapsUrl,
-            maxSlots: form.maxSlots
+            maxSlots: form.maxSlots,
+            ...(form.responsibleUserId.trim() !== ""
+              ? { responsibleUserId: form.responsibleUserId.trim() }
+              : {})
           }
         })
       )
@@ -76,11 +90,22 @@ export default function TrainingTrakingCreateDialogCP({
           time: form.time,
           location: form.location,
           mapsUrl: form.mapsUrl,
-          maxSlots: form.maxSlots
+          maxSlots: form.maxSlots,
+          responsibleUserId: form.responsibleUserId.trim()
         })
       )
     }
     onClose()
+  }
+
+  const selectedSubadmin: UserInterface | null =
+    form.responsibleUserId.trim() === ""
+      ? null
+      : subadmins.find((u) => u._id === form.responsibleUserId) ?? null
+
+  const subadminOptionLabel = (user: UserInterface): string => {
+    const full = `${user.name ?? ""} ${user.lastName ?? ""}`.trim()
+    return full.length > 0 ? `${full} · ${user.email}` : user.email
   }
 
   return (
@@ -89,6 +114,31 @@ export default function TrainingTrakingCreateDialogCP({
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Autocomplete
+                options={subadmins}
+                isOptionEqualToValue={(option, value) =>
+                  value == null ? false : option._id === value._id
+                }
+                getOptionLabel={(option) => subadminOptionLabel(option)}
+                value={selectedSubadmin}
+                onChange={(_, value) =>
+                  handleChange("responsibleUserId", value?._id != null ? String(value._id) : "")
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Responsable (subadmin)"
+                    required={!isEditMode}
+                    helperText={
+                      !isEditMode && form.responsibleUserId.trim() === ""
+                        ? "Selecciona un responsable"
+                        : undefined
+                    }
+                  />
+                )}
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 label="Nombre de la capacitación"
@@ -156,7 +206,15 @@ export default function TrainingTrakingCreateDialogCP({
           <Button onClick={onClose} color="inherit">
             Cancelar
           </Button>
-          <Button type="submit" color="primary" disabled={isCreating || isUpdatingTraining}>
+          <Button
+            type="submit"
+            color="primary"
+            disabled={
+              isCreating ||
+              isUpdatingTraining ||
+              (!isEditMode && form.responsibleUserId.trim() === "")
+            }
+          >
             {isEditMode ? "Guardar cambios" : "Crear"}
           </Button>
         </DialogActions>

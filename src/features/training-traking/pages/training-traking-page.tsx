@@ -7,7 +7,7 @@ import type { TrainingListFilterType } from "../types/training-traking.types"
 
 export default function TrainingTrakingPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [activeFilter, setActiveFilter] = useState<TrainingListFilterType>("all")
+  const [activeFilter, setActiveFilter] = useState<TrainingListFilterType>("todayAndFuture")
 
   return (
     <Box sx={{ p: 3 }}>
@@ -21,8 +21,8 @@ export default function TrainingTrakingPage() {
         onChange={(_, value: TrainingListFilterType) => setActiveFilter(value)}
         sx={{ mb: 2 }}
       >
-        <Tab value="all" label="Todas" />
         <Tab value="todayAndFuture" label="Hoy y futuras" />
+        <Tab value="all" label="Todas" />
       </Tabs>
       <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 2fr)", gap: 2 }}>
         <TrainingTrakingListCP filter={activeFilter} />

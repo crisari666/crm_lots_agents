@@ -10,6 +10,7 @@ export type TrainingType = {
   mapsUrl: string
   googleMeetUrl: string
   maxSlots: number
+  responsibleUserId: string | null
   createdAt: string
   updatedAt: string
 }
@@ -58,6 +59,7 @@ export type CreateTrainingPayload = {
   mapsUrl: string
   googleMeetUrl?: string
   maxSlots: number
+  responsibleUserId: string
 }
 
 export type UpdateTrainingPayload = Partial<CreateTrainingPayload>

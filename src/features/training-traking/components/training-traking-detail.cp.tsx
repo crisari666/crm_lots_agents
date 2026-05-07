@@ -4,8 +4,10 @@ import {
   CircularProgress,
   Typography
 } from "@mui/material"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
+import { fetchSubadminsThunk } from "../../users-list/slice/user-list.slice"
 import {
   acceptAttendeeThunk,
   addUserToTrainingByEmailThunk,
@@ -35,6 +37,7 @@ export default function TrainingTrakingDetailCP() {
     isSendingTrainingReminder,
     error
   } = useAppSelector(selectTrainingTrakingState)
+  const subadmins = useAppSelector((state) => state.users.audits) as UserInterface[]
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [addUserEmail, setAddUserEmail] = useState("")
 
@@ -43,6 +46,23 @@ export default function TrainingTrakingDetailCP() {
       dispatch(fetchTrainingDetailThunk(selectedId))
     }
   }, [dispatch, selectedId])
+
+  useEffect(() => {
+    if (selectedId == null || subadmins.length > 0) return
+    void dispatch(fetchSubadminsThunk())
+  }, [dispatch, selectedId, subadmins.length])
+
+  const responsibleLabel = useMemo(() => {
+    if (detail == null || selectedId == null || detail.id !== selectedId) return null
+    const rid = detail.responsibleUserId
+    if (rid == null || String(rid).trim() === "") return null
+    const user = subadmins.find((u) => u._id === rid)
+    if (user != null) {
+      const full = `${user.name ?? ""} ${user.lastName ?? ""}`.trim()
+      return full.length > 0 ? full : user.email
+    }
+    return rid
+  }, [detail, subadmins, selectedId])
 
   if (!selectedId) {
     return (
@@ -172,6 +192,7 @@ export default function TrainingTrakingDetailCP() {
           date={detail.date}
           time={detail.time}
           location={detail.location}
+          responsibleLabel={responsibleLabel}
           googleMeetUrl={detail.googleMeetUrl}
           error={error}
           addUserEmail={addUserEmail}

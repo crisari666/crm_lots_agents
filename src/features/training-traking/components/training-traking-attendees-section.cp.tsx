@@ -10,10 +10,11 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  TextField,
   Tooltip,
   Typography
 } from "@mui/material"
-import { useState, type MouseEvent } from "react"
+import { useMemo, useState, type MouseEvent } from "react"
 import {
   TRAINING_REMINDER_TEMPLATE_OPTIONS,
   type TrainingReminderTemplateName
@@ -50,6 +51,16 @@ export default function TrainingTrakingAttendeesSectionCP({
 }: TrainingTrakingAttendeesSectionCPProps) {
   const [actionsAnchorEl, setActionsAnchorEl] = useState<null | HTMLElement>(null)
   const [actionsAttendee, setActionsAttendee] = useState<TrainingAttendeeType | null>(null)
+  const [attendeeFilterQuery, setAttendeeFilterQuery] = useState("")
+  const filteredAttendees = useMemo(() => {
+    const q = attendeeFilterQuery.trim().toLowerCase()
+    if (q === "") return attendees
+    return attendees.filter((a) => {
+      const name = (a.name ?? "").toLowerCase()
+      const email = (a.email ?? "").toLowerCase()
+      return name.includes(q) || email.includes(q)
+    })
+  }, [attendees, attendeeFilterQuery])
 
   const handleOpenAttendeeMenu = (
     event: MouseEvent<HTMLElement>,
@@ -111,12 +122,27 @@ export default function TrainingTrakingAttendeesSectionCP({
         </Button>
       </Box>
 
+      {attendees.length > 0 ? (
+        <TextField
+          size="small"
+          fullWidth
+          placeholder="Buscar por nombre o email"
+          value={attendeeFilterQuery}
+          onChange={(e) => setAttendeeFilterQuery(e.target.value)}
+          sx={{ mb: 1.5 }}
+        />
+      ) : null}
+
       {attendees.length === 0 ? (
         <Typography variant="body2" color="text.secondary">
           No hay inscritos aún.
         </Typography>
+      ) : filteredAttendees.length === 0 ? (
+        <Typography variant="body2" color="text.secondary">
+          Sin coincidencias.
+        </Typography>
       ) : (
-        attendees.map((attendee) => (
+        filteredAttendees.map((attendee) => (
           <Box
             key={attendee.id}
             sx={{
