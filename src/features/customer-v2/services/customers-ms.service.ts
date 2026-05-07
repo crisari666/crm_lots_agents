@@ -5,6 +5,7 @@ export type {
   CustomerAdminListItem,
   CustomerAdminListResponse,
   CustomerAdminNote,
+  CustomerAutocompleteItem,
   CustomerCallLogAdminEvent,
   CustomerCallLogAdminItem,
   CustomerCallLogAdminOutcome,
@@ -16,6 +17,7 @@ export type {
   ListCustomerEventsParams,
   ListCustomerEventsResponse,
   ListCustomersAdminParams,
+  SearchCustomersAutocompleteParams,
   UpdateCustomerAdminBody,
 } from "./customers-ms-admin-customer.types"
 export {
@@ -27,6 +29,7 @@ export {
   listCustomerEventsByCustomerId,
   listCustomerCallLogs,
   listCustomersAdmin,
+  searchCustomersAutocomplete,
   updateCustomerAdmin,
   updateCustomerReferral,
 } from "./customers-ms-admin-customer.http"

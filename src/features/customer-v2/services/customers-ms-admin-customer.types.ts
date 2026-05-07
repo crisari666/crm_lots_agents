@@ -168,6 +168,20 @@ export type ListCallLogsAdminResponse = {
   total: number
 }
 
+export type CustomerAutocompleteItem = {
+  id: string
+  name?: string
+  lastName?: string
+  phone: string
+  document?: string
+  email?: string
+}
+
+export type SearchCustomersAutocompleteParams = {
+  q: string
+  limit?: number
+}
+
 export type CustomerEventType =
   | "WHATSAPP_CALL"
   | "WHATSAPP_MESSAGE"

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import axios from "axios"
 import {
+  type CustomerAutocompleteItem,
   type CustomerEventType,
   type ListCustomerEventsParams,
   type ListCustomerEventsResponse,
@@ -22,9 +23,12 @@ export type CustomerEventsState = {
   filters: {
     dateFrom: string
     dateTo: string
+    excludeDate: boolean
     eventType: CustomerEventType | ""
     officeId: string
     userId: string
+    customerId: string
+    selectedCustomer: CustomerAutocompleteItem | null
     limit: 100 | 200 | 500
     page: number
   }
@@ -54,9 +58,12 @@ const initialState: CustomerEventsState = {
   filters: {
     dateFrom: initialDayRange.dateFrom,
     dateTo: initialDayRange.dateTo,
+    excludeDate: false,
     eventType: "",
     officeId: "",
     userId: "",
+    customerId: "",
+    selectedCustomer: null,
     limit: 100,
     page: 0,
   },

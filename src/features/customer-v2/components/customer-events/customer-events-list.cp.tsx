@@ -21,6 +21,7 @@ import {
   fetchCustomerEventsAdminThunk,
   setCustomerEventsFiltersAct,
 } from "../../redux/customer-events.slice"
+import { fetchCustomerAdminDetailThunk } from "../../redux/customer-v2.slice"
 import { getCustomerEventTypeLabel } from "./customer-event-types"
 
 const TABLE_COLUMN_COUNT = 6
@@ -59,11 +60,12 @@ export default function CustomerEventsListCP() {
 
   const queryParams = useMemo(
     () => ({
-      dateFrom: filters.dateFrom,
-      dateTo: filters.dateTo,
+      dateFrom: filters.excludeDate ? undefined : filters.dateFrom,
+      dateTo: filters.excludeDate ? undefined : filters.dateTo,
       eventType: filters.eventType || undefined,
       officeId: filters.officeId || undefined,
       userId: filters.userId || undefined,
+      customerId: filters.customerId || undefined,
       limit: filters.limit,
       skip: filters.page * filters.limit,
     }),
@@ -130,7 +132,17 @@ export default function CustomerEventsListCP() {
                     </Box>
                   </TableCell>
                   <TableCell>{userName}</TableCell>
-                  <TableCell>{customerName}</TableCell>
+                  <TableCell>
+                    <Chip
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      clickable
+                      label={customerName}
+                      onClick={() => void dispatch(fetchCustomerAdminDetailThunk(row.customerId))}
+                      sx={{ cursor: "pointer", maxWidth: 240 }}
+                    />
+                  </TableCell>
                 </TableRow>
               )
             })}

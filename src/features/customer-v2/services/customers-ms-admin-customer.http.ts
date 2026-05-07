@@ -3,12 +3,14 @@ import type {
   CreateCustomerAdminBody,
   CustomerAdminDetail,
   CustomerAdminListResponse,
+  CustomerAutocompleteItem,
   CustomerCallLogAdminItem,
   ListCallLogsAdminParams,
   ListCallLogsAdminResponse,
   ListCustomerEventsParams,
   ListCustomerEventsResponse,
   ListCustomersAdminParams,
+  SearchCustomersAutocompleteParams,
   StaffPerformanceReportBody,
   StaffPerformanceReportDto,
   UpdateCustomerAdminBody,
@@ -90,6 +92,16 @@ export async function listCallLogsAdmin(
     params,
     ...auth(),
   })
+  return response.data
+}
+
+export async function searchCustomersAutocomplete(
+  params: SearchCustomersAutocompleteParams
+): Promise<CustomerAutocompleteItem[]> {
+  const response = await customersMsAxios.get<CustomerAutocompleteItem[]>(
+    "admin/customer/search",
+    { params, ...auth() }
+  )
   return response.data
 }
 

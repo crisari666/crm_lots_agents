@@ -1,5 +1,13 @@
 import { useEffect, useMemo } from "react"
-import { Autocomplete, Box, Button, Stack, TextField } from "@mui/material"
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Stack,
+  TextField,
+} from "@mui/material"
 import { Search as SearchIcon } from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import AppDateRangeSelector from "../../../../app/components/app-date-range-selector"
@@ -9,6 +17,7 @@ import {
   fetchCustomerEventsAdminThunk,
   setCustomerEventsFiltersAct,
 } from "../../redux/customer-events.slice"
+import CustomerAutocompleteAsyncCP from "../customer-autocomplete-async.cp"
 import { CUSTOMER_EVENT_TYPE_OPTIONS } from "./customer-event-types"
 
 function getOfficeIdFromUser(user: { office?: unknown }): string {
@@ -58,11 +67,12 @@ export default function CustomerEventsFiltersCP() {
   const runSearch = () => {
     void dispatch(
       fetchCustomerEventsAdminThunk({
-        dateFrom: filters.dateFrom,
-        dateTo: filters.dateTo,
+        dateFrom: filters.excludeDate ? undefined : filters.dateFrom,
+        dateTo: filters.excludeDate ? undefined : filters.dateTo,
         eventType: filters.eventType || undefined,
         officeId: filters.officeId || undefined,
         userId: filters.userId || undefined,
+        customerId: filters.customerId || undefined,
         limit: filters.limit,
         skip: filters.page * filters.limit,
       })
@@ -72,22 +82,39 @@ export default function CustomerEventsFiltersCP() {
   return (
     <Box sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1, mb: 2 }}>
       <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
-        <Box sx={{ minWidth: 240 }}>
-          <AppDateRangeSelector
-            id="customer-events-date-range"
-            dateStart={new Date(filters.dateFrom)}
-            dateEnd={new Date(filters.dateTo)}
-            onChange={({ dateStart, dateEnd }) =>
-              dispatch(
-                setCustomerEventsFiltersAct({
-                  dateFrom: dateStart.toISOString(),
-                  dateTo: dateEnd.toISOString(),
-                  page: 0,
-                })
-              )
+        <Stack spacing={0.5} sx={{ minWidth: 240 }}>
+          <Box sx={{ opacity: filters.excludeDate ? 0.5 : 1, pointerEvents: filters.excludeDate ? "none" : "auto" }}>
+            <AppDateRangeSelector
+              id="customer-events-date-range"
+              dateStart={new Date(filters.dateFrom)}
+              dateEnd={new Date(filters.dateTo)}
+              onChange={({ dateStart, dateEnd }) =>
+                dispatch(
+                  setCustomerEventsFiltersAct({
+                    dateFrom: dateStart.toISOString(),
+                    dateTo: dateEnd.toISOString(),
+                    page: 0,
+                  })
+                )
+              }
+            />
+          </Box>
+          <FormControlLabel
+            sx={{ m: 0, cursor: "pointer" }}
+            control={
+              <Checkbox
+                size="small"
+                checked={filters.excludeDate}
+                onChange={(_, checked) =>
+                  dispatch(setCustomerEventsFiltersAct({ excludeDate: checked, page: 0 }))
+                }
+                sx={{ cursor: "pointer", py: 0.25 }}
+              />
             }
+            label="Sin filtro de fecha"
+            slotProps={{ typography: { variant: "caption" } }}
           />
-        </Box>
+        </Stack>
         <Autocomplete
           size="small"
           sx={{ minWidth: 210 }}
@@ -126,6 +153,19 @@ export default function CustomerEventsFiltersCP() {
           }
           getOptionLabel={(option) => `${option.name} ${option.lastName}`.trim()}
           renderInput={(params) => <TextField {...params} label="User (physical)" />}
+        />
+        <CustomerAutocompleteAsyncCP
+          value={filters.selectedCustomer}
+          onChange={(option) =>
+            dispatch(
+              setCustomerEventsFiltersAct({
+                customerId: option?.id ?? "",
+                selectedCustomer: option ?? null,
+                page: 0,
+              })
+            )
+          }
+          minWidth={260}
         />
         <Button
           variant="contained"
