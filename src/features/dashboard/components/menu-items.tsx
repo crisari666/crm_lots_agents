@@ -4,8 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, AppsOutage, ArrowDropDown, ArrowRight, BusinessOutlined, Calculate, Campaign, CampaignOutlined, CampaignRounded, Category, ChecklistRtl, Collections, CollectionsOutlined, ContactPhone, CreditScore, Dashboard, Description, Done, Dvr, ElectricalServices, FaceRetouchingNatural, HistoryEdu, HistorySharp, ListAlt, Money, PaymentRounded, PeopleAltTwoTone, PercentOutlined, Person2Outlined, PersonPin, PersonPinCircle, PhoneAndroid, PriceChange, Route, Settings, SupportAgent, UploadFileSharp, WebStories, WifiTetheringErrorRoundedSharp } from "@mui/icons-material"
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, CampaignRounded, Category, ChecklistRtl, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, HistorySharp, ListAlt, PeopleAltTwoTone, PersonPinCircle, PhoneAndroid, PriceChange, Settings, UploadFileSharp } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -72,11 +71,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     ] },
 
     { Icon: <PriceChange />, title: "Finanzas", superAdmin: true, children: [
-      { to: "/dashboard/expenses", Icon: <PriceChange />, title: "Gastos" },
-      // { to: "/dashboard/download-payment", Icon: <PaymentRounded />, title: "Descargar pago" },
-      // { to: "/dashboard/users-percentage", Icon: <PercentOutlined />, title: "Porcentajes" },
-      // { to: "/dashboard/download-pays-history", Icon: <HistorySharp />, title: "Historial descargas" },
-      // { to: "/dashboard/payment-route-template", Icon: <Route />, title: "Rutas de Pago" },
+      { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
     ] },
 
     { Icon: <ChecklistRtl />, title: "Auditoria", children: [
@@ -95,11 +90,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       // { to: "/dashboard/check-customers", Icon: <PersonPin />, title: "Validacion clientes" },
     ] },
     
-    { to: "/dashboard/situations", Icon: <ListAlt />, title: "Situaciones" },
     { to: "/dashboard/settings", Icon: <Settings />, title: "Settings" },
-    
-    
-    { to: "/dashboard/unstrusted-payments", Icon: <CreditScoreIcon />, title: "Validar pagos" },
     { to: "/dashboard/events-gateway", Icon: <ElectricalServices />, title: "Socket" },
     { to: "/dashboard/twilio-numbers", Icon: <PhoneAndroid />, title: "Twilio numbers" },
     
@@ -114,32 +105,22 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
   
   const mapRoutesAssigner: RouteItemI[] = [
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios" },
-    { to: "/dashboard/numbers", Icon: <Dvr />, title: "Clientes" },
-    // { to: "/dashboard/lead-campaign", Icon: <Campaign />, title: "Campaña" },
-    //{ to: "/dashboard/collectors", Icon: <CollectionsOutlined />, title: "Cobradores" },
+    { to: "/dashboard/customers-v2", Icon: <Dvr />, title: "Clientes" },
     { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
-    { to: "/dashboard/worker-payments", Icon: <ContactPhone />, title: "Pagos" },
   ]
 
   const mapRoutesFinance: RouteItemI[] = [
-    // { to: "/dashboard/download-payment", Icon: <PaymentRounded />, title: "Descargar pago" },
-    // { to: "/dashboard/download-pays-history", Icon: <HistorySharp />, title: "Historial descargas" },
-    { to: "/dashboard/expenses", Icon: <PriceChange />, title: "Gastos" },
-    // { to: "/dashboard/calculator", Icon: <Calculate />, title: "Calculadora" },
+    { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
   ]
   
   const mapRoutesLeader: RouteItemI[] = [
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios" },
-    { to: "/dashboard/worker-payments", Icon: <ContactPhone />, title: "Pagos" },
-    { to: "/dashboard/numbers", Icon: <ArrowDropDown />, title: "Clientes" },
+    { to: "/dashboard/customers-v2", Icon: <ArrowDropDown />, title: "Clientes" },
     { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
-    
   ]
 
   const mapRoutesUser: RouteItemI[] = [
-    { to: "/dashboard/numbers", Icon: <ContactPhone />, title: "Clientes" },
-    { to: "/dashboard/worker-payments", Icon: <Money />, title: "Pagos" },
-    //{ to: "/dashboard/lead-campaign", Icon: <Campaign />, title: "Campaña" },
+    { to: "/dashboard/customers-v2", Icon: <ContactPhone />, title: "Clientes" },
   ]
   
   const mapRoutesOffice: RouteItemI[] = [
@@ -150,13 +131,11 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
   ]
   
   const mapRoutesSecretary: RouteItemI[] = [
-    { to: "/dashboard/verify-payments", Icon: <PersonPinCircle />, title: "Verificar pagos" },
-    //{ to: "/dashboard/lead-campaign", Icon: <Campaign />, title: "Campaña" },
+    { to: "/dashboard/customers-v2", Icon: <PersonPinCircle />, title: "Clientes" },
   ]
   
   const mapRoutesAssignerCampaign: RouteItemI[] = [
-    { to: "/dashboard/campaign-customers", Icon: <CampaignRounded />, title: "Asignar clientes", }
-    //{ to: "/dashboard/lead-campaign", Icon: <Campaign />, title: "Campaña" },
+    { to: "/dashboard/customers-v2", Icon: <CampaignRounded />, title: "Clientes" },
   ]
 
   return (

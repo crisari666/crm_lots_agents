@@ -3,7 +3,7 @@ import { UserCustomerFilterDate, UserCustomersState } from "./user-customers.sta
 import { getActiveCustomersByStepForOfficeReq, getUserCustomersResumeDetailReq, gUserCustomersResumeReq } from "../../app/services/user-customers.service";
 import moment from "moment";
 import { getUserPaymentsByDatesReq } from "../../app/services/payments.service";
-import { CustomerStepsFormFilter } from "../customer-steps-log/customer-step-log.state";
+import { CustomerStepsFormFilter } from "./types/customer-steps-filter.type";
 
 const initialState: UserCustomersState = {
   loading: false,

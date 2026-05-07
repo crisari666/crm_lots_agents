@@ -1,4 +1,4 @@
-import { SituationFormI } from "../../features/customer-situations/client-situations/client-situations.state";
+import { SituationFormI } from "../models/situation-form.type";
 import Api from "../axios";
 import { CustomerInterface } from "../models/customer.interface";
 import { SituationInterface } from "../models/situation-interface";

@@ -1,4 +1,4 @@
-import { CustomersActivesRowType } from "../../features/users-actives-snap-shot/business-logic/customers-actives-snap-shot.state";
+import { CustomersActivesRowType } from "../models/customers-actives-snapshot-row.type";
 import Api from "../axios";
 import { UserWithNotCustomerResultType, WeekUserWithNotCustomersType } from "../models/users-withnot-customer-by-week.type";
 

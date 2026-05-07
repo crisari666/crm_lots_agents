@@ -6,7 +6,7 @@ import AppSelector from "../../../app/components/app-select";
 import { useEffect, useState } from "react";
 import { Download, Visibility } from "@mui/icons-material";
 import { getActiveCustomersByStepForOfficeThunk } from "../../user-customers/user-customer.slice";
-import { getStepsThunk } from "../../steps/steps.slice";
+import { getStepsThunk } from "../../step-metadata/step-metadata.slice";
 import { Link, useParams } from "react-router-dom";
 import { numberToCurrency } from "../../../utils/numbers.utils";
 

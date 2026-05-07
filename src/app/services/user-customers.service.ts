@@ -1,4 +1,4 @@
-import { CustomerStepsFormFilter } from "../../features/customer-steps-log/customer-step-log.state";
+import { CustomerStepsFormFilter } from "../../features/user-customers/types/customer-steps-filter.type";
 import { CustomerResumeUsers, CustomerStepLogRow, UserResumeRow } from "../../features/user-customers/user-customers.state";
 import Api from "../axios";
 import { OfficeCustomersResumeRow } from "../models/office-customers-resume-row";

@@ -1,4 +1,4 @@
-import { CustomerSituationFormI } from "../../features/customers/customer-view/customer-view.state";
+import { CustomerSituationFormI } from "../models/customer-situation-log-form.type";
 import { FileUtils } from "../../utils/file.utils";
 import Api from "../axios";
 import { CustomerLogSituationsI } from "../models/customer-logs.inteface";

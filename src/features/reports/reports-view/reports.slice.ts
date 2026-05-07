@@ -4,7 +4,7 @@ import { getCurrenDateUtil, getCurrentDateTime } from "../../../utils/date.utils
 import { auditCallReq, audtiCallNoteSituationReq, getCallLogsResumeWithSituationsReq, getReportsReq, getUserGoalsResumReq, logCustomerNotCalledReq } from "../../../app/services/reports.service"
 import { confirmLogSituationReq } from "../../../app/services/log-situations.service"
 import { confirmImageFeePaymentReq, getAlertedPaymentsReq } from "../../../app/services/payments.service"
-import { recycleCustomerReq } from "../../../app/services/customer.service"
+import { recycleCustomerMonolithReq } from "../../../app/services/legacy-customer-monolith.service";
 
 
 const initialState: ReportsStateI = {
@@ -50,7 +50,11 @@ export const usersGoalsResumeThunk = createAsyncThunk("ReportsSlice/usersGoalsRe
 
 export const getAlertedPaysThunks = createAsyncThunk("ReportsSlice/getAlertedPaysThunks", async () => await getAlertedPaymentsReq())
 
-export const recycleCustomerThunk = createAsyncThunk("ReportsSlice/recycleCustomerThunk", async ({customerId}: {customerId: string, index: number, typeReport: string}) => await recycleCustomerReq({customerId}))
+export const recycleCustomerThunk = createAsyncThunk(
+  "ReportsSlice/recycleCustomerThunk",
+  async (params: { customerId: string; index: number; typeReport: string }) =>
+    await recycleCustomerMonolithReq({ customerId: params.customerId }),
+);
 
 export const logCustomerAtNotCalledThunk = createAsyncThunk( "Report/logCustomerAtNotCalledThunk", async (PARAM: {index: number, customer : string, userId: string, dateAssigned: string}) => await logCustomerNotCalledReq(PARAM))
 

@@ -4,7 +4,7 @@ import { Button, Grid, Paper, } from "@mui/material";
 import AppSelector from "../../../app/components/app-select";
 import { OmegaSoftConstants } from "../../../app/khas-web-constants";
 import { useEffect } from "react";
-import { getStepsThunk } from "../../steps/steps.slice";
+import { getStepsThunk } from "../../step-metadata/step-metadata.slice";
 import { Done } from "@mui/icons-material";
 import { changeInputStepStatsAct, getStepStatsThunk } from "../store/statistics.slice";
 import moment from "moment";

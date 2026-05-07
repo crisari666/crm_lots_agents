@@ -2,11 +2,13 @@ import { Dialog, DialogContent, DialogTitle, IconButton, Table, TableBody, Table
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { Close, History, Visibility } from "@mui/icons-material";
 import { buildCallLogsResumeAudit, getCallsResumeAudit } from "../../../utils/customer.utils";
-import { closeDialogUserAuditResumeAct } from "../audit-resume.slice";
+import {
+  closeDialogUserAuditResumeAct,
+  fetchAuditCustomerCallActionsThunk,
+  fetchAuditCustomerResumeThunk,
+} from "../audit-resume.slice";
 import { ThemeProvider } from "@emotion/react";
 import { themeCondense } from "../../../app/themes/theme-condense";
-import { getCustomerCallActionsThunk } from "../../customers/customers-list/customers.slice";
-import { getCustomerResumeThunk } from "../../customers/customer-view/customer-view.slice";
 
 export default function AuditUserResumeDialog() {
   const dispatch = useAppDispatch
@@ -44,8 +46,8 @@ export default function AuditUserResumeDialog() {
                         <TableCell align="center" sx={{width: 100}}> {`${call.rc_checked + call.rc_notChecked}/${call.rc_checked}`} </TableCell>
                         <TableCell align="center" sx={{width: 100}}> {`${call.rnc_checked + call.rnc_notChecked}/${call.rnc_checked}`} </TableCell>
                         <TableCell align="center" > {`${(log.checked + log.not_checked)}/${log.checked}`} </TableCell> 
-                        <TableCell align="center" > <IconButton onClick={() =>  dispatch(getCustomerCallActionsThunk({customerId: item._id}))}> <History/> </IconButton> </TableCell> 
-                        <TableCell align="center" > <IconButton onClick={() =>  dispatch(getCustomerResumeThunk(item._id))}> <Visibility/> </IconButton> </TableCell> 
+                        <TableCell align="center" > <IconButton onClick={() =>  void dispatch(fetchAuditCustomerCallActionsThunk({ customerId: item._id }))}> <History/> </IconButton> </TableCell> 
+                        <TableCell align="center" > <IconButton onClick={() =>  void dispatch(fetchAuditCustomerResumeThunk({ customerId: item._id }))}> <Visibility/> </IconButton> </TableCell> 
                     </TableRow>)
                   } 
                   )}

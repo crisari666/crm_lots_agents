@@ -9,7 +9,7 @@ import { getOfficesThunk } from "../../offices/offices-list/offices-list.slice";
 import { stepByWeeksGraphThunk } from "../store/statistics.slice";
 import { Check } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts";
-import { getStepsThunk } from "../../steps/steps.slice";
+import { getStepsThunk } from "../../step-metadata/step-metadata.slice";
 export default function StepsByWeekGraph() {
   const [office, setOffice] = useState<string>('')  
   const [dateStart, setDateStart] = useState<string>(getCurrenDateUtil())
