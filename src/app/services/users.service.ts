@@ -189,23 +189,6 @@ export async function siginReq({user, lat, lng, password} : {user: string, passw
   }
 }
 
-export async function getDebtCollectorsReq({customerId} : {customerId: string}): Promise<UserInterface[]>  {
-  try {
-    const api = Api.getInstance()
-    const response = await api.get({path: `users/debt-collectors/${customerId}`})
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON getDebtCollectorsReq');
-    console.error({error});
-    throw error;
-  }
-}
-
 export async function updateUserOfficeReq({userId, officeId, lead} : {userId : string, officeId: string, lead: string}): Promise<UserInterface>  {
   try {
     const api = Api.getInstance()

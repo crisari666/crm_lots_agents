@@ -6,7 +6,6 @@ import { CustomerInterface } from "../../../app/models/customer.interface"
 import { FeeInterface } from "../../../app/models/fee.interface"
 import { CustomerPaymentInterface } from "../../../app/models/payment.interface"
 import { SituationInterface } from "../../../app/models/situation-interface"
-import UserInterface from "../../../app/models/user-interface"
 import { CustomerWasTreatedType } from "../customers-list/customers.state"
 
 export type CustomerViewStateI = {
@@ -16,7 +15,6 @@ export type CustomerViewStateI = {
   formNewSituation: CustomerSituationFormI
   customerLogs: CustomerLogSituationsI[]
   customerPaymentForm: CustomerPaymentFormI
-  debtCollectors: UserInterface[]
   customerPayments: CustomerPaymentInterface[]
   dialogAddFee?: DialogAddFeeI
   feePaymentsHistory?: FeeHistoryPaymentDialogStateI

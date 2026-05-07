@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
-import { checkIfCustomerWasTreatedThunk, getCustomerThunk, getDebtCollectorsThunk, getSituationsCustomerThunk } from "./customer-view.slice"
+import { checkIfCustomerWasTreatedThunk, getCustomerThunk, getSituationsCustomerThunk } from "./customer-view.slice"
 import CustomerHeadForm from "./components/customer-head-form"
 import { Box, Divider } from "@mui/material"
 import CustomerSituationsHandler from "./components/customer-situations-handler"
@@ -16,7 +16,6 @@ export default function CustomerView() {
     if(customerId !== undefined){
       dispatch(getCustomerThunk({customerId}))
       dispatch(getSituationsCustomerThunk())
-      dispatch(getDebtCollectorsThunk({customerId}))
       dispatch(checkIfCustomerWasTreatedThunk(customerId))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -5,7 +5,6 @@ import { CustomerInterface } from "../../../app/models/customer.interface"
 import { getSituationsCallNoteReq } from "../../../app/services/situations.service"
 import { SituationInterface } from "../../../app/models/situation-interface"
 import { addCustomerLogReq, getCustomerLogsReq } from "../../../app/services/log-situations.service"
-import { getDebtCollectorsReq } from "../../../app/services/users.service"
 import { addFeePaymentReq, addPaymentReq, customerPaymentsReq } from "../../../app/services/payments.service"
 import { getCurrenDateUtil } from "../../../utils/date.utils"
 import { FeeInterface } from "../../../app/models/fee.interface"
@@ -19,7 +18,6 @@ const formNewSituation: CustomerSituationFormI = {
 const formPayment: CustomerPaymentFormI = {
   date: getCurrenDateUtil(),
   paymentAlerted: false,
-  debtCollector: "",
   done: false,
   value: 0, 
   step: ''
@@ -33,7 +31,6 @@ const initialState: CustomerViewStateI = {
   showDialogSureDisableCustomer: false,
   customerLogs: [],
   customerPaymentForm: formPayment,
-  debtCollectors: [],
   customerPayments: [],
   imagePreview: "",
   imageSituationZoom: undefined,
@@ -44,8 +41,6 @@ const initialState: CustomerViewStateI = {
 }
 
 export const checkIfCustomerWasTreatedThunk = createAsyncThunk( "CustomerSlice/checkIfCustomerWasTreatedThunk", async (customerId: string) => await checIfCustomerWasTreatedReq({customerId}))
-
-export const getDebtCollectorsThunk = createAsyncThunk("CustomerSlice/getDebtCollectorsThunk", async ({customerId} : {customerId: string}) => await getDebtCollectorsReq({customerId}))
 
 export const getCustomerThunk = createAsyncThunk("CustomerSlice/getCustomerThunk", async ({ customerId } : { customerId : string}): Promise<CustomerInterface> => await getCustomerById({customerId}))
 
@@ -155,8 +150,6 @@ export const CustomerViewSlice = createSlice({
       state.formNewSituation = formNewSituation
       state.customerLogs.push(action.payload)
       state.showDialogImageSituation = false
-    }).addCase(getDebtCollectorsThunk.fulfilled, (state, action) => {
-      state.debtCollectors = action.payload
     }).addCase(getCustomerPaymentsThunk.fulfilled, (state, action) => {
       state.customerPayments = action.payload
     }).addCase(addCustomerPaymentThunk.fulfilled, (state, action) => {
