@@ -11,9 +11,6 @@ import CustomerAssigned from "./customer-resume/customer-assigned";
 import CustomerShutDownHistory from "./customer-resume/customer-shutdown-history";
 import CustomerResumeCalls from "./customer-resume/customer-resume-call";
 import CustomerCallLogs from "./customer-resume/customer-call-logs";
-import CustomerAlerts from "./customer-resume/customer-alerts";
-
-
 const theme = createTheme({
   components: {
     MuiDialog: {styleOverrides: {paper: {maxWidth: '1000px'}}},
@@ -45,7 +42,7 @@ export default function CustomerResumeDialog() {
         <DialogContent sx={{width: '1000px'}}>
           {customerResume !== undefined && <>
             <TabHandler
-              tabNames={['Datos', 'Calls', 'Call Logs', 'Situaciones', 'Pagos', 'Asignado', 'Baja', 'Alertas']}
+              tabNames={['Datos', 'Calls', 'Call Logs', 'Situaciones', 'Pagos', 'Asignado', 'Baja']}
               tabComponents={[
                 <CustomerResumeData customerResume={customerResume} />,
                 <CustomerResumeCalls  />,
@@ -54,7 +51,6 @@ export default function CustomerResumeDialog() {
                 <CustomerResumePayments payments={customerResume.payments}/>,
                 <CustomerAssigned assigneds={customerResume.customer.length > 0 ? customerResume.customer[0].historicalAssignations : []}/>,
                 <CustomerShutDownHistory history={customerResume.customer.length > 0 ? customerResume.customer[0].historicalDisables : []} />,
-                <CustomerAlerts customerResume={customerResume} />,
               ]}
             />
 

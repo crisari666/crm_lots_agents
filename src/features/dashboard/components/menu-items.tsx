@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import {  AddAlertTwoTone, AdminPanelSettings, AnalyticsOutlined,  AppsOutage,  ArrowDropDown,  ArrowRight,  BusinessOutlined, Calculate, Campaign, CampaignOutlined, CampaignRounded, Category, ChecklistRtl, Collections, CollectionsOutlined, ContactPhone, CreditScore, Dashboard, Description, Done, Dvr, ElectricalServices, FaceRetouchingNatural, HistoryEdu, HistorySharp, ListAlt, Money, PaymentRounded, PeopleAltTwoTone, PercentOutlined, Person2Outlined, PersonPin, PersonPinCircle, PhoneAndroid, PriceChange, Route, Settings, SupportAgent, UploadFileSharp, WebStories, WifiTetheringErrorRoundedSharp } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, AppsOutage, ArrowDropDown, ArrowRight, BusinessOutlined, Calculate, Campaign, CampaignOutlined, CampaignRounded, Category, ChecklistRtl, Collections, CollectionsOutlined, ContactPhone, CreditScore, Dashboard, Description, Done, Dvr, ElectricalServices, FaceRetouchingNatural, HistoryEdu, HistorySharp, ListAlt, Money, PaymentRounded, PeopleAltTwoTone, PercentOutlined, Person2Outlined, PersonPin, PersonPinCircle, PhoneAndroid, PriceChange, Route, Settings, SupportAgent, UploadFileSharp, WebStories, WifiTetheringErrorRoundedSharp } from "@mui/icons-material"
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
@@ -119,7 +119,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     //{ to: "/dashboard/collectors", Icon: <CollectionsOutlined />, title: "Cobradores" },
     { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
     { to: "/dashboard/worker-payments", Icon: <ContactPhone />, title: "Pagos" },
-    { to: "/dashboard/lead-alerts", Icon: <AddAlertTwoTone />, title: "Alertas equipo" },
   ]
 
   const mapRoutesFinance: RouteItemI[] = [
@@ -133,7 +132,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios" },
     { to: "/dashboard/worker-payments", Icon: <ContactPhone />, title: "Pagos" },
     { to: "/dashboard/numbers", Icon: <ArrowDropDown />, title: "Clientes" },
-    { to: "/dashboard/lead-alerts", Icon: <AddAlertTwoTone />, title: "Alertas equipo" },
     { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
     
   ]

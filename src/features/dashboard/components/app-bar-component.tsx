@@ -4,7 +4,6 @@ import MenuIcon from "@mui/icons-material/Menu"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import AppBarNottifications from "./app-bar-nottifications"
-import AppBarAlerts from "./app-bar-alerts"
 import { getUserLevelDesc } from "../../../utils/user.utils"
 
 
@@ -68,7 +67,6 @@ export default function AppBarComponent({
           Dashboard
         </Typography>
         <Typography>{currentUser?.email} | {getUserLevelDesc(currentUser?.level!)}</Typography>
-        <AppBarAlerts />
         <AppBarNottifications/>
       </Toolbar>
     </AppBar>

@@ -1,21 +1,17 @@
-import { Box, Button, ButtonGroup, createTheme, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Tooltip } from "@mui/material"
+import { Box, Button, ButtonGroup, createTheme, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { RootState } from "../../../../app/store"
 import { getCallsResume } from "../../../../utils/customer.utils"
-import { AddIcCall, CrisisAlert, PhoneForwarded, PhoneMissed, Recycling, SimCardAlert, TimerOff, Visibility, Warning, WarningAmber } from "@mui/icons-material"
+import { AddIcCall, CrisisAlert, PhoneForwarded, PhoneMissed, Recycling, SimCardAlert, TimerOff, Visibility, Warning } from "@mui/icons-material"
 import { ThemeProvider } from "@emotion/react"
 import { Call, RowCallAssignedCustomer } from "../../reports.state"
 import { dateUTCToFriendly } from "../../../../utils/date.utils"
 import { getCallLogByIdWittCallNotesRelatedThunk, logCustomerAtNotCalledThunk, recycleCustomerThunk } from "../reports.slice"
-import { useState } from "react"
-import CustomerAlertsDialog, { CustomerAlertsDialogCustomer } from "./customer-alerts-dialog"
-
 const theme = createTheme({
   components: {
     MuiTableCell: { styleOverrides: { root: { padding: '1px', minWidth: "30px" } }},
     MuiButtonGroup: { defaultProps: { size: 'small'}},
     MuiButton: { defaultProps: { size: 'small'}, styleOverrides: { root: { padding: '2px', minWidth: "30px" } }},
-    MuiIconButton: { defaultProps: { size: 'small'}},
     MuiSvgIcon: { defaultProps: { fontSize: "small" } , styleOverrides: { root: { fontSize: "16px" } } },
     MuiIcon: { defaultProps: { fontSize: 'small' } }
   }
@@ -23,7 +19,6 @@ const theme = createTheme({
 export default function ResultCallAssignedReports() {
   const dispatch = useAppDispatch() 
   const {filter, callAssignedCustomer} = useAppSelector((state: RootState) => state.reports)
-  const [alertsDialogCustomer, setAlertsDialogCustomer] = useState<CustomerAlertsDialogCustomer | null>(null)
 
   const resolveUser = (user: any): string => {
     if(user.length === 0) return ""
@@ -77,17 +72,11 @@ export default function ResultCallAssignedReports() {
   return(
     <ThemeProvider theme={theme}>
          {filter.type === "call-customers-assigned" && callAssignedCustomer !== undefined && <>
-        <CustomerAlertsDialog
-          open={alertsDialogCustomer !== null}
-          onClose={() => setAlertsDialogCustomer(null)}
-          customer={alertsDialogCustomer}
-        />
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>N</TableCell>
-                <TableCell>Alert</TableCell>
                 <TableCell>Fecha</TableCell>
                 <TableCell> <TimerOff/> </TableCell>
                 <TableCell>Cliente</TableCell>
@@ -124,18 +113,6 @@ export default function ResultCallAssignedReports() {
                 return (
                   <TableRow key={i}>
                     <TableCell> {i + 1} </TableCell>
-                    <TableCell>
-                        <Tooltip title="Ver alertas del cliente">
-                          <IconButton
-                            size="small"
-                            onClick={() => setAlertsDialogCustomer({ _id: row._id, name: row.name, isProspect: row.isProspect })}
-                            color="primary"
-                            sx={{ padding: "2px" }}
-                            >
-                            <WarningAmber fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                    </TableCell>
                     <TableCell>{dateUTCToFriendly(row.dateAssigned)}</TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>

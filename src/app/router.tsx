@@ -49,8 +49,6 @@ import WorkerPaymentsView from "../views/worker-payments-view"
 import ProjectListPage from "../features/project/pages/project-list-page"
 import CreateProjectPage from "../features/project/pages/create-project-page"
 import EditProjectPage from "../features/project/pages/edit-project-page"
-import AlertsView from "../views/alerts-view"
-import LeadAlertsView from "../views/lead-alerts-view"
 import UsersOnboardingStatusView from "../features/users-onboarding-status/users-onboarding-status-view"
 import TrainingTrakingPage from "../features/training-traking/pages/training-traking-page"
 import CustomersPage from "../features/customer-v2/pages/customers-page"
@@ -141,8 +139,6 @@ const router = createBrowserRouter([
     
     //Raffles
     { path: "audits", element: <AuditsPage /> },
-    { path: "alerts", element: <AlertsView /> },
-    { path: "lead-alerts", element: <LeadAlertsView /> },
     { path: "ceo-leads-resume", element: <CeoLeadsResumePage /> },
     
     //User

@@ -43,7 +43,6 @@ import handlePaymentSlice from "../features/payments/handle-payment/slice/handle
 import campaignCustomersSlice from "../features/campaigns/campaign-customers/redux/campaign-customers-slice"
 import projectsSlice from "../features/project/slice/projects.slice"
 import amenitiesSlice from "../features/project/slice/amenities.slice"
-import alertsSlice from "../features/alerts/alerts.slice"
 import importUsersSlice from "../features/import-users/import-users.slice"
 import usersOnboardingStatusSlice from "../features/users-onboarding-status/slice/users-onboarding-status.slice"
 import trainingTrakingSlice from "../features/training-traking/slice/training-traking.slice"
@@ -70,7 +69,6 @@ export const store = configureStore({
   }),
   reducer: {
     addPayment: addPaymentSlice,
-    alerts: alertsSlice,
     auditResume: auditResumeSlice,
     authFace: authFaceSlice,
     campaignCustomers: campaignCustomersSlice,
