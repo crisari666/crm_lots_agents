@@ -9,23 +9,7 @@ import {
   fetchCustomerEventsAdminThunk,
   setCustomerEventsFiltersAct,
 } from "../../redux/customer-events.slice"
-import type { CustomerEventType } from "../../services/customers-ms.service"
-
-type EventTypeOption = {
-  id: CustomerEventType
-  label: string
-}
-
-const EVENT_TYPE_OPTIONS: EventTypeOption[] = [
-  { id: "WHATSAPP_CALL", label: "WhatsApp Call" },
-  { id: "WHATSAPP_MESSAGE", label: "WhatsApp Message" },
-  { id: "PHONE_CALL", label: "Phone Call" },
-  { id: "VIDEO_CALL", label: "Video Call" },
-  { id: "CALL_CRM", label: "Call CRM" },
-  { id: "CUSTOM_SENT_LAND", label: "Sent to land (scheduled)" },
-  { id: "CUSTOMER_CANCELLED_VISIT_LAND", label: "Land visit cancelled" },
-  { id: "CUSTOMER_VISIT_LAND", label: "Land visit completed" },
-]
+import { CUSTOMER_EVENT_TYPE_OPTIONS } from "./customer-event-types"
 
 function getOfficeIdFromUser(user: { office?: unknown }): string {
   if (typeof user.office === "string") {
@@ -66,7 +50,8 @@ export default function CustomerEventsFiltersCP() {
     return filtered.filter((user) => getOfficeIdFromUser(user) === filters.officeId)
   }, [filters.officeId, usersOriginal])
 
-  const selectedEventType = EVENT_TYPE_OPTIONS.find((item) => item.id === filters.eventType) ?? null
+  const selectedEventType =
+    CUSTOMER_EVENT_TYPE_OPTIONS.find((item) => item.id === filters.eventType) ?? null
   const selectedOffice = offices.find((item) => item._id === filters.officeId) ?? null
   const selectedUser = physicalUsers.find((item) => item._id === filters.userId) ?? null
 
@@ -106,7 +91,7 @@ export default function CustomerEventsFiltersCP() {
         <Autocomplete
           size="small"
           sx={{ minWidth: 210 }}
-          options={EVENT_TYPE_OPTIONS}
+          options={CUSTOMER_EVENT_TYPE_OPTIONS}
           value={selectedEventType}
           onChange={(_, option) =>
             dispatch(setCustomerEventsFiltersAct({ eventType: option?.id ?? "", page: 0 }))

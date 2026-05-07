@@ -30,6 +30,16 @@ export type CustomerEventsState = {
   }
 }
 
+function buildCurrentDayRange(): { dateFrom: string; dateTo: string } {
+  const start = new Date()
+  start.setHours(0, 0, 0, 0)
+  const end = new Date()
+  end.setHours(23, 59, 59, 999)
+  return { dateFrom: start.toISOString(), dateTo: end.toISOString() }
+}
+
+const initialDayRange = buildCurrentDayRange()
+
 const initialState: CustomerEventsState = {
   items: [],
   total: 0,
@@ -42,8 +52,8 @@ const initialState: CustomerEventsState = {
   detailLoading: false,
   detailError: null,
   filters: {
-    dateFrom: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    dateTo: new Date().toISOString(),
+    dateFrom: initialDayRange.dateFrom,
+    dateTo: initialDayRange.dateTo,
     eventType: "",
     officeId: "",
     userId: "",

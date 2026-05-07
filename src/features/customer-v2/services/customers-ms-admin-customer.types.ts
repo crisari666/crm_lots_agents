@@ -184,6 +184,8 @@ export type CustomerEventItem = {
   description: string
   score?: number
   customerId: string
+  customerName?: string
+  customerLastName?: string
   userId: string
   officeId?: string
   metadata?: Record<string, unknown>

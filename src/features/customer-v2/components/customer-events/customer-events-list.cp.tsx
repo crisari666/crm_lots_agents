@@ -1,7 +1,8 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import {
   Alert,
   Box,
+  Chip,
   Paper,
   Table,
   TableBody,
@@ -14,15 +15,47 @@ import {
 } from "@mui/material"
 import moment from "moment"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
+import { fetchUsersThunk } from "../../../users-list/slice/user-list.slice"
 import {
   clearCustomerEventsErrorAct,
   fetchCustomerEventsAdminThunk,
   setCustomerEventsFiltersAct,
 } from "../../redux/customer-events.slice"
+import { getCustomerEventTypeLabel } from "./customer-event-types"
+
+const TABLE_COLUMN_COUNT = 6
+
+type UserDisplayMap = Record<string, string>
+
+function buildUserDisplayMap(users: { _id?: string; name?: string; lastName?: string }[]): UserDisplayMap {
+  const map: UserDisplayMap = {}
+  users.forEach((user) => {
+    if (!user._id) return
+    const name = `${user.name ?? ""} ${user.lastName ?? ""}`.trim()
+    if (name.length > 0) map[user._id] = name
+  })
+  return map
+}
+
+function buildCustomerName(name?: string, lastName?: string, fallbackId?: string): string {
+  const display = `${name ?? ""} ${lastName ?? ""}`.trim()
+  if (display.length > 0) return display
+  return fallbackId ?? "—"
+}
 
 export default function CustomerEventsListCP() {
   const dispatch = useAppDispatch()
   const { items, total, loading, error, filters } = useAppSelector((s) => s.customerEvents)
+  const usersOriginal = useAppSelector((s) => s.users.usersOriginal)
+  const gotUsers = useAppSelector((s) => s.users.gotUsers)
+
+  useEffect(() => {
+    if (!gotUsers) {
+      void dispatch(fetchUsersThunk({ enable: true }))
+    }
+  }, [dispatch, gotUsers])
+
+  const userDisplayMap = useMemo(() => buildUserDisplayMap(usersOriginal), [usersOriginal])
 
   const queryParams = useMemo(
     () => ({
@@ -66,37 +99,41 @@ export default function CustomerEventsListCP() {
               <TableCell>Tipo</TableCell>
               <TableCell>Score</TableCell>
               <TableCell>Descripción</TableCell>
-              <TableCell>Office</TableCell>
-              <TableCell>User</TableCell>
+              <TableCell>Usuario</TableCell>
               <TableCell>Cliente</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6}>Cargando...</TableCell>
+                <TableCell colSpan={TABLE_COLUMN_COUNT}>Cargando...</TableCell>
               </TableRow>
             ) : null}
             {!loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6}>Sin resultados.</TableCell>
+                <TableCell colSpan={TABLE_COLUMN_COUNT}>Sin resultados.</TableCell>
               </TableRow>
             ) : null}
-            {items.map((row) => (
-              <TableRow key={row.id} hover>
-                <TableCell>{moment(row.createdAt).format("DD/MM/YYYY HH:mm")}</TableCell>
-                <TableCell>{row.eventType}</TableCell>
-                <TableCell>{row.score ?? "—"}</TableCell>
-                <TableCell>
-                  <Box sx={{ maxWidth: 420, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
-                    {row.description}
-                  </Box>
-                </TableCell>
-                <TableCell>{row.officeId ?? "—"}</TableCell>
-                <TableCell>{row.userId}</TableCell>
-                <TableCell>{row.customerId}</TableCell>
-              </TableRow>
-            ))}
+            {items.map((row) => {
+              const userName = userDisplayMap[row.userId] ?? row.userId
+              const customerName = buildCustomerName(row.customerName, row.customerLastName, row.customerId)
+              return (
+                <TableRow key={row.id} hover>
+                  <TableCell>{moment(row.createdAt).format("DD/MM/YYYY HH:mm")}</TableCell>
+                  <TableCell>
+                    <Chip size="small" label={getCustomerEventTypeLabel(row.eventType)} />
+                  </TableCell>
+                  <TableCell>{row.score ?? "—"}</TableCell>
+                  <TableCell>
+                    <Box sx={{ maxWidth: 420, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
+                      {row.description}
+                    </Box>
+                  </TableCell>
+                  <TableCell>{userName}</TableCell>
+                  <TableCell>{customerName}</TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
         <TablePagination
