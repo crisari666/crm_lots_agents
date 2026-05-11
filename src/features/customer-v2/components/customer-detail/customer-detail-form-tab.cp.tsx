@@ -146,6 +146,16 @@ export default function CustomerDetailFormTabCP({
         }
         label="Cliente referido"
       />
+      <FormControlLabel
+        control={
+          <Switch
+            checked={form.isInternational ?? false}
+            onChange={(_, v) => dispatch(setCustomerDetailFormAct({ isInternational: v }))}
+            disabled={detailSaving}
+          />
+        }
+        label="Cliente internacional"
+      />
       <Divider />
       <Typography variant="subtitle2" fontWeight={600}>
         Proyectos de interés
