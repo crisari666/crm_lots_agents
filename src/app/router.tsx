@@ -39,6 +39,7 @@ import SignupCampaignView from "../features/signup-campaign/signup-campaign-view
 import CeoLeadsResumePage from "../features/ceo-operations-summary/pages/ceo-leads-resume-page";
 import StaffPerformanceReportPage from "../features/staff-performance-report/pages/staff-performance-report-page";
 import ReferralFollowUpPage from "../features/referral-follow-up/pages/referral-follow-up-page";
+import CustomerPaymentsAuditoryPage from "../features/customer-payment/pages/customer-payments-auditory-page";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignInView /> },
@@ -88,6 +89,7 @@ const router = createBrowserRouter([
       { path: "users-onboarding-status", element: <UsersOnboardingStatusView /> },
       { path: "signed-contracts", element: <SignedContractView /> },
       { path: "signup-campaigns", element: <SignupCampaignView /> },
+      { path: "customer-payments-auditory", element: <CustomerPaymentsAuditoryPage /> },
     ],
   },
 ]);
