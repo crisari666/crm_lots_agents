@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RelUserToNumberDialog, TwilioListFilter, TwilioNumbersForm, TwilioNumbersState } from "./twilio-numbers.state";
-import { addTwilioNumberReq, getEnableUsersReq, getTwilioNumbersReq, relUserToTwilioNumberReq, toggleTwilioNumberPurposeReq, updateTwilioNumberReq } from "../../../app/services/twilio-numbers-service"
+import { addTwilioNumberReq, getEnableUsersReq, getTwilioNumbersReq, relUserToTwilioNumberReq, toggleInternationalNumberReq, toggleTwilioNumberPurposeReq, updateTwilioNumberReq } from "../../../app/services/twilio-numbers-service"
 const twilioNumberFormInit: TwilioNumbersForm = {
   friendlyNumber: '', number: "", PNID: ""
 }
@@ -34,6 +34,11 @@ export const relUserToTwilioNumberThunk = createAsyncThunk(
 export const toggleTwilioNumberPurposeThunk = createAsyncThunk(
   "TwilioNumbers/toggleTwilioNumberPurposeThunk",
   async (PNID: string) => await toggleTwilioNumberPurposeReq(PNID),
+)
+
+export const toggleInternationalNumberThunk = createAsyncThunk(
+  "TwilioNumbers/toggleInternationalNumberThunk",
+  async (PNID: string) => await toggleInternationalNumberReq(PNID),
 )
 
 export const registerTwilioNumberThunk = createAsyncThunk( "TwilioNumbers/registerTwilioNumberThunk", async (params: {PNID: string, number: string, friendlyNumber: string}) =>
@@ -105,6 +110,11 @@ export const twilioNumbersSlice = createSlice({
       state.twilioNumberForm = twilioNumberFormInit
       state.editingPNID = null
     }).addCase(toggleTwilioNumberPurposeThunk.fulfilled, (state, action) => {
+      const index = state.twilioNumbers.findIndex((twilio) => twilio.PNID === action.payload.PNID)
+      if (index !== -1) {
+        state.twilioNumbers[index] = action.payload
+      }
+    }).addCase(toggleInternationalNumberThunk.fulfilled, (state, action) => {
       const index = state.twilioNumbers.findIndex((twilio) => twilio.PNID === action.payload.PNID)
       if (index !== -1) {
         state.twilioNumbers[index] = action.payload

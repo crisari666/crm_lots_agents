@@ -102,6 +102,25 @@ export async function updateTwilioNumberReq({PNID, friendlyNumber, number}: {PNI
   }
 }
 
+export async function toggleInternationalNumberReq(PNID: string): Promise<TwilioNumberType> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.patch({
+      path: `twilio-numbers/toggle-international`,
+      data: { PNID },
+    })
+    const { error } = response
+    if (error == null) {
+      return response.result
+    }
+    throw error
+  } catch (error) {
+    console.error('ERROR ON toggleInternationalNumberReq')
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function toggleTwilioNumberPurposeReq(PNID: string): Promise<TwilioNumberType> {
   try {
     const api = Api.getInstance()

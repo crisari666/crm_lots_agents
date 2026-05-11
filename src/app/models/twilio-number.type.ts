@@ -14,6 +14,7 @@ export type TwilioNumberType = {
     friendlyNumber: string;
     /** From API; legacy rows may omit (treat as user line). */
     numberPurpose?: TwilioNumberPurpose;
+    isInternational?: boolean;
     createdAt: string;
     updatedAt: string;
 };

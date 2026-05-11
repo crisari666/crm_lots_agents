@@ -20,6 +20,7 @@ import {
   getEnableUsersThunk,
   getTwilioNumbersThunk,
   openTwilioFormForEditAct,
+  toggleInternationalNumberThunk,
   toggleTwilioNumberPurposeThunk,
 } from "../slice/twilio-numbers.slice"
 import { Edit, Person } from "@mui/icons-material"
@@ -78,6 +79,7 @@ export default function TwilioNumbersList() {
               <TableCell> Number friendly </TableCell>
               <TableCell> User </TableCell>
               <TableCell align="center"> Voice pool </TableCell>
+              <TableCell align="center"> International </TableCell>
               <TableCell> Options </TableCell>
             </TableRow>
           </TableHead>
@@ -117,6 +119,22 @@ export default function TwilioNumbersList() {
                           checked={twilioNumber.numberPurpose === "voice_agent"}
                           onChange={() => dispatch(toggleTwilioNumberPurposeThunk(twilioNumber.PNID))}
                           inputProps={{ "aria-label": `Voice pool ${twilioNumber.PNID}` }}
+                        />
+                      }
+                      label=""
+                    />
+                  </Tooltip>
+                </TableCell>
+                <TableCell align="center">
+                  <Tooltip title="When on, number can make international calls">
+                    <FormControlLabel
+                      sx={{ margin: 0 }}
+                      control={
+                        <Switch
+                          size="small"
+                          checked={twilioNumber.isInternational === true}
+                          onChange={() => dispatch(toggleInternationalNumberThunk(twilioNumber.PNID))}
+                          inputProps={{ "aria-label": `International ${twilioNumber.PNID}` }}
                         />
                       }
                       label=""
