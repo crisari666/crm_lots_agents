@@ -4,7 +4,12 @@ import {
   Autocomplete,
   Box,
   Button,
+  Card,
+  CardContent,
+  Chip,
   CircularProgress,
+  Divider,
+  Paper,
   Stack,
   Table,
   TableBody,
@@ -15,7 +20,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Search as SearchIcon } from "@mui/icons-material"
+import { Search as SearchIcon, Receipt as ReceiptIcon } from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import AppDateRangeSelector from "../../../app/components/app-date-range-selector"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
@@ -24,6 +29,15 @@ import { fetchCustomerPaymentsThunk } from "../slice/customer-payments.slice"
 import type UserInterface from "../../../app/models/user-interface"
 
 const PAGE_SIZE = 50
+
+const headerCellSx = {
+  fontWeight: 600,
+  typography: "caption",
+  color: "text.secondary",
+  letterSpacing: 0.06,
+  textTransform: "uppercase" as const,
+  whiteSpace: "nowrap" as const,
+}
 
 export default function CustomerPaymentsAuditoryPanelCP() {
   const dispatch = useAppDispatch()
@@ -101,117 +115,184 @@ export default function CustomerPaymentsAuditoryPanelCP() {
     return `${u.name ?? ""} ${u.lastName ?? ""}`.trim()
   }
 
+  const totalPageAmount = useMemo(
+    () => payments.reduce((sum, p) => sum + p.paymentValue, 0),
+    [payments],
+  )
+
   let runningTotal = 0
 
   return (
-    <Stack spacing={2}>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} alignItems="center">
-        <Box sx={{ minWidth: 280 }}>
-          <AppDateRangeSelector
-            id="payments-date-range"
-            dateStart={dateStart}
-            dateEnd={dateEnd}
-            onChange={({ dateStart: ds, dateEnd: de }) => {
-              setDateStart(ds)
-              setDateEnd(de)
-            }}
-          />
-        </Box>
-        <Autocomplete
-          size="small"
-          sx={{ minWidth: 250 }}
-          options={physicalUsers}
-          value={selectedUser}
-          onChange={(_, option) => setSelectedUser(option)}
-          getOptionLabel={(option) => `${option.name ?? ""} ${option.lastName ?? ""}`.trim()}
-          isOptionEqualToValue={(a, b) => a._id === b._id}
-          renderInput={(params) => <TextField {...params} label="Usuario (físico)" />}
-        />
-        <Button
-          variant="contained"
-          startIcon={<SearchIcon />}
-          onClick={() => runSearch(0)}
-          disabled={isLoading}
-          sx={{ cursor: "pointer", minWidth: 120 }}
-        >
-          Buscar
-        </Button>
-      </Stack>
+    <Stack spacing={2.5}>
+      <Card variant="outlined" sx={{ borderRadius: 2 }}>
+        <CardContent sx={{ py: 2, px: 2.5, "&:last-child": { pb: 2 } }}>
+          <Stack spacing={2}>
+            <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+              Filtros de búsqueda
+            </Typography>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={2}
+              alignItems={{ xs: "stretch", md: "center" }}
+            >
+              <Box sx={{ minWidth: 280, flex: "0 0 auto" }}>
+                <AppDateRangeSelector
+                  id="payments-date-range"
+                  dateStart={dateStart}
+                  dateEnd={dateEnd}
+                  onChange={({ dateStart: ds, dateEnd: de }) => {
+                    setDateStart(ds)
+                    setDateEnd(de)
+                  }}
+                />
+              </Box>
+              <Autocomplete
+                size="small"
+                sx={{ minWidth: 260, flex: 1 }}
+                options={physicalUsers}
+                value={selectedUser}
+                onChange={(_, option) => setSelectedUser(option)}
+                getOptionLabel={(option) => `${option.name ?? ""} ${option.lastName ?? ""}`.trim()}
+                isOptionEqualToValue={(a, b) => a._id === b._id}
+                renderInput={(params) => <TextField {...params} label="Usuario (físico)" />}
+              />
+              <Button
+                variant="contained"
+                startIcon={<SearchIcon />}
+                onClick={() => runSearch(0)}
+                disabled={isLoading}
+                sx={{ cursor: "pointer", minWidth: 130, height: 40, flexShrink: 0 }}
+              >
+                Buscar
+              </Button>
+            </Stack>
+          </Stack>
+        </CardContent>
+      </Card>
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
-        <Box display="flex" justifyContent="center" py={4}>
+        <Box display="flex" justifyContent="center" py={8}>
           <CircularProgress />
         </Box>
       ) : payments.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-          No se encontraron pagos para los filtros seleccionados.
-        </Typography>
+        <Card variant="outlined" sx={{ borderRadius: 2 }}>
+          <CardContent sx={{ py: 6, textAlign: "center" }}>
+            <ReceiptIcon sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+            <Typography variant="body1" color="text.secondary">
+              No se encontraron pagos para los filtros seleccionados.
+            </Typography>
+            <Typography variant="body2" color="text.disabled" sx={{ mt: 0.5 }}>
+              Ajusta el rango de fechas o el usuario y busca de nuevo.
+            </Typography>
+          </CardContent>
+        </Card>
       ) : (
-        <>
-          <Typography variant="body2" color="text.secondary">
-            Mostrando {payments.length} de {total} registros
-          </Typography>
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Fecha</TableCell>
-                  <TableCell>Proyecto</TableCell>
-                  <TableCell align="right">Valor</TableCell>
-                  <TableCell align="right">Total acumulado</TableCell>
-                  <TableCell>Recibo</TableCell>
-                  <TableCell>Método</TableCell>
-                  <TableCell>Registrado por</TableCell>
-                  <TableCell>Notas</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {payments.map((p) => {
-                  runningTotal += p.paymentValue
-                  return (
-                    <TableRow key={p.id}>
-                      <TableCell>
-                        {new Date(p.datePayment).toLocaleDateString("es-CO")}
-                      </TableCell>
-                      <TableCell>{projectById.get(p.projectId) ?? p.projectId}</TableCell>
-                      <TableCell align="right">{formatCurrency(p.paymentValue)}</TableCell>
-                      <TableCell align="right">{formatCurrency(runningTotal)}</TableCell>
-                      <TableCell>{p.receiptNumber ?? "-"}</TableCell>
-                      <TableCell>{p.paymentMethod ?? "-"}</TableCell>
-                      <TableCell>{getUserName(p.recordedBy)}</TableCell>
-                      <TableCell sx={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {p.notes ?? "-"}
-                      </TableCell>
+        <Card variant="outlined" sx={{ borderRadius: 2 }}>
+          <CardContent sx={{ py: 2, px: 2.5, "&:last-child": { pb: 2 } }}>
+            <Stack spacing={2}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                justifyContent="space-between"
+                alignItems={{ xs: "flex-start", sm: "center" }}
+                spacing={1}
+              >
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Resultados
+                  </Typography>
+                  <Chip
+                    size="small"
+                    label={`${total} registro${total !== 1 ? "s" : ""}`}
+                    color="primary"
+                    variant="outlined"
+                  />
+                </Stack>
+                <Typography variant="body2" color="text.secondary">
+                  Total en página: <strong>{formatCurrency(totalPageAmount)}</strong>
+                </Typography>
+              </Stack>
+              <Divider />
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: "action.hover" }}>
+                      <TableCell sx={headerCellSx}>Fecha</TableCell>
+                      <TableCell sx={headerCellSx}>Proyecto</TableCell>
+                      <TableCell sx={{ ...headerCellSx, textAlign: "right" }}>Valor</TableCell>
+                      <TableCell sx={{ ...headerCellSx, textAlign: "right" }}>Acumulado</TableCell>
+                      <TableCell sx={headerCellSx}>Recibo</TableCell>
+                      <TableCell sx={headerCellSx}>Método</TableCell>
+                      <TableCell sx={headerCellSx}>Registrado por</TableCell>
+                      <TableCell sx={headerCellSx}>Notas</TableCell>
                     </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          {total > PAGE_SIZE && (
-            <Stack direction="row" spacing={1} justifyContent="center">
-              <Button
-                size="small"
-                disabled={page === 0}
-                onClick={() => runSearch(page - 1)}
-                sx={{ cursor: "pointer" }}
-              >
-                Anterior
-              </Button>
-              <Typography variant="body2" sx={{ lineHeight: "30px" }}>
-                Página {page + 1} de {Math.ceil(total / PAGE_SIZE)}
-              </Typography>
-              <Button
-                size="small"
-                disabled={(page + 1) * PAGE_SIZE >= total}
-                onClick={() => runSearch(page + 1)}
-                sx={{ cursor: "pointer" }}
-              >
-                Siguiente
-              </Button>
+                  </TableHead>
+                  <TableBody>
+                    {payments.map((p) => {
+                      runningTotal += p.paymentValue
+                      return (
+                        <TableRow
+                          key={p.id}
+                          hover
+                          sx={{ "&:last-child td": { border: 0 } }}
+                        >
+                          <TableCell sx={{ whiteSpace: "nowrap" }}>
+                            {new Date(p.datePayment).toLocaleDateString("es-CO")}
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" noWrap sx={{ maxWidth: 180 }}>
+                              {projectById.get(p.projectId) ?? p.projectId}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 500 }}>
+                            {formatCurrency(p.paymentValue)}
+                          </TableCell>
+                          <TableCell align="right" sx={{ color: "text.secondary" }}>
+                            {formatCurrency(runningTotal)}
+                          </TableCell>
+                          <TableCell>{p.receiptNumber ?? "-"}</TableCell>
+                          <TableCell>{p.paymentMethod ?? "-"}</TableCell>
+                          <TableCell>
+                            <Typography variant="body2" noWrap sx={{ maxWidth: 160 }}>
+                              {getUserName(p.recordedBy)}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {p.notes ?? "-"}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {total > PAGE_SIZE && (
+                <Stack direction="row" spacing={1.5} justifyContent="center" alignItems="center" sx={{ pt: 1 }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={page === 0}
+                    onClick={() => runSearch(page - 1)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Anterior
+                  </Button>
+                  <Typography variant="body2" color="text.secondary">
+                    Página <strong>{page + 1}</strong> de <strong>{Math.ceil(total / PAGE_SIZE)}</strong>
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={(page + 1) * PAGE_SIZE >= total}
+                    onClick={() => runSearch(page + 1)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Siguiente
+                  </Button>
+                </Stack>
+              )}
             </Stack>
-          )}
-        </>
+          </CardContent>
+        </Card>
       )}
     </Stack>
   )
