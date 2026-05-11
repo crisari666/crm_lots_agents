@@ -16,9 +16,11 @@ import {
   Typography,
   type TableContainerProps,
 } from "@mui/material"
-import React, { useEffect } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { TableComponents, TableVirtuoso } from "react-virtuoso"
 import type { CeoLeadResumeDetailItem } from "../../../app/services/ceo-operations-summary.types"
+import type { OnboardingUserType } from "../../users-onboarding-status/types/onboarding-state.types"
+import UsersOnboardingStatusHistoryDialogCP from "../../users-onboarding-status/components/users-onboarding-status-history-dialog.cp"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import {
@@ -39,7 +41,11 @@ const headerCellSx = {
 
 type LeadDetailsScrollerProps = Omit<TableContainerProps, "ref" | "component">
 
-const leadDetailsTableComponents: TableComponents<CeoLeadResumeDetailItem> = {
+type LeadDetailsContext = {
+  onRowClick: (item: CeoLeadResumeDetailItem) => void
+}
+
+const leadDetailsTableComponents: TableComponents<CeoLeadResumeDetailItem, LeadDetailsContext> = {
   Scroller: React.forwardRef<HTMLDivElement, LeadDetailsScrollerProps>(({ sx, ...rest }, ref) => (
     <TableContainer
       component={Paper}
@@ -53,7 +59,14 @@ const leadDetailsTableComponents: TableComponents<CeoLeadResumeDetailItem> = {
   TableHead: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
     <TableHead {...props} ref={ref} />
   )),
-  TableRow: ({ item: _item, ...props }) => <TableRow {...props} hover />,
+  TableRow: ({ item, context, ...props }) => (
+    <TableRow
+      {...props}
+      hover
+      sx={{ cursor: "pointer" }}
+      onClick={() => item && context?.onRowClick(item)}
+    />
+  ),
   TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
     <TableBody {...props} ref={ref} />
   )),
@@ -90,6 +103,19 @@ export default function CeoLeadsResumePanelCP({
   const { leadsResume, isLeadsResumeLoading, leadsResumeError } = useAppSelector(
     (state: RootState) => state.ceoOperationsSummary
   )
+  const [historyDialogUser, setHistoryDialogUser] = useState<OnboardingUserType | null>(null)
+  const handleDetailRowClick = useCallback((item: CeoLeadResumeDetailItem) => {
+    setHistoryDialogUser({
+      _id: item.leadCandidateId,
+      name: item.leadName,
+      lastName: "",
+      phone: item.phone,
+      email: item.email,
+    })
+  }, [])
+  const handleHistoryDialogClose = useCallback(() => {
+    setHistoryDialogUser(null)
+  }, [])
   useEffect(() => {
     if (!isEnabled) {
       return
@@ -184,6 +210,7 @@ export default function CeoLeadsResumePanelCP({
           <TableVirtuoso
             style={{ height: "100%" }}
             data={leadsResume?.details ?? []}
+            context={{ onRowClick: handleDetailRowClick }}
             components={leadDetailsTableComponents}
             overscan={12}
             computeItemKey={(_index, item) => `${item.day}-${item.phone}-${item.email}-${item.leadName}`}
@@ -211,6 +238,13 @@ export default function CeoLeadsResumePanelCP({
             )}
           />
         </Box>
+      )}
+      {historyDialogUser !== null && (
+        <UsersOnboardingStatusHistoryDialogCP
+          open
+          onClose={handleHistoryDialogClose}
+          user={historyDialogUser}
+        />
       )}
     </Stack>
   )

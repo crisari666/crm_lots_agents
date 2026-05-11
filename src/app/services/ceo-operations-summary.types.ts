@@ -18,6 +18,7 @@ export type CeoLeadResumeByDayItem = {
 }
 
 export type CeoLeadResumeDetailItem = {
+  leadCandidateId: string
   leadName: string
   phone: string
   email: string
