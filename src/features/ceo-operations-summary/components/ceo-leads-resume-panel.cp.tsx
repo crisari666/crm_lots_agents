@@ -181,6 +181,26 @@ export default function CeoLeadsResumePanelCP({
           <Typography variant="h6">{leadsResume?.totals.acceptedTrainingTotal ?? 0}</Typography>
         </Paper>
       </Box>
+      {(leadsResume?.byFormName ?? []).length > 0 && (
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={headerCellSx}>Form Name</TableCell>
+                <TableCell sx={headerCellSx} align="right">Leads</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {(leadsResume?.byFormName ?? []).map((item) => (
+                <TableRow key={item.formName}>
+                  <TableCell>{item.formName}</TableCell>
+                  <TableCell align="right">{item.totalLeads}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>

@@ -9,6 +9,11 @@ export type CeoOperationsSummaryResult = {
   trainingAttendeesTotal: number
 }
 
+export type CeoLeadResumeByFormItem = {
+  formName: string
+  totalLeads: number
+}
+
 export type CeoLeadResumeByDayItem = {
   day: string
   totalLeads: number
@@ -39,6 +44,7 @@ export type CeoLeadResumeResult = {
   range: { fromIso: string; toIso: string }
   includeDetails: boolean
   totals: CeoLeadResumeTotals
+  byFormName: CeoLeadResumeByFormItem[]
   byDay: CeoLeadResumeByDayItem[]
   details: CeoLeadResumeDetailItem[]
 }
