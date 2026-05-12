@@ -210,7 +210,7 @@ export default function UserForm() {
                   {userLogged?.level === 0 && <MenuItem value={6}>{s.levelOffice}</MenuItem>}
                   {userLogged?.level === 0 && <MenuItem value={7}>{s.levelFinance}</MenuItem>}
                   {userLogged?.level === 0 && <MenuItem value={8}>{s.levelSecretary}</MenuItem>}
-                  {userLogged?.level === 0 && <MenuItem value={9}>{s.levelAssigner}</MenuItem>}
+                  {userLogged?.level === 0 && <MenuItem value={9}>{s.levelContent}</MenuItem>}
                 </Select>
               </FormControl>
             </Grid>

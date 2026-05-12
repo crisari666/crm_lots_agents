@@ -22,7 +22,7 @@ export const handleUserStrings = {
   levelOffice: "Oficina",
   levelFinance: "Finanzas",
   levelSecretary: "Secretaría",
-  levelAssigner: "Asignador",
+  levelContent: "Contenido",
   validationTitle: "Revise el formulario",
   validationRequiredFields:
     "El nombre, apellidos, correo, teléfono y nivel son obligatorios.",

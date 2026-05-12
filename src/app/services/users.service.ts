@@ -242,11 +242,10 @@ export async function getOnlyLeadsReq(): Promise<UserInterface[]>  {
   }
 }
 
-export async function getAssignersReq(): Promise<UserInterface[]>  {
+export async function getContentUsersReq(): Promise<UserInterface[]>  {
   try {
     const api = Api.getInstance()
-    const response = await api.get({path: `users/assigners`})
-    //console.log('getAssigners', {response});
+    const response = await api.get({path: `users/content-users`})
     const { error } = response
     if(error == null) {
       return response.result

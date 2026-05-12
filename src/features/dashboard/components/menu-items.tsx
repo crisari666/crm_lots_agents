@@ -134,8 +134,11 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     { to: "/dashboard/customers-v2", Icon: <PersonPinCircle />, title: "Clientes" },
   ]
   
-  const mapRoutesAssignerCampaign: RouteItemI[] = [
-    { to: "/dashboard/customers-v2", Icon: <CampaignRounded />, title: "Clientes" },
+  const mapRoutesContent: RouteItemI[] = [
+    { Icon: <BusinessOutlined />, title: "Projects", children: [
+      { to: "/dashboard/projects", Icon: <BusinessOutlined />, title: "Proyectos" },
+      { to: "/dashboard/project-releases", Icon: <Done />, title: "Proyectos finalizado" },
+    ]},
   ]
 
   return (
@@ -146,7 +149,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
           currentUser?.level === 6 ? mapRoutesOffice : 
           currentUser?.level === 7 ? mapRoutesFinance : 
           currentUser?.level === 8 ? mapRoutesSecretary : 
-          currentUser?.level === 9 ? mapRoutesAssignerCampaign : 
+          currentUser?.level === 9 ? mapRoutesContent : 
           mapRoutesUser).map((el, i) => {
 
           if(el.children!?.length > 0) {
