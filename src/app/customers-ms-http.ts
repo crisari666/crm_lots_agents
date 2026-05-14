@@ -23,6 +23,10 @@ customersMsAxios.interceptors.request.use((config: InternalAxiosRequestConfig) =
   if (token) {
     config.headers.set("token", token)
   }
+  if (config.data instanceof FormData) {
+    config.headers.delete("Content-Type")
+    config.headers.delete("content-type")
+  }
   return config
 })
 

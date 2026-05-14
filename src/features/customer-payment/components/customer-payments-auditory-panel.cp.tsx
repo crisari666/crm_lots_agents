@@ -9,6 +9,7 @@ import {
   Chip,
   CircularProgress,
   Divider,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -21,12 +22,15 @@ import {
   Typography,
 } from "@mui/material"
 import { Search as SearchIcon, Receipt as ReceiptIcon } from "@mui/icons-material"
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import AppDateRangeSelector from "../../../app/components/app-date-range-selector"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 import { fetchProjectsThunk } from "../../project/slice/projects.slice"
 import { fetchCustomerPaymentsThunk } from "../slice/customer-payments.slice"
+import CustomerPaymentEvidencePreviewDialogCP from "./customer-payment-evidence-preview-dialog.cp"
 import type UserInterface from "../../../app/models/user-interface"
+import { customerPaymentStrings as payS } from "../../../i18n/locales/customer-payment.strings"
 
 const PAGE_SIZE = 50
 
@@ -58,6 +62,7 @@ export default function CustomerPaymentsAuditoryPanelCP() {
   const [dateEnd, setDateEnd] = useState<Date>(() => new Date())
   const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null)
   const [page, setPage] = useState(0)
+  const [previewPaymentId, setPreviewPaymentId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!gotUsers) {
@@ -224,6 +229,7 @@ export default function CustomerPaymentsAuditoryPanelCP() {
                       <TableCell sx={headerCellSx}>Método</TableCell>
                       <TableCell sx={headerCellSx}>Registrado por</TableCell>
                       <TableCell sx={headerCellSx}>Notas</TableCell>
+                      <TableCell sx={{ ...headerCellSx, textAlign: "center" }}>{payS.evidenceColumn}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -258,6 +264,22 @@ export default function CustomerPaymentsAuditoryPanelCP() {
                           </TableCell>
                           <TableCell sx={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {p.notes ?? "-"}
+                          </TableCell>
+                          <TableCell align="center" sx={{ width: 72 }}>
+                            {p.hasEvidence ? (
+                              <IconButton
+                                size="small"
+                                aria-label={payS.previewEvidenceAria}
+                                onClick={() => setPreviewPaymentId(p.id)}
+                                sx={{ cursor: "pointer" }}
+                              >
+                                <ImageOutlinedIcon fontSize="small" />
+                              </IconButton>
+                            ) : (
+                              <Typography variant="body2" color="text.disabled" component="span">
+                                {payS.noEvidenceDash}
+                              </Typography>
+                            )}
                           </TableCell>
                         </TableRow>
                       )
@@ -294,6 +316,11 @@ export default function CustomerPaymentsAuditoryPanelCP() {
           </CardContent>
         </Card>
       )}
+      <CustomerPaymentEvidencePreviewDialogCP
+        open={previewPaymentId !== null}
+        paymentId={previewPaymentId}
+        onClose={() => setPreviewPaymentId(null)}
+      />
     </Stack>
   )
 }

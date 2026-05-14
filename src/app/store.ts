@@ -54,6 +54,9 @@ export const store = configureStore({
           "UserList/updateUserConnectedAct",
           "dashboardSlice/pushAlertAction",
           "referralFollowUp/fetchSituations/pending",
+          "customerPayments/create/pending",
+          "customerPayments/create/fulfilled",
+          "customerPayments/create/rejected",
         ],
         ignoredPaths: [
           "eventsGateway.socket",

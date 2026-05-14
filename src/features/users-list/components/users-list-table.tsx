@@ -105,7 +105,7 @@ export default function UsersListTable(){
                     {(el.lead as { name?: string } | undefined)?.name}
                   </TableCell>
                   
-                  {currentUser!.level === 0 && <TableCell padding="checkbox" align="center" sx={{whiteSpace: "nowrap"}}>
+                  {currentUser!.level! <= 1 && <TableCell padding="checkbox" align="center" sx={{whiteSpace: "nowrap"}}>
                     {el.level === 2 && <IconButton LinkComponent={'a'} size="small" sx={padd0} color="info" onClick={() => goToUserList(el._id!)}> <PeopleOutline fontSize="small" /> </IconButton> }
                     {canEditUser(el) ? (
                       <Link to={`/dashboard/handle-user/${el._id!}`}> <Edit color="primary" fontSize="small"/> </Link>

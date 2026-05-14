@@ -6,7 +6,7 @@ import {
   listPaymentsByCustomerReq,
 } from "../../customer-v2/services/customer-payments-ms.http"
 import type {
-  CreateCustomerPaymentBody,
+  CreateCustomerPaymentThunkInput,
   ListCustomerPaymentsParams,
 } from "../../customer-v2/services/customer-payments-ms.types"
 import type { CustomerPaymentsState } from "./customer-payments.state"
@@ -38,7 +38,8 @@ export const fetchPaymentSummaryByCustomerThunk = createAsyncThunk(
 
 export const createCustomerPaymentThunk = createAsyncThunk(
   "customerPayments/create",
-  async (body: CreateCustomerPaymentBody) => createCustomerPaymentReq(body),
+  async ({ body, evidenceFile }: CreateCustomerPaymentThunkInput) =>
+    createCustomerPaymentReq(body, evidenceFile),
 )
 
 const customerPaymentsSlice = createSlice({

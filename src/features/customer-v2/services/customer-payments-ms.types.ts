@@ -8,6 +8,7 @@ export type CustomerPaymentItem = {
   paymentMethod?: string
   notes?: string
   recordedBy: string
+  hasEvidence: boolean
   createdAt: string
   updatedAt: string
 }
@@ -26,6 +27,11 @@ export type CreateCustomerPaymentBody = {
   receiptNumber?: string
   paymentMethod?: string
   notes?: string
+}
+
+export type CreateCustomerPaymentThunkInput = {
+  body: CreateCustomerPaymentBody
+  evidenceFile?: File
 }
 
 export type ListCustomerPaymentsParams = {

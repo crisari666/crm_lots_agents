@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Alert,
   Autocomplete,
   Box,
   Button,
   CircularProgress,
+  IconButton,
   Stack,
   Table,
   TableBody,
@@ -15,6 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { fetchProjectsThunk } from "../../../project/slice/projects.slice"
 import {
@@ -23,7 +25,9 @@ import {
   fetchPaymentsByCustomerThunk,
   fetchPaymentSummaryByCustomerThunk,
 } from "../../../customer-payment/slice/customer-payments.slice"
+import CustomerPaymentEvidencePreviewDialogCP from "../../../customer-payment/components/customer-payment-evidence-preview-dialog.cp"
 import type { ProjectType } from "../../../project/types/project.types"
+import { customerPaymentStrings as payS } from "../../../../i18n/locales/customer-payment.strings"
 
 type CustomerPaymentTabProps = {
   customerId: string
@@ -48,6 +52,9 @@ export default function CustomerPaymentTabCP({ customerId }: CustomerPaymentTabP
   const error = useAppSelector((s) => s.customerPayments.error)
   const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null)
   const [form, setForm] = useState(INITIAL_FORM)
+  const [evidenceFile, setEvidenceFile] = useState<File | null>(null)
+  const [previewPaymentId, setPreviewPaymentId] = useState<string | null>(null)
+  const evidenceInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!projectsLoaded) {
@@ -84,21 +91,37 @@ export default function CustomerPaymentTabCP({ customerId }: CustomerPaymentTabP
     [],
   )
 
+  const handleEvidenceFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const next = e.target.files?.[0] ?? null
+      setEvidenceFile(next)
+      e.target.value = ""
+    },
+    [],
+  )
+
   const handleSubmit = async () => {
     if (!selectedProject || !form.paymentValue || !form.datePayment) return
     const result = await dispatch(
       createCustomerPaymentThunk({
-        customerId,
-        projectId: selectedProject._id,
-        paymentValue: Number(form.paymentValue),
-        datePayment: `${form.datePayment}T12:00:00.000Z`,
-        receiptNumber: form.receiptNumber || undefined,
-        paymentMethod: form.paymentMethod || undefined,
-        notes: form.notes || undefined,
+        body: {
+          customerId,
+          projectId: selectedProject._id,
+          paymentValue: Number(form.paymentValue),
+          datePayment: `${form.datePayment}T12:00:00.000Z`,
+          receiptNumber: form.receiptNumber || undefined,
+          paymentMethod: form.paymentMethod || undefined,
+          notes: form.notes || undefined,
+        },
+        evidenceFile: evidenceFile ?? undefined,
       }),
     )
     if (createCustomerPaymentThunk.fulfilled.match(result)) {
       setForm(INITIAL_FORM)
+      setEvidenceFile(null)
+      if (evidenceInputRef.current) {
+        evidenceInputRef.current.value = ""
+      }
       void dispatch(fetchPaymentSummaryByCustomerThunk(customerId))
     }
   }
@@ -184,6 +207,26 @@ export default function CustomerPaymentTabCP({ customerId }: CustomerPaymentTabP
         onChange={handleFieldChange("notes")}
       />
       <Box>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+          {payS.attachEvidenceLabel}
+        </Typography>
+        <Button component="label" variant="outlined" size="small" sx={{ cursor: "pointer", mr: 1 }}>
+          {payS.chooseEvidenceFile}
+          <input
+            ref={evidenceInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            onChange={handleEvidenceFileChange}
+          />
+        </Button>
+        {evidenceFile && (
+          <Typography variant="caption" color="text.secondary" component="span" sx={{ ml: 1 }}>
+            {evidenceFile.name}
+          </Typography>
+        )}
+      </Box>
+      <Box>
         <Button
           variant="contained"
           onClick={() => void handleSubmit()}
@@ -215,6 +258,7 @@ export default function CustomerPaymentTabCP({ customerId }: CustomerPaymentTabP
                 <TableCell>Recibo</TableCell>
                 <TableCell>Método</TableCell>
                 <TableCell>Notas</TableCell>
+                <TableCell>{payS.evidenceColumn}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -234,6 +278,22 @@ export default function CustomerPaymentTabCP({ customerId }: CustomerPaymentTabP
                     <TableCell sx={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {p.notes ?? "-"}
                     </TableCell>
+                    <TableCell align="center" sx={{ width: 72 }}>
+                      {p.hasEvidence ? (
+                        <IconButton
+                          size="small"
+                          aria-label={payS.previewEvidenceAria}
+                          onClick={() => setPreviewPaymentId(p.id)}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          <ImageOutlinedIcon fontSize="small" />
+                        </IconButton>
+                      ) : (
+                        <Typography variant="body2" color="text.disabled" component="span">
+                          {payS.noEvidenceDash}
+                        </Typography>
+                      )}
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -241,6 +301,11 @@ export default function CustomerPaymentTabCP({ customerId }: CustomerPaymentTabP
           </Table>
         </TableContainer>
       )}
+      <CustomerPaymentEvidencePreviewDialogCP
+        open={previewPaymentId !== null}
+        paymentId={previewPaymentId}
+        onClose={() => setPreviewPaymentId(null)}
+      />
     </Stack>
   )
 }
