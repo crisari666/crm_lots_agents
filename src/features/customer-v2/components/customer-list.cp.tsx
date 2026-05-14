@@ -28,7 +28,7 @@ import CustomerListFiltersCP from "./customer-list-filters.cp"
 import CustomerListItemCP from "./customer-list-item.cp"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50] as const
+const ROWS_PER_PAGE_OPTIONS = [50, 100, 200] as const
 
 export type CustomerListCPProps = {
   draft: FilterFormState
@@ -60,7 +60,7 @@ export default function CustomerListCP({
   const [steps, setSteps] = useState<CustomerStepV2[]>([])
 
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(25)
+  const [rowsPerPage, setRowsPerPage] = useState(50)
 
   const users = usersFromSlice
 

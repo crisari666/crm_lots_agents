@@ -27,6 +27,7 @@ export function buildCustomerListQueryParams(
         ? { unassignedOnly: true }
         : {}),
     ...(applied.enabledOnly ? { enabled: true } : {}),
+    ...(applied.referralOnly ? { isReferral: true } : {}),
     ...(search ? { search } : {}),
     ...(stepId ? { customerStepId: stepId } : {}),
   }

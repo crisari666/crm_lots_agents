@@ -7,6 +7,8 @@ export type FilterFormState = {
   unassignedOnly: boolean
   /** When true, API filters `enabled !== false` (active customers). */
   enabledOnly: boolean
+  /** When true, API filters `isReferral === true` (referral customers only). */
+  referralOnly: boolean
   createdFrom: Moment | null
   createdTo: Moment | null
   assignedTo: string
@@ -20,6 +22,7 @@ export function emptyFilters(): FilterFormState {
     excludeFecha: true,
     unassignedOnly: true,
     enabledOnly: false,
+    referralOnly: false,
     createdFrom: null,
     createdTo: null,
     assignedTo: "",

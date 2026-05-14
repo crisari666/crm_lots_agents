@@ -14,6 +14,7 @@ export default function CustomersPage() {
       excludeFecha: draft.excludeFecha,
       unassignedOnly: draft.unassignedOnly,
       enabledOnly: draft.enabledOnly,
+      referralOnly: draft.referralOnly,
       createdFrom: draft.createdFrom ? draft.createdFrom.clone() : null,
       createdTo: draft.createdTo ? draft.createdTo.clone() : null,
       assignedTo: draft.assignedTo,
@@ -25,7 +26,10 @@ export default function CustomersPage() {
   const patchFilterDraft = useCallback(
     (
       patch: Partial<
-        Pick<FilterFormState, "excludeFecha" | "unassignedOnly" | "enabledOnly">
+        Pick<
+          FilterFormState,
+          "excludeFecha" | "unassignedOnly" | "enabledOnly" | "referralOnly"
+        >
       >
     ) => {
       setDraft((prev) => ({
@@ -45,6 +49,7 @@ export default function CustomersPage() {
           excludeFecha: draft.excludeFecha,
           unassignedOnly: draft.unassignedOnly,
           enabledOnly: draft.enabledOnly,
+          referralOnly: draft.referralOnly,
         }}
         onFilterDraftChange={patchFilterDraft}
       />

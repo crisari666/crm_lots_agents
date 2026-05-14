@@ -18,11 +18,14 @@ export type CustomerControlsCPProps = {
   onCustomerCreated?: () => void
   filterDraft: Pick<
     FilterFormState,
-    "excludeFecha" | "unassignedOnly" | "enabledOnly"
+    "excludeFecha" | "unassignedOnly" | "enabledOnly" | "referralOnly"
   >
   onFilterDraftChange: (
     patch: Partial<
-      Pick<FilterFormState, "excludeFecha" | "unassignedOnly" | "enabledOnly">
+      Pick<
+        FilterFormState,
+        "excludeFecha" | "unassignedOnly" | "enabledOnly" | "referralOnly"
+      >
     >
   ) => void
 }
@@ -124,6 +127,19 @@ export default function CustomerControlsCP({
             />
           }
           label="Solo clientes activos"
+          sx={{ mr: 0, width: { xs: "100%", sm: "auto" } }}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={filterDraft.referralOnly}
+              onChange={(_e, checked) =>
+                onFilterDraftChange({ referralOnly: checked })
+              }
+              color="primary"
+            />
+          }
+          label="Solo referidos"
           sx={{ mr: 0, width: { xs: "100%", sm: "auto" } }}
         />
       </Stack>
