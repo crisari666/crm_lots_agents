@@ -1,8 +1,9 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import UserInterface from "../../../app/models/user-interface"
-import { closeUserMobileSesionReq, fetchUsers, fetchSubadmins, getLeadForOfficeReq, getLeadUsersReq, setUserLinkReq, updateUserOfficeReq } from "../../../app/services/users.service"
+import { closeUserMobileSesionReq, fetchUsers, fetchSubadmins, setUserLinkReq, updateUserOfficeReq } from "../../../app/services/users.service"
 import { ModalChangeUserI, UserRankedForm, UsersListState } from "./users-state"
 import filterUsersByOffice from "./user.business_logic"
+import { filterLeadsForOffice } from "../business-logic/filter-leads-for-office"
 import { updateUserLevelReq } from "../../../app/services/user-rank.service"
 
 const userRankedFormInit: UserRankedForm = {
@@ -31,10 +32,6 @@ export const fetchSubadminsThunk = createAsyncThunk( "UserList/fetchSubadmins", 
 
 export const updateUserOfficeThunk = createAsyncThunk("UserList/updateUserOfficeThunk", async ({ userId, officeId, lead } : { userId : string, officeId: string, lead: string}) =>
   await updateUserOfficeReq({userId, officeId, lead}))
-
-export const getLeadUsersThunk = createAsyncThunk("UsersList/getLeadUsersThunk", async () => await getLeadUsersReq())
-
-export const getLeadsForOfficeThunk = createAsyncThunk("UsersList/getLeadsForOfficeThunk", async ({officeId} : {officeId: string }) =>  await getLeadForOfficeReq({officeId}))
 
 export const setUserLinkThunk = createAsyncThunk( "UsersList/setUserLinkThunk", async (params: {userId: string, link: string}) => await setUserLinkReq(params))
 
@@ -116,7 +113,10 @@ export const usersListSlice = createSlice({
     },
     changeOnlyEnableUsersAct: (state, action: PayloadAction<boolean>) => {
       state.onlyEnableUsers = action.payload
-    }
+    },
+    setLeadsForOfficeFromUsersAct: (state, action: PayloadAction<string>) => {
+      state.leadsForOfficeChose = filterLeadsForOffice(state.usersOriginal, action.payload)
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchUsersThunk.fulfilled, (state, action: PayloadAction<UserInterface[]>) => {            
@@ -126,16 +126,11 @@ export const usersListSlice = createSlice({
       state.gotUsers = true
     }).addCase(fetchSubadminsThunk.fulfilled, (state, action: PayloadAction<UserInterface[]>) => {
       state.audits = action.payload
-    }).addCase(getLeadUsersThunk.fulfilled, (state, action) => {
-      state.gotUsers = true
-      state.users = action.payload
     }).addCase(updateUserOfficeThunk.pending, (state) => {
       state.modalChangeofficeState = undefined
     }).addCase(updateUserOfficeThunk.fulfilled, (state, action) => {
       const indexUser = state.users.findIndex((el) => el._id === action.payload._id)      
       if(indexUser !== -1) state.users[indexUser] = action.payload
-    }).addCase(getLeadsForOfficeThunk.fulfilled, (state, action) => {
-      state.leadsForOfficeChose = action.payload
     }).addCase(setUserLinkThunk.fulfilled, (state, action) => {
       const indexUser = state.users.findIndex((el) => el._id === action.payload._id)
       if(indexUser !== -1) state.users[indexUser] = action.payload
@@ -158,7 +153,7 @@ export const usersListSlice = createSlice({
 
 
 
-export const { setUserList, addUserToListAct, clearModalChangeOfficeStateAct, setModalChangeOfficeStateAct, updateInputNewOfficeAct, updateUserConnectedAct, filterByOfficeChosenAct, setLeadForUserAct, setDialogSetUserLinkAct, changeSearchStringAct, updateInputUserLinkAct, clearFilterUsersAct, displayUserRankedFormAct, updateInputUserRankedFormAct, changeOnlyEnableUsersAct}  
+export const { setUserList, addUserToListAct, clearModalChangeOfficeStateAct, setModalChangeOfficeStateAct, updateInputNewOfficeAct, updateUserConnectedAct, filterByOfficeChosenAct, setLeadForUserAct, setDialogSetUserLinkAct, changeSearchStringAct, updateInputUserLinkAct, clearFilterUsersAct, displayUserRankedFormAct, updateInputUserRankedFormAct, changeOnlyEnableUsersAct, setLeadsForOfficeFromUsersAct}  
   = usersListSlice.actions
 
 

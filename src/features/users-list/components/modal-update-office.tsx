@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { clearModalChangeOfficeStateAct, getLeadsForOfficeThunk, setLeadForUserAct, updateInputNewOfficeAct, updateUserOfficeThunk } from "../slice/user-list.slice";
+import { clearModalChangeOfficeStateAct, setLeadForUserAct, setLeadsForOfficeFromUsersAct, updateInputNewOfficeAct, updateUserOfficeThunk } from "../slice/user-list.slice";
 import { Close } from "@mui/icons-material";
 import AppSelector from "../../../app/components/app-select";
 
@@ -11,7 +11,7 @@ export default function ModalUpdateOffice() {
   
   const changeInputOffice = ({name, val} : {name: string, val: string}) => {
     dispatch(updateInputNewOfficeAct(val))
-    dispatch(getLeadsForOfficeThunk({officeId: val}))
+    dispatch(setLeadsForOfficeFromUsersAct(val))
   }
 
   const changeLeadForUser = ({name, val} : {name: string, val: string}) => { 

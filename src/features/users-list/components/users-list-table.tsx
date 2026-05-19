@@ -4,7 +4,7 @@ import { Button, ButtonGroup, IconButton, Table, TableBody, TableCell, TableCont
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import { useEffect } from "react"
-import { displayUserRankedFormAct, fetchUsersThunk, getLeadsForOfficeThunk, logoutUserMobileThunk, setDialogSetUserLinkAct, setModalChangeOfficeStateAct, updateInputUserRankedFormAct } from "../slice/user-list.slice"
+import { displayUserRankedFormAct, fetchUsersThunk, logoutUserMobileThunk, setDialogSetUserLinkAct, setLeadsForOfficeFromUsersAct, setModalChangeOfficeStateAct, updateInputUserRankedFormAct } from "../slice/user-list.slice"
 import { Link, useNavigate } from "react-router-dom"
 import UserInterface, { OfficeDataNameI } from "../../../app/models/user-interface"
 import ModalUpdateOffice from "./modal-update-office"
@@ -52,7 +52,7 @@ export default function UsersListTable(){
       newOffice: officeId,
       lead: user.lead ?? '',
     }))
-    if (officeId) dispatch(getLeadsForOfficeThunk({ officeId }))
+    if (officeId) dispatch(setLeadsForOfficeFromUsersAct(officeId))
   }
 
   return (
