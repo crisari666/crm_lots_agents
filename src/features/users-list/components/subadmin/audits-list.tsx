@@ -20,7 +20,7 @@ import { Circle, Person } from "@mui/icons-material"
 import SubadminOfficeSelector from "./subadmin-office-selector"
 import UserInterface from "../../../../app/models/user-interface"
 import { getOfficesThunk } from "../../../offices/offices-list/offices-list.slice"
-import SubadminVentorSelector from "./subadmin-ventor-selector"
+import SubadminVentorsReadonly from "./subadmin-ventors-readonly"
 import { getSubadminVentorsReq } from "../../../../app/services/users.service"
 
 export default function AuditsList() {
@@ -219,7 +219,7 @@ export default function AuditsList() {
         fullWidth
       >
         {selectedAudit && (
-          <SubadminVentorSelector
+          <SubadminVentorsReadonly
             audit={selectedAudit}
             onClose={handleCloseDialog}
           />
