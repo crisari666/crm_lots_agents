@@ -1,7 +1,4 @@
-import { FileUtils } from "../../utils/file.utils"
 import Api from "../axios"
-import { LeadWithUsersInterface } from "../models/lead-with-user.interface"
-import { UserDocType } from "../models/user-doc.type"
 import UserInterface from "../models/user-interface"
 
 const api = new Api()
@@ -40,10 +37,6 @@ export type UserUpdateRequestBody = {
   document: string
   city: string
   subadmin?: string
-}
-
-export type SetSubadminVentorsRequestBody = {
-  userIds: string[]
 }
 
 export async function fetchUsers({enable = false} : {enable?: boolean}): Promise<any> {
@@ -147,33 +140,6 @@ export async function getSubadminVentorsReq(subadminId: string): Promise<UserInt
   throw error
 }
 
-export async function getAvailableSubadminVentorsReq(subadminId: string): Promise<UserInterface[]> {
-  const response = await api.get({ path: `users/subadmin/${subadminId}/ventors/available` })
-  const { error } = response
-  if (error == null) {
-    return response.result as UserInterface[]
-  }
-  throw error
-}
-
-export async function setSubadminVentorsReq({
-  subadminId,
-  userIds,
-}: {
-  subadminId: string
-  userIds: string[]
-}): Promise<UserInterface[]> {
-  const response = await api.put({
-    path: `users/subadmin/${subadminId}/ventors`,
-    data: { userIds } as SetSubadminVentorsRequestBody,
-  })
-  const { error } = response
-  if (error == null) {
-    return response.result as UserInterface[]
-  }
-  throw error
-}
-
 export async function siginReq({user, lat, lng, password} : {user: string, password: string, lat: number, lng: number}): Promise<boolean | UserInterface | undefined> {
   try {
     const signinRequest = await api.post({path: "login/signin", data: {user, password, lat, lng}})
@@ -201,24 +167,6 @@ export async function updateUserOfficeReq({userId, officeId, lead} : {userId : s
     }
   } catch (error) {
     console.error('ERROR ON updateUserOffice');
-    console.error({error});
-    throw error;
-  }
-}
-
-export async function getLeadForOfficeReq({officeId} : {officeId : string}): Promise<UserInterface[]>  {
-  try {
-    const api = Api.getInstance()
-    const response = await api.get({path: `users/leads/${officeId}`})
-    //console.log('getLeadForOffice', {response});
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON getLeadForOffice');
     console.error({error});
     throw error;
   }
@@ -254,40 +202,6 @@ export async function getContentUsersReq(): Promise<UserInterface[]>  {
     }
   } catch (error) {
     console.error('ERROR ON METHOD');
-    console.error({error});
-    throw error;
-  }
-}
-
-export async function getLeadUsersReq(): Promise<UserInterface[]>  {
-  try {
-    const api = Api.getInstance()
-    const response = await api.get({path: `users/lead-users`})
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON getLeadUsersReq');
-    console.error({error});
-    throw error;
-  }
-}
-
-export async function getLeadsWithUsers(): Promise<LeadWithUsersInterface[]>  {
-  try {
-    const api = Api.getInstance()
-    const response = await api.get({path: `users/leads-with-users`})
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON getLeadWithUsers');
     console.error({error});
     throw error;
   }
@@ -351,44 +265,6 @@ export async function setUserPhysicalReq({
     console.error('ERROR ON setUserPhysicalReq')
     console.error({ error })
     throw error
-  }
-}
-
-export async function uploadUserDocReq({documentType, file, userId} : {userId: string, documentType: string, file: any}): Promise<UserDocType>{
-  try {
-    const api = Api.getInstance()
-    const filesFormat = await file.map((file: any) => FileUtils.dataUrlToFile(file.src, file.name))
-    const filesFormatted: Blob[] = await Promise.all(filesFormat)
-    const formData = new FormData()
-    formData.append("file", filesFormatted[0])
-    const response = await api.post({path: `users/user-document/${userId}/${documentType}`, data: formData, isFormData: true})
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON uploadUserDocReq');
-    console.error({error});
-    throw error;
-  }
-}
-
-export async function getUserDocsReq({userId} : {userId : string}): Promise<UserDocType>{
-  try {
-    const api = Api.getInstance()
-    const response = await api.get({path: `users/get-user-docs/${userId}`})
-    const { error } = response
-    if(error == null) {
-      return response.result
-    }else {
-      throw error
-    }
-  } catch (error) {
-    console.error('ERROR ON getUserDocsReq');
-    console.error({error});
-    throw error;
   }
 }
 

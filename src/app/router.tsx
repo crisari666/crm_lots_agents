@@ -13,7 +13,6 @@ import LeadsAuditoryView from "../views/leads-auditory-view";
 import OfficeDashboardView from "../views/office-dashboard-view";
 import FaceAuthView from "../views/face-auth-view";
 import FaceAuthFaceDetection from "../views/face-auth-face-detection";
-import UserDocumentsView from "../views/user-documents-view";
 import UsersWithoutCustomersView from "../views/users-without-customers.view";
 import DashboardContent from "../views/dashboard-view";
 import QrArriveView from "../views/qr-arrive-view";
@@ -41,6 +40,7 @@ import CeoLeadsResumePage from "../features/ceo-operations-summary/pages/ceo-lea
 import StaffPerformanceReportPage from "../features/staff-performance-report/pages/staff-performance-report-page";
 import ReferralFollowUpPage from "../features/referral-follow-up/pages/referral-follow-up-page";
 import CustomerPaymentsAuditoryPage from "../features/customer-payment/pages/customer-payments-auditory-page";
+import UserProfilePage from "../features/user-profile/pages/user-profile-page";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignInView /> },
@@ -60,7 +60,6 @@ const router = createBrowserRouter([
       { path: "staff-performance", element: <StaffPerformanceReportPage /> },
       { path: "leads-auditory", element: <LeadsAuditoryView /> },
       { path: "office-dashboard/:officeId", element: <OfficeDashboardView /> },
-      { path: "documents", element: <UserDocumentsView /> },
       { path: "twilio-numbers", element: <TwilioNumbersView /> },
       { path: "users-goal-view", element: <UsersGoalsView /> },
       { path: "projects", element: <ProjectListPage /> },
@@ -86,6 +85,7 @@ const router = createBrowserRouter([
       { path: "handle-user", element: <HandleUserView /> },
       { path: "handle-user/:userId", element: <HandleUserView /> },
       { path: "users", element: <UsersList /> },
+      { path: "users/profile", element: <UserProfilePage /> },
       { path: "users/referral-follow-up", element: <ReferralFollowUpPage /> },
       { path: "import-users", element: <ImportUsersPage /> },
       { path: "users-onboarding-status", element: <UsersOnboardingStatusView /> },

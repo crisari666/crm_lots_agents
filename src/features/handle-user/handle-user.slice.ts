@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
 import { generateContractReq, type GenerateContractPayload } from "../../app/services/google.service"
-import { getLeadForOfficeReq, getUserByIdReq, getUserDocsReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, uploadUserDocReq, type UserCreateRequestBody } from "../../app/services/users.service"
+import { getUserByIdReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, toggleEnableUserReq, updateUserService, type UserCreateRequestBody } from "../../app/services/users.service"
+import { filterLeadsForOffice } from "../users-list/business-logic/filter-leads-for-office"
+import { RootState } from "../../app/store"
 import { leadFieldToId, officeFieldToId, subadminFieldToId } from "./user-field-ids"
 import { pushAlertAction } from "../dashboard/dashboard.slice"
 import { store } from "../../app/store"
@@ -63,15 +65,27 @@ const initialState: HandleUserState = {
 
 export const fetchUserByIdThunk = createAsyncThunk( "handleUser/setUserById", async (userId: string) => {
     const user = await getUserByIdReq(userId)
-    if(user.office !== null) store.dispatch(getLeadForOfficeThunk({officeId: user.office as string, settedLead: user.lead as string}))
-    return {user}
+    if (user.office != null) {
+      const officeId = typeof user.office === 'object' && user.office !== null && '_id' in user.office
+        ? String((user.office as { _id: string })._id)
+        : String(user.office)
+      store.dispatch(loadLeadsForOfficeThunk({ officeId, settedLead: user.lead as string }))
+    }
+    return { user }
   },
 )
 
-export const getLeadForOfficeThunk = createAsyncThunk("HandleUser/getLeadForOffice", async ({ officeId, settedLead } : { officeId : string, settedLead?: string}): Promise<{leads: UserInterface[], settedLead: string}> => {
-  const leads = await getLeadForOfficeReq({officeId})
-  return {leads, settedLead: settedLead ?? ""}
-})
+export const loadLeadsForOfficeThunk = createAsyncThunk(
+  'HandleUser/loadLeadsForOffice',
+  async (
+    { officeId, settedLead }: { officeId: string; settedLead?: string },
+    { getState },
+  ): Promise<{ leads: UserInterface[]; settedLead: string }> => {
+    const users = (getState() as RootState).users.usersOriginal
+    const leads = filterLeadsForOffice(users, officeId)
+    return { leads, settedLead: settedLead ?? '' }
+  },
+)
 
 export const createUserThunk = createAsyncThunk("handleUser/createUser",  async(dataUser: UserInterface) : Promise<UserInterface | undefined> => {
   try {
@@ -82,8 +96,6 @@ export const createUserThunk = createAsyncThunk("handleUser/createUser",  async(
     store.dispatch(pushAlertAction({message: String(error), title: hu.errorCreateUserTitle}))
   }
 })
-
-export const uploadUserDocThunk = createAsyncThunk( "handleUser/uploadUserDocThunk", async (params : {userId: string, documentType: string, file: any}) => await uploadUserDocReq(params))
 
 export const updateUserTnunk = createAsyncThunk("handleUser/updateUser", async({dataUser, userId}:{dataUser: UserInterface, userId: string}) => {
   try {
@@ -128,8 +140,6 @@ export const setUserPhysicalThunk = createAsyncThunk(
   async (params: { userId: string, physical: boolean }) => setUserPhysicalReq(params)
 )
 
-export const getUserDocsThunk = createAsyncThunk( "handleUser/getUserDocsReq", async (userId: string) => await getUserDocsReq({userId}))
-
 export const setUserLeaveDateThunk = createAsyncThunk( "handleUser/setUserLeaveDateThunk", async (PARAM: {userId: string, date: string}) => await setUserLeaveDateReq({userId: PARAM.userId, leaveDate: PARAM.date}))
 
 export const setUserGoalThunk = createAsyncThunk( "handleUser/setUserGoalThunks", async (PARAM: {userId: string, goal: number}) => await setUserGoalReq(PARAM))
@@ -170,13 +180,6 @@ export const HandleUserSlice = createSlice({
       state.currentUser = initUser
       state.created = false
     },
-    setDialogUploadUserDocAction: (state, action: PayloadAction<{documentType: string} | undefined>) => {
-      if(action.payload !== undefined){
-        state.dialogUploadUserDoc = action.payload
-      }else {
-        state.dialogUploadUserDoc = undefined
-      }
-    }
   },
   extraReducers(builder) {
     builder.addCase(createUserThunk.fulfilled, (state, action) => {
@@ -187,7 +190,7 @@ export const HandleUserSlice = createSlice({
     .addCase(fetchUserByIdThunk.fulfilled , (state, action: PayloadAction<{ user: UserInterface }>) => {
       state.currentUser = action.payload.user
       state.currentUser.password = ""
-    }).addCase(getLeadForOfficeThunk.fulfilled, (state, action) => {
+    }).addCase(loadLeadsForOfficeThunk.fulfilled, (state, action) => {
       state.leadsForOffice = action.payload.leads
       state.currentUser!.lead = action.payload.settedLead
     }).addCase(toggleEnableUserThunk.fulfilled, (state, action) => {
@@ -196,12 +199,7 @@ export const HandleUserSlice = createSlice({
       if (state.currentUser && action.payload?.physical !== undefined) {
         state.currentUser.physical = action.payload.physical
       }
-    }).addCase(getUserDocsThunk.fulfilled, (state, action) => {      
-      state.userDocs = action.payload
-     }).addCase(uploadUserDocThunk.fulfilled, (state, action) => {
-      state.userDocs = action.payload
-      state.dialogUploadUserDoc = undefined
-     }).addCase(setUserLeaveDateThunk.fulfilled, (state, action) => {
+    }).addCase(setUserLeaveDateThunk.fulfilled, (state, action) => {
         state.currentUser!.leaveDate = action.payload.leaveDate
      }).addCase(setUserGoalThunk.fulfilled, (state, action) => {
         state.currentUser!.goal = action.payload.goal
@@ -223,6 +221,6 @@ export const HandleUserSlice = createSlice({
 })
 
 
-export const { fetchUser, userCreated, removeCurrentUserAction, resetHandleUserStateAction, setUserIdAction, changeInputUserFormActionAct, toggleShowPassAct, setDialogUploadUserDocAction } = HandleUserSlice.actions
+export const { fetchUser, userCreated, removeCurrentUserAction, resetHandleUserStateAction, setUserIdAction, changeInputUserFormActionAct, toggleShowPassAct } = HandleUserSlice.actions
 
 export default HandleUserSlice.reducer

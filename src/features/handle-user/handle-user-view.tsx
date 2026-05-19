@@ -11,7 +11,6 @@ import UserForm from "./components/user-form"
 import { CheckUserAllowedComponent } from "../../app/components/check-user-allowed-component"
 import UserResumeComponent from "../user-customers/components/user-resume-component"
 import CtrlsUserCP from "./components/ctrls-user"
-import UserDocumentsLoad from "./components/user-document-load.cp"
 import UserTools from "./components/user-tools"
 
 
@@ -49,7 +48,6 @@ export function HandleUserView() {
         <CtrlsUserCP/>
         {/* <UserResumeComponent/> */}
         <UserForm />
-        <UserDocumentsLoad />
         <UserTools />
       </CheckUserAllowedComponent>
     </>
