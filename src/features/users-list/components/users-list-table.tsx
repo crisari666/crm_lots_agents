@@ -16,6 +16,7 @@ import { setUserIdSessionsLogAct } from "../../user-sessions-logs/slice/user-ses
 import UserSessionsDialog from "../../user-sessions-logs/user-sessions-dialog"
 import TableResumeUsers from "./table-resume-users"
 import DialogSetUserLink from "./dialog-set-user-link"
+import { getOfficesThunk } from "../../offices/offices-list/offices-list.slice"
 
 export default function UsersListTable(){
 
@@ -37,8 +38,6 @@ export default function UsersListTable(){
       return () => window.clearTimeout(t)
     }
   }, [users, gotUsers, onlyEnableUsers, dispatch])
-
-  const goToEditUser = (userId: string) => navigate(`/dashboard/handle-user/${userId}`)
 
   const goToUserList = (userId: string) => navigate(`/dashboard/offices-list/${userId}`)
 
