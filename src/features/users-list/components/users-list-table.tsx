@@ -45,14 +45,15 @@ export default function UsersListTable(){
   const padd0 = {padding: "2px"}
 
   const changeUsesOffice = (user: UserInterface) => {
+    const officeId = user.office ? (user.office as OfficeDataNameI)._id : ''
     dispatch(setModalChangeOfficeStateAct({
-      office:  (user.office! as OfficeDataNameI)._id, 
-      userId: user._id!, 
-      userName: user.name, 
-      newOffice: (user.office! as OfficeDataNameI)._id, 
-      lead: user.lead ?? ''})
-    )
-    if(user.office) dispatch(getLeadsForOfficeThunk({officeId: (user.office! as OfficeDataNameI)._id}))
+      office: officeId,
+      userId: user._id!,
+      userName: user.name,
+      newOffice: officeId,
+      lead: user.lead ?? '',
+    }))
+    if (officeId) dispatch(getLeadsForOfficeThunk({ officeId }))
   }
 
   return (
