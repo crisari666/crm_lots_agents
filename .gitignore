@@ -102,3 +102,6 @@ public/sw.js
 repos_help/
 repos_help/*
 .env.gtower
+# Added by code-review-graph
+.code-review-graph/
+.cursor/

@@ -98,7 +98,7 @@ export default function UsersListTable(){
                   <TableCell padding="none" align="center"> 
                     <ButtonGroup size="small">
                       {el.office && <Button size="small" disabled variant="outlined"> {(el.office! as OfficeDataNameI).name} </Button>}
-                      {currentUser!.level === 0 && <Button size="small" color="warning" variant="outlined" onClick={() => changeUsesOffice(el)}> <RoomPreferences fontSize="small"/> </Button>}
+                      {currentUser!.level! <= 1 && <Button size="small" color="warning" variant="outlined" onClick={() => changeUsesOffice(el)}> <RoomPreferences fontSize="small"/> </Button>}
 
                     </ButtonGroup>
                   </TableCell>
