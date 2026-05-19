@@ -93,7 +93,7 @@ export default function UsersListTable(){
                   </TableCell>
                   <TableCell padding="checkbox"> {getUserLevelDesc( el.level!)} </TableCell>
                   <TableCell padding="checkbox">{el.email}</TableCell>
-                  {currentUser?.level === 0 && <TableCell padding="checkbox">{el.name}</TableCell>}
+                  {currentUser?.level! <= 1 && <TableCell padding="checkbox">{el.name}</TableCell>}
                   <TableCell padding="checkbox" sx={{whiteSpace: "nowrap"}}>{el.lastName}</TableCell>
                   <TableCell padding="none" align="center"> 
                     <ButtonGroup size="small">
