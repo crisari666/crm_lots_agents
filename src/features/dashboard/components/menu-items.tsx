@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, HistorySharp, ListAlt, PeopleAltTwoTone, PersonPinCircle, PhoneAndroid, PriceChange, Settings, UploadFileSharp } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, HistorySharp, ListAlt, PeopleAltTwoTone, PersonPinCircle, PhoneAndroid, PriceChange, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -38,6 +38,10 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     //   { to: "/dashboard/customers-database", Icon: <FaceRetouchingNatural />, title: "Customer Database" },
     //   { to: "/dashboard/verify-payments", Icon: <CreditScore />, title: "verificar pagos" },
     // ]},
+
+    { Icon: <SchoolOutlined />, title: "Entrenamientos", children: [
+      { to: "/dashboard/training-sessions", Icon: <VideoCallOutlined />, title: "Sesiones" },
+    ]},
 
     { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },

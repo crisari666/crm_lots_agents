@@ -29,6 +29,7 @@ import CreateProjectPage from "../features/project/pages/create-project-page";
 import EditProjectPage from "../features/project/pages/edit-project-page";
 import UsersOnboardingStatusView from "../features/users-onboarding-status/users-onboarding-status-view";
 import TrainingTrakingPage from "../features/training-traking/pages/training-traking-page";
+import TrainingSessionsPage from "../features/training-sessions/pages/training-sessions-page";
 import CustomersPage from "../features/customer-v2/pages/customers-page";
 import CustomersCallLogsPage from "../features/customer-v2/pages/customers-call-logs-page";
 import CustomersEventsPage from "../features/customer-v2/pages/customers-events-page";
@@ -67,6 +68,7 @@ const router = createBrowserRouter([
       { path: "create-project", element: <CreateProjectPage /> },
       { path: "edit-project/:projectId", element: <EditProjectPage /> },
       { path: "traninng-traking", element: <TrainingTrakingPage /> },
+      { path: "training-sessions", element: <TrainingSessionsPage /> },
       { path: "users-with-not-customer", element: <UsersWithoutCustomersView /> },
       { path: "offices-list", element: <OfficesListView /> },
       { path: "handle-office", element: <HandleOfficeView /> },

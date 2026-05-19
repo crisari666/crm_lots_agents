@@ -26,6 +26,7 @@ import amenitiesSlice from "../features/project/slice/amenities.slice";
 import importUsersSlice from "../features/import-users/import-users.slice";
 import usersOnboardingStatusSlice from "../features/users-onboarding-status/slice/users-onboarding-status.slice";
 import trainingTrakingSlice from "../features/training-traking/slice/training-traking.slice";
+import trainingSessionsReducer from "../features/training-sessions/slice/training-sessions.slice";
 import customerV2Reducer from "../features/customer-v2/redux/customer-v2.slice";
 import customerCallLogsReducer from "../features/customer-v2/redux/customer-call-logs.slice";
 import customerConversationsReducer from "../features/customer-v2/redux/customer-conversations.slice";
@@ -101,6 +102,7 @@ export const store = configureStore({
     usersOnboardingStatus: usersOnboardingStatusSlice,
     usersWithoutCustomers: usersWithoutCustomersSlice,
     trainingTraking: trainingTrakingSlice,
+    trainingSessions: trainingSessionsReducer,
     customerV2: customerV2Reducer,
     customerCallLogs: customerCallLogsReducer,
     customerConversations: customerConversationsReducer,
