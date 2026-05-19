@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, HistorySharp, ListAlt, PeopleAltTwoTone, PersonPinCircle, PhoneAndroid, PriceChange, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -61,6 +61,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
 
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios", children: [
       { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios"},
+      { to: "/dashboard/users/profile", Icon: <Person />, title: "Mi perfil" },
       { to: "/dashboard/users/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
       { to: "/dashboard/users-onboarding-status", Icon: <ChecklistRtl />, title: "Onboarding status" },
       { to: "/dashboard/import-users", Icon: <UploadFileSharp />, title: "Importar usuarios" },

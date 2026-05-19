@@ -1,4 +1,5 @@
 import { Toolbar, IconButton, Typography, styled } from "@mui/material"
+import { Link } from "react-router-dom"
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
 import MenuIcon from "@mui/icons-material/Menu"
 import { useAppSelector } from "../../../app/hooks"
@@ -66,7 +67,13 @@ export default function AppBarComponent({
         >
           Dashboard
         </Typography>
-        <Typography>{currentUser?.email} | {getUserLevelDesc(currentUser?.level!)}</Typography>
+        <Typography
+          component={Link}
+          to="/dashboard/users/profile"
+          sx={{ color: "inherit", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+        >
+          {currentUser?.email} | {getUserLevelDesc(currentUser?.level!)}
+        </Typography>
         <AppBarNottifications/>
       </Toolbar>
     </AppBar>

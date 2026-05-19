@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { siginReq, updateFcmTokenForUserReq } from "../../app/services/users.service"
 import { OmegaSoftConstants } from "../../app/khas-web-constants"
 import { SigninStateI, UserPositionI } from "./sigin-state"
+import UserInterface from "../../app/models/user-interface"
 import "immer"
 
 
@@ -50,7 +51,20 @@ export const signinSlice = createSlice({
     },
     toggleWrongCredentials: (state, action: PayloadAction<boolean>) => {
       state.wrongCredential = action.payload
-    }
+    },
+    mergeCurrentUserProfileAct: (
+      state,
+      action: PayloadAction<Partial<Pick<UserInterface, 'name' | 'lastName' | 'phone' | 'email'>>>,
+    ) => {
+      if (state.currentUser == null) {
+        return
+      }
+      state.currentUser = { ...state.currentUser, ...action.payload }
+      localStorage.setItem(
+        OmegaSoftConstants.localstorageAuthKey,
+        JSON.stringify(state.currentUser),
+      )
+    },
   },
   extraReducers(builder) {
     builder.addCase(signInUserThunk.pending, (state) => {state.loading = true})
@@ -73,6 +87,15 @@ export const signinSlice = createSlice({
   },
 })
 
-export const { setLoadingSigin, logoutAction, checkUserAtLocalStorageAction, endSessionForceUserAction, resetEndSessionForce, toggleWrongCredentials, setUserPositionAct } = signinSlice.actions
+export const {
+  setLoadingSigin,
+  logoutAction,
+  checkUserAtLocalStorageAction,
+  endSessionForceUserAction,
+  resetEndSessionForce,
+  toggleWrongCredentials,
+  setUserPositionAct,
+  mergeCurrentUserProfileAct,
+} = signinSlice.actions
 
 export default signinSlice.reducer

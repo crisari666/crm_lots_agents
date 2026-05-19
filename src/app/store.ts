@@ -39,6 +39,7 @@ import ceoOperationsSummaryReducer from "../features/ceo-operations-summary/slic
 import staffPerformanceReportReducer from "../features/staff-performance-report/redux/staff-performance-report.slice";
 import referralFollowUpReducer from "../features/referral-follow-up/slice/referral-follow-up.slice";
 import customerPaymentsReducer from "../features/customer-payment/slice/customer-payments.slice";
+import userProfileReducer from "../features/user-profile/slice/user-profile.slice";
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -115,6 +116,7 @@ export const store = configureStore({
     staffPerformanceReport: staffPerformanceReportReducer,
     referralFollowUp: referralFollowUpReducer,
     customerPayments: customerPaymentsReducer,
+    userProfile: userProfileReducer,
   },
 });
 
