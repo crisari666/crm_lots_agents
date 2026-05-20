@@ -24,6 +24,7 @@ import OfficesLevelSlice from "../features/offices/office-levels/slice/office-le
 import projectsSlice from "../features/project/slice/projects.slice";
 import amenitiesSlice from "../features/project/slice/amenities.slice";
 import importUsersSlice from "../features/import-users/import-users.slice";
+import importCustomersSlice from "../features/import-customers/import-customers.slice";
 import usersOnboardingStatusSlice from "../features/users-onboarding-status/slice/users-onboarding-status.slice";
 import trainingTrakingSlice from "../features/training-traking/slice/training-traking.slice";
 import trainingSessionsReducer from "../features/training-sessions/slice/training-sessions.slice";
@@ -83,6 +84,7 @@ export const store = configureStore({
     handleUser: handleUserSlice,
     imagePreview: imagePreviewSlice,
     importUsers: importUsersSlice,
+    importCustomers: importCustomersSlice,
     leadsAuditory: leadsAuditorySlice,
     login: SigInReducer,
     logArrive: logArriveSlice,
