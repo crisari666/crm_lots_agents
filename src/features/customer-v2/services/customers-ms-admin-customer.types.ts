@@ -255,3 +255,23 @@ export type StaffPerformanceReportDto = {
   stepsMeta: Array<{ id: string; name: string; order: number }>
   rows: StaffPerformanceReportRow[]
 }
+
+export type ImportCustomerRowPayload = {
+  phone: string
+  name?: string
+  email?: string
+  assignedTo?: string
+}
+
+export type ImportCustomersAdminBody = {
+  customers: ImportCustomerRowPayload[]
+}
+
+export type ImportCustomerAdminResultItem =
+  | { phone: string; status: 'created'; customerId: string }
+  | { phone: string; status: 'already_exists'; customerId: string }
+  | { phone: string; status: 'error'; message: string }
+
+export type ImportCustomersAdminResponse = {
+  results: ImportCustomerAdminResultItem[]
+}

@@ -14,6 +14,8 @@ import type {
   StaffPerformanceReportBody,
   StaffPerformanceReportDto,
   UpdateCustomerAdminBody,
+  ImportCustomersAdminBody,
+  ImportCustomersAdminResponse,
 } from "./customers-ms-admin-customer.types"
 
 const auth = () => ({ headers: customersMsAuthHeaders() })
@@ -136,6 +138,17 @@ export async function postStaffPerformanceReport(
     "admin/customer/staff-performance",
     body,
     auth()
+  )
+  return response.data
+}
+
+export async function importCustomersAdmin(
+  body: ImportCustomersAdminBody,
+): Promise<ImportCustomersAdminResponse> {
+  const response = await customersMsAxios.post<ImportCustomersAdminResponse>(
+    "admin/customer/import",
+    body,
+    auth(),
   )
   return response.data
 }

@@ -19,9 +19,14 @@ export type {
   ListCustomersAdminParams,
   SearchCustomersAutocompleteParams,
   UpdateCustomerAdminBody,
+  ImportCustomerRowPayload,
+  ImportCustomersAdminBody,
+  ImportCustomerAdminResultItem,
+  ImportCustomersAdminResponse,
 } from "./customers-ms-admin-customer.types"
 export {
   assignCustomerAssignee,
+  importCustomersAdmin,
   createCustomerAdmin,
   getCustomerAdminDetail,
   listCallLogsAdmin,
