@@ -8,28 +8,41 @@ import TableCell from "@mui/material/TableCell"
 import TableContainer from "@mui/material/TableContainer"
 import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
+import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 import { useMemo } from "react"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
-import { groupSignedContractsByEmail } from "../utils/group-signed-contracts-by-email"
+import { buildSignedContractDisplayRows } from "../utils/build-signed-contract-display-rows"
 import SignedContractItem from "./signed-contract-item"
+import SignedContractSummary from "./signed-contract-summary"
+
+const compactTableSx = {
+  "& .MuiTableCell-root": {
+    py: 0.5,
+    px: 1,
+    fontSize: "0.8125rem",
+  },
+  "& .MuiTableCell-head": {
+    py: 0.75,
+    fontWeight: 600,
+    fontSize: "0.75rem",
+    whiteSpace: "nowrap",
+  },
+} as const
 
 export default function SignedContractList() {
   const { items, error, isLoading, groupRepeatedByEmail, signStatusFilter } =
     useAppSelector((state: RootState) => state.signedContract)
-  const displayRows = useMemo(() => {
-    const filteredItems =
-      signStatusFilter === "signed"
-        ? items.filter((item) => item.signed)
-        : signStatusFilter === "unsigned"
-          ? items.filter((item) => !item.signed)
-          : items
-    if (groupRepeatedByEmail) {
-      return groupSignedContractsByEmail(filteredItems)
-    }
-    return filteredItems
-  }, [items, groupRepeatedByEmail, signStatusFilter])
+  const displayRows = useMemo(
+    () =>
+      buildSignedContractDisplayRows({
+        items,
+        signStatusFilter,
+        groupRepeatedByEmail,
+      }),
+    [items, groupRepeatedByEmail, signStatusFilter],
+  )
   if (error != null && error !== "") {
     return <Alert severity="error">{error}</Alert>
   }
@@ -48,8 +61,10 @@ export default function SignedContractList() {
     )
   }
   return (
-    <TableContainer component={Paper} sx={{ mt: 1 }}>
-      <Table size="small" stickyHeader>
+    <Stack spacing={1}>
+      <SignedContractSummary />
+      <TableContainer component={Paper}>
+      <Table size="small" stickyHeader sx={compactTableSx}>
         <TableHead>
           <TableRow>
             <TableCell>Email</TableCell>
@@ -63,6 +78,11 @@ export default function SignedContractList() {
             <TableCell>Fecha firma</TableCell>
             <TableCell>Estado</TableCell>
             <TableCell align="center">Abrir firmado</TableCell>
+            {!groupRepeatedByEmail ? (
+              <TableCell align="center" width={56}>
+                Marcar
+              </TableCell>
+            ) : null}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -71,10 +91,12 @@ export default function SignedContractList() {
               key={row.id}
               item={row}
               showSendCountColumn={groupRepeatedByEmail}
+              showMarkSignedColumn={!groupRepeatedByEmail}
             />
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+    </Stack>
   )
 }
