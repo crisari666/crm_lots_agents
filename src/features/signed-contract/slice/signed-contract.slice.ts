@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { fetchSignedContractHistoryReq } from "../services/agent-contract-sign-admin.service"
+import {
+  fetchSignedContractHistoryReq,
+  markSignedContractByIdReq,
+} from "../services/agent-contract-sign-admin.service"
 import type { SignedContractSignStatusFilter } from "../types/signed-contract.types"
 import type { SignedContractState } from "./signed-contract.state"
 
@@ -17,6 +20,13 @@ export const fetchSignedContractHistoryThunk = createAsyncThunk(
   "signedContract/fetchHistory",
   async (params: { readonly sentFrom?: string; readonly sentTo?: string }) => {
     return fetchSignedContractHistoryReq(params)
+  }
+)
+
+export const markSignedContractThunk = createAsyncThunk(
+  "signedContract/markSigned",
+  async (contractId: string) => {
+    return markSignedContractByIdReq(contractId)
   }
 )
 
@@ -59,6 +69,24 @@ const signedContractSlice = createSlice({
           action.error.message != null
             ? action.error.message
             : "Failed to load contract history"
+      })
+      .addCase(markSignedContractThunk.fulfilled, (state, action) => {
+        const contractId = action.meta.arg
+        const signedAt = action.payload.signedAt
+        const signedPdfLink = action.payload.signedPdfLink ?? null
+        const index = state.items.findIndex((item) => item.id === contractId)
+        if (index < 0) {
+          return
+        }
+        state.items[index] = {
+          ...state.items[index],
+          signed: true,
+          dateSigned: signedAt,
+          signedPdfLink:
+            signedPdfLink != null && signedPdfLink !== ""
+              ? signedPdfLink
+              : state.items[index].signedPdfLink,
+        }
       })
   },
 })

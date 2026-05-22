@@ -22,3 +22,33 @@ export async function fetchSignedContractHistoryReq(params: {
   }
   return data as SignedContractListItem[]
 }
+
+export type MarkSignedContractResult = {
+  readonly signed: boolean
+  readonly signedAt: string
+  readonly signedPdfLink?: string
+}
+
+export async function markSignedContractByIdReq(
+  id: string,
+): Promise<MarkSignedContractResult> {
+  const api = Api.getInstance()
+  const data = await api.patch({
+    path: `agent-contract-sign/admin/${id}/signed`,
+  })
+  const signedAtRaw = (data as MarkSignedContractResult)?.signedAt
+  const signedAt =
+    signedAtRaw instanceof Date
+      ? signedAtRaw.toISOString()
+      : typeof signedAtRaw === "string"
+        ? signedAtRaw
+        : new Date().toISOString()
+  return {
+    signed: true,
+    signedAt,
+    signedPdfLink:
+      typeof (data as MarkSignedContractResult)?.signedPdfLink === "string"
+        ? (data as MarkSignedContractResult).signedPdfLink
+        : undefined,
+  }
+}
