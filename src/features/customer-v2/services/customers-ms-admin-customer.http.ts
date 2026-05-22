@@ -2,6 +2,7 @@ import { customersMsAuthHeaders, customersMsAxios } from "../../../app/customers
 import type {
   CreateCustomerAdminBody,
   CustomerAdminDetail,
+  CustomerMetaLeadMappedFieldsResponse,
   CustomerAdminListResponse,
   CustomerAutocompleteItem,
   CustomerCallLogAdminItem,
@@ -50,6 +51,16 @@ export async function assignCustomerAssignee(
 export async function getCustomerAdminDetail(customerId: string): Promise<CustomerAdminDetail> {
   const response = await customersMsAxios.get<CustomerAdminDetail>(
     `admin/customer/${encodeURIComponent(customerId)}`,
+    auth()
+  )
+  return response.data
+}
+
+export async function getCustomerMetaLeadMappedFieldsAdmin(
+  customerId: string
+): Promise<CustomerMetaLeadMappedFieldsResponse> {
+  const response = await customersMsAxios.get<CustomerMetaLeadMappedFieldsResponse>(
+    `admin/customer/${encodeURIComponent(customerId)}/meta-lead-mapped-fields`,
     auth()
   )
   return response.data

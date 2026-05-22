@@ -29,6 +29,7 @@ import CustomerEventsTabCP from "./customer-detail/customer-events-tab.cp"
 import CustomerDetailFormTabCP from "./customer-detail/customer-detail-form-tab.cp"
 import CustomerDetailNotesTabCP from "./customer-detail/customer-detail-notes-tab.cp"
 import CustomerPaymentTabCP from "./customer-detail/customer-payment-tab.cp"
+import CustomerMetaLeadTabCP from "./customer-detail/customer-meta-lead-tab.cp"
 
 function buildUpdateBody(form: CustomerAdminDetail): UpdateCustomerAdminBody {
   const interestedProjects = form.interestedProjects
@@ -141,6 +142,7 @@ export default function CustomerDetailDialogCP() {
               <Tab label="Conversaciones" sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label="Eventos" sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label="Pagos" sx={{ cursor: "pointer", textTransform: "none" }} />
+              <Tab label="Formulario Meta" sx={{ cursor: "pointer", textTransform: "none" }} />
             </Tabs>
             {tab === 0 && (
               <CustomerDetailFormTabCP
@@ -156,6 +158,7 @@ export default function CustomerDetailDialogCP() {
             {tab === 3 && <CustomerConversationsTabCP />}
             {tab === 4 && <CustomerEventsTabCP customerId={form.id} />}
             {tab === 5 && <CustomerPaymentTabCP customerId={form.id} />}
+            {tab === 6 && <CustomerMetaLeadTabCP customerId={form.id} />}
           </>
         )}
       </DialogContent>

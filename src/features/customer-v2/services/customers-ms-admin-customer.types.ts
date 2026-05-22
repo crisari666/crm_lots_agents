@@ -275,3 +275,14 @@ export type ImportCustomerAdminResultItem =
 export type ImportCustomersAdminResponse = {
   results: ImportCustomerAdminResultItem[]
 }
+
+export type CustomerMetaLeadMappedFieldItem = {
+  label: string
+  value: string
+}
+
+export type CustomerMetaLeadMappedFieldsResponse = {
+  hasLead: boolean
+  leadgenId?: string
+  items: CustomerMetaLeadMappedFieldItem[]
+}
