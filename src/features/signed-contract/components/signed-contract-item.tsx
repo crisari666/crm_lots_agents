@@ -1,7 +1,9 @@
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"
+import DrawIcon from "@mui/icons-material/Draw"
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
+import CircularProgress from "@mui/material/CircularProgress"
 import IconButton from "@mui/material/IconButton"
 import Chip from "@mui/material/Chip"
 import Link from "@mui/material/Link"
@@ -11,7 +13,10 @@ import TableRow from "@mui/material/TableRow"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
 import { useCallback, useState } from "react"
+import { useAppDispatch } from "../../../app/hooks"
+import { markSignedContractThunk } from "../slice/signed-contract.slice"
 import type { SignedContractListItem } from "../types/signed-contract.types"
+import { isMarkableContractId } from "../utils/is-markable-contract-id"
 
 function formatDateTime(iso: string | null): string {
   if (iso == null || iso === "") {
@@ -41,11 +46,11 @@ function SigningLinkCell({ signUrl }: { readonly signUrl: string }) {
     }
   }, [signUrl])
   return (
-    <TableCell sx={{ maxWidth: 320 }}>
+    <TableCell sx={{ maxWidth: 260, py: 0.5 }}>
       <Stack direction="row" alignItems="center" spacing={0.5}>
         <Tooltip title={signUrl}>
           <Typography
-            variant="body2"
+            variant="caption"
             component="span"
             sx={{
               flex: 1,
@@ -90,12 +95,80 @@ function SigningLinkCell({ signUrl }: { readonly signUrl: string }) {
   )
 }
 
+function MarkSignedCell({
+  contractId,
+  isSigned,
+}: {
+  readonly contractId: string
+  readonly isSigned: boolean
+}) {
+  const dispatch = useAppDispatch()
+  const [isMarking, setIsMarking] = useState(false)
+  const canMark = !isSigned && isMarkableContractId(contractId)
+  const handleMarkSigned = useCallback(async () => {
+    setIsMarking(true)
+    try {
+      await dispatch(markSignedContractThunk(contractId)).unwrap()
+    } catch {
+      // error surfaced via slice if extended later
+    } finally {
+      setIsMarking(false)
+    }
+  }, [contractId, dispatch])
+  if (isSigned) {
+    return (
+      <TableCell align="center" padding="checkbox">
+        <Typography variant="caption" color="text.secondary">
+          —
+        </Typography>
+      </TableCell>
+    )
+  }
+  if (!canMark) {
+    return (
+      <TableCell align="center" padding="checkbox">
+        <Tooltip title="Desactiva agrupar repetidos para marcar manualmente">
+          <Typography variant="caption" color="text.secondary">
+            —
+          </Typography>
+        </Tooltip>
+      </TableCell>
+    )
+  }
+  return (
+    <TableCell align="center" padding="checkbox">
+      <Tooltip title="Marcar como firmado">
+        <span>
+          <IconButton
+            size="small"
+            color="primary"
+            disabled={isMarking}
+            onClick={() => {
+              void handleMarkSigned()
+            }}
+            aria-label="Marcar contrato como firmado"
+            sx={{ p: 0.5 }}
+          >
+            {isMarking ? (
+              <CircularProgress size={16} color="inherit" />
+            ) : (
+              <DrawIcon sx={{ fontSize: 18 }} />
+            )}
+          </IconButton>
+        </span>
+      </Tooltip>
+    </TableCell>
+  )
+}
+
 export default function SignedContractItem({
   item,
   showSendCountColumn,
+  showMarkSignedColumn,
 }: {
   readonly item: SignedContractListItem
   readonly showSendCountColumn: boolean
+  readonly showMarkSignedColumn: boolean
 }) {
   return (
     <TableRow hover>
@@ -108,7 +181,7 @@ export default function SignedContractItem({
         <SigningLinkCell signUrl={item.signUrl} />
       ) : (
         <TableCell>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary">
             —
           </Typography>
         </TableCell>
@@ -116,18 +189,36 @@ export default function SignedContractItem({
       {showSendCountColumn ? (
         <TableCell align="right">{item.sendCount ?? 1}</TableCell>
       ) : null}
-      <TableCell>{formatDateTime(item.dateSent)}</TableCell>
-      <TableCell>{formatDateTime(item.dateSigned)}</TableCell>
       <TableCell>
+        <Typography variant="caption" component="span" noWrap>
+          {formatDateTime(item.dateSent)}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="caption" component="span" noWrap>
+          {formatDateTime(item.dateSigned)}
+        </Typography>
+      </TableCell>
+      <TableCell padding="none" sx={{ pl: 1 }}>
         <Chip
           size="small"
           color={item.signed ? "success" : "warning"}
           variant={item.signed ? "filled" : "outlined"}
-          icon={item.signed ? <CheckCircleOutlineIcon /> : <HourglassEmptyIcon />}
+          icon={
+            item.signed ? (
+              <CheckCircleOutlineIcon sx={{ fontSize: "14px !important" }} />
+            ) : (
+              <HourglassEmptyIcon sx={{ fontSize: "14px !important" }} />
+            )
+          }
           label={item.signed ? "Firmado" : "Pendiente"}
+          sx={{
+            height: 22,
+            "& .MuiChip-label": { px: 0.75, fontSize: "0.7rem" },
+          }}
         />
       </TableCell>
-      <TableCell align="center">
+      <TableCell align="center" padding="checkbox">
         {item.signedPdfLink != null && item.signedPdfLink !== "" ? (
           <Tooltip title="Abrir PDF firmado en nueva pestaña">
             <IconButton
@@ -138,6 +229,7 @@ export default function SignedContractItem({
               size="small"
               color="primary"
               aria-label="Abrir PDF firmado"
+              sx={{ p: 0.5 }}
             >
               <OpenInNewIcon fontSize="small" />
             </IconButton>
@@ -146,6 +238,9 @@ export default function SignedContractItem({
           "—"
         )}
       </TableCell>
+      {showMarkSignedColumn ? (
+        <MarkSignedCell contractId={item.id} isSigned={item.signed} />
+      ) : null}
     </TableRow>
   )
 }

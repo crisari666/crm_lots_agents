@@ -21,9 +21,9 @@ export default function SignedContractControls() {
     (state: RootState) => state.signedContract.signStatusFilter,
   )
   return (
-    <Paper sx={{ p: 2 }}>
-      <Stack spacing={2}>
-        <Typography variant="h6" component="h2">
+    <Paper sx={{ p: 1.5 }}>
+      <Stack spacing={1.5}>
+        <Typography variant="subtitle1" component="h2">
           Filtros
         </Typography>
         <FilterByDate />
