@@ -29,26 +29,33 @@ export type MarkSignedContractResult = {
   readonly signedPdfLink?: string
 }
 
+type MarkSignedContractApiResponse = {
+  readonly signed?: boolean
+  readonly signedAt?: string | Date
+  readonly signedPdfLink?: string
+}
+
+function normalizeSignedAt(value: string | Date | undefined): string {
+  if (value instanceof Date) {
+    return value.toISOString()
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    return value
+  }
+  return new Date().toISOString()
+}
+
 export async function markSignedContractByIdReq(
   id: string,
 ): Promise<MarkSignedContractResult> {
   const api = Api.getInstance()
-  const data = await api.patch({
+  const data = (await api.patch({
     path: `agent-contract-sign/admin/${id}/signed`,
-  })
-  const signedAtRaw = (data as MarkSignedContractResult)?.signedAt
-  const signedAt =
-    signedAtRaw instanceof Date
-      ? signedAtRaw.toISOString()
-      : typeof signedAtRaw === "string"
-        ? signedAtRaw
-        : new Date().toISOString()
+  })) as MarkSignedContractApiResponse
   return {
     signed: true,
-    signedAt,
+    signedAt: normalizeSignedAt(data.signedAt),
     signedPdfLink:
-      typeof (data as MarkSignedContractResult)?.signedPdfLink === "string"
-        ? (data as MarkSignedContractResult).signedPdfLink
-        : undefined,
+      typeof data.signedPdfLink === "string" ? data.signedPdfLink : undefined,
   }
 }
