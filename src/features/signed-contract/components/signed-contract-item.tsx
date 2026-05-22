@@ -17,6 +17,7 @@ import { useAppDispatch } from "../../../app/hooks"
 import { markSignedContractThunk } from "../slice/signed-contract.slice"
 import type { SignedContractListItem } from "../types/signed-contract.types"
 import { isMarkableContractId } from "../utils/is-markable-contract-id"
+import SignedContractMarkSignedDialog from "./signed-contract-mark-signed-dialog"
 
 function formatDateTime(iso: string | null): string {
   if (iso == null || iso === "") {
@@ -97,20 +98,39 @@ function SigningLinkCell({ signUrl }: { readonly signUrl: string }) {
 
 function MarkSignedCell({
   contractId,
+  contractName,
+  contractEmail,
   isSigned,
 }: {
   readonly contractId: string
+  readonly contractName: string
+  readonly contractEmail: string
   readonly isSigned: boolean
 }) {
   const dispatch = useAppDispatch()
   const [isMarking, setIsMarking] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const canMark = !isSigned && isMarkableContractId(contractId)
+  const handleCloseConfirm = useCallback(() => {
+    if (isMarking) {
+      return
+    }
+    setConfirmOpen(false)
+    setErrorMessage(null)
+  }, [isMarking])
   const handleMarkSigned = useCallback(async () => {
     setIsMarking(true)
+    setErrorMessage(null)
     try {
       await dispatch(markSignedContractThunk(contractId)).unwrap()
-    } catch {
-      // error surfaced via slice if extended later
+      setConfirmOpen(false)
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message.trim() !== ""
+          ? err.message
+          : "No se pudo marcar el contrato como firmado"
+      setErrorMessage(message)
     } finally {
       setIsMarking(false)
     }
@@ -144,10 +164,11 @@ function MarkSignedCell({
             color="primary"
             disabled={isMarking}
             onClick={() => {
-              void handleMarkSigned()
+              setErrorMessage(null)
+              setConfirmOpen(true)
             }}
             aria-label="Marcar contrato como firmado"
-            sx={{ p: 0.5 }}
+            sx={{ p: 0.5, cursor: isMarking ? "default" : "pointer" }}
           >
             {isMarking ? (
               <CircularProgress size={16} color="inherit" />
@@ -157,6 +178,17 @@ function MarkSignedCell({
           </IconButton>
         </span>
       </Tooltip>
+      <SignedContractMarkSignedDialog
+        open={confirmOpen}
+        contractName={contractName}
+        contractEmail={contractEmail}
+        isSubmitting={isMarking}
+        errorMessage={errorMessage}
+        onClose={handleCloseConfirm}
+        onConfirm={() => {
+          void handleMarkSigned()
+        }}
+      />
     </TableCell>
   )
 }
@@ -239,7 +271,12 @@ export default function SignedContractItem({
         )}
       </TableCell>
       {showMarkSignedColumn ? (
-        <MarkSignedCell contractId={item.id} isSigned={item.signed} />
+        <MarkSignedCell
+          contractId={item.id}
+          contractName={item.name}
+          contractEmail={item.userEmail}
+          isSigned={item.signed}
+        />
       ) : null}
     </TableRow>
   )
