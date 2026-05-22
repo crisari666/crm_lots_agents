@@ -32,6 +32,7 @@ import TrainingSessionsPage from "../features/training-sessions/pages/training-s
 import CustomersPage from "../features/customer-v2/pages/customers-page";
 import CustomersCallLogsPage from "../features/customer-v2/pages/customers-call-logs-page";
 import CustomersEventsPage from "../features/customer-v2/pages/customers-events-page";
+import CustomerAssignmentAuditPage from "../features/customer-assignment-audit/pages/customer-assignment-audit-page";
 import ImportCustomersPage from "../features/import-customers/import-customers-page";
 import StepsV2Page from "../features/steps-v2/pages/steps-v2-page";
 import ProjectReleasesPage from "../features/project-release/pages/project-releases-page";
@@ -57,6 +58,7 @@ const router = createBrowserRouter([
       { path: "customers-v2", element: <CustomersPage /> },
       { path: "customers-v2/call-logs", element: <CustomersCallLogsPage /> },
       { path: "customers-v2/events", element: <CustomersEventsPage /> },
+      { path: "customers-v2/assignment-audit", element: <CustomerAssignmentAuditPage /> },
       { path: "customers-v2/import", element: <ImportCustomersPage /> },
       { path: "steps-v2", element: <StepsV2Page /> },
       { path: "staff-performance", element: <StaffPerformanceReportPage /> },
