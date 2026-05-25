@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Paper,
@@ -16,9 +17,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from "@mui/material"
-import { Person as PersonIcon, Search as SearchIcon } from "@mui/icons-material"
+import {
+  Person as PersonIcon,
+  Search as SearchIcon,
+  Subject as SubjectIcon,
+} from "@mui/icons-material"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import type { Moment } from "moment"
 import moment from "moment"
@@ -31,10 +37,13 @@ import { fetchCustomerAdminDetailThunk } from "../redux/customer-v2.slice"
 import type { ListCallLogsAdminParams } from "../services/customers-ms.service"
 import CallLogStatusAvatarCP from "../components/customer-detail/call-log-status-avatar.cp"
 import CustomerCallTranscriptDialogCP from "../components/customer-detail/customer-call-transcript-dialog.cp"
+import CallLogPlayRecordingButtonCP from "../components/customer-detail/call-log-play-recording-button.cp"
 import CustomerDetailDialogCP from "../components/customer-detail-dialog.cp"
 import { directionLabelEs, formatCallDurationSeconds, outcomeLabelEs } from "../components/customer-detail/call-log-utils"
 
 type OutcomeFilter = NonNullable<ListCallLogsAdminParams["outcome"]>
+
+const compactCellSx = { py: 0.75, px: 1 }
 
 export default function CustomersCallLogsPage() {
   const dispatch = useAppDispatch()
@@ -150,23 +159,22 @@ export default function CustomersCallLogsPage() {
       </Typography>
 
       <TableContainer component={Paper} variant="outlined">
-        <Table size="small">
+        <Table size="small" sx={{ "& .MuiTableCell-root": compactCellSx }}>
           <TableHead>
             <TableRow>
-              <TableCell width={56} />
-              <TableCell>Fecha</TableCell>
-              <TableCell>Estado</TableCell>
+              <TableCell>Llamada</TableCell>
               <TableCell>Duración</TableCell>
-              <TableCell>Dirección</TableCell>
-              <TableCell>Números</TableCell>
-              <TableCell>Cliente ref.</TableCell>
-              <TableCell align="right">Acciones</TableCell>
+              <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>Dirección</TableCell>
+              <TableCell>Contacto</TableCell>
+              <TableCell align="right" width={120}>
+                Acciones
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={5}>
                   <Typography variant="body2" color="text.secondary">
                     Cargando…
                   </Typography>
@@ -175,7 +183,7 @@ export default function CustomersCallLogsPage() {
             ) : null}
             {!loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={5}>
                   <Typography variant="body2" color="text.secondary">
                     Sin resultados para el rango y filtros seleccionados.
                   </Typography>
@@ -189,19 +197,32 @@ export default function CustomersCallLogsPage() {
               const customerKey = row.customerId ?? row.customerExternalRef
               const refLabel = customerKey ?? "—"
               const canOpenCustomer = customerKey !== undefined && customerKey !== ""
+              const numbersLine = [row.from, row.to].filter(Boolean).join(" → ")
+              const dir = directionLabelEs(row.direction)
               return (
                 <TableRow key={row.id} hover>
                   <TableCell>
-                    <CallLogStatusAvatarCP outcome={row.resolvedOutcome} />
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <CallLogStatusAvatarCP outcome={row.resolvedOutcome} />
+                      <Box minWidth={0}>
+                        <Typography variant="body2" fontWeight={600} noWrap>
+                          {when.format("DD/MM/YY HH:mm")}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" noWrap>
+                          {outcomeLabelEs(row.resolvedOutcome)}
+                        </Typography>
+                      </Box>
+                    </Stack>
                   </TableCell>
-                  <TableCell>{when.format("DD/MM/YYYY HH:mm")}</TableCell>
-                  <TableCell>{outcomeLabelEs(row.resolvedOutcome)}</TableCell>
-                  <TableCell>{formatCallDurationSeconds(row.durationSeconds)}</TableCell>
-                  <TableCell>{directionLabelEs(row.direction) || "—"}</TableCell>
-                  <TableCell sx={{ maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {[row.from, row.to].filter(Boolean).join(" → ") || "—"}
+                  <TableCell>
+                    <Typography variant="body2">{formatCallDurationSeconds(row.durationSeconds)}</Typography>
                   </TableCell>
-                  <TableCell sx={{ maxWidth: 160 }}>
+                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                    <Typography variant="body2" noWrap>
+                      {dir || "—"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 200 }}>
                     {canOpenCustomer ? (
                       <Button
                         variant="text"
@@ -216,6 +237,7 @@ export default function CustomersCallLogsPage() {
                           maxWidth: "100%",
                           justifyContent: "flex-start",
                           fontWeight: 600,
+                          display: "block",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -229,38 +251,45 @@ export default function CustomersCallLogsPage() {
                         —
                       </Typography>
                     )}
+                    {numbersLine ? (
+                      <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                        {numbersLine}
+                      </Typography>
+                    ) : null}
                   </TableCell>
                   <TableCell align="right">
-                    <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap" useFlexGap>
-                      {canOpenCustomer ? (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<PersonIcon fontSize="small" />}
-                          onClick={() => openCustomerDetail(customerKey)}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          Cliente
-                        </Button>
-                      ) : null}
+                    <Stack direction="row" spacing={0.25} justifyContent="flex-end" alignItems="center">
+                      <CallLogPlayRecordingButtonCP
+                        callSid={row.callSid}
+                        resolvedOutcome={row.resolvedOutcome}
+                      />
                       {showTranscript ? (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => {
-                            setTranscriptBody((row.transcript ?? row.text ?? "").trim())
-                            setTranscriptTitle(`Transcripción · ${row.callSid}`)
-                            setTranscriptOpen(true)
-                          }}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          Transcripción
-                        </Button>
+                        <Tooltip title="Transcripción">
+                          <IconButton
+                            size="small"
+                            aria-label="Ver transcripción"
+                            onClick={() => {
+                              setTranscriptBody((row.transcript ?? row.text ?? "").trim())
+                              setTranscriptTitle(`Transcripción · ${row.callSid}`)
+                              setTranscriptOpen(true)
+                            }}
+                            sx={{ cursor: "pointer", transition: "color 0.2s ease" }}
+                          >
+                            <SubjectIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       ) : null}
-                      {!canOpenCustomer && !showTranscript ? (
-                        <Typography variant="body2" color="text.secondary" component="span">
-                          —
-                        </Typography>
+                      {canOpenCustomer ? (
+                        <Tooltip title="Ficha del cliente">
+                          <IconButton
+                            size="small"
+                            aria-label="Abrir cliente"
+                            onClick={() => openCustomerDetail(customerKey)}
+                            sx={{ cursor: "pointer", transition: "color 0.2s ease" }}
+                          >
+                            <PersonIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       ) : null}
                     </Stack>
                   </TableCell>

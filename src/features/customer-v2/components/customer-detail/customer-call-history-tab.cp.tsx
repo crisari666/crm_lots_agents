@@ -1,20 +1,22 @@
 import React, { useCallback, useEffect, useState } from "react"
 import {
   Box,
-  Button,
   CircularProgress,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
-  ListItemText,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material"
+import { Subject as SubjectIcon } from "@mui/icons-material"
 import moment from "moment"
 import type { CustomerCallLogAdminItem } from "../../services/customers-ms.service"
 import { listCustomerCallLogs } from "../../services/customers-ms.service"
 import CallLogStatusAvatarCP from "./call-log-status-avatar.cp"
 import CustomerCallTranscriptDialogCP from "./customer-call-transcript-dialog.cp"
+import CallLogPlayRecordingButtonCP from "./call-log-play-recording-button.cp"
 import { directionLabelEs, formatCallDurationSeconds, outcomeLabelEs } from "./call-log-utils"
 
 export type CustomerCallHistoryTabCPProps = {
@@ -92,60 +94,58 @@ export default function CustomerCallHistoryTabCP({ customerId }: CustomerCallHis
           const dir = directionLabelEs(row.direction)
           const transcriptAvailable = (row.transcript ?? row.text ?? "").trim() !== ""
           const showTranscriptBtn = row.resolvedOutcome === "answered" && transcriptAvailable
+          const numbersLine = [row.from, row.to].filter(Boolean).join(" → ")
           return (
             <ListItem
               key={row.id}
-              alignItems="flex-start"
+              disableGutters
               sx={{
-                py: 1.5,
+                py: 0.75,
                 px: 0,
                 borderBottom: 1,
                 borderColor: "divider",
-                flexDirection: "column",
-                alignItems: "stretch",
               }}
             >
-              <Stack direction="row" spacing={1.5} alignItems="flex-start" width="100%">
-                <ListItemAvatar sx={{ minWidth: 48, mt: 0.25 }}>
+              <Stack direction="row" spacing={1} alignItems="center" width="100%" minWidth={0}>
+                <ListItemAvatar sx={{ minWidth: 40, mt: 0 }}>
                   <CallLogStatusAvatarCP outcome={row.resolvedOutcome} />
                 </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-                      <Typography variant="subtitle2" fontWeight={600}>
-                        {when.format("DD/MM/YYYY HH:mm")}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {outcomeLabelEs(row.resolvedOutcome)}
-                        {dir ? ` · ${dir}` : ""}
-                      </Typography>
-                    </Stack>
-                  }
-                  secondary={
-                    <Stack component="span" spacing={0.5} sx={{ mt: 0.5 }}>
-                      <Typography component="span" variant="body2" color="text.primary">
-                        {formatCallDurationSeconds(row.durationSeconds)} · SID {row.callSid}
-                      </Typography>
-                      {(row.from || row.to) && (
-                        <Typography component="span" variant="caption" color="text.secondary">
-                          {[row.from, row.to].filter(Boolean).join(" → ")}
-                        </Typography>
-                      )}
-                    </Stack>
-                  }
-                  secondaryTypographyProps={{ component: "div" }}
-                />
+                <Box flex={1} minWidth={0}>
+                  <Stack direction="row" spacing={1} alignItems="baseline" flexWrap="wrap" useFlexGap>
+                    <Typography variant="body2" fontWeight={600}>
+                      {when.format("DD/MM/YY HH:mm")}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {outcomeLabelEs(row.resolvedOutcome)}
+                      {dir ? ` · ${dir}` : ""}
+                      {` · ${formatCallDurationSeconds(row.durationSeconds)}`}
+                    </Typography>
+                  </Stack>
+                  {numbersLine ? (
+                    <Typography variant="caption" color="text.secondary" noWrap display="block">
+                      {numbersLine}
+                    </Typography>
+                  ) : null}
+                </Box>
+                <Stack direction="row" spacing={0.25} alignItems="center" flexShrink={0}>
+                  <CallLogPlayRecordingButtonCP
+                    callSid={row.callSid}
+                    resolvedOutcome={row.resolvedOutcome}
+                  />
+                  {showTranscriptBtn ? (
+                    <Tooltip title="Transcripción">
+                      <IconButton
+                        size="small"
+                        aria-label="Ver transcripción"
+                        onClick={() => openTranscript(row)}
+                        sx={{ cursor: "pointer", transition: "color 0.2s ease" }}
+                      >
+                        <SubjectIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  ) : null}
+                </Stack>
               </Stack>
-              {showTranscriptBtn && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => openTranscript(row)}
-                  sx={{ cursor: "pointer", alignSelf: "flex-start", mt: 1, ml: 7 }}
-                >
-                  Ver transcripción
-                </Button>
-              )}
             </ListItem>
           )
         })}
