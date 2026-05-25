@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -43,6 +43,14 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/training-sessions", Icon: <VideoCallOutlined />, title: "Sesiones" },
     ]},
 
+    { Icon: <GroupAdd />, title: "Referidos", children: [
+      { to: "/dashboard/users/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
+      { to: "/dashboard/users-onboarding-status", Icon: <ChecklistRtl />, title: "Onboarding status" },
+      { to: "/dashboard/import-users", Icon: <UploadFileSharp />, title: "Importar usuarios" },
+      { to: "/dashboard/traninng-traking", Icon: <ChecklistRtl />, title: "Capacitaciones" },
+      { to: "/dashboard/referidos/lead-candidates", Icon: <ContactPage />, title: "Candidatos" },
+    ]},
+
     { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
       { to: "/dashboard/customers-v2/import", Icon: <PeopleAltTwoTone />, title: "Importar clientes" },
@@ -64,11 +72,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios", children: [
       { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios"},
       { to: "/dashboard/users/profile", Icon: <Person />, title: "Mi perfil" },
-      { to: "/dashboard/users/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
-      { to: "/dashboard/users-onboarding-status", Icon: <ChecklistRtl />, title: "Onboarding status" },
-      { to: "/dashboard/import-users", Icon: <UploadFileSharp />, title: "Importar usuarios" },
       { to: "/dashboard/offices-list", Icon: <BusinessOutlined />, title: "Oficinas" },
-      { to: "/dashboard/traninng-traking", Icon: <ChecklistRtl />, title: "Capacitaciones" },
       { to: "/dashboard/signed-contracts", Icon: <Description />, title: "Contratos enviados a firma" },
       { to: "/dashboard/signup-campaigns", Icon: <Campaign />, title: "Campañas de registro" },
       //{ to: "/dashboard/collectors", Icon: <Collections />, title: "Cobradores" },
