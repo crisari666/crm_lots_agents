@@ -41,6 +41,7 @@ import SignupCampaignView from "../features/signup-campaign/signup-campaign-view
 import CeoLeadsResumePage from "../features/ceo-operations-summary/pages/ceo-leads-resume-page";
 import StaffPerformanceReportPage from "../features/staff-performance-report/pages/staff-performance-report-page";
 import ReferralFollowUpPage from "../features/referral-follow-up/pages/referral-follow-up-page";
+import LeadCandidatesPage from "../features/lead-candidates/pages/lead-candidates-page";
 import CustomerPaymentsAuditoryPage from "../features/customer-payment/pages/customer-payments-auditory-page";
 import UserProfilePage from "../features/user-profile/pages/user-profile-page";
 
@@ -91,6 +92,7 @@ const router = createBrowserRouter([
       { path: "users", element: <UsersList /> },
       { path: "users/profile", element: <UserProfilePage /> },
       { path: "users/referral-follow-up", element: <ReferralFollowUpPage /> },
+      { path: "referidos/lead-candidates", element: <LeadCandidatesPage /> },
       { path: "import-users", element: <ImportUsersPage /> },
       { path: "users-onboarding-status", element: <UsersOnboardingStatusView /> },
       { path: "signed-contracts", element: <SignedContractView /> },

@@ -41,6 +41,7 @@ import signupCampaignReducer from "../features/signup-campaign/slice/signup-camp
 import ceoOperationsSummaryReducer from "../features/ceo-operations-summary/slice/ceo-operations-summary.slice";
 import staffPerformanceReportReducer from "../features/staff-performance-report/redux/staff-performance-report.slice";
 import referralFollowUpReducer from "../features/referral-follow-up/slice/referral-follow-up.slice";
+import leadCandidatesReducer from "../features/lead-candidates/slice/lead-candidates.slice";
 import customerPaymentsReducer from "../features/customer-payment/slice/customer-payments.slice";
 import userProfileReducer from "../features/user-profile/slice/user-profile.slice";
 
@@ -121,6 +122,7 @@ export const store = configureStore({
     ceoOperationsSummary: ceoOperationsSummaryReducer,
     staffPerformanceReport: staffPerformanceReportReducer,
     referralFollowUp: referralFollowUpReducer,
+    leadCandidates: leadCandidatesReducer,
     customerPayments: customerPaymentsReducer,
     userProfile: userProfileReducer,
   },
