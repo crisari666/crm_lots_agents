@@ -102,7 +102,7 @@ export default function TrainingTrakingDetailCP() {
 
   const handleAddUserByEmail = async () => {
     if (detail == null) return
-    const email = addUserEmail.trim().toLowerCase()
+    const email = addUserEmail.trim()
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) return
     await dispatch(addUserToTrainingByEmailThunk({ trainingId: detail.id, email }))
