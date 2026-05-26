@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Chip,
+  CircularProgress,
   LinearProgress,
   Paper,
   Stack,
@@ -67,7 +68,7 @@ function aiStatusColor(
 
 export default function CallAuditAiReviewTableCP() {
   const dispatch = useAppDispatch()
-  const { aiReview, loadingAiReview, error, analyzing, analyzingCallLogId } = useAppSelector(
+  const { aiReview, loadingAiReview, error, analyzingCallLogIds } = useAppSelector(
     (state) => state.customerCallAudit
   )
   const usersOriginal = useAppSelector((state) => state.users.usersOriginal)
@@ -84,7 +85,7 @@ export default function CallAuditAiReviewTableCP() {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         {aiReview?.total ?? 0} llamada{(aiReview?.total ?? 0) === 1 ? "" : "s"}
       </Typography>
-      <TableContainer component={Paper} variant="outlined">
+      <TableContainer component={Paper} variant="outlined" sx={{ overflowX: "auto" }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -107,11 +108,15 @@ export default function CallAuditAiReviewTableCP() {
             {items.map((row) => {
               const when = row.completedAt ? moment(row.completedAt) : null
               const agentLabel = resolveUserLabel(row.agentExternalRef, usersOriginal)
-              const isAnalyzing = analyzing && analyzingCallLogId === row.callLogId
+              const isAnalyzing = analyzingCallLogIds.includes(row.callLogId)
               const needsAi =
                 row.aiStatus === "none" || row.aiStatus === "failed" || row.aiStatus === "pending"
               return (
-                <TableRow key={row.callLogId} hover>
+                <TableRow
+                  key={row.callLogId}
+                  hover
+                  sx={{ bgcolor: isAnalyzing ? "action.selected" : undefined }}
+                >
                   <TableCell>
                     <Typography variant="body2" fontWeight={600} noWrap>
                       {when !== null ? when.format("DD/MM/YY HH:mm") : row.callSid}
@@ -141,6 +146,11 @@ export default function CallAuditAiReviewTableCP() {
                           variant="outlined"
                           disabled={isAnalyzing}
                           onClick={() => void dispatch(analyzeCallAuditThunk(row.callLogId))}
+                          startIcon={
+                            isAnalyzing ? (
+                              <CircularProgress size={16} color="inherit" />
+                            ) : undefined
+                          }
                           sx={{ cursor: "pointer" }}
                         >
                           {isAnalyzing ? s.aiStatusPending : s.runAiAnalysis}

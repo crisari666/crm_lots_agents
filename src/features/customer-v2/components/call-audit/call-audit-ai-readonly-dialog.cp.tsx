@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -33,7 +34,7 @@ export default function CallAuditAiReadonlyDialogCP({
   onClose,
 }: CallAuditAiReadonlyDialogCPProps) {
   const dispatch = useAppDispatch()
-  const { auditsByCall, loadingAudits, analyzing, analyzingCallLogId, error } = useAppSelector(
+  const { auditsByCall, loadingAudits, analyzingCallLogIds, error } = useAppSelector(
     (state) => state.customerCallAudit
   )
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function CallAuditAiReadonlyDialogCP({
   const ai = auditsByCall?.ai ?? item.ai
   const transcript = (auditsByCall?.transcript ?? "").trim()
   const when = item.completedAt ? moment(item.completedAt) : null
-  const isAnalyzingThis = analyzing && analyzingCallLogId === item.callLogId
+  const isAnalyzingThis = analyzingCallLogIds.includes(item.callLogId)
   const canRunAi =
     item.aiStatus === "none" || item.aiStatus === "failed" || item.aiStatus === "pending"
   return (
@@ -76,9 +77,14 @@ export default function CallAuditAiReadonlyDialogCP({
                 variant="contained"
                 disabled={isAnalyzingThis}
                 onClick={() => void dispatch(analyzeCallAuditThunk(item.callLogId))}
+                startIcon={
+                  isAnalyzingThis ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : undefined
+                }
                 sx={{ cursor: "pointer" }}
               >
-                {isAnalyzingThis ? s.aiPending : s.runAiAnalysis}
+                {isAnalyzingThis ? s.aiStatusPending : s.runAiAnalysis}
               </Button>
             ) : null}
           </Stack>
