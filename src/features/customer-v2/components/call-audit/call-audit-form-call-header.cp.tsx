@@ -7,6 +7,7 @@ export type CallAuditFormCallHeaderCPProps = {
   callSid: string
   resolvedOutcome: CustomerCallLogAdminOutcome
   analyzing: boolean
+  showAiControls: boolean
   onReanalyze: () => void
 }
 
@@ -14,6 +15,7 @@ export default function CallAuditFormCallHeaderCP({
   callSid,
   resolvedOutcome,
   analyzing,
+  showAiControls,
   onReanalyze,
 }: CallAuditFormCallHeaderCPProps) {
   return (
@@ -22,15 +24,17 @@ export default function CallAuditFormCallHeaderCP({
       {callSid !== "" ? (
         <CallLogPlayRecordingButtonCP callSid={callSid} resolvedOutcome={resolvedOutcome} />
       ) : null}
-      <Button
-        size="small"
-        variant="outlined"
-        disabled={analyzing}
-        onClick={onReanalyze}
-        sx={{ cursor: "pointer" }}
-      >
-        {s.reanalyzeAi}
-      </Button>
+      {showAiControls ? (
+        <Button
+          size="small"
+          variant="outlined"
+          disabled={analyzing}
+          onClick={onReanalyze}
+          sx={{ cursor: "pointer" }}
+        >
+          {s.reanalyzeAi}
+        </Button>
+      ) : null}
     </Stack>
   )
 }

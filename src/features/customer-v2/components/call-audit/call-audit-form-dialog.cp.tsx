@@ -39,6 +39,7 @@ export default function CallAuditFormDialogCP({
   callRow,
 }: CallAuditFormDialogCPProps) {
   const dispatch = useAppDispatch()
+  const isAdmin = useAppSelector((state) => state.login.currentUser?.level === 0)
   const {
     config,
     auditsByCall,
@@ -112,8 +113,8 @@ export default function CallAuditFormDialogCP({
     }
     return opts
   }, [scoreMin, scoreMax])
-  const ai = auditsByCall?.ai ?? null
-  const speakerTurns = ai?.speakerTurns ?? []
+  const ai = isAdmin ? (auditsByCall?.ai ?? null) : null
+  const speakerTurns = isAdmin ? (ai?.speakerTurns ?? []) : []
   const handleHumanCheckChange = useCallback((key: string, passed: boolean) => {
     setHumanChecks((prev) => ({ ...prev, [key]: passed }))
   }, [])
@@ -133,11 +134,16 @@ export default function CallAuditFormDialogCP({
                 callSid={callSid}
                 resolvedOutcome={resolvedOutcome}
                 analyzing={analyzing}
+                showAiControls={isAdmin}
                 onReanalyze={() => void dispatch(analyzeCallAuditThunk(callLogId))}
               />
               <CallAuditFormTranscriptSectionCP transcript={transcript} />
-              <CallAuditFormAiSectionCP loading={loadingAudits} ai={ai} />
-              <CallAuditFormDiarizedSectionCP speakerTurns={speakerTurns} />
+              {isAdmin ? (
+                <>
+                  <CallAuditFormAiSectionCP loading={loadingAudits} ai={ai} />
+                  <CallAuditFormDiarizedSectionCP speakerTurns={speakerTurns} />
+                </>
+              ) : null}
             </Stack>
           </Grid>
           <Grid item xs={12} md={6}>
