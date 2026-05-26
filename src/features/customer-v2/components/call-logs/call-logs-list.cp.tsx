@@ -15,7 +15,13 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material"
-import { Person as PersonIcon, Subject as SubjectIcon } from "@mui/icons-material"
+import {
+  FactCheck as FactCheckIcon,
+  Person as PersonIcon,
+  Subject as SubjectIcon,
+} from "@mui/icons-material"
+import type { CustomerCallLogAdminItem } from "../../services/customers-ms.service"
+import CallAuditFormDialogCP from "../call-audit/call-audit-form-dialog.cp"
 import moment from "moment"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { clearCallLogsErrorAct } from "../../redux/customer-call-logs.slice"
@@ -34,6 +40,7 @@ export default function CallLogsListCP() {
   const [transcriptOpen, setTranscriptOpen] = useState(false)
   const [transcriptBody, setTranscriptBody] = useState("")
   const [transcriptTitle, setTranscriptTitle] = useState("")
+  const [auditRow, setAuditRow] = useState<CustomerCallLogAdminItem | null>(null)
 
   const openCustomerDetail = useCallback(
     (customerId: string) => {
@@ -90,6 +97,7 @@ export default function CallLogsListCP() {
               const when = moment(row.completedAt ?? row.updatedAt ?? row.createdAt)
               const transcriptAvailable = (row.transcript ?? row.text ?? "").trim() !== ""
               const showTranscript = row.resolvedOutcome === "answered" && transcriptAvailable
+              const canAudit = row.resolvedOutcome === "answered" && transcriptAvailable
               const customerKey = row.customerId ?? row.customerExternalRef
               const refLabel = customerKey ?? "—"
               const canOpenCustomer = customerKey !== undefined && customerKey !== ""
@@ -159,6 +167,18 @@ export default function CallLogsListCP() {
                         callSid={row.callSid}
                         resolvedOutcome={row.resolvedOutcome}
                       />
+                      {canAudit ? (
+                        <Tooltip title="Auditar llamada">
+                          <IconButton
+                            size="small"
+                            aria-label="Auditar llamada"
+                            onClick={() => setAuditRow(row)}
+                            sx={{ cursor: "pointer", transition: "color 0.2s ease" }}
+                          >
+                            <FactCheckIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      ) : null}
                       {showTranscript ? (
                         <Tooltip title="Transcripción">
                           <IconButton
@@ -202,6 +222,15 @@ export default function CallLogsListCP() {
         transcript={transcriptBody}
         onClose={() => setTranscriptOpen(false)}
       />
+
+      {auditRow !== null ? (
+        <CallAuditFormDialogCP
+          open
+          callLogId={auditRow.id}
+          callRow={auditRow}
+          onClose={() => setAuditRow(null)}
+        />
+      ) : null}
     </>
   )
 }
