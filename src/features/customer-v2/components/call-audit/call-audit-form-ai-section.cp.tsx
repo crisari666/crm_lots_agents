@@ -38,12 +38,9 @@ export default function CallAuditFormAiSectionCP({ loading, ai }: CallAuditFormA
         <Stack spacing={1}>
           {ai.indicators.map((ind) => (
             <Box key={ind.key}>
-              <Typography variant="body2" fontWeight={600}>
-                {ind.label}: {ind.passed ? "Sí" : "No"}
-              </Typography>
               {ind.rationale ? (
                 <Typography variant="caption" color="text.secondary" display="block">
-                  {ind.rationale}
+                  <strong>{ind.label}:</strong> {ind.rationale}
                 </Typography>
               ) : null}
               {ind.evidence ? (
@@ -53,10 +50,11 @@ export default function CallAuditFormAiSectionCP({ loading, ai }: CallAuditFormA
               ) : null}
             </Box>
           ))}
-          <Typography variant="body2">
-            {s.interestScore}: {ai.interestScore}
-            {ai.interestScoreRationale ? ` — ${ai.interestScoreRationale}` : ""}
-          </Typography>
+          {ai.interestScoreRationale ? (
+            <Typography variant="body2" color="text.secondary">
+              {s.interestScore}: {ai.interestScoreRationale}
+            </Typography>
+          ) : null}
         </Stack>
       ) : null}
     </Box>

@@ -22,6 +22,7 @@ import {
   selectIsLoadingCallAuditsByCallLogId,
   submitHumanCallAuditThunk,
 } from "../../redux/customer-call-audit.slice"
+import CallAuditAiIndicatorsTableCP from "./call-audit-ai-indicators-table.cp"
 import CallAuditFormAiSectionCP from "./call-audit-form-ai-section.cp"
 import CallAuditFormCallHeaderCP from "./call-audit-form-call-header.cp"
 import CallAuditFormDiarizedSectionCP from "./call-audit-form-diarized-section.cp"
@@ -163,6 +164,15 @@ export default function CallAuditFormDialogCP({
                 showAiControls={isAdmin}
                 onReanalyze={() => void dispatch(analyzeCallAuditThunk(callLogId))}
               />
+              {isAdmin &&
+              !loadingAudits &&
+              ai?.status === "completed" &&
+              (ai.indicators.length > 0 || ai.interestScore !== undefined) ? (
+                <CallAuditAiIndicatorsTableCP
+                  indicators={ai.indicators}
+                  interestScore={ai.interestScore}
+                />
+              ) : null}
               <CallAuditFormTranscriptSectionCP transcript={transcript} />
               {isAdmin ? (
                 <>
