@@ -13,7 +13,6 @@ import stepMetadataReducer from "../features/step-metadata/step-metadata.slice";
 import imagePreviewSlice from "../features/image-preview/image-preview.slice";
 import authFaceSlice from "../features/auth-face/auth-face.slice";
 import logArriveSlice from "../features/log-arrive/log-arrive.slice";
-import usersWithoutCustomersSlice from "../features/users-without-customers/slice/users-without-customers.slice";
 import statisticsSlice from "../features/statistics/store/statistics.slice";
 import qrArriveSlice from "../features/qr-arrived/slice/qr-arrive.slice";
 import settingsSlice from "../features/settings/slice/settings.slice";
@@ -103,7 +102,6 @@ export const store = configureStore({
     userSessionLogs: userSessionsSlice,
     users: usersListReducer,
     usersOnboardingStatus: usersOnboardingStatusSlice,
-    usersWithoutCustomers: usersWithoutCustomersSlice,
     trainingTraking: trainingTrakingSlice,
     trainingSessions: trainingSessionsReducer,
     customerV2: customerV2Reducer,

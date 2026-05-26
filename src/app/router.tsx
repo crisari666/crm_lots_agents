@@ -11,7 +11,6 @@ import EventGatewayView from "../views/event-gateway.view";
 import OfficeDashboardView from "../views/office-dashboard-view";
 import FaceAuthView from "../views/face-auth-view";
 import FaceAuthFaceDetection from "../views/face-auth-face-detection";
-import UsersWithoutCustomersView from "../views/users-without-customers.view";
 import DashboardContent from "../views/dashboard-view";
 import QrArriveView from "../views/qr-arrive-view";
 import SettingsView from "../views/settings-view";
@@ -76,7 +75,6 @@ const router = createBrowserRouter([
       { path: "edit-project/:projectId", element: <EditProjectPage /> },
       { path: "traninng-traking", element: <TrainingTrakingPage /> },
       { path: "training-sessions", element: <TrainingSessionsPage /> },
-      { path: "users-with-not-customer", element: <UsersWithoutCustomersView /> },
       { path: "offices-list", element: <OfficesListView /> },
       { path: "handle-office", element: <HandleOfficeView /> },
       { path: "handle-office/:officeId", element: <HandleOfficeView /> },

@@ -101,7 +101,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       },
       // { to: "/dashboard/steps", Icon: <Category />, title: "Pasos" },
       // { to: "/dashboard/step-logs", Icon: <WebStories />, title: "Historial Pasos" },
-      // { to: "/dashboard/users-with-not-customer", Icon: <WifiTetheringErrorRoundedSharp />, title: "Usuarios sin clientes" },
       // { to: "/dashboard/user-actives-snap-shot", Icon: <AppsOutage />, title: "Activos historial" },
       // { to: "/dashboard/handle-payment", Icon: <Money />, title: "Admin pago" },
       // { to: "/dashboard/steps-week-stats", Icon: <Money />, title: "Grafica clientes nuevos por semana" },
