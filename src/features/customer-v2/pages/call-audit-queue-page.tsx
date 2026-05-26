@@ -1,9 +1,9 @@
 import { Box, Typography } from "@mui/material"
-import { AppConstants } from "../../../app/app-constants"
 import { callAuditStrings as s } from "../../../i18n/locales/call-audit.strings"
 import CustomerDetailDialogCP from "../components/customer-detail-dialog.cp"
-import CallAuditProgressFiltersCP from "../components/call-audit/call-audit-progress-filters.cp"
-import CallAuditProgressTableCP from "../components/call-audit/call-audit-progress-table.cp"
+import CallAuditAuditorProgressTableCP from "../components/call-audit/call-audit-auditor-progress-table.cp"
+import CallAuditResultsFiltersCP from "../components/call-audit/call-audit-results-filters.cp"
+import CallAuditResultsTableCP from "../components/call-audit/call-audit-results-table.cp"
 
 export default function CallAuditQueuePage() {
   return (
@@ -12,10 +12,11 @@ export default function CallAuditQueuePage() {
         {s.title}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {s.subtitle} Mínimo mensual: {AppConstants.call_audit_required_per_month} llamadas por asesor.
+        {s.queuePageSubtitle}
       </Typography>
-      <CallAuditProgressFiltersCP />
-      <CallAuditProgressTableCP />
+      <CallAuditResultsFiltersCP />
+      <CallAuditAuditorProgressTableCP />
+      <CallAuditResultsTableCP />
       <CustomerDetailDialogCP />
     </Box>
   )
