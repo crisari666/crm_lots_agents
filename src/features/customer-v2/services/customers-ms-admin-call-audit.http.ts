@@ -2,10 +2,12 @@ import { customersMsAuthHeaders, customersMsAxios } from "../../../app/customers
 import type {
   CallAuditAiReviewListResponse,
   CallAuditConfigResponse,
-  CallAuditProgressResponse,
+  CallAuditAuditorProgressResponse,
+  CallAuditResultsResponse,
   CallAuditsByCallResponse,
   ListCallAuditAiReviewParams,
-  ListCallAuditProgressParams,
+  ListCallAuditAuditorProgressParams,
+  ListCallAuditResultsParams,
   SubmitHumanCallAuditBody,
   CallAuditRecord,
 } from "./customers-ms-admin-call-audit.types"
@@ -30,11 +32,21 @@ export async function getCallAuditAiReview(
   return response.data
 }
 
-export async function getCallAuditProgress(
-  params: ListCallAuditProgressParams
-): Promise<CallAuditProgressResponse> {
-  const response = await customersMsAxios.get<CallAuditProgressResponse>(
-    "admin/customer/call-audit/progress",
+export async function getCallAuditResults(
+  params: ListCallAuditResultsParams
+): Promise<CallAuditResultsResponse> {
+  const response = await customersMsAxios.get<CallAuditResultsResponse>(
+    "admin/customer/call-audit/results",
+    { params, ...auth() }
+  )
+  return response.data
+}
+
+export async function getCallAuditAuditorProgress(
+  params: ListCallAuditAuditorProgressParams
+): Promise<CallAuditAuditorProgressResponse> {
+  const response = await customersMsAxios.get<CallAuditAuditorProgressResponse>(
+    "admin/customer/call-audit/auditor-progress",
     { params, ...auth() }
   )
   return response.data

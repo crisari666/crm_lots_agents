@@ -60,17 +60,42 @@ export type CallAuditsByCallResponse = {
   ai: CallAuditRecord | null
 }
 
-export type CallAuditProgressAgentRow = {
-  agentExternalRef: string
-  humanAuditCount: number
-  required: number
-  pendingCallLogIds: string[]
+export type CallAuditIndicatorsSummary = {
+  passed: number
+  total: number
+  failedLabels: string[]
 }
 
-export type CallAuditProgressResponse = {
+export type CallAuditResultItem = {
+  callLogId: string
+  callSid: string
+  agentExternalRef: string
+  completedAt?: string
+  auditorUserId: string
+  reviewerNotes?: string
+  interestScore: number
+  indicatorsSummary: CallAuditIndicatorsSummary
+  analyzedAt?: string
+}
+
+export type CallAuditResultsResponse = {
+  month: string
+  items: CallAuditResultItem[]
+}
+
+export type CallAuditAuditorProgressRow = {
+  auditorUserId: string
+  humanAuditCount: number
+}
+
+export type CallAuditAuditorProgressResponse = {
   month: string
   required: number
-  agents: CallAuditProgressAgentRow[]
+  auditors: CallAuditAuditorProgressRow[]
+}
+
+export type ListCallAuditAuditorProgressParams = {
+  month: string
 }
 
 export type SubmitHumanCallAuditBody = {
@@ -80,7 +105,7 @@ export type SubmitHumanCallAuditBody = {
   reviewerNotes?: string
 }
 
-export type ListCallAuditProgressParams = {
+export type ListCallAuditResultsParams = {
   month: string
   agentExternalRef?: string
 }

@@ -1,37 +1,53 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import axios from "axios"
+import type { RootState } from "../../../app/store"
 import {
   analyzeCallAudit,
   getCallAuditAiReview,
   getCallAuditConfig,
-  getCallAuditProgress,
+  getCallAuditAuditorProgress,
+  getCallAuditResults,
   getCallAuditsByCallLogId,
   submitHumanCallAudit,
 } from "../services/customers-ms-admin-call-audit.http"
 import type {
   CallAuditAiReviewListResponse,
   CallAuditConfigResponse,
-  CallAuditProgressResponse,
+  CallAuditAuditorProgressResponse,
+  CallAuditResultsResponse,
   CallAuditsByCallResponse,
   ListCallAuditAiReviewParams,
-  ListCallAuditProgressParams,
+  ListCallAuditAuditorProgressParams,
+  ListCallAuditResultsParams,
   SubmitHumanCallAuditBody,
 } from "../services/customers-ms-admin-call-audit.types"
 
 export type CustomerCallAuditState = {
   config: CallAuditConfigResponse | null
-  progress: CallAuditProgressResponse | null
+  auditResults: CallAuditResultsResponse | null
+  auditorProgress: CallAuditAuditorProgressResponse | null
   aiReview: CallAuditAiReviewListResponse | null
   auditsByCall: CallAuditsByCallResponse | null
   filters: { month: string; agentExternalRef: string; onlyWithoutAi: boolean }
   loadingConfig: boolean
-  loadingProgress: boolean
+  loadingResults: boolean
+  loadingAuditorProgress: boolean
   loadingAiReview: boolean
   loadingAudits: boolean
   submitting: boolean
-  analyzing: boolean
-  analyzingCallLogId: string | null
+  analyzingCallLogIds: string[]
   error: string | null
+}
+
+function addAnalyzingCallLogId(ids: string[], callLogId: string): string[] {
+  if (ids.includes(callLogId)) {
+    return ids
+  }
+  return [...ids, callLogId]
+}
+
+function removeAnalyzingCallLogId(ids: string[], callLogId: string): string[] {
+  return ids.filter((id) => id !== callLogId)
 }
 
 function axiosMessage(err: unknown, fallback: string): string {
@@ -56,17 +72,18 @@ function defaultMonth(): string {
 
 const initialState: CustomerCallAuditState = {
   config: null,
-  progress: null,
+  auditResults: null,
+  auditorProgress: null,
   aiReview: null,
   auditsByCall: null,
   filters: { month: defaultMonth(), agentExternalRef: "", onlyWithoutAi: false },
   loadingConfig: false,
-  loadingProgress: false,
+  loadingResults: false,
+  loadingAuditorProgress: false,
   loadingAiReview: false,
   loadingAudits: false,
   submitting: false,
-  analyzing: false,
-  analyzingCallLogId: null,
+  analyzingCallLogIds: [],
   error: null,
 }
 
@@ -81,13 +98,24 @@ export const fetchCallAuditConfigThunk = createAsyncThunk(
   }
 )
 
-export const fetchCallAuditProgressThunk = createAsyncThunk(
-  "customerCallAudit/fetchProgress",
-  async (params: ListCallAuditProgressParams, { rejectWithValue }) => {
+export const fetchCallAuditResultsThunk = createAsyncThunk(
+  "customerCallAudit/fetchResults",
+  async (params: ListCallAuditResultsParams, { rejectWithValue }) => {
     try {
-      return await getCallAuditProgress(params)
+      return await getCallAuditResults(params)
     } catch (err: unknown) {
-      return rejectWithValue(axiosMessage(err, "No se pudo cargar el progreso de auditoría."))
+      return rejectWithValue(axiosMessage(err, "No se pudo cargar el resumen de auditorías."))
+    }
+  }
+)
+
+export const fetchCallAuditAuditorProgressThunk = createAsyncThunk(
+  "customerCallAudit/fetchAuditorProgress",
+  async (params: ListCallAuditAuditorProgressParams, { rejectWithValue }) => {
+    try {
+      return await getCallAuditAuditorProgress(params)
+    } catch (err: unknown) {
+      return rejectWithValue(axiosMessage(err, "No se pudo cargar el progreso de auditores."))
     }
   }
 )
@@ -118,11 +146,21 @@ export const submitHumanCallAuditThunk = createAsyncThunk(
   "customerCallAudit/submitHuman",
   async (
     input: { callLogId: string; body: SubmitHumanCallAuditBody },
-    { rejectWithValue }
+    { dispatch, getState, rejectWithValue }
   ) => {
     try {
       const record = await submitHumanCallAudit(input.callLogId, input.body)
       const audits = await getCallAuditsByCallLogId(input.callLogId)
+      const { filters } = (getState() as RootState).customerCallAudit
+      void dispatch(
+        fetchCallAuditResultsThunk({
+          month: filters.month,
+          ...(filters.agentExternalRef.trim() !== ""
+            ? { agentExternalRef: filters.agentExternalRef.trim() }
+            : {}),
+        })
+      )
+      void dispatch(fetchCallAuditAuditorProgressThunk({ month: filters.month }))
       return { record, audits }
     } catch (err: unknown) {
       return rejectWithValue(axiosMessage(err, "No se pudo guardar la auditoría."))
@@ -174,16 +212,28 @@ const customerCallAuditSlice = createSlice({
         state.loadingConfig = false
         state.error = (action.payload as string) ?? "Error"
       })
-      .addCase(fetchCallAuditProgressThunk.pending, (state) => {
-        state.loadingProgress = true
+      .addCase(fetchCallAuditResultsThunk.pending, (state) => {
+        state.loadingResults = true
         state.error = null
       })
-      .addCase(fetchCallAuditProgressThunk.fulfilled, (state, action) => {
-        state.loadingProgress = false
-        state.progress = action.payload
+      .addCase(fetchCallAuditResultsThunk.fulfilled, (state, action) => {
+        state.loadingResults = false
+        state.auditResults = action.payload
       })
-      .addCase(fetchCallAuditProgressThunk.rejected, (state, action) => {
-        state.loadingProgress = false
+      .addCase(fetchCallAuditResultsThunk.rejected, (state, action) => {
+        state.loadingResults = false
+        state.error = (action.payload as string) ?? "Error"
+      })
+      .addCase(fetchCallAuditAuditorProgressThunk.pending, (state) => {
+        state.loadingAuditorProgress = true
+        state.error = null
+      })
+      .addCase(fetchCallAuditAuditorProgressThunk.fulfilled, (state, action) => {
+        state.loadingAuditorProgress = false
+        state.auditorProgress = action.payload
+      })
+      .addCase(fetchCallAuditAuditorProgressThunk.rejected, (state, action) => {
+        state.loadingAuditorProgress = false
         state.error = (action.payload as string) ?? "Error"
       })
       .addCase(fetchCallAuditAiReviewThunk.pending, (state) => {
@@ -223,13 +273,17 @@ const customerCallAuditSlice = createSlice({
         state.error = (action.payload as string) ?? "Error"
       })
       .addCase(analyzeCallAuditThunk.pending, (state, action) => {
-        state.analyzing = true
-        state.analyzingCallLogId = action.meta.arg
+        state.analyzingCallLogIds = addAnalyzingCallLogId(
+          state.analyzingCallLogIds,
+          action.meta.arg
+        )
         state.error = null
       })
       .addCase(analyzeCallAuditThunk.fulfilled, (state, action) => {
-        state.analyzing = false
-        state.analyzingCallLogId = null
+        state.analyzingCallLogIds = removeAnalyzingCallLogId(
+          state.analyzingCallLogIds,
+          action.payload.callLogId
+        )
         state.auditsByCall = action.payload.audits
         if (state.aiReview !== null) {
           const idx = state.aiReview.items.findIndex(
@@ -254,8 +308,10 @@ const customerCallAuditSlice = createSlice({
         }
       })
       .addCase(analyzeCallAuditThunk.rejected, (state, action) => {
-        state.analyzing = false
-        state.analyzingCallLogId = null
+        state.analyzingCallLogIds = removeAnalyzingCallLogId(
+          state.analyzingCallLogIds,
+          action.meta.arg
+        )
         state.error = (action.payload as string) ?? "Error"
       })
   },
