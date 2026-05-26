@@ -93,7 +93,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
         title: "Revisión IA llamadas",
         crmAdminOnly: true,
       },
-      // { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
       // { to: "/dashboard/steps", Icon: <Category />, title: "Pasos" },
       // { to: "/dashboard/step-logs", Icon: <WebStories />, title: "Historial Pasos" },
       // { to: "/dashboard/users-with-not-customer", Icon: <WifiTetheringErrorRoundedSharp />, title: "Usuarios sin clientes" },
