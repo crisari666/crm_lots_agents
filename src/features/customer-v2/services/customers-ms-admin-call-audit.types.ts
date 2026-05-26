@@ -120,12 +120,24 @@ export type CallAuditAiReviewItem = {
   ai: CallAuditRecord | null
 }
 
+export type CallAuditAiReviewSummary = {
+  dateBasis: "callCompletedAt"
+  totalEligible: number
+  aiCompleted: number
+  aiPending: number
+  aiFailed: number
+  aiNone: number
+  avgInterestScore: number | null
+  topFailedIndicators: Array<{ label: string; count: number }>
+}
+
 export type CallAuditAiReviewListResponse = {
   month: string
   items: CallAuditAiReviewItem[]
   total: number
   skip: number
   limit: number
+  summary: CallAuditAiReviewSummary
 }
 
 export type ListCallAuditAiReviewParams = {

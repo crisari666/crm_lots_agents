@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, type MouseEvent } from "react"
 import {
   Alert,
   Button,
@@ -15,15 +15,20 @@ import {
   TableRow,
   Typography,
 } from "@mui/material"
+import { alpha } from "@mui/material/styles"
 import moment from "moment"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { callAuditStrings as s } from "../../../../i18n/locales/call-audit.strings"
+import { buildCallAuditIndicatorsSummary } from "../../business-logic/build-call-audit-indicators-summary"
+import { isAtRiskAiCall } from "../../business-logic/call-audit-interest-score-style"
 import type { CallAuditAiReviewItem } from "../../services/customers-ms-admin-call-audit.types"
 import {
   analyzeCallAuditThunk,
   clearCallAuditErrorAct,
 } from "../../redux/customer-call-audit.slice"
 import CallAuditAiReadonlyDialogCP from "./call-audit-ai-readonly-dialog.cp"
+import CallAuditAiResultSummaryCP from "./call-audit-ai-result-summary.cp"
+import CallAuditAiReviewKpisCP from "./call-audit-ai-review-kpis.cp"
 
 function resolveUserLabel(
   userId: string,
@@ -66,14 +71,31 @@ function aiStatusColor(
   }
 }
 
+function resolveRowAtRisk(row: CallAuditAiReviewItem): boolean {
+  if (row.aiStatus !== "completed" || row.ai === null || row.ai.status !== "completed") {
+    return false
+  }
+  const { passed, total } = buildCallAuditIndicatorsSummary(row.ai.indicators)
+  return isAtRiskAiCall(row.ai.interestScore, passed, total)
+}
+
 export default function CallAuditAiReviewTableCP() {
   const dispatch = useAppDispatch()
-  const { aiReview, loadingAiReview, error, analyzingCallLogIds } = useAppSelector(
+  const { aiReview, loadingAiReview, error, analyzingCallLogIds, config } = useAppSelector(
     (state) => state.customerCallAudit
   )
   const usersOriginal = useAppSelector((state) => state.users.usersOriginal)
   const [viewItem, setViewItem] = useState<CallAuditAiReviewItem | null>(null)
   const items = aiReview?.items ?? []
+  const openRow = (row: CallAuditAiReviewItem) => {
+    if (row.aiStatus === "none" && !analyzingCallLogIds.includes(row.callLogId)) {
+      return
+    }
+    setViewItem(row)
+  }
+  const stopRowClick = (event: MouseEvent) => {
+    event.stopPropagation()
+  }
   return (
     <>
       {error ? (
@@ -82,6 +104,7 @@ export default function CallAuditAiReviewTableCP() {
         </Alert>
       ) : null}
       {loadingAiReview ? <LinearProgress sx={{ mb: 2 }} /> : null}
+      <CallAuditAiReviewKpisCP />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         {aiReview?.total ?? 0} llamada{(aiReview?.total ?? 0) === 1 ? "" : "s"}
       </Typography>
@@ -91,6 +114,8 @@ export default function CallAuditAiReviewTableCP() {
             <TableRow>
               <TableCell>{s.callColumn}</TableCell>
               <TableCell>{s.agentColumn}</TableCell>
+              <TableCell>{s.interestColumn}</TableCell>
+              <TableCell>{s.rubricColumn}</TableCell>
               <TableCell>{s.aiStatusColumn}</TableCell>
               <TableCell align="right">{s.actionsColumn}</TableCell>
             </TableRow>
@@ -98,7 +123,7 @@ export default function CallAuditAiReviewTableCP() {
           <TableBody>
             {items.length === 0 && !loadingAiReview ? (
               <TableRow>
-                <TableCell colSpan={4}>
+                <TableCell colSpan={6}>
                   <Typography variant="body2" color="text.secondary">
                     Sin datos para el mes seleccionado.
                   </Typography>
@@ -111,11 +136,31 @@ export default function CallAuditAiReviewTableCP() {
               const isAnalyzing = analyzingCallLogIds.includes(row.callLogId)
               const needsAi =
                 row.aiStatus === "none" || row.aiStatus === "failed" || row.aiStatus === "pending"
+              const atRisk = resolveRowAtRisk(row)
+              const canOpenRow =
+                row.aiStatus !== "none" || isAnalyzing
               return (
                 <TableRow
                   key={row.callLogId}
                   hover
-                  sx={{ bgcolor: isAnalyzing ? "action.selected" : undefined }}
+                  onClick={() => openRow(row)}
+                  sx={{
+                    cursor: canOpenRow ? "pointer" : "default",
+                    bgcolor: (theme) =>
+                      isAnalyzing
+                        ? theme.palette.action.selected
+                        : atRisk
+                          ? alpha(theme.palette.error.main, 0.08)
+                          : undefined,
+                    transition: "background-color 0.2s",
+                    ...(atRisk
+                      ? {
+                          "&:hover": {
+                            bgcolor: (theme) => alpha(theme.palette.error.main, 0.12),
+                          },
+                        }
+                      : {}),
+                  }}
                 >
                   <TableCell>
                     <Typography variant="body2" fontWeight={600} noWrap>
@@ -131,6 +176,24 @@ export default function CallAuditAiReviewTableCP() {
                     </Typography>
                   </TableCell>
                   <TableCell>
+                    <CallAuditAiResultSummaryCP
+                      ai={row.ai}
+                      aiStatus={row.aiStatus}
+                      config={config}
+                      variant="table"
+                      showInterestOnly
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <CallAuditAiResultSummaryCP
+                      ai={row.ai}
+                      aiStatus={row.aiStatus}
+                      config={config}
+                      variant="table"
+                      showRubricOnly
+                    />
+                  </TableCell>
+                  <TableCell>
                     <Chip
                       size="small"
                       label={aiStatusLabel(row.aiStatus)}
@@ -138,7 +201,7 @@ export default function CallAuditAiReviewTableCP() {
                       variant="outlined"
                     />
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" onClick={stopRowClick}>
                     <Stack direction="row" spacing={0.5} justifyContent="flex-end">
                       {needsAi ? (
                         <Button

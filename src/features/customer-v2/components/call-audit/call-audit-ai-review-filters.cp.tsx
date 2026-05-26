@@ -15,12 +15,13 @@ import AssignUserAutocompleteCP from "../assign-user-autocomplete.cp"
 import { fetchUsersThunk } from "../../../users-list/slice/user-list.slice"
 import {
   fetchCallAuditAiReviewThunk,
+  fetchCallAuditConfigThunk,
   setCallAuditFiltersAct,
 } from "../../redux/customer-call-audit.slice"
 
 export default function CallAuditAiReviewFiltersCP() {
   const dispatch = useAppDispatch()
-  const { filters, loadingAiReview } = useAppSelector((state) => state.customerCallAudit)
+  const { filters, loadingAiReview, config } = useAppSelector((state) => state.customerCallAudit)
   const gotUsers = useAppSelector((state) => state.users.gotUsers)
   const usersOriginal = useAppSelector((state) => state.users.usersOriginal)
   const physicalUsers = usersOriginal.filter((user) => user.physical === true)
@@ -29,6 +30,11 @@ export default function CallAuditAiReviewFiltersCP() {
       void dispatch(fetchUsersThunk({ enable: true }))
     }
   }, [dispatch, gotUsers])
+  useEffect(() => {
+    if (config === null) {
+      void dispatch(fetchCallAuditConfigThunk())
+    }
+  }, [dispatch, config])
   const runSearch = () => {
     void dispatch(
       fetchCallAuditAiReviewThunk({

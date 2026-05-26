@@ -1,5 +1,8 @@
 import { useEffect } from "react"
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
   Button,
@@ -8,9 +11,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Paper,
   Stack,
   Typography,
 } from "@mui/material"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import moment from "moment"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { callAuditStrings as s } from "../../../../i18n/locales/call-audit.strings"
@@ -21,6 +26,7 @@ import {
   clearCallAuditErrorAct,
   fetchCallAuditsByCallThunk,
 } from "../../redux/customer-call-audit.slice"
+import CallAuditAiResultSummaryCP from "./call-audit-ai-result-summary.cp"
 
 export type CallAuditAiReadonlyDialogCPProps = {
   open: boolean
@@ -34,7 +40,7 @@ export default function CallAuditAiReadonlyDialogCP({
   onClose,
 }: CallAuditAiReadonlyDialogCPProps) {
   const dispatch = useAppDispatch()
-  const { auditsByCall, loadingAudits, analyzingCallLogIds, error } = useAppSelector(
+  const { auditsByCall, loadingAudits, analyzingCallLogIds, error, config } = useAppSelector(
     (state) => state.customerCallAudit
   )
   useEffect(() => {
@@ -49,6 +55,10 @@ export default function CallAuditAiReadonlyDialogCP({
   const isAnalyzingThis = analyzingCallLogIds.includes(item.callLogId)
   const canRunAi =
     item.aiStatus === "none" || item.aiStatus === "failed" || item.aiStatus === "pending"
+  const hasRubricDetail =
+    !loadingAudits && ai?.status === "completed" && ai.indicators.length > 0
+  const hasDiarized =
+    ai?.speakerTurns !== undefined && ai.speakerTurns.length > 0
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -69,36 +79,7 @@ export default function CallAuditAiReadonlyDialogCP({
                 : ""}
             </Typography>
           ) : null}
-          <Stack direction="row" spacing={1} alignItems="center">
-            <CallLogPlayRecordingButtonCP callSid={item.callSid} resolvedOutcome="answered" />
-            {canRunAi ? (
-              <Button
-                size="small"
-                variant="contained"
-                disabled={isAnalyzingThis}
-                onClick={() => void dispatch(analyzeCallAuditThunk(item.callLogId))}
-                startIcon={
-                  isAnalyzingThis ? (
-                    <CircularProgress size={16} color="inherit" />
-                  ) : undefined
-                }
-                sx={{ cursor: "pointer" }}
-              >
-                {isAnalyzingThis ? s.aiStatusPending : s.runAiAnalysis}
-              </Button>
-            ) : null}
-          </Stack>
-          {transcript !== "" ? (
-            <Box>
-              <Typography variant="subtitle2" gutterBottom>
-                {s.transcriptSection}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-wrap" }}>
-                {transcript}
-              </Typography>
-            </Box>
-          ) : null}
-          <Box>
+          <Paper variant="outlined" sx={{ p: 2 }}>
             <Typography variant="subtitle2" gutterBottom>
               {s.aiSection}
             </Typography>
@@ -124,49 +105,93 @@ export default function CallAuditAiReadonlyDialogCP({
               </Alert>
             ) : null}
             {!loadingAudits && ai?.status === "completed" ? (
-              <Stack spacing={1}>
-                {ai.indicators.map((ind) => (
-                  <Box key={ind.key}>
-                    <Typography variant="body2" fontWeight={600}>
-                      {ind.label}: {ind.passed ? "Sí" : "No"}
-                    </Typography>
-                    {ind.rationale ? (
-                      <Typography variant="caption" color="text.secondary" display="block">
-                        {ind.rationale}
-                      </Typography>
-                    ) : null}
-                    {ind.evidence ? (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="block"
-                        fontStyle="italic"
-                      >
-                        «{ind.evidence}»
-                      </Typography>
-                    ) : null}
-                  </Box>
-                ))}
-                <Typography variant="body2">
-                  {s.interestScore}: {ai.interestScore}
-                  {ai.interestScoreRationale ? ` — ${ai.interestScoreRationale}` : ""}
-                </Typography>
-              </Stack>
+              <CallAuditAiResultSummaryCP
+                ai={ai}
+                aiStatus="completed"
+                config={config}
+                variant="dialog"
+              />
             ) : null}
-          </Box>
-          {ai?.speakerTurns !== undefined && ai.speakerTurns.length > 0 ? (
-            <Box>
-              <Typography variant="subtitle2" gutterBottom>
-                {s.diarizedSection}
-              </Typography>
-              <Stack spacing={0.5}>
-                {ai.speakerTurns.map((turn, idx) => (
-                  <Typography key={`${turn.role}-${idx}`} variant="body2">
-                    <strong>{turn.role === "agent" ? "Asesor" : "Cliente"}:</strong> {turn.text}
-                  </Typography>
-                ))}
-              </Stack>
-            </Box>
+          </Paper>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <CallLogPlayRecordingButtonCP callSid={item.callSid} resolvedOutcome="answered" />
+            {canRunAi ? (
+              <Button
+                size="small"
+                variant="contained"
+                disabled={isAnalyzingThis}
+                onClick={() => void dispatch(analyzeCallAuditThunk(item.callLogId))}
+                startIcon={
+                  isAnalyzingThis ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : undefined
+                }
+                sx={{ cursor: "pointer" }}
+              >
+                {isAnalyzingThis ? s.aiStatusPending : s.runAiAnalysis}
+              </Button>
+            ) : null}
+          </Stack>
+          {hasRubricDetail ? (
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle2">{s.accordionRubricDetail}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={1}>
+                  {ai.indicators.map((ind) => (
+                    <Box key={ind.key}>
+                      <Typography variant="body2" fontWeight={600}>
+                        {ind.label}: {ind.passed ? "Sí" : "No"}
+                      </Typography>
+                      {ind.rationale ? (
+                        <Typography variant="caption" color="text.secondary" display="block">
+                          {ind.rationale}
+                        </Typography>
+                      ) : null}
+                      {ind.evidence ? (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                          fontStyle="italic"
+                        >
+                          «{ind.evidence}»
+                        </Typography>
+                      ) : null}
+                    </Box>
+                  ))}
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+          ) : null}
+          {transcript !== "" ? (
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle2">{s.accordionTranscript}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-wrap" }}>
+                  {transcript}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          ) : null}
+          {hasDiarized ? (
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle2">{s.accordionDiarized}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={0.5}>
+                  {ai.speakerTurns!.map((turn, idx) => (
+                    <Typography key={`${turn.role}-${idx}`} variant="body2">
+                      <strong>{turn.role === "agent" ? "Asesor" : "Cliente"}:</strong> {turn.text}
+                    </Typography>
+                  ))}
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
           ) : null}
         </Stack>
       </DialogContent>
