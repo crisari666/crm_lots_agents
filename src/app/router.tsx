@@ -7,9 +7,7 @@ import HandleOfficeView from "../features/offices/handle-office/handle-office-vi
 import DashboardView from "../features/dashboard/dashboard-view";
 import { HandleUserView } from "../features/handle-user/handle-user-view";
 import ImportUsersPage from "../features/import-users/import-users-page";
-import ReportsView from "../views/reports-view";
 import EventGatewayView from "../views/event-gateway.view";
-import LeadsAuditoryView from "../views/leads-auditory-view";
 import OfficeDashboardView from "../views/office-dashboard-view";
 import FaceAuthView from "../views/face-auth-view";
 import FaceAuthFaceDetection from "../views/face-auth-face-detection";
@@ -20,7 +18,6 @@ import SettingsView from "../views/settings-view";
 import TwilioNumbersView from "../views/twilio-numbers-view";
 import OfficeLevelView from "../views/office-level-view";
 import StepByWeekReportsView from "../views/steps-by-weeks-report-view";
-import UsersGoalsView from "../views/user-goals-view";
 import ArrivalHistoryView from "../views/arrival-history-view";
 import AuditsPage from "../views/audits-page";
 import ProjectListPage from "../features/project/pages/project-list-page";
@@ -57,7 +54,6 @@ const router = createBrowserRouter([
     element: <DashboardView />,
     children: [
       { path: "", element: <DashboardContent /> },
-      { path: "reports", element: <ReportsView /> },
       { path: "customers-v2", element: <CustomersPage /> },
       { path: "customers-v2/call-logs", element: <CustomersCallLogsPage /> },
       { path: "customers-v2/call-audit", element: <CallAuditQueuePage /> },
@@ -67,10 +63,8 @@ const router = createBrowserRouter([
       { path: "customers-v2/import", element: <ImportCustomersPage /> },
       { path: "steps-v2", element: <StepsV2Page /> },
       { path: "staff-performance", element: <StaffPerformanceReportPage /> },
-      { path: "leads-auditory", element: <LeadsAuditoryView /> },
       { path: "office-dashboard/:officeId", element: <OfficeDashboardView /> },
       { path: "twilio-numbers", element: <TwilioNumbersView /> },
-      { path: "users-goal-view", element: <UsersGoalsView /> },
       { path: "projects", element: <ProjectListPage /> },
       { path: "project-releases", element: <ProjectReleasesPage /> },
       { path: "create-project", element: <CreateProjectPage /> },

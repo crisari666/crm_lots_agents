@@ -1,23 +1,6 @@
 import Api from "../axios";
-import { PaymentProjectType } from "../models/payment.interface";
 import { PaymentResumeI } from "../../features/user-customers/user-customers.state";
 import { OfficePaymentsResume } from "../models/office-dashboard-payment-row";
-
-export async function confirmImageFeePaymentReq(params: { readonly feePaymentId: string }): Promise<boolean> {
-  try {
-    const api = Api.getInstance();
-    const response = await api.patch({ path: `payments/confirm-image-payment/${params.feePaymentId}` });
-    const { error } = response;
-    if (error == null) {
-      return response.result;
-    }
-    throw error;
-  } catch (error) {
-    console.error("ERROR ON confirmImageFeePayment");
-    console.error({ error });
-    throw error;
-  }
-}
 
 export async function getUserPaymentsByDatesReq(params: {
   readonly userId: string;
@@ -60,22 +43,6 @@ export async function getOfficePaymentsByDatesReq(params: {
     throw error;
   } catch (error) {
     console.error("ERROR ON getOfficePaymentsByDatesReq");
-    console.error({ error });
-    throw error;
-  }
-}
-
-export async function getAlertedPaymentsReq(): Promise<PaymentProjectType[]> {
-  try {
-    const api = Api.getInstance();
-    const response = await api.get({ path: `payments/alerted-payments` });
-    const { error } = response;
-    if (error == null) {
-      return response.result;
-    }
-    throw error;
-  } catch (error) {
-    console.error("ERROR ON getAlertedPaymentsReq");
     console.error({ error });
     throw error;
   }

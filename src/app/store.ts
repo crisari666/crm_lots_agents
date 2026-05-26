@@ -5,11 +5,9 @@ import SigInReducer from "../features/signin/signin.slice";
 import dashboardSlice from "../features/dashboard/dashboard.slice";
 import officesListSlice from "../features/offices/offices-list/offices-list.slice";
 import handleOfficeSlice from "../features/offices/handle-office/handle-office.slice";
-import reportsSlice from "../features/reports/reports-view/reports.slice";
 import eventsGatewaySlice from "../features/event-gateway/events-gateway.slice";
 import userSessionsSlice from "../features/user-sessions-logs/slice/user-sessions.slice";
 import userCustomerSlice from "../features/user-customers/user-customer.slice";
-import leadsAuditorySlice from "../features/leads-auditory/leads-auditory.slice";
 import officeDashboardSlice from "../features/office-dashboard/office-dashboard.slice";
 import stepMetadataReducer from "../features/step-metadata/step-metadata.slice";
 import imagePreviewSlice from "../features/image-preview/image-preview.slice";
@@ -54,7 +52,6 @@ export const store = configureStore({
           "eventsGatewaySlice/setSocketAct",
           "UserCustomersSlice/changeDateRangeUserCustomerResumeAct",
           "UserCustomersSlice/changeDateRangeUserPaymentsAct",
-          "LeadsAuditory/changeDateRangeAct",
           "OfficeDashboard/changeFilterCustomersResumeOfficeAct",
           "OfficeDashboard/changeFilterPaymentsResumeOfficeAct",
           "Statistics/getStepStatsThunk/fulfilled",
@@ -70,7 +67,6 @@ export const store = configureStore({
           "userCustomer.customerFilter",
           "userCustomer.userPaymentsFilter",
           "payload.actions",
-          "leadsAuditory.filterDate",
           "officeDashboard.customersResumeFilter",
           "officeDashboard.paymentResumeFilter",
           "authFace.descriptorFromBack",
@@ -89,7 +85,6 @@ export const store = configureStore({
     imagePreview: imagePreviewSlice,
     importUsers: importUsersSlice,
     importCustomers: importCustomersSlice,
-    leadsAuditory: leadsAuditorySlice,
     login: SigInReducer,
     logArrive: logArriveSlice,
     offices: officesListSlice,
@@ -118,7 +113,6 @@ export const store = configureStore({
     customerAssignmentAudit: customerAssignmentAuditReducer,
     customerMetaLead: customerMetaLeadReducer,
     customerSearch: customerSearchReducer,
-    reports: reportsSlice,
     signedContract: signedContractReducer,
     signupCampaign: signupCampaignReducer,
     ceoOperationsSummary: ceoOperationsSummaryReducer,

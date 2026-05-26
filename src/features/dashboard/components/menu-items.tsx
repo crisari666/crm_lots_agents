@@ -82,10 +82,6 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
 
     ] },
 
-    { Icon: <PriceChange />, title: "Finanzas", superAdmin: true, children: [
-      { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
-    ] },
-
     { Icon: <ChecklistRtl />, title: "Auditoria", children: [
       // { to: "/dashboard/leads-auditory", Icon: <ChecklistRtl />, title: "Leads Auditory" },
       { to: "/dashboard/ceo-leads-resume", Icon: <CampaignOutlined />, title: "Leads Resume" },
@@ -125,17 +121,13 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
   const mapRoutesAssigner: RouteItemI[] = [
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios" },
     { to: "/dashboard/customers-v2", Icon: <Dvr />, title: "Clientes" },
-    { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
   ]
 
-  const mapRoutesFinance: RouteItemI[] = [
-    { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
-  ]
-  
+  const mapRoutesFinance: RouteItemI[] = []
+
   const mapRoutesLeader: RouteItemI[] = [
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios" },
     { to: "/dashboard/customers-v2", Icon: <ArrowDropDown />, title: "Clientes" },
-    { to: "/dashboard/reports", Icon: <AnalyticsOutlined />, title: "Reportes" },
   ]
 
   const mapRoutesUser: RouteItemI[] = [
