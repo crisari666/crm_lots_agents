@@ -18,6 +18,8 @@ import {
   clearCallAuditErrorAct,
   fetchCallAuditConfigThunk,
   fetchCallAuditsByCallThunk,
+  selectCallAuditsByCallLogId,
+  selectIsLoadingCallAuditsByCallLogId,
   submitHumanCallAuditThunk,
 } from "../../redux/customer-call-audit.slice"
 import CallAuditFormAiSectionCP from "./call-audit-form-ai-section.cp"
@@ -44,14 +46,14 @@ export default function CallAuditFormDialogCP({
   const currentUser = useAppSelector((state) => state.login.currentUser)
   const usersOriginal = useAppSelector((state) => state.users.usersOriginal)
   const isAdmin = currentUser?.level === 0
-  const {
-    config,
-    auditsByCall,
-    loadingAudits,
-    submitting,
-    analyzingCallLogIds,
-    error,
-  } = useAppSelector((state) => state.customerCallAudit)
+  const config = useAppSelector((state) => state.customerCallAudit.config)
+  const auditsByCall = useAppSelector((state) => selectCallAuditsByCallLogId(state, callLogId))
+  const loadingAudits = useAppSelector((state) =>
+    selectIsLoadingCallAuditsByCallLogId(state, callLogId)
+  )
+  const { submitting, analyzingCallLogIds, error } = useAppSelector(
+    (state) => state.customerCallAudit
+  )
   const [callMeta] = useState<CustomerCallLogAdminItem | null>(callRow ?? null)
   const [interestScore, setInterestScore] = useState(3)
   const [reviewerNotes, setReviewerNotes] = useState("")

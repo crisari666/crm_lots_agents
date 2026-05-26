@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import {
   Accordion,
   AccordionDetails,
@@ -24,7 +24,10 @@ import type { CallAuditAiReviewItem } from "../../services/customers-ms-admin-ca
 import {
   analyzeCallAuditThunk,
   clearCallAuditErrorAct,
+  clearCallAuditsByCallAct,
   fetchCallAuditsByCallThunk,
+  selectCallAuditsByCallLogId,
+  selectIsLoadingCallAuditsByCallLogId,
 } from "../../redux/customer-call-audit.slice"
 import CallAuditAiResultSummaryCP from "./call-audit-ai-result-summary.cp"
 
@@ -40,29 +43,48 @@ export default function CallAuditAiReadonlyDialogCP({
   onClose,
 }: CallAuditAiReadonlyDialogCPProps) {
   const dispatch = useAppDispatch()
-  const { auditsByCall, loadingAudits, analyzingCallLogIds, error, config } = useAppSelector(
+  const callLogId = item.callLogId
+  const auditsByCall = useAppSelector((state) => selectCallAuditsByCallLogId(state, callLogId))
+  const loadingAudits = useAppSelector((state) =>
+    selectIsLoadingCallAuditsByCallLogId(state, callLogId)
+  )
+  const { aiReview, analyzingCallLogIds, error, config } = useAppSelector(
     (state) => state.customerCallAudit
   )
+  const liveItem = useMemo((): CallAuditAiReviewItem => {
+    const fromList = aiReview?.items.find((row) => row.callLogId === callLogId)
+    return fromList ?? item
+  }, [aiReview?.items, callLogId, item])
   useEffect(() => {
     if (!open) {
       return
     }
-    void dispatch(fetchCallAuditsByCallThunk(item.callLogId))
-  }, [open, item.callLogId, dispatch])
-  const ai = auditsByCall?.ai ?? item.ai
-  const transcript = (auditsByCall?.transcript ?? "").trim()
-  const when = item.completedAt ? moment(item.completedAt) : null
-  const isAnalyzingThis = analyzingCallLogIds.includes(item.callLogId)
+    void dispatch(fetchCallAuditsByCallThunk(callLogId))
+  }, [open, callLogId, dispatch])
+  const handleClose = () => {
+    dispatch(clearCallAuditsByCallAct(callLogId))
+    onClose()
+  }
+  const cachedAi =
+    auditsByCall !== null && auditsByCall.callLogId === callLogId ? auditsByCall.ai : null
+  const ai = cachedAi ?? liveItem.ai
+  const transcript =
+    auditsByCall !== null && auditsByCall.callLogId === callLogId
+      ? (auditsByCall.transcript ?? "").trim()
+      : ""
+  const when = liveItem.completedAt ? moment(liveItem.completedAt) : null
+  const isAnalyzingThis = analyzingCallLogIds.includes(callLogId)
   const canRunAi =
-    item.aiStatus === "none" || item.aiStatus === "failed" || item.aiStatus === "pending"
+    liveItem.aiStatus === "none" ||
+    liveItem.aiStatus === "failed" ||
+    liveItem.aiStatus === "pending"
   const hasRubricDetail =
     !loadingAudits && ai?.status === "completed" && ai.indicators.length > 0
-  const hasDiarized =
-    ai?.speakerTurns !== undefined && ai.speakerTurns.length > 0
+  const hasDiarized = ai?.speakerTurns !== undefined && ai.speakerTurns.length > 0
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        {s.viewAi} · {item.callSid}
+        {s.viewAi} · {liveItem.callSid}
       </DialogTitle>
       <DialogContent dividers>
         {error ? (
@@ -74,8 +96,8 @@ export default function CallAuditAiReadonlyDialogCP({
           {when !== null ? (
             <Typography variant="body2" color="text.secondary">
               {when.format("DD/MM/YY HH:mm")}
-              {item.durationSeconds !== undefined
-                ? ` · ${Math.round(item.durationSeconds)}s`
+              {liveItem.durationSeconds !== undefined
+                ? ` · ${Math.round(liveItem.durationSeconds)}s`
                 : ""}
             </Typography>
           ) : null}
@@ -112,15 +134,23 @@ export default function CallAuditAiReadonlyDialogCP({
                 variant="dialog"
               />
             ) : null}
+            {isAnalyzingThis && (ai === null || ai.status !== "completed") ? (
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
+                <CircularProgress size={18} />
+                <Typography variant="body2" color="text.secondary">
+                  {s.aiStatusPending}
+                </Typography>
+              </Stack>
+            ) : null}
           </Paper>
           <Stack direction="row" spacing={1} alignItems="center">
-            <CallLogPlayRecordingButtonCP callSid={item.callSid} resolvedOutcome="answered" />
+            <CallLogPlayRecordingButtonCP callSid={liveItem.callSid} resolvedOutcome="answered" />
             {canRunAi ? (
               <Button
                 size="small"
                 variant="contained"
                 disabled={isAnalyzingThis}
-                onClick={() => void dispatch(analyzeCallAuditThunk(item.callLogId))}
+                onClick={() => void dispatch(analyzeCallAuditThunk(callLogId))}
                 startIcon={
                   isAnalyzingThis ? (
                     <CircularProgress size={16} color="inherit" />
@@ -196,7 +226,7 @@ export default function CallAuditAiReadonlyDialogCP({
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} sx={{ cursor: "pointer" }}>
+        <Button onClick={handleClose} sx={{ cursor: "pointer" }}>
           {s.close}
         </Button>
       </DialogActions>

@@ -27,13 +27,14 @@ export type CustomerCallAuditState = {
   auditResults: CallAuditResultsResponse | null
   auditorProgress: CallAuditAuditorProgressResponse | null
   aiReview: CallAuditAiReviewListResponse | null
-  auditsByCall: CallAuditsByCallResponse | null
+  /** Per-call audit detail; avoids one global slot overwritten by parallel fetches/analyses. */
+  auditsByCallById: Record<string, CallAuditsByCallResponse>
   filters: { month: string; agentExternalRef: string; onlyWithoutAi: boolean }
   loadingConfig: boolean
   loadingResults: boolean
   loadingAuditorProgress: boolean
   loadingAiReview: boolean
-  loadingAudits: boolean
+  loadingAuditsCallLogIds: string[]
   submitting: boolean
   analyzingCallLogIds: string[]
   error: string | null
@@ -48,6 +49,24 @@ function addAnalyzingCallLogId(ids: string[], callLogId: string): string[] {
 
 function removeAnalyzingCallLogId(ids: string[], callLogId: string): string[] {
   return ids.filter((id) => id !== callLogId)
+}
+
+function addLoadingAuditsCallLogId(ids: string[], callLogId: string): string[] {
+  if (ids.includes(callLogId)) {
+    return ids
+  }
+  return [...ids, callLogId]
+}
+
+function removeLoadingAuditsCallLogId(ids: string[], callLogId: string): string[] {
+  return ids.filter((id) => id !== callLogId)
+}
+
+function setAuditsForCallLogId(
+  byId: Record<string, CallAuditsByCallResponse>,
+  audits: CallAuditsByCallResponse
+): Record<string, CallAuditsByCallResponse> {
+  return { ...byId, [audits.callLogId]: audits }
 }
 
 function axiosMessage(err: unknown, fallback: string): string {
@@ -75,13 +94,13 @@ const initialState: CustomerCallAuditState = {
   auditResults: null,
   auditorProgress: null,
   aiReview: null,
-  auditsByCall: null,
+  auditsByCallById: {},
   filters: { month: defaultMonth(), agentExternalRef: "", onlyWithoutAi: false },
   loadingConfig: false,
   loadingResults: false,
   loadingAuditorProgress: false,
   loadingAiReview: false,
-  loadingAudits: false,
+  loadingAuditsCallLogIds: [],
   submitting: false,
   analyzingCallLogIds: [],
   error: null,
@@ -206,8 +225,19 @@ const customerCallAuditSlice = createSlice({
     clearCallAuditErrorAct(state) {
       state.error = null
     },
-    clearCallAuditsByCallAct(state) {
-      state.auditsByCall = null
+    clearCallAuditsByCallAct(state, action: PayloadAction<string | undefined>) {
+      const callLogId = action.payload
+      if (callLogId === undefined) {
+        state.auditsByCallById = {}
+        state.loadingAuditsCallLogIds = []
+        return
+      }
+      const { [callLogId]: _removed, ...rest } = state.auditsByCallById
+      state.auditsByCallById = rest
+      state.loadingAuditsCallLogIds = removeLoadingAuditsCallLogId(
+        state.loadingAuditsCallLogIds,
+        callLogId
+      )
     },
   },
   extraReducers: (builder) => {
@@ -260,16 +290,25 @@ const customerCallAuditSlice = createSlice({
         state.loadingAiReview = false
         state.error = (action.payload as string) ?? "Error"
       })
-      .addCase(fetchCallAuditsByCallThunk.pending, (state) => {
-        state.loadingAudits = true
+      .addCase(fetchCallAuditsByCallThunk.pending, (state, action) => {
+        state.loadingAuditsCallLogIds = addLoadingAuditsCallLogId(
+          state.loadingAuditsCallLogIds,
+          action.meta.arg
+        )
         state.error = null
       })
       .addCase(fetchCallAuditsByCallThunk.fulfilled, (state, action) => {
-        state.loadingAudits = false
-        state.auditsByCall = action.payload
+        state.loadingAuditsCallLogIds = removeLoadingAuditsCallLogId(
+          state.loadingAuditsCallLogIds,
+          action.meta.arg
+        )
+        state.auditsByCallById = setAuditsForCallLogId(state.auditsByCallById, action.payload)
       })
       .addCase(fetchCallAuditsByCallThunk.rejected, (state, action) => {
-        state.loadingAudits = false
+        state.loadingAuditsCallLogIds = removeLoadingAuditsCallLogId(
+          state.loadingAuditsCallLogIds,
+          action.meta.arg
+        )
         state.error = (action.payload as string) ?? "Error"
       })
       .addCase(submitHumanCallAuditThunk.pending, (state) => {
@@ -278,7 +317,10 @@ const customerCallAuditSlice = createSlice({
       })
       .addCase(submitHumanCallAuditThunk.fulfilled, (state, action) => {
         state.submitting = false
-        state.auditsByCall = action.payload.audits
+        state.auditsByCallById = setAuditsForCallLogId(
+          state.auditsByCallById,
+          action.payload.audits
+        )
       })
       .addCase(submitHumanCallAuditThunk.rejected, (state, action) => {
         state.submitting = false
@@ -296,7 +338,10 @@ const customerCallAuditSlice = createSlice({
           state.analyzingCallLogIds,
           action.payload.callLogId
         )
-        state.auditsByCall = action.payload.audits
+        state.auditsByCallById = setAuditsForCallLogId(
+          state.auditsByCallById,
+          action.payload.audits
+        )
         if (state.aiReview !== null) {
           const idx = state.aiReview.items.findIndex(
             (item) => item.callLogId === action.payload.callLogId
@@ -334,4 +379,19 @@ export const {
   clearCallAuditErrorAct,
   clearCallAuditsByCallAct,
 } = customerCallAuditSlice.actions
+
+export function selectCallAuditsByCallLogId(
+  state: RootState,
+  callLogId: string
+): CallAuditsByCallResponse | null {
+  return state.customerCallAudit.auditsByCallById[callLogId] ?? null
+}
+
+export function selectIsLoadingCallAuditsByCallLogId(
+  state: RootState,
+  callLogId: string
+): boolean {
+  return state.customerCallAudit.loadingAuditsCallLogIds.includes(callLogId)
+}
+
 export default customerCallAuditSlice.reducer
