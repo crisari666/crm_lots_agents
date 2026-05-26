@@ -3,6 +3,7 @@ import type {
   CeoOperationsSummaryResult,
 } from "../../../app/services/ceo-operations-summary.types"
 import type { CallAuditAiReviewSummary } from "../../customer-v2/services/customers-ms-admin-call-audit.types"
+import type { OnboardingVoiceCallAuditAiReviewSummary } from "../../onboarding-voice-call-audit/types/onboarding-voice-call-audit.types"
 
 export type CeoOperationsSummaryState = {
   readonly summary: CeoOperationsSummaryResult | null
@@ -18,6 +19,10 @@ export type CeoOperationsSummaryState = {
   readonly error: string | null
   readonly crmError: string | null
   readonly callAuditAiError: string | null
+  readonly onboardingVoiceCallAuditAiSummary: OnboardingVoiceCallAuditAiReviewSummary | null
+  readonly onboardingVoiceCallAuditAiMonth: string | null
+  readonly onboardingVoiceCallAuditAiSkipped: boolean
+  readonly onboardingVoiceCallAuditAiError: string | null
   readonly leadsResume: CeoLeadResumeResult | null
   readonly isLeadsResumeLoading: boolean
   readonly leadsResumeError: string | null

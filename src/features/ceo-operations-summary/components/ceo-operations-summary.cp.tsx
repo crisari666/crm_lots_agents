@@ -34,9 +34,15 @@ import {
   formatCallAuditTopFailed,
 } from "../../customer-v2/business-logic/call-audit-ai-review-summary-display"
 import {
+  formatOnboardingVoiceAuditCompletedPct,
+  formatOnboardingVoiceAuditTopFailed,
+} from "../../onboarding-voice-call-audit/business-logic/onboarding-voice-call-audit-summary-display"
+import { onboardingVoiceCallAuditStrings as onboardingVoiceS } from "../../../i18n/locales/onboarding-voice-call-audit.strings"
+import {
   clearCeoOperationsSummaryCallAuditAiErrorAct,
   clearCeoOperationsSummaryCrmErrorAct,
   clearCeoOperationsSummaryErrorAct,
+  clearCeoOperationsSummaryOnboardingVoiceCallAuditAiErrorAct,
   fetchCeoOperationsSummaryThunk,
 } from "../slice/ceo-operations-summary.slice"
 import CeoLeadsResumePanelCP from "./ceo-leads-resume-panel.cp"
@@ -102,6 +108,10 @@ export default function CeoOperationsSummaryCP() {
     callAuditAiMonth,
     callAuditAiSkipped,
     callAuditAiError,
+    onboardingVoiceCallAuditAiSummary,
+    onboardingVoiceCallAuditAiMonth,
+    onboardingVoiceCallAuditAiSkipped,
+    onboardingVoiceCallAuditAiError,
     isLoading,
     error,
     crmError,
@@ -154,12 +164,26 @@ export default function CeoOperationsSummaryCP() {
       callAuditAiSummary !== null ? formatCallAuditTopFailed(callAuditAiSummary) : null,
     [callAuditAiSummary]
   )
+  const onboardingVoiceAuditTopFailed = useMemo(
+    () =>
+      onboardingVoiceCallAuditAiSummary !== null
+        ? formatOnboardingVoiceAuditTopFailed(onboardingVoiceCallAuditAiSummary)
+        : null,
+    [onboardingVoiceCallAuditAiSummary]
+  )
   const isCrmAdmin = currentUser?.level === 0
   const openCallAuditAiReview = isCrmAdmin
     ? () => navigate("/dashboard/customers-v2/call-audit-ai")
     : undefined
+  const openOnboardingVoiceCallAuditAiReview = isCrmAdmin
+    ? () => navigate("/dashboard/onboarding-voice-call-audit-ai")
+    : undefined
   const callAuditMonthLabel =
     callAuditAiMonth !== null ? moment(callAuditAiMonth, "YYYY-MM").format("MM/YYYY") : ""
+  const onboardingVoiceAuditMonthLabel =
+    onboardingVoiceCallAuditAiMonth !== null
+      ? moment(onboardingVoiceCallAuditAiMonth, "YYYY-MM").format("MM/YYYY")
+      : ""
 
   return (
     <Stack spacing={1.5} sx={{ mb: 2 }}>
@@ -212,6 +236,14 @@ export default function CeoOperationsSummaryCP() {
           onClose={() => dispatch(clearCeoOperationsSummaryCallAuditAiErrorAct())}
         >
           {callAuditAiError}
+        </Alert>
+      )}
+      {onboardingVoiceCallAuditAiError !== null && (
+        <Alert
+          severity="warning"
+          onClose={() => dispatch(clearCeoOperationsSummaryOnboardingVoiceCallAuditAiErrorAct())}
+        >
+          {onboardingVoiceCallAuditAiError}
         </Alert>
       )}
       <Box
@@ -314,6 +346,66 @@ export default function CeoOperationsSummaryCP() {
                 }
                 icon={<RuleOutlined fontSize="small" />}
                 onClick={openCallAuditAiReview}
+              />
+            </Box>
+          </Stack>
+        </Paper>
+      ) : null}
+      {!onboardingVoiceCallAuditAiSkipped && onboardingVoiceCallAuditAiSummary !== null ? (
+        <Paper variant="outlined" sx={{ p: 1.5 }}>
+          <Stack spacing={1.25}>
+            <Box>
+              <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 600 }}>
+                {onboardingVoiceS.ceoKpiSection}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                {onboardingVoiceS.kpiDateBasis} · {onboardingVoiceAuditMonthLabel}
+                {spansMultipleMonths ? ` · ${callAuditS.kpiMonthScopeNote}` : ""}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 1.25,
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))",
+              }}
+            >
+              <KpiCard
+                title={onboardingVoiceS.kpiTotalCalls}
+                value={String(onboardingVoiceCallAuditAiSummary.totalEligible)}
+                subtitle={onboardingVoiceAuditMonthLabel}
+                icon={<RecordVoiceOverOutlined fontSize="small" />}
+                onClick={openOnboardingVoiceCallAuditAiReview}
+              />
+              <KpiCard
+                title={onboardingVoiceS.kpiAiCompletedPct}
+                value={formatOnboardingVoiceAuditCompletedPct(onboardingVoiceCallAuditAiSummary)}
+                subtitle={onboardingVoiceS.kpiSectionTitle}
+                icon={<SmartToyOutlined fontSize="small" />}
+                onClick={openOnboardingVoiceCallAuditAiReview}
+              />
+              <KpiCard
+                title={onboardingVoiceS.kpiAvgInterest}
+                value={
+                  onboardingVoiceCallAuditAiSummary.avgInterestScore !== null
+                    ? String(onboardingVoiceCallAuditAiSummary.avgInterestScore)
+                    : "—"
+                }
+                subtitle={onboardingVoiceAuditMonthLabel}
+                icon={<TrendingUpOutlined fontSize="small" />}
+                onClick={openOnboardingVoiceCallAuditAiReview}
+              />
+              <KpiCard
+                title={onboardingVoiceS.kpiTopFailedRubric}
+                value={onboardingVoiceAuditTopFailed?.value ?? "—"}
+                subtitle={
+                  onboardingVoiceAuditTopFailed?.tooltip !== undefined &&
+                  onboardingVoiceAuditTopFailed.tooltip !== ""
+                    ? onboardingVoiceAuditTopFailed.tooltip
+                    : onboardingVoiceS.kpiSectionTitle
+                }
+                icon={<RuleOutlined fontSize="small" />}
+                onClick={openOnboardingVoiceCallAuditAiReview}
               />
             </Box>
           </Stack>

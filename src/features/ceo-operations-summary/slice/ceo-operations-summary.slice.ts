@@ -6,6 +6,7 @@ import {
 } from "../../../app/services/ceo-operations-summary.service"
 import type { RootState } from "../../../app/store"
 import { getCallAuditAiReview } from "../../customer-v2/services/customers-ms-admin-call-audit.http"
+import { getOnboardingVoiceCallAuditAiReview } from "../../onboarding-voice-call-audit/services/onboarding-voice-call-audit.http"
 import { listCustomersAdmin } from "../../customer-v2/services/customers-ms.service"
 import type { CeoOperationsSummaryState } from "./ceo-operations-summary.state"
 
@@ -21,6 +22,10 @@ const initialState: CeoOperationsSummaryState = {
   error: null,
   crmError: null,
   callAuditAiError: null,
+  onboardingVoiceCallAuditAiSummary: null,
+  onboardingVoiceCallAuditAiMonth: null,
+  onboardingVoiceCallAuditAiSkipped: false,
+  onboardingVoiceCallAuditAiError: null,
   leadsResume: null,
   isLeadsResumeLoading: false,
   leadsResumeError: null,
@@ -91,10 +96,40 @@ export const fetchCeoOperationsSummaryThunk = createAsyncThunk(
             err: null,
             skipped: true,
           })
-    const [summary, cms, callAuditAi] = await Promise.all([
+    const onboardingVoiceAuditAiPromise: Promise<{
+      summary: CeoOperationsSummaryState["onboardingVoiceCallAuditAiSummary"]
+      month: string | null
+      err: string | null
+      skipped: boolean
+    }> = isCrmAdmin
+      ? getOnboardingVoiceCallAuditAiReview({
+          month: moment(params.crmToIso).format("YYYY-MM"),
+          limit: 1,
+          skip: 0,
+        })
+          .then((response) => ({
+            summary: response.summary,
+            month: response.month,
+            err: null,
+            skipped: false,
+          }))
+          .catch(() => ({
+            summary: null,
+            month: null,
+            err: "Auditoría IA voz onboarding: no disponible",
+            skipped: false,
+          }))
+      : Promise.resolve({
+          summary: null,
+          month: null,
+          err: null,
+          skipped: true,
+        })
+    const [summary, cms, callAuditAi, onboardingVoiceAuditAi] = await Promise.all([
       getCeoOperationsSummaryReq({ from: params.fromIso, to: params.toMonolithIso }),
       cmsPromise,
       callAuditAiPromise,
+      onboardingVoiceAuditAiPromise,
     ])
     return {
       summary,
@@ -106,6 +141,10 @@ export const fetchCeoOperationsSummaryThunk = createAsyncThunk(
       callAuditAiMonth: callAuditAi.month,
       callAuditAiSkipped: callAuditAi.skipped,
       callAuditAiError: callAuditAi.err,
+      onboardingVoiceCallAuditAiSummary: onboardingVoiceAuditAi.summary,
+      onboardingVoiceCallAuditAiMonth: onboardingVoiceAuditAi.month,
+      onboardingVoiceCallAuditAiSkipped: onboardingVoiceAuditAi.skipped,
+      onboardingVoiceCallAuditAiError: onboardingVoiceAuditAi.err,
     }
   }
 )
@@ -139,6 +178,9 @@ const ceoOperationsSummarySlice = createSlice({
     clearCeoOperationsSummaryCallAuditAiErrorAct: (state) => {
       state.callAuditAiError = null
     },
+    clearCeoOperationsSummaryOnboardingVoiceCallAuditAiErrorAct: (state) => {
+      state.onboardingVoiceCallAuditAiError = null
+    },
     clearCeoLeadsResumeErrorAct: (state) => {
       state.leadsResumeError = null
     },
@@ -150,6 +192,7 @@ const ceoOperationsSummarySlice = createSlice({
         state.error = null
         state.crmError = null
         state.callAuditAiError = null
+        state.onboardingVoiceCallAuditAiError = null
       })
       .addCase(fetchCeoOperationsSummaryThunk.fulfilled, (state, action) => {
         state.isLoading = false
@@ -162,6 +205,14 @@ const ceoOperationsSummarySlice = createSlice({
         state.callAuditAiMonth = action.payload.callAuditAiMonth
         state.callAuditAiSkipped = action.payload.callAuditAiSkipped
         state.callAuditAiError = action.payload.callAuditAiError
+        state.onboardingVoiceCallAuditAiSummary =
+          action.payload.onboardingVoiceCallAuditAiSummary
+        state.onboardingVoiceCallAuditAiMonth =
+          action.payload.onboardingVoiceCallAuditAiMonth
+        state.onboardingVoiceCallAuditAiSkipped =
+          action.payload.onboardingVoiceCallAuditAiSkipped
+        state.onboardingVoiceCallAuditAiError =
+          action.payload.onboardingVoiceCallAuditAiError
       })
       .addCase(fetchCeoOperationsSummaryThunk.rejected, (state, action) => {
         state.isLoading = false
@@ -173,6 +224,10 @@ const ceoOperationsSummarySlice = createSlice({
         state.callAuditAiMonth = null
         state.callAuditAiSkipped = false
         state.callAuditAiError = null
+        state.onboardingVoiceCallAuditAiSummary = null
+        state.onboardingVoiceCallAuditAiMonth = null
+        state.onboardingVoiceCallAuditAiSkipped = false
+        state.onboardingVoiceCallAuditAiError = null
         state.error =
           action.error.message != null ? action.error.message : "Error al cargar datos"
       })
@@ -199,6 +254,7 @@ export const {
   clearCeoOperationsSummaryErrorAct,
   clearCeoOperationsSummaryCrmErrorAct,
   clearCeoOperationsSummaryCallAuditAiErrorAct,
+  clearCeoOperationsSummaryOnboardingVoiceCallAuditAiErrorAct,
   clearCeoLeadsResumeErrorAct,
 } =
   ceoOperationsSummarySlice.actions

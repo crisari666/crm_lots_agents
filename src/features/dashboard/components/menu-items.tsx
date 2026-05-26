@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -91,6 +91,12 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
         to: "/dashboard/customers-v2/call-audit-ai",
         Icon: <AdminPanelSettings />,
         title: "Revisión IA llamadas",
+        crmAdminOnly: true,
+      },
+      {
+        to: "/dashboard/onboarding-voice-call-audit-ai",
+        Icon: <RecordVoiceOverOutlined />,
+        title: "Revisión IA voz onboarding",
         crmAdminOnly: true,
       },
       // { to: "/dashboard/steps", Icon: <Category />, title: "Pasos" },
