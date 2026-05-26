@@ -7,10 +7,12 @@ import {
   getOnboardingVoiceCallAuditConfig,
 } from "../services/onboarding-voice-call-audit.http"
 import { monthRangeIsoFromYYYYMM } from "../business-logic/onboarding-voice-call-audit-summary-display"
+import { patchOnboardingVoiceCallAuditAiReviewItem } from "../business-logic/patch-onboarding-voice-call-audit-ai-review-item.util"
 import type {
   OnboardingVoiceCallAuditAiReviewListResponse,
   OnboardingVoiceCallAuditBackfillResponse,
   OnboardingVoiceCallAuditConfigResponse,
+  OnboardingVoiceCallAuditRecord,
 } from "../types/onboarding-voice-call-audit.types"
 
 export type OnboardingVoiceCallAuditState = {
@@ -103,12 +105,16 @@ export const fetchOnboardingVoiceCallAuditAiReviewThunk = createAsyncThunk(
   }
 )
 
-export const analyzeOnboardingVoiceCallAuditFlowThunk = createAsyncThunk(
+export const analyzeOnboardingVoiceCallAuditFlowThunk = createAsyncThunk<
+  { flowId: string; record: OnboardingVoiceCallAuditRecord },
+  string,
+  { rejectValue: string }
+>(
   "onboardingVoiceCallAudit/analyzeFlow",
-  async (flowId: string, { rejectWithValue }) => {
+  async (flowId, { rejectWithValue }) => {
     try {
-      await analyzeOnboardingVoiceCallAuditFlow(flowId)
-      return { flowId }
+      const record = await analyzeOnboardingVoiceCallAuditFlow(flowId)
+      return { flowId, record }
     } catch (err: unknown) {
       return rejectWithValue(
         resolveErrorMessage(err, "No se pudo ejecutar el análisis con IA.")
@@ -197,6 +203,12 @@ const onboardingVoiceCallAuditSlice = createSlice({
           state.analyzingFlowIds,
           action.payload.flowId
         )
+        if (state.aiReview !== null) {
+          state.aiReview = patchOnboardingVoiceCallAuditAiReviewItem(
+            state.aiReview,
+            action.payload.record
+          )
+        }
       })
       .addCase(analyzeOnboardingVoiceCallAuditFlowThunk.rejected, (state, action) => {
         state.analyzingFlowIds = removeAnalyzingFlowId(
