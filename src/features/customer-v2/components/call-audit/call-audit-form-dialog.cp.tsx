@@ -1,0 +1,172 @@
+import { useCallback, useEffect, useMemo, useState } from "react"
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  Stack,
+} from "@mui/material"
+import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
+import { callAuditStrings as s } from "../../../../i18n/locales/call-audit.strings"
+import type { CustomerCallLogAdminItem, CustomerCallLogAdminOutcome } from "../../services/customers-ms.service"
+import {
+  analyzeCallAuditThunk,
+  clearCallAuditErrorAct,
+  fetchCallAuditConfigThunk,
+  fetchCallAuditsByCallThunk,
+  submitHumanCallAuditThunk,
+} from "../../redux/customer-call-audit.slice"
+import CallAuditFormAiSectionCP from "./call-audit-form-ai-section.cp"
+import CallAuditFormCallHeaderCP from "./call-audit-form-call-header.cp"
+import CallAuditFormDiarizedSectionCP from "./call-audit-form-diarized-section.cp"
+import CallAuditFormHumanSectionCP from "./call-audit-form-human-section.cp"
+import CallAuditFormTranscriptSectionCP from "./call-audit-form-transcript-section.cp"
+
+export type CallAuditFormDialogCPProps = {
+  open: boolean
+  callLogId: string
+  onClose: () => void
+  callRow?: CustomerCallLogAdminItem
+}
+
+export default function CallAuditFormDialogCP({
+  open,
+  callLogId,
+  onClose,
+  callRow,
+}: CallAuditFormDialogCPProps) {
+  const dispatch = useAppDispatch()
+  const {
+    config,
+    auditsByCall,
+    loadingAudits,
+    submitting,
+    analyzing,
+    error,
+  } = useAppSelector((state) => state.customerCallAudit)
+  const [callMeta] = useState<CustomerCallLogAdminItem | null>(callRow ?? null)
+  const [interestScore, setInterestScore] = useState(3)
+  const [reviewerNotes, setReviewerNotes] = useState("")
+  const [humanChecks, setHumanChecks] = useState<Record<string, boolean>>({})
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+    void dispatch(fetchCallAuditConfigThunk())
+    void dispatch(fetchCallAuditsByCallThunk(callLogId))
+  }, [open, callLogId, dispatch])
+  const indicators = config?.indicators ?? []
+  useEffect(() => {
+    if (auditsByCall?.human?.indicators !== undefined) {
+      const map: Record<string, boolean> = {}
+      for (const ind of auditsByCall.human.indicators) {
+        map[ind.key] = ind.passed
+      }
+      setHumanChecks(map)
+      setInterestScore(auditsByCall.human.interestScore)
+      setReviewerNotes(auditsByCall.human.reviewerNotes ?? "")
+    } else if (indicators.length > 0) {
+      const map: Record<string, boolean> = {}
+      for (const ind of indicators) {
+        map[ind.key] = false
+      }
+      setHumanChecks(map)
+    }
+  }, [auditsByCall?.human, indicators])
+  const transcript = useMemo(() => {
+    const fromRow = (callMeta?.transcript ?? callMeta?.text ?? "").trim()
+    if (fromRow !== "") {
+      return fromRow
+    }
+    return (auditsByCall?.transcript ?? "").trim()
+  }, [callMeta, auditsByCall?.transcript])
+  const callSid = callMeta?.callSid ?? auditsByCall?.callSid ?? ""
+  const resolvedOutcome: CustomerCallLogAdminOutcome =
+    callMeta?.resolvedOutcome ??
+    (auditsByCall?.resolvedOutcome as CustomerCallLogAdminOutcome | undefined) ??
+    "answered"
+  const handleSave = useCallback(() => {
+    const body = {
+      indicators: indicators.map((ind) => ({
+        key: ind.key,
+        passed: humanChecks[ind.key] === true,
+      })),
+      interestScore,
+      reviewerNotes: reviewerNotes.trim() !== "" ? reviewerNotes.trim() : undefined,
+    }
+    void dispatch(submitHumanCallAuditThunk({ callLogId, body })).then((result) => {
+      if (submitHumanCallAuditThunk.fulfilled.match(result)) {
+        onClose()
+      }
+    })
+  }, [callLogId, dispatch, humanChecks, indicators, interestScore, onClose, reviewerNotes])
+  const scoreMin = config?.interestScore.min ?? 1
+  const scoreMax = config?.interestScore.max ?? 5
+  const scoreOptions = useMemo(() => {
+    const opts: number[] = []
+    for (let i = scoreMin; i <= scoreMax; i += 1) {
+      opts.push(i)
+    }
+    return opts
+  }, [scoreMin, scoreMax])
+  const ai = auditsByCall?.ai ?? null
+  const speakerTurns = ai?.speakerTurns ?? []
+  const handleHumanCheckChange = useCallback((key: string, passed: boolean) => {
+    setHumanChecks((prev) => ({ ...prev, [key]: passed }))
+  }, [])
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+      <DialogTitle>{s.auditCall}</DialogTitle>
+      <DialogContent dividers>
+        {error ? (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => dispatch(clearCallAuditErrorAct())}>
+            {error}
+          </Alert>
+        ) : null}
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Stack spacing={2}>
+              <CallAuditFormCallHeaderCP
+                callSid={callSid}
+                resolvedOutcome={resolvedOutcome}
+                analyzing={analyzing}
+                onReanalyze={() => void dispatch(analyzeCallAuditThunk(callLogId))}
+              />
+              <CallAuditFormTranscriptSectionCP transcript={transcript} />
+              <CallAuditFormAiSectionCP loading={loadingAudits} ai={ai} />
+              <CallAuditFormDiarizedSectionCP speakerTurns={speakerTurns} />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <CallAuditFormHumanSectionCP
+              config={config}
+              humanChecks={humanChecks}
+              onHumanCheckChange={handleHumanCheckChange}
+              interestScore={interestScore}
+              onInterestScoreChange={setInterestScore}
+              reviewerNotes={reviewerNotes}
+              onReviewerNotesChange={setReviewerNotes}
+              scoreOptions={scoreOptions}
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} sx={{ cursor: "pointer" }}>
+          {s.close}
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleSave}
+          disabled={submitting || indicators.length === 0}
+          sx={{ cursor: "pointer" }}
+        >
+          {s.saveAudit}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
