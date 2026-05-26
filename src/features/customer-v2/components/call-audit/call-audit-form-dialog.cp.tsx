@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   Alert,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -24,6 +25,7 @@ import CallAuditFormCallHeaderCP from "./call-audit-form-call-header.cp"
 import CallAuditFormDiarizedSectionCP from "./call-audit-form-diarized-section.cp"
 import CallAuditFormHumanSectionCP from "./call-audit-form-human-section.cp"
 import CallAuditFormTranscriptSectionCP from "./call-audit-form-transcript-section.cp"
+import { resolveCallAuditUserLabel } from "./call-audit-user-label.util"
 
 export type CallAuditFormDialogCPProps = {
   open: boolean
@@ -39,19 +41,28 @@ export default function CallAuditFormDialogCP({
   callRow,
 }: CallAuditFormDialogCPProps) {
   const dispatch = useAppDispatch()
-  const isAdmin = useAppSelector((state) => state.login.currentUser?.level === 0)
+  const currentUser = useAppSelector((state) => state.login.currentUser)
+  const usersOriginal = useAppSelector((state) => state.users.usersOriginal)
+  const isAdmin = currentUser?.level === 0
   const {
     config,
     auditsByCall,
     loadingAudits,
     submitting,
-    analyzing,
+    analyzingCallLogIds,
     error,
   } = useAppSelector((state) => state.customerCallAudit)
   const [callMeta] = useState<CustomerCallLogAdminItem | null>(callRow ?? null)
   const [interestScore, setInterestScore] = useState(3)
   const [reviewerNotes, setReviewerNotes] = useState("")
   const [humanChecks, setHumanChecks] = useState<Record<string, boolean>>({})
+  const currentUserId = currentUser?._id ?? ""
+  const existingAuditorId = auditsByCall?.human?.auditorUserId ?? ""
+  const isLockedToOther =
+    existingAuditorId !== "" && existingAuditorId !== currentUserId
+  const isOwnAudit =
+    existingAuditorId !== "" && existingAuditorId === currentUserId
+  const isAnalyzingThis = analyzingCallLogIds.includes(callLogId)
   useEffect(() => {
     if (!open) {
       return
@@ -59,7 +70,7 @@ export default function CallAuditFormDialogCP({
     void dispatch(fetchCallAuditConfigThunk())
     void dispatch(fetchCallAuditsByCallThunk(callLogId))
   }, [open, callLogId, dispatch])
-  const indicators = config?.indicators ?? []
+  const indicators = useMemo(() => config?.indicators ?? [], [config?.indicators])
   useEffect(() => {
     if (auditsByCall?.human?.indicators !== undefined) {
       const map: Record<string, boolean> = {}
@@ -118,13 +129,26 @@ export default function CallAuditFormDialogCP({
   const handleHumanCheckChange = useCallback((key: string, passed: boolean) => {
     setHumanChecks((prev) => ({ ...prev, [key]: passed }))
   }, [])
+  const lockedAuditorLabel = resolveCallAuditUserLabel(existingAuditorId, usersOriginal)
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
-      <DialogTitle>{s.auditCall}</DialogTitle>
+      <DialogTitle>
+        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+          <span>{s.auditCall}</span>
+          {isOwnAudit ? (
+            <Chip size="small" label={s.yourAudit} color="primary" variant="outlined" />
+          ) : null}
+        </Stack>
+      </DialogTitle>
       <DialogContent dividers>
         {error ? (
           <Alert severity="error" sx={{ mb: 2 }} onClose={() => dispatch(clearCallAuditErrorAct())}>
             {error}
+          </Alert>
+        ) : null}
+        {isLockedToOther ? (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {s.auditedByOther} {lockedAuditorLabel}.
           </Alert>
         ) : null}
         <Grid container spacing={2}>
@@ -133,7 +157,7 @@ export default function CallAuditFormDialogCP({
               <CallAuditFormCallHeaderCP
                 callSid={callSid}
                 resolvedOutcome={resolvedOutcome}
-                analyzing={analyzing}
+                analyzing={isAnalyzingThis}
                 showAiControls={isAdmin}
                 onReanalyze={() => void dispatch(analyzeCallAuditThunk(callLogId))}
               />
@@ -156,6 +180,7 @@ export default function CallAuditFormDialogCP({
               reviewerNotes={reviewerNotes}
               onReviewerNotesChange={setReviewerNotes}
               scoreOptions={scoreOptions}
+              readOnly={isLockedToOther}
             />
           </Grid>
         </Grid>
@@ -164,14 +189,16 @@ export default function CallAuditFormDialogCP({
         <Button onClick={onClose} sx={{ cursor: "pointer" }}>
           {s.close}
         </Button>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={submitting || indicators.length === 0}
-          sx={{ cursor: "pointer" }}
-        >
-          {s.saveAudit}
-        </Button>
+        {!isLockedToOther ? (
+          <Button
+            variant="contained"
+            onClick={handleSave}
+            disabled={submitting || indicators.length === 0}
+            sx={{ cursor: "pointer" }}
+          >
+            {s.saveAudit}
+          </Button>
+        ) : null}
       </DialogActions>
     </Dialog>
   )

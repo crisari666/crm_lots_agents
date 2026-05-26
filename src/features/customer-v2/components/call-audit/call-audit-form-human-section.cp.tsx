@@ -22,6 +22,7 @@ export type CallAuditFormHumanSectionCPProps = {
   reviewerNotes: string
   onReviewerNotesChange: (notes: string) => void
   scoreOptions: number[]
+  readOnly?: boolean
 }
 
 export default function CallAuditFormHumanSectionCP({
@@ -33,10 +34,11 @@ export default function CallAuditFormHumanSectionCP({
   reviewerNotes,
   onReviewerNotesChange,
   scoreOptions,
+  readOnly = false,
 }: CallAuditFormHumanSectionCPProps) {
   const indicators = config?.indicators ?? []
   return (
-    <>
+    <Box sx={readOnly ? { bgcolor: "action.disabledBackground", borderRadius: 1, p: 1 } : undefined}>
       <Typography variant="subtitle2" gutterBottom>
         {s.humanSection}
       </Typography>
@@ -47,6 +49,7 @@ export default function CallAuditFormHumanSectionCP({
             control={
               <Checkbox
                 checked={humanChecks[ind.key] === true}
+                disabled={readOnly}
                 onChange={(e) => onHumanCheckChange(ind.key, e.target.checked)}
               />
             }
@@ -61,7 +64,7 @@ export default function CallAuditFormHumanSectionCP({
           />
         ))}
       </FormGroup>
-      <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+      <FormControl fullWidth size="small" sx={{ mt: 2 }} disabled={readOnly}>
         <InputLabel id="call-audit-interest">{s.interestScore}</InputLabel>
         <Select
           labelId="call-audit-interest"
@@ -85,8 +88,9 @@ export default function CallAuditFormHumanSectionCP({
         size="small"
         sx={{ mt: 2 }}
         value={reviewerNotes}
+        disabled={readOnly}
         onChange={(e) => onReviewerNotesChange(e.target.value)}
       />
-    </>
+    </Box>
   )
 }
