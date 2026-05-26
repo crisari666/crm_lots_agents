@@ -105,11 +105,9 @@ export const fetchOnboardingVoiceCallAuditAiReviewThunk = createAsyncThunk(
 
 export const analyzeOnboardingVoiceCallAuditFlowThunk = createAsyncThunk(
   "onboardingVoiceCallAudit/analyzeFlow",
-  async (flowId: string, { dispatch, getState, rejectWithValue }) => {
+  async (flowId: string, { rejectWithValue }) => {
     try {
       await analyzeOnboardingVoiceCallAuditFlow(flowId)
-      const filters = (getState() as RootState).onboardingVoiceCallAudit.filters
-      void dispatch(fetchOnboardingVoiceCallAuditAiReviewThunk(buildAiReviewParams(filters)))
       return { flowId }
     } catch (err: unknown) {
       return rejectWithValue(
@@ -121,7 +119,7 @@ export const analyzeOnboardingVoiceCallAuditFlowThunk = createAsyncThunk(
 
 export const analyzeOnboardingVoiceCallAuditBackfillThunk = createAsyncThunk(
   "onboardingVoiceCallAudit/analyzeBackfill",
-  async (_, { dispatch, getState, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
       const { month } = (getState() as RootState).onboardingVoiceCallAudit.filters
       const { from, to } = monthRangeIsoFromYYYYMM(month)
@@ -131,8 +129,6 @@ export const analyzeOnboardingVoiceCallAuditBackfillThunk = createAsyncThunk(
         onlyMissing: true,
         limit: 50,
       })
-      const filters = (getState() as RootState).onboardingVoiceCallAudit.filters
-      void dispatch(fetchOnboardingVoiceCallAuditAiReviewThunk(buildAiReviewParams(filters)))
       return result
     } catch (err: unknown) {
       return rejectWithValue(
