@@ -189,22 +189,10 @@ export const submitHumanCallAuditThunk = createAsyncThunk(
 
 export const analyzeCallAuditThunk = createAsyncThunk(
   "customerCallAudit/analyze",
-  async (callLogId: string, { dispatch, getState, rejectWithValue }) => {
+  async (callLogId: string, { rejectWithValue }) => {
     try {
       await analyzeCallAudit(callLogId)
       const audits = await getCallAuditsByCallLogId(callLogId)
-      const { filters } = (getState() as RootState).customerCallAudit
-      void dispatch(
-        fetchCallAuditAiReviewThunk({
-          month: filters.month,
-          limit: 200,
-          skip: 0,
-          ...(filters.agentExternalRef.trim() !== ""
-            ? { agentExternalRef: filters.agentExternalRef.trim() }
-            : {}),
-          ...(filters.onlyWithoutAi ? { onlyWithoutAi: true } : {}),
-        })
-      )
       return { callLogId, audits }
     } catch (err: unknown) {
       return rejectWithValue(axiosMessage(err, "No se pudo ejecutar el análisis con IA."))
