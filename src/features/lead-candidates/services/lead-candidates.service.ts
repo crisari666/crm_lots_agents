@@ -4,6 +4,7 @@ import type {
   LeadCandidateListResult,
   LeadCandidateRow,
   ListLeadCandidatesParams,
+  UpdateLeadCandidatePayload,
 } from "../types/lead-candidates.types"
 
 function unwrapResult<T>(response: unknown): T {
@@ -64,6 +65,23 @@ export async function createLeadCandidateReq(
   const api = Api.getInstance()
   const response = await api.post({
     path: "lead-candidates",
+    data: {
+      name: payload.name,
+      lastName: payload.lastName ?? "",
+      email: payload.email,
+      phone: payload.phone,
+    },
+  })
+  return unwrapResult<LeadCandidateRow>(response)
+}
+
+export async function updateLeadCandidateReq(
+  id: string,
+  payload: UpdateLeadCandidatePayload,
+): Promise<LeadCandidateRow> {
+  const api = Api.getInstance()
+  const response = await api.patch({
+    path: `lead-candidates/${id}`,
     data: {
       name: payload.name,
       lastName: payload.lastName ?? "",

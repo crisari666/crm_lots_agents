@@ -3,11 +3,13 @@ import type { RootState } from "../../../app/store"
 import type {
   CreateLeadCandidatePayload,
   LeadCandidateRow,
+  UpdateLeadCandidatePayload,
 } from "../types/lead-candidates.types"
 import {
   createLeadCandidateReq,
   getLeadCandidateByIdReq,
   listLeadCandidatesReq,
+  updateLeadCandidateReq,
 } from "../services/lead-candidates.service"
 import {
   leadCandidatesInitialState,
@@ -40,6 +42,13 @@ export const createLeadCandidateThunk = createAsyncThunk(
   "leadCandidates/create",
   async (payload: CreateLeadCandidatePayload) => {
     return createLeadCandidateReq(payload)
+  },
+)
+
+export const updateLeadCandidateThunk = createAsyncThunk(
+  "leadCandidates/update",
+  async (input: { readonly id: string; readonly payload: UpdateLeadCandidatePayload }) => {
+    return updateLeadCandidateReq(input.id, input.payload)
   },
 )
 
@@ -111,6 +120,25 @@ const leadCandidatesSlice = createSlice({
           action.error.message != null
             ? action.error.message
             : "create failed"
+      })
+      .addCase(updateLeadCandidateThunk.pending, (state) => {
+        state.isSubmitting = true
+        state.error = null
+      })
+      .addCase(updateLeadCandidateThunk.fulfilled, (state, action) => {
+        state.isSubmitting = false
+        state.detailRow = action.payload
+        const index = state.items.findIndex((item) => item.id === action.payload.id)
+        if (index >= 0) {
+          state.items[index] = action.payload
+        }
+      })
+      .addCase(updateLeadCandidateThunk.rejected, (state, action) => {
+        state.isSubmitting = false
+        state.error =
+          action.error.message != null
+            ? action.error.message
+            : "update failed"
       })
   },
 })

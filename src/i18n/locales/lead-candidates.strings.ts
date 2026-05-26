@@ -3,6 +3,7 @@ export const leadCandidatesStrings = {
   addButton: "Agregar candidato",
   dialogTitle: "Nuevo candidato",
   detailTitle: "Detalle del candidato",
+  editDetailTitle: "Editar candidato",
   searchLabel: "Buscar",
   searchPlaceholder: "Nombre, email, teléfono, estado…",
   dateFilterLabel: "Rango de fechas",
@@ -15,6 +16,7 @@ export const leadCandidatesStrings = {
   emptyList: "No hay candidatos con los filtros seleccionados.",
   loadError: "No se pudo cargar la información.",
   saveError: "No se pudo guardar el candidato.",
+  editNotAllowed: "Solo se pueden editar candidatos con origen import o manual en estado importado.",
   columns: {
     createdAt: "Creado",
     name: "Nombre",

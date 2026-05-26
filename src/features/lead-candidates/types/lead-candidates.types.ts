@@ -32,6 +32,8 @@ export type CreateLeadCandidatePayload = {
   readonly phone: string
 }
 
+export type UpdateLeadCandidatePayload = CreateLeadCandidatePayload
+
 export type ListLeadCandidatesParams = {
   readonly dateFrom?: string
   readonly dateTo?: string

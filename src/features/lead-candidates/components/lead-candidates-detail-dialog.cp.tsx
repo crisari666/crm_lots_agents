@@ -1,5 +1,6 @@
 import * as React from "react"
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -12,12 +13,15 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import LoadingIndicator from "../../../app/components/loading-indicator"
 import {
   clearLeadCandidateDetailAct,
+  updateLeadCandidateThunk,
 } from "../slice/lead-candidates.slice"
 import type { LeadCandidateRow } from "../types/lead-candidates.types"
+import { canEditLeadCandidate } from "../business-logic/lead-candidate-editability"
 import { leadCandidatesStrings as s } from "../../../i18n/locales/lead-candidates.strings"
 
 type LeadCandidatesDetailDialogCpProps = {
   readonly open: boolean
+  readonly onUpdated?: () => void
 }
 
 function ReadOnlyField({
@@ -38,13 +42,11 @@ function ReadOnlyField({
   )
 }
 
-function buildFieldRows(row: LeadCandidateRow): Array<{ readonly label: string; readonly value: string }> {
+function buildReadOnlyFieldRows(
+  row: LeadCandidateRow,
+): Array<{ readonly label: string; readonly value: string }> {
   return [
     { label: s.fields.id, value: row.id },
-    { label: s.fields.name, value: row.name },
-    { label: s.fields.lastName, value: row.lastName },
-    { label: s.fields.email, value: row.email },
-    { label: s.fields.phone, value: row.phone },
     { label: s.fields.normalizedEmail, value: row.normalizedEmail },
     { label: s.fields.normalizedPhone, value: row.normalizedPhone },
     { label: s.fields.sourceType, value: row.sourceType },
@@ -68,24 +70,124 @@ function buildFieldRows(row: LeadCandidateRow): Array<{ readonly label: string; 
 
 export default function LeadCandidatesDetailDialogCp({
   open,
+  onUpdated,
 }: LeadCandidatesDetailDialogCpProps): React.ReactElement {
   const dispatch = useAppDispatch()
-  const { detailRow, isLoadingDetail } = useAppSelector((state) => state.leadCandidates)
+  const { detailRow, isLoadingDetail, isSubmitting, error } = useAppSelector(
+    (state) => state.leadCandidates,
+  )
+  const [name, setName] = React.useState<string>("")
+  const [lastName, setLastName] = React.useState<string>("")
+  const [email, setEmail] = React.useState<string>("")
+  const [phone, setPhone] = React.useState<string>("")
+
+  const isEditable =
+    detailRow != null && canEditLeadCandidate(detailRow)
+
+  React.useEffect(() => {
+    if (detailRow == null) {
+      return
+    }
+    setName(detailRow.name)
+    setLastName(detailRow.lastName)
+    setEmail(detailRow.email)
+    setPhone(detailRow.phone)
+  }, [detailRow])
 
   const handleClose = (): void => {
     dispatch(clearLeadCandidateDetailAct())
   }
 
-  const fields = detailRow != null ? buildFieldRows(detailRow) : []
+  const handleSave = async (): Promise<void> => {
+    if (detailRow == null || !isEditable) {
+      return
+    }
+    const trimmedName = name.trim()
+    const trimmedEmail = email.trim()
+    const trimmedPhone = phone.trim()
+    if (trimmedName.length === 0 || trimmedEmail.length === 0 || trimmedPhone.length === 0) {
+      return
+    }
+    try {
+      await dispatch(
+        updateLeadCandidateThunk({
+          id: detailRow.id,
+          payload: {
+            name: trimmedName,
+            lastName: lastName.trim(),
+            email: trimmedEmail,
+            phone: trimmedPhone,
+          },
+        }),
+      ).unwrap()
+      onUpdated?.()
+    } catch {
+      // error surfaced via slice
+    }
+  }
+
+  const readOnlyFields =
+    detailRow != null ? buildReadOnlyFieldRows(detailRow) : []
 
   return (
     <>
       <LoadingIndicator open={isLoadingDetail} />
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>{s.detailTitle}</DialogTitle>
+        <DialogTitle>
+          {isEditable ? s.editDetailTitle : s.detailTitle}
+        </DialogTitle>
         <DialogContent>
           <Stack spacing={1.5} sx={{ pt: 1 }}>
-            {fields.map((field) => (
+            {error != null && error !== "" ? (
+              <Alert severity="error">{s.saveError} {error}</Alert>
+            ) : null}
+            {detailRow != null && !isEditable ? (
+              <Alert severity="info">{s.editNotAllowed}</Alert>
+            ) : null}
+            {isEditable ? (
+              <>
+                <TextField
+                  label={s.fields.name}
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label={s.fields.lastName}
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label={s.fields.email}
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label={s.fields.phone}
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  required
+                  fullWidth
+                  size="small"
+                />
+              </>
+            ) : detailRow != null ? (
+              <>
+                <ReadOnlyField label={s.fields.name} value={detailRow.name} />
+                <ReadOnlyField label={s.fields.lastName} value={detailRow.lastName} />
+                <ReadOnlyField label={s.fields.email} value={detailRow.email} />
+                <ReadOnlyField label={s.fields.phone} value={detailRow.phone} />
+              </>
+            ) : null}
+            {readOnlyFields.map((field) => (
               <ReadOnlyField
                 key={field.label}
                 label={field.label}
@@ -95,9 +197,19 @@ export default function LeadCandidatesDetailDialogCp({
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} sx={{ cursor: "pointer" }}>
+          <Button onClick={handleClose} disabled={isSubmitting} sx={{ cursor: "pointer" }}>
             {s.close}
           </Button>
+          {isEditable ? (
+            <Button
+              variant="contained"
+              onClick={() => void handleSave()}
+              disabled={isSubmitting}
+              sx={{ cursor: "pointer" }}
+            >
+              {isSubmitting ? s.saving : s.save}
+            </Button>
+          ) : null}
         </DialogActions>
       </Dialog>
     </>

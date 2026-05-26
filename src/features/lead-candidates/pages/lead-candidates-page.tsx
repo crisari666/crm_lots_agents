@@ -72,7 +72,10 @@ export default function LeadCandidatesPage(): React.ReactElement {
           onClose={() => setAddDialogOpen(false)}
           onCreated={reloadList}
         />
-        <LeadCandidatesDetailDialogCp open={detailRow != null} />
+        <LeadCandidatesDetailDialogCp
+          open={detailRow != null}
+          onUpdated={reloadList}
+        />
       </Box>
     </CheckUserAllowedComponent>
   )
