@@ -16,6 +16,7 @@ import {
 import { Search as SearchIcon } from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { onboardingVoiceCallAuditStrings as s } from "../../../i18n/locales/onboarding-voice-call-audit.strings"
+import { buildOnboardingVoiceCallAuditAiReviewParams } from "../business-logic/build-onboarding-voice-call-audit-ai-review-params.util"
 import {
   analyzeOnboardingVoiceCallAuditBackfillThunk,
   fetchOnboardingVoiceCallAuditAiReviewThunk,
@@ -34,13 +35,12 @@ export default function OnboardingVoiceCallAuditAiReviewFiltersCP() {
     }
   }, [dispatch, config])
   const runSearch = () => {
+    const nextFilters = { ...filters, page: 0 }
+    dispatch(setOnboardingVoiceCallAuditFiltersAct({ page: 0 }))
     void dispatch(
-      fetchOnboardingVoiceCallAuditAiReviewThunk({
-        month: filters.month,
-        limit: 200,
-        skip: 0,
-        ...(filters.onlyWithoutAi ? { onlyWithoutAi: true } : {}),
-      })
+      fetchOnboardingVoiceCallAuditAiReviewThunk(
+        buildOnboardingVoiceCallAuditAiReviewParams(nextFilters)
+      )
     )
   }
   useEffect(() => {
@@ -78,6 +78,36 @@ export default function OnboardingVoiceCallAuditAiReviewFiltersCP() {
             }
             InputLabelProps={{ shrink: true }}
             sx={{ minWidth: 160 }}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.excludeVoicemail}
+                onChange={(e) =>
+                  dispatch(
+                    setOnboardingVoiceCallAuditFiltersAct({
+                      excludeVoicemail: e.target.checked,
+                    })
+                  )
+                }
+              />
+            }
+            label={s.excludeVoicemail}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.excludeWithoutTranscript}
+                onChange={(e) =>
+                  dispatch(
+                    setOnboardingVoiceCallAuditFiltersAct({
+                      excludeWithoutTranscript: e.target.checked,
+                    })
+                  )
+                }
+              />
+            }
+            label={s.excludeWithoutTranscript}
           />
           <FormControlLabel
             control={

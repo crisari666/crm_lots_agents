@@ -21,6 +21,7 @@ import type {
   ListCallAuditResultsParams,
   SubmitHumanCallAuditBody,
 } from "../services/customers-ms-admin-call-audit.types"
+import type { CallAuditAiReviewFilters } from "../business-logic/build-call-audit-ai-review-params.util"
 
 export type CustomerCallAuditState = {
   config: CallAuditConfigResponse | null
@@ -29,7 +30,7 @@ export type CustomerCallAuditState = {
   aiReview: CallAuditAiReviewListResponse | null
   /** Per-call audit detail; avoids one global slot overwritten by parallel fetches/analyses. */
   auditsByCallById: Record<string, CallAuditsByCallResponse>
-  filters: { month: string; agentExternalRef: string; onlyWithoutAi: boolean }
+  filters: CallAuditAiReviewFilters
   loadingConfig: boolean
   loadingResults: boolean
   loadingAuditorProgress: boolean
@@ -95,7 +96,14 @@ const initialState: CustomerCallAuditState = {
   auditorProgress: null,
   aiReview: null,
   auditsByCallById: {},
-  filters: { month: defaultMonth(), agentExternalRef: "", onlyWithoutAi: false },
+  filters: {
+    month: defaultMonth(),
+    agentExternalRef: "",
+    onlyWithoutAi: false,
+    excludeWithoutTranscript: true,
+    page: 0,
+    limit: 50,
+  },
   loadingConfig: false,
   loadingResults: false,
   loadingAuditorProgress: false,
@@ -209,6 +217,14 @@ const customerCallAuditSlice = createSlice({
       action: PayloadAction<Partial<CustomerCallAuditState["filters"]>>
     ) {
       state.filters = { ...state.filters, ...action.payload }
+      const resetsPage =
+        action.payload.month !== undefined ||
+        action.payload.agentExternalRef !== undefined ||
+        action.payload.onlyWithoutAi !== undefined ||
+        action.payload.excludeWithoutTranscript !== undefined
+      if (resetsPage) {
+        state.filters.page = 0
+      }
     },
     clearCallAuditErrorAct(state) {
       state.error = null

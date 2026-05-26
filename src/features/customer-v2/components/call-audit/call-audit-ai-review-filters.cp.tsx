@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { callAuditStrings as s } from "../../../../i18n/locales/call-audit.strings"
 import AssignUserAutocompleteCP from "../assign-user-autocomplete.cp"
 import { fetchUsersThunk } from "../../../users-list/slice/user-list.slice"
+import { buildCallAuditAiReviewParams } from "../../business-logic/build-call-audit-ai-review-params.util"
 import {
   fetchCallAuditAiReviewThunk,
   fetchCallAuditConfigThunk,
@@ -36,20 +37,13 @@ export default function CallAuditAiReviewFiltersCP() {
     }
   }, [dispatch, config])
   const runSearch = () => {
-    void dispatch(
-      fetchCallAuditAiReviewThunk({
-        month: filters.month,
-        limit: 200,
-        skip: 0,
-        ...(filters.agentExternalRef.trim() !== ""
-          ? { agentExternalRef: filters.agentExternalRef.trim() }
-          : {}),
-        ...(filters.onlyWithoutAi ? { onlyWithoutAi: true } : {}),
-      })
-    )
+    const nextFilters = { ...filters, page: 0 }
+    dispatch(setCallAuditFiltersAct({ page: 0 }))
+    void dispatch(fetchCallAuditAiReviewThunk(buildCallAuditAiReviewParams(nextFilters)))
   }
   useEffect(() => {
     runSearch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
@@ -74,6 +68,21 @@ export default function CallAuditAiReviewFiltersCP() {
             }
           />
         </Box>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={filters.excludeWithoutTranscript}
+              onChange={(e) =>
+                dispatch(
+                  setCallAuditFiltersAct({
+                    excludeWithoutTranscript: e.target.checked,
+                  })
+                )
+              }
+            />
+          }
+          label={s.excludeWithoutTranscript}
+        />
         <FormControlLabel
           control={
             <Checkbox

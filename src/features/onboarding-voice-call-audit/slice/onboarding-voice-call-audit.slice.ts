@@ -7,7 +7,9 @@ import {
   getOnboardingVoiceCallAuditConfig,
 } from "../services/onboarding-voice-call-audit.http"
 import { monthRangeIsoFromYYYYMM } from "../business-logic/onboarding-voice-call-audit-summary-display"
+import { buildOnboardingVoiceCallAuditAiReviewParams } from "../business-logic/build-onboarding-voice-call-audit-ai-review-params.util"
 import { patchOnboardingVoiceCallAuditAiReviewItem } from "../business-logic/patch-onboarding-voice-call-audit-ai-review-item.util"
+import type { OnboardingVoiceCallAuditAiReviewFilters } from "../types/onboarding-voice-call-audit.types"
 import type {
   OnboardingVoiceCallAuditAiReviewListResponse,
   OnboardingVoiceCallAuditBackfillResponse,
@@ -18,7 +20,7 @@ import type {
 export type OnboardingVoiceCallAuditState = {
   config: OnboardingVoiceCallAuditConfigResponse | null
   aiReview: OnboardingVoiceCallAuditAiReviewListResponse | null
-  filters: { month: string; onlyWithoutAi: boolean }
+  filters: OnboardingVoiceCallAuditAiReviewFilters
   loadingConfig: boolean
   loadingAiReview: boolean
   analyzingFlowIds: string[]
@@ -55,24 +57,20 @@ function resolveErrorMessage(err: unknown, fallback: string): string {
 const initialState: OnboardingVoiceCallAuditState = {
   config: null,
   aiReview: null,
-  filters: { month: defaultMonth(), onlyWithoutAi: false },
+  filters: {
+    month: defaultMonth(),
+    onlyWithoutAi: false,
+    excludeVoicemail: true,
+    excludeWithoutTranscript: true,
+    page: 0,
+    limit: 50,
+  },
   loadingConfig: false,
   loadingAiReview: false,
   analyzingFlowIds: [],
   isBackfillRunning: false,
   backfillResult: null,
   error: null,
-}
-
-function buildAiReviewParams(
-  filters: OnboardingVoiceCallAuditState["filters"]
-): Parameters<typeof getOnboardingVoiceCallAuditAiReview>[0] {
-  return {
-    month: filters.month,
-    limit: 200,
-    skip: 0,
-    ...(filters.onlyWithoutAi ? { onlyWithoutAi: true } : {}),
-  }
 }
 
 export const fetchOnboardingVoiceCallAuditConfigThunk = createAsyncThunk(
@@ -96,7 +94,9 @@ export const fetchOnboardingVoiceCallAuditAiReviewThunk = createAsyncThunk(
   ) => {
     try {
       const filters = (getState() as RootState).onboardingVoiceCallAudit.filters
-      return await getOnboardingVoiceCallAuditAiReview(params ?? buildAiReviewParams(filters))
+      return await getOnboardingVoiceCallAuditAiReview(
+        params ?? buildOnboardingVoiceCallAuditAiReviewParams(filters)
+      )
     } catch (err: unknown) {
       return rejectWithValue(
         resolveErrorMessage(err, "No se pudo cargar la revisión IA.")
@@ -153,6 +153,14 @@ const onboardingVoiceCallAuditSlice = createSlice({
       action: PayloadAction<Partial<OnboardingVoiceCallAuditState["filters"]>>
     ) {
       state.filters = { ...state.filters, ...action.payload }
+      const resetsPage =
+        action.payload.month !== undefined ||
+        action.payload.onlyWithoutAi !== undefined ||
+        action.payload.excludeVoicemail !== undefined ||
+        action.payload.excludeWithoutTranscript !== undefined
+      if (resetsPage) {
+        state.filters.page = 0
+      }
       if (action.payload.month !== undefined) {
         state.backfillResult = null
       }

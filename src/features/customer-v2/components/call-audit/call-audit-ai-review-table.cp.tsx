@@ -1,6 +1,7 @@
-import { useState, type MouseEvent } from "react"
+import { useState, type ChangeEvent, type MouseEvent } from "react"
 import {
   Alert,
+  Box,
   Button,
   Chip,
   CircularProgress,
@@ -12,6 +13,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material"
@@ -19,12 +21,18 @@ import { alpha } from "@mui/material/styles"
 import moment from "moment"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { callAuditStrings as s } from "../../../../i18n/locales/call-audit.strings"
+import { buildCallAuditAiReviewParams } from "../../business-logic/build-call-audit-ai-review-params.util"
 import { buildCallAuditIndicatorsSummary } from "../../business-logic/build-call-audit-indicators-summary"
 import { isAtRiskAiCall } from "../../business-logic/call-audit-interest-score-style"
-import type { CallAuditAiReviewItem } from "../../services/customers-ms-admin-call-audit.types"
+import type {
+  CallAuditAiReviewItem,
+  CallAuditAiReviewPageLimit,
+} from "../../services/customers-ms-admin-call-audit.types"
 import {
   analyzeCallAuditThunk,
   clearCallAuditErrorAct,
+  fetchCallAuditAiReviewThunk,
+  setCallAuditFiltersAct,
 } from "../../redux/customer-call-audit.slice"
 import CallAuditAiReadonlyDialogCP from "./call-audit-ai-readonly-dialog.cp"
 import CallAuditAiResultSummaryCP from "./call-audit-ai-result-summary.cp"
@@ -71,6 +79,13 @@ function aiStatusColor(
   }
 }
 
+function formatPaginationRange(from: number, to: number, total: number): string {
+  return s.paginationRange
+    .replace("{from}", String(from))
+    .replace("{to}", String(to))
+    .replace("{total}", String(total))
+}
+
 function resolveRowAtRisk(row: CallAuditAiReviewItem): boolean {
   if (row.aiStatus !== "completed" || row.ai === null || row.ai.status !== "completed") {
     return false
@@ -81,12 +96,27 @@ function resolveRowAtRisk(row: CallAuditAiReviewItem): boolean {
 
 export default function CallAuditAiReviewTableCP() {
   const dispatch = useAppDispatch()
-  const { aiReview, loadingAiReview, error, analyzingCallLogIds, config } = useAppSelector(
-    (state) => state.customerCallAudit
-  )
+  const { aiReview, loadingAiReview, error, analyzingCallLogIds, config, filters } =
+    useAppSelector((state) => state.customerCallAudit)
   const usersOriginal = useAppSelector((state) => state.users.usersOriginal)
   const [viewItem, setViewItem] = useState<CallAuditAiReviewItem | null>(null)
   const items = aiReview?.items ?? []
+  const total = aiReview?.total ?? 0
+  const skip = aiReview?.skip ?? 0
+  const rangeFrom = total === 0 ? 0 : skip + 1
+  const rangeTo = Math.min(skip + items.length, total)
+  const fetchPage = (nextPage: number, nextLimit: CallAuditAiReviewPageLimit) => {
+    const nextFilters = { ...filters, page: nextPage, limit: nextLimit }
+    dispatch(setCallAuditFiltersAct({ page: nextPage, limit: nextLimit }))
+    void dispatch(fetchCallAuditAiReviewThunk(buildCallAuditAiReviewParams(nextFilters)))
+  }
+  const onChangePage = (_: unknown, newPage: number) => {
+    fetchPage(newPage, filters.limit)
+  }
+  const onChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextLimit = Number(event.target.value) as CallAuditAiReviewPageLimit
+    fetchPage(0, nextLimit)
+  }
   const openRow = (row: CallAuditAiReviewItem) => {
     if (row.aiStatus === "none" && !analyzingCallLogIds.includes(row.callLogId)) {
       return
@@ -106,7 +136,7 @@ export default function CallAuditAiReviewTableCP() {
       {loadingAiReview ? <LinearProgress sx={{ mb: 2 }} /> : null}
       <CallAuditAiReviewKpisCP />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-        {aiReview?.total ?? 0} llamada{(aiReview?.total ?? 0) === 1 ? "" : "s"}
+        {formatPaginationRange(rangeFrom, rangeTo, total)}
       </Typography>
       <TableContainer component={Paper} variant="outlined" sx={{ overflowX: "auto" }}>
         <Table size="small">
@@ -169,6 +199,15 @@ export default function CallAuditAiReviewTableCP() {
                     <Typography variant="caption" color="text.secondary" display="block" noWrap>
                       {row.callSid}
                     </Typography>
+                    {!row.hasTranscript ? (
+                      <Chip
+                        size="small"
+                        label={s.noTranscriptChip}
+                        color="warning"
+                        variant="outlined"
+                        sx={{ mt: 0.5 }}
+                      />
+                    ) : null}
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" noWrap>
@@ -235,6 +274,20 @@ export default function CallAuditAiReviewTableCP() {
             })}
           </TableBody>
         </Table>
+        {aiReview !== null ? (
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <TablePagination
+              component="div"
+              count={total}
+              page={filters.page}
+              onPageChange={onChangePage}
+              rowsPerPage={filters.limit}
+              onRowsPerPageChange={onChangeRowsPerPage}
+              rowsPerPageOptions={[25, 50, 100, 200]}
+              labelRowsPerPage={s.paginationRowsPerPage}
+            />
+          </Box>
+        ) : null}
       </TableContainer>
       {viewItem !== null ? (
         <CallAuditAiReadonlyDialogCP

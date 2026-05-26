@@ -6,6 +6,11 @@ export const onboardingVoiceCallAuditStrings = {
   monthLabel: "Mes",
   search: "Actualizar",
   onlyWithoutAi: "Solo sin análisis IA",
+  excludeVoicemail: "Ocultar buzón de voz",
+  excludeWithoutTranscript: "Ocultar sin transcripción",
+  noTranscriptChip: "Sin transcripción",
+  paginationRange: "Mostrando {from}–{to} de {total}",
+  paginationRowsPerPage: "Filas",
   backfillButton: "Analizar pendientes del mes",
   backfillConfirmTitle: "Analizar llamadas pendientes",
   backfillConfirmBody:

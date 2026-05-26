@@ -49,6 +49,7 @@ export type OnboardingVoiceCallAuditAiReviewItem = {
   leadName: string
   transcriptEventAt: string
   callSid?: string
+  hasTranscript: boolean
   isVoicemailFlow: boolean
   aiStatus: "none" | "pending" | "completed" | "failed"
   ai: OnboardingVoiceCallAuditRecord | null
@@ -84,6 +85,19 @@ export type OnboardingVoiceCallAuditBackfillResponse = {
 export type ListOnboardingVoiceCallAuditAiReviewParams = {
   month: string
   onlyWithoutAi?: boolean
+  excludeVoicemail?: boolean
+  excludeWithoutTranscript?: boolean
   skip?: number
   limit?: number
+}
+
+export type OnboardingVoiceCallAuditAiReviewPageLimit = 25 | 50 | 100 | 200
+
+export type OnboardingVoiceCallAuditAiReviewFilters = {
+  month: string
+  onlyWithoutAi: boolean
+  excludeVoicemail: boolean
+  excludeWithoutTranscript: boolean
+  page: number
+  limit: OnboardingVoiceCallAuditAiReviewPageLimit
 }

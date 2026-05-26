@@ -116,9 +116,12 @@ export type CallAuditAiReviewItem = {
   agentExternalRef: string
   completedAt?: string
   durationSeconds?: number
+  hasTranscript: boolean
   aiStatus: "none" | "pending" | "completed" | "failed"
   ai: CallAuditRecord | null
 }
+
+export type CallAuditAiReviewPageLimit = 25 | 50 | 100 | 200
 
 export type CallAuditAiReviewSummary = {
   dateBasis: "callCompletedAt"
@@ -144,6 +147,7 @@ export type ListCallAuditAiReviewParams = {
   month: string
   agentExternalRef?: string
   onlyWithoutAi?: boolean
+  excludeWithoutTranscript?: boolean
   skip?: number
   limit?: number
 }
