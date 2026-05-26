@@ -2,7 +2,11 @@ import CampaignOutlined from "@mui/icons-material/CampaignOutlined"
 import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined"
 import GroupsOutlined from "@mui/icons-material/GroupsOutlined"
 import PersonAddAltOutlined from "@mui/icons-material/PersonAddAltOutlined"
+import RecordVoiceOverOutlined from "@mui/icons-material/RecordVoiceOverOutlined"
+import RuleOutlined from "@mui/icons-material/RuleOutlined"
 import SchoolOutlined from "@mui/icons-material/SchoolOutlined"
+import SmartToyOutlined from "@mui/icons-material/SmartToyOutlined"
+import TrendingUpOutlined from "@mui/icons-material/TrendingUpOutlined"
 import VerifiedOutlined from "@mui/icons-material/VerifiedOutlined"
 import {
   Alert,
@@ -20,10 +24,17 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import type { Moment } from "moment"
 import moment from "moment"
-import { useCallback, useEffect, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
+import { callAuditStrings as callAuditS } from "../../../i18n/locales/call-audit.strings"
 import {
+  formatCallAuditAiCompletedPct,
+  formatCallAuditTopFailed,
+} from "../../customer-v2/business-logic/call-audit-ai-review-summary-display"
+import {
+  clearCeoOperationsSummaryCallAuditAiErrorAct,
   clearCeoOperationsSummaryCrmErrorAct,
   clearCeoOperationsSummaryErrorAct,
   fetchCeoOperationsSummaryThunk,
@@ -80,9 +91,21 @@ function KpiCard(props: {
 
 export default function CeoOperationsSummaryCP() {
   const dispatch = useAppDispatch()
-  const { summary, crmV2Total, crmV2ReferralTotal, crmV2Skipped, isLoading, error, crmError } = useAppSelector(
-    (state: RootState) => state.ceoOperationsSummary
-  )
+  const navigate = useNavigate()
+  const { currentUser } = useAppSelector((state: RootState) => state.login)
+  const {
+    summary,
+    crmV2Total,
+    crmV2ReferralTotal,
+    crmV2Skipped,
+    callAuditAiSummary,
+    callAuditAiMonth,
+    callAuditAiSkipped,
+    callAuditAiError,
+    isLoading,
+    error,
+    crmError,
+  } = useAppSelector((state: RootState) => state.ceoOperationsSummary)
   const [from, setFrom] = useState<Moment>(() => moment().subtract(29, "days").startOf("day"))
   const [to, setTo] = useState<Moment>(() => moment().endOf("day"))
   const [isLeadsResumeOpen, setIsLeadsResumeOpen] = useState<boolean>(false)
@@ -125,6 +148,18 @@ export default function CeoOperationsSummaryCP() {
     crmV2ReferralTotal !== null ? crmV2ReferralTotal : crmV2Skipped ? "N/A" : "—"
   const fromIso = from.clone().startOf("day").toISOString()
   const toDayStartIso = to.clone().startOf("day").toISOString()
+  const spansMultipleMonths = !from.isSame(to, "month")
+  const callAuditTopFailed = useMemo(
+    () =>
+      callAuditAiSummary !== null ? formatCallAuditTopFailed(callAuditAiSummary) : null,
+    [callAuditAiSummary]
+  )
+  const isCrmAdmin = currentUser?.level === 0
+  const openCallAuditAiReview = isCrmAdmin
+    ? () => navigate("/dashboard/customers-v2/call-audit-ai")
+    : undefined
+  const callAuditMonthLabel =
+    callAuditAiMonth !== null ? moment(callAuditAiMonth, "YYYY-MM").format("MM/YYYY") : ""
 
   return (
     <Stack spacing={1.5} sx={{ mb: 2 }}>
@@ -169,6 +204,14 @@ export default function CeoOperationsSummaryCP() {
       {crmError !== null && (
         <Alert severity="warning" onClose={() => dispatch(clearCeoOperationsSummaryCrmErrorAct())}>
           {crmError}
+        </Alert>
+      )}
+      {callAuditAiError !== null && (
+        <Alert
+          severity="warning"
+          onClose={() => dispatch(clearCeoOperationsSummaryCallAuditAiErrorAct())}
+        >
+          {callAuditAiError}
         </Alert>
       )}
       <Box
@@ -217,6 +260,65 @@ export default function CeoOperationsSummaryCP() {
         <KpiCard title="Clientes CRM (V2)" value={crmV2Display} subtitle="Alta en customers-ms" icon={<GroupsOutlined fontSize="small" />} />
         <KpiCard title="Clientes por referidos" value={crmV2ReferralDisplay} subtitle="Alta en customers-ms con referral" icon={<GroupsOutlined fontSize="small" />} />
       </Box>
+      {!callAuditAiSkipped && callAuditAiSummary !== null ? (
+        <Paper variant="outlined" sx={{ p: 1.5 }}>
+          <Stack spacing={1.25}>
+            <Box>
+              <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 600 }}>
+                {callAuditS.ceoKpiCallsAiSection}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                {callAuditS.kpiDateBasisCall} · {callAuditMonthLabel}
+                {spansMultipleMonths ? ` · ${callAuditS.kpiMonthScopeNote}` : ""}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 1.25,
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))",
+              }}
+            >
+              <KpiCard
+                title={callAuditS.kpiTotalCalls}
+                value={String(callAuditAiSummary.totalEligible)}
+                subtitle={callAuditMonthLabel}
+                icon={<RecordVoiceOverOutlined fontSize="small" />}
+                onClick={openCallAuditAiReview}
+              />
+              <KpiCard
+                title={callAuditS.kpiAiCompletedPct}
+                value={formatCallAuditAiCompletedPct(callAuditAiSummary)}
+                subtitle={callAuditS.kpiSectionTitle}
+                icon={<SmartToyOutlined fontSize="small" />}
+                onClick={openCallAuditAiReview}
+              />
+              <KpiCard
+                title={callAuditS.kpiAvgInterest}
+                value={
+                  callAuditAiSummary.avgInterestScore !== null
+                    ? String(callAuditAiSummary.avgInterestScore)
+                    : "—"
+                }
+                subtitle={callAuditMonthLabel}
+                icon={<TrendingUpOutlined fontSize="small" />}
+                onClick={openCallAuditAiReview}
+              />
+              <KpiCard
+                title={callAuditS.kpiTopFailedRubric}
+                value={callAuditTopFailed?.value ?? "—"}
+                subtitle={
+                  callAuditTopFailed?.tooltip !== undefined && callAuditTopFailed.tooltip !== ""
+                    ? callAuditTopFailed.tooltip
+                    : callAuditS.kpiSectionTitle
+                }
+                icon={<RuleOutlined fontSize="small" />}
+                onClick={openCallAuditAiReview}
+              />
+            </Box>
+          </Stack>
+        </Paper>
+      ) : null}
       <Dialog
         open={isLeadsResumeOpen}
         onClose={() => {
