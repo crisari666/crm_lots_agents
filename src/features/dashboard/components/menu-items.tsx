@@ -17,6 +17,7 @@ interface RouteItemI {
   title: string
   children?: RouteItemI[]
   superAdmin?: boolean
+  crmAdminOnly?: boolean
 }
 
 export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
@@ -55,6 +56,13 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
       { to: "/dashboard/customers-v2/import", Icon: <PeopleAltTwoTone />, title: "Importar clientes" },
       { to: "/dashboard/customers-v2/call-logs", Icon: <HistorySharp />, title: "Registro de llamadas" },
+      { to: "/dashboard/customers-v2/call-audit", Icon: <HistorySharp />, title: "Auditoría de llamadas" },
+      {
+        to: "/dashboard/customers-v2/call-audit-ai",
+        Icon: <AdminPanelSettings />,
+        title: "Revisión IA llamadas",
+        crmAdminOnly: true,
+      },
       { to: "/dashboard/customers-v2/events", Icon: <HistorySharp />, title: "Eventos" },
       { to: "/dashboard/customers-v2/assignment-audit", Icon: <HistorySharp />, title: "Historial asignaciones" },
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
@@ -175,7 +183,12 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
                       <ArrowRight/>
                     </ListItemButton>
                     <Menu {...bindMenu(popupState)} anchorOrigin={{vertical: 'top', horizontal: 'right'}}>
-                      {el.children!.map((el, i) => (
+                      {el.children!
+                        .filter(
+                          (child) =>
+                            !child.crmAdminOnly || currentUser?.level === 0
+                        )
+                        .map((el, i) => (
                         <Link key={"mainMenu" + i} to={el.to!} onClick={onClick}>
                           <ListItemButton>
                             <ListItemIcon>{el.Icon}</ListItemIcon>

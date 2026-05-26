@@ -8,4 +8,5 @@ export abstract class AppConstants {
   static readonly allow_user_modify_step = false;
   static readonly customer_resume_based_on_steps_colors = false;
   static readonly campaign_id_for_finances = "campaign_id_for_finances";
+  static readonly call_audit_required_per_month = 3;
 }

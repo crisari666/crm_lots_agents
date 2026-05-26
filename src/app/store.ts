@@ -30,6 +30,7 @@ import trainingTrakingSlice from "../features/training-traking/slice/training-tr
 import trainingSessionsReducer from "../features/training-sessions/slice/training-sessions.slice";
 import customerV2Reducer from "../features/customer-v2/redux/customer-v2.slice";
 import customerCallLogsReducer from "../features/customer-v2/redux/customer-call-logs.slice";
+import customerCallAuditReducer from "../features/customer-v2/redux/customer-call-audit.slice";
 import customerConversationsReducer from "../features/customer-v2/redux/customer-conversations.slice";
 import customerEventsReducer from "../features/customer-v2/redux/customer-events.slice";
 import customerAssignmentAuditReducer from "../features/customer-assignment-audit/slice/customer-assignment-audit.slice";
@@ -111,6 +112,7 @@ export const store = configureStore({
     trainingSessions: trainingSessionsReducer,
     customerV2: customerV2Reducer,
     customerCallLogs: customerCallLogsReducer,
+    customerCallAudit: customerCallAuditReducer,
     customerConversations: customerConversationsReducer,
     customerEvents: customerEventsReducer,
     customerAssignmentAudit: customerAssignmentAuditReducer,

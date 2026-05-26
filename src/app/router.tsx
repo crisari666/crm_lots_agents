@@ -31,6 +31,8 @@ import TrainingTrakingPage from "../features/training-traking/pages/training-tra
 import TrainingSessionsPage from "../features/training-sessions/pages/training-sessions-page";
 import CustomersPage from "../features/customer-v2/pages/customers-page";
 import CustomersCallLogsPage from "../features/customer-v2/pages/customers-call-logs-page";
+import CallAuditQueuePage from "../features/customer-v2/pages/call-audit-queue-page";
+import CallAuditAiReviewPage from "../features/customer-v2/pages/call-audit-ai-review-page";
 import CustomersEventsPage from "../features/customer-v2/pages/customers-events-page";
 import CustomerAssignmentAuditPage from "../features/customer-assignment-audit/pages/customer-assignment-audit-page";
 import ImportCustomersPage from "../features/import-customers/import-customers-page";
@@ -58,6 +60,8 @@ const router = createBrowserRouter([
       { path: "reports", element: <ReportsView /> },
       { path: "customers-v2", element: <CustomersPage /> },
       { path: "customers-v2/call-logs", element: <CustomersCallLogsPage /> },
+      { path: "customers-v2/call-audit", element: <CallAuditQueuePage /> },
+      { path: "customers-v2/call-audit-ai", element: <CallAuditAiReviewPage /> },
       { path: "customers-v2/events", element: <CustomersEventsPage /> },
       { path: "customers-v2/assignment-audit", element: <CustomerAssignmentAuditPage /> },
       { path: "customers-v2/import", element: <ImportCustomersPage /> },
