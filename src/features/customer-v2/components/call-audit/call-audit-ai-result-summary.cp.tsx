@@ -1,6 +1,7 @@
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined"
 import { Box, Chip, Stack, Tooltip, Typography } from "@mui/material"
+import CallAuditAiIndicatorsListCP from "./call-audit-ai-indicators-list.cp"
 import { callAuditStrings as s } from "../../../../i18n/locales/call-audit.strings"
 import { buildCallAuditIndicatorsSummary } from "../../business-logic/build-call-audit-indicators-summary"
 import {
@@ -80,7 +81,23 @@ export default function CallAuditAiResultSummaryCP({
           variant="outlined"
         />
       ) : null}
-      {showRubric && total > 0 ? (
+      {showRubric && total > 0 && variant === "dialog" ? (
+        <Stack spacing={0.5}>
+          <CallAuditAiIndicatorsListCP indicators={ai.indicators} />
+          {failedTooltip !== "" ? (
+            <Tooltip title={`${s.failedIndicatorsTooltip}: ${failedTooltip}`}>
+              <Typography variant="caption" color="text.secondary" sx={{ cursor: "default" }}>
+                {checklistLabel}
+              </Typography>
+            </Tooltip>
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              {checklistLabel}
+            </Typography>
+          )}
+        </Stack>
+      ) : null}
+      {showRubric && total > 0 && variant === "table" ? (
         <Stack direction="row" spacing={0.25} alignItems="center" flexWrap="wrap" useFlexGap>
           {ai.indicators.map((ind) => (
             <Tooltip key={ind.key} title={`${ind.label}: ${ind.passed ? "Sí" : "No"}`}>
