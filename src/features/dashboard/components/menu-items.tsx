@@ -60,6 +60,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/customers-v2/assignment-audit", Icon: <HistorySharp />, title: "Historial asignaciones" },
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
       { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
+      { to: "/dashboard/whatsapp-marketing", Icon: <Campaign />, title: "Campañas WhatsApp", crmAdminOnly: true },
     ]},
 
     // { Icon: <CampaignOutlined />, title: "Campaña", 

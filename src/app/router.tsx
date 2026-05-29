@@ -43,6 +43,10 @@ import ReferralFollowUpPage from "../features/referral-follow-up/pages/referral-
 import LeadCandidatesPage from "../features/lead-candidates/pages/lead-candidates-page";
 import CustomerPaymentsAuditoryPage from "../features/customer-payment/pages/customer-payments-auditory-page";
 import UserProfilePage from "../features/user-profile/pages/user-profile-page";
+import WhatsappMarketingView from "../features/whatsapp-marketing/whatsapp-marketing-view";
+import WhatsappMarketingListPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-list-page";
+import WhatsappMarketingNewPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-new-page";
+import WhatsappMarketingDetailPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-detail-page";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignInView /> },
@@ -99,6 +103,15 @@ const router = createBrowserRouter([
       { path: "signed-contracts", element: <SignedContractView /> },
       { path: "signup-campaigns", element: <SignupCampaignView /> },
       { path: "customer-payments-auditory", element: <CustomerPaymentsAuditoryPage /> },
+      {
+        path: "whatsapp-marketing",
+        element: <WhatsappMarketingView />,
+        children: [
+          { index: true, element: <WhatsappMarketingListPage /> },
+          { path: "new", element: <WhatsappMarketingNewPage /> },
+          { path: ":campaignId", element: <WhatsappMarketingDetailPage /> },
+        ],
+      },
     ],
   },
 ]);

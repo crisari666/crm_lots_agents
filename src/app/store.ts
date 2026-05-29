@@ -43,6 +43,7 @@ import referralFollowUpReducer from "../features/referral-follow-up/slice/referr
 import leadCandidatesReducer from "../features/lead-candidates/slice/lead-candidates.slice";
 import customerPaymentsReducer from "../features/customer-payment/slice/customer-payments.slice";
 import userProfileReducer from "../features/user-profile/slice/user-profile.slice";
+import whatsappMarketingReducer from "../features/whatsapp-marketing/slice/whatsapp-marketing.slice";
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -121,6 +122,7 @@ export const store = configureStore({
     leadCandidates: leadCandidatesReducer,
     customerPayments: customerPaymentsReducer,
     userProfile: userProfileReducer,
+    whatsappMarketing: whatsappMarketingReducer,
   },
 });
 
