@@ -3,7 +3,10 @@ import type { RootState } from "../../../app/store"
 import type { AudiencePreviewBody } from "../services/customers-ms-whatsapp-marketing.types"
 import type { WhatsappMarketingNewFormSnapshot } from "../types/whatsapp-marketing-new-form.type"
 import { buildMarketingAudienceFilterBody } from "../utils/build-marketing-audience-filter"
-import { selectWhatsappMarketingNewCampaignForm } from "./whatsapp-marketing.selectors"
+import {
+  selectWhatsappMarketingAudiencePreviewLoading,
+  selectWhatsappMarketingNewCampaignForm,
+} from "./whatsapp-marketing.selectors"
 
 const selectNewCampaignAudienceMode = (state: RootState) =>
   state.whatsappMarketing.newCampaignForm.audienceMode
@@ -169,4 +172,13 @@ export const selectWhatsappMarketingAudiencePreviewBody = createSelector(
 export const selectWhatsappMarketingAudiencePreviewKey = createSelector(
   [selectWhatsappMarketingAudiencePreviewBody],
   (body) => JSON.stringify(body),
+)
+
+export const selectWhatsappMarketingAudiencePreviewIsStale = createSelector(
+  [
+    selectWhatsappMarketingAudiencePreviewKey,
+    (state: RootState) => state.whatsappMarketing.audiencePreviewRequestKey,
+    selectWhatsappMarketingAudiencePreviewLoading,
+  ],
+  (currentKey, lastRequestKey, loading) => loading || lastRequestKey !== currentKey,
 )

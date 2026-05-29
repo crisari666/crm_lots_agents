@@ -22,6 +22,8 @@ export type WhatsappMarketingCampaignFormValues = {
   readonly manualCustomerCount: number
   readonly previewTotal: number | null
   readonly previewLoading: boolean
+  /** True when Redux preview is from a previous audience payload (debounce / in flight). */
+  readonly previewIsStale?: boolean
 }
 
 export type WhatsappMarketingCampaignFieldErrors = Partial<{
@@ -96,12 +98,17 @@ export function validateWhatsappMarketingCampaignForm(
   if (values.audienceMode === "manual" && values.manualCustomerCount === 0) {
     errors.audience = "Agrega al menos un cliente en la búsqueda manual"
   }
-  if (values.previewLoading) {
+  const previewPending = values.previewLoading === true || values.previewIsStale === true
+  if (previewPending) {
     errors.preview = "Espera a que termine la vista previa de audiencia"
   } else if (values.previewTotal === null) {
     errors.preview = "No se pudo calcular la audiencia; revisa los filtros"
   } else if (values.previewTotal === 0) {
-    errors.preview = "La audiencia no tiene destinatarios con teléfono válido"
+    if (values.audienceMode === "manual" && values.manualCustomerCount > 0) {
+      errors.preview = "Ningún destinatario manual tiene teléfono válido"
+    } else {
+      errors.preview = "La audiencia no tiene destinatarios con teléfono válido"
+    }
   }
   const templateComponents =
     componentsParse.ok && componentsParse.value.length > 0

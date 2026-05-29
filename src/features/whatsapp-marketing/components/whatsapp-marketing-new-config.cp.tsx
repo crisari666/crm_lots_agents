@@ -141,12 +141,15 @@ export default function WhatsappMarketingNewConfigCP() {
             type="number"
             value={batchSize}
             onChange={(e) => {
-              const next = Number.parseInt(e.target.value, 10)
-              dispatch(
-                patchWhatsappMarketingNewCampaignFormAct({
-                  batchSize: Number.isNaN(next) ? 0 : next,
-                }),
-              )
+              const raw = e.target.value.trim()
+              if (raw === "") {
+                return
+              }
+              const next = Number.parseInt(raw, 10)
+              if (Number.isNaN(next)) {
+                return
+              }
+              dispatch(patchWhatsappMarketingNewCampaignFormAct({ batchSize: next }))
               clearFieldError("batchSize")
             }}
             error={fieldErrors.batchSize !== undefined}
@@ -161,12 +164,15 @@ export default function WhatsappMarketingNewConfigCP() {
             type="number"
             value={batchDelayMs}
             onChange={(e) => {
-              const next = Number.parseInt(e.target.value, 10)
-              dispatch(
-                patchWhatsappMarketingNewCampaignFormAct({
-                  batchDelayMs: Number.isNaN(next) ? 0 : next,
-                }),
-              )
+              const raw = e.target.value.trim()
+              if (raw === "") {
+                return
+              }
+              const next = Number.parseInt(raw, 10)
+              if (Number.isNaN(next)) {
+                return
+              }
+              dispatch(patchWhatsappMarketingNewCampaignFormAct({ batchDelayMs: next }))
               clearFieldError("batchDelayMs")
             }}
             error={fieldErrors.batchDelayMs !== undefined}

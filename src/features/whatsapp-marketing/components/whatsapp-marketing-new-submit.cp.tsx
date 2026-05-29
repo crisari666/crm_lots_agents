@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { Link as RouterLink, useNavigate } from "react-router-dom"
-import { Button, Stack } from "@mui/material"
+import { Alert, Button, Stack, Typography } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { buildMarketingAudienceFilterBody } from "../utils/build-marketing-audience-filter"
 import {
@@ -13,7 +13,10 @@ import {
   selectWhatsappMarketingCreateStatus,
   selectWhatsappMarketingLastCreatedCampaignId,
 } from "../slice/whatsapp-marketing.selectors"
-import { selectWhatsappMarketingNewFormSnapshot } from "../slice/whatsapp-marketing-new.selectors"
+import {
+  selectWhatsappMarketingAudiencePreviewIsStale,
+  selectWhatsappMarketingNewFormSnapshot,
+} from "../slice/whatsapp-marketing-new.selectors"
 import {
   hasWhatsappMarketingCampaignErrors,
   validateWhatsappMarketingCampaignForm,
@@ -25,6 +28,7 @@ export default function WhatsappMarketingNewSubmitCP() {
   const form = useAppSelector(selectWhatsappMarketingNewFormSnapshot)
   const audiencePreview = useAppSelector(selectWhatsappMarketingAudiencePreview)
   const previewLoading = useAppSelector(selectWhatsappMarketingAudiencePreviewLoading)
+  const previewIsStale = useAppSelector(selectWhatsappMarketingAudiencePreviewIsStale)
   const previewTotal = audiencePreview?.total ?? null
   const createStatus = useAppSelector(selectWhatsappMarketingCreateStatus)
   const lastCreatedCampaignId = useAppSelector(selectWhatsappMarketingLastCreatedCampaignId)
@@ -48,8 +52,12 @@ export default function WhatsappMarketingNewSubmitCP() {
     manualCustomerCount: form.manualCustomerIds.length,
     previewTotal,
     previewLoading,
+    previewIsStale,
   })
   const canSubmit = !hasWhatsappMarketingCampaignErrors(validation.errors)
+  const blockingMessages = Object.values(validation.errors).filter(
+    (message): message is string => message != null && message.length > 0,
+  )
 
   const handleCreateAndLaunch = () => {
     const { errors, templateComponents } = validation
@@ -84,18 +92,32 @@ export default function WhatsappMarketingNewSubmitCP() {
   }
 
   return (
-    <Stack direction="row" spacing={2}>
-      <Button
-        variant="contained"
-        onClick={handleCreateAndLaunch}
-        disabled={submitting || !canSubmit}
-        sx={{ cursor: "pointer" }}
-      >
-        Crear y lanzar
-      </Button>
-      <Button component={RouterLink} to="/dashboard/whatsapp-marketing" sx={{ cursor: "pointer" }}>
-        Cancelar
-      </Button>
+    <Stack spacing={1}>
+      {!canSubmit && blockingMessages.length > 0 ? (
+        <Alert severity="info" sx={{ alignItems: "flex-start" }}>
+          <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+            Completa lo siguiente para habilitar el lanzamiento:
+          </Typography>
+          {blockingMessages.map((message) => (
+            <Typography key={message} variant="body2" component="div">
+              • {message}
+            </Typography>
+          ))}
+        </Alert>
+      ) : null}
+      <Stack direction="row" spacing={2}>
+        <Button
+          variant="contained"
+          onClick={handleCreateAndLaunch}
+          disabled={submitting || !canSubmit}
+          sx={{ cursor: "pointer" }}
+        >
+          Crear y lanzar
+        </Button>
+        <Button component={RouterLink} to="/dashboard/whatsapp-marketing" sx={{ cursor: "pointer" }}>
+          Cancelar
+        </Button>
+      </Stack>
     </Stack>
   )
 }
