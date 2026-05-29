@@ -70,6 +70,10 @@ Use **consistent folder names** within a feature so related code stays together.
 - Use the shared HTTP layer / API modules — **no** raw axios (or ad-hoc `fetch`) inside presentational components unless the codebase already establishes a different pattern for that feature.
 - All user-visible copy goes through **i18n** keys.
 
+## Feature-specific Redux rules
+
+- **`src/features/whatsapp-marketing/**`**: Always use Redux for customers-ms API and shared campaign state. See **`whatsapp-marketing-redux.mdc`** — no direct HTTP imports in pages/components.
+
 ## Alignment with cross-repo CRM skills
 
 - Customer–ventor and customers-ms work: see `~/.cursor/skills/crm-full-customer-ventors/SKILL.md` and `~/.cursor/skills/omega-crm-cross-repo-features/SKILL.md` for backend boundaries and ordering; **this** file governs **admin UI** structure and state placement in **crm_lots_agents** only.
