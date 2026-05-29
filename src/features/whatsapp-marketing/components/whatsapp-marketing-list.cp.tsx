@@ -17,7 +17,7 @@ import {
   selectWhatsappMarketingListError,
   selectWhatsappMarketingListItems,
   selectWhatsappMarketingListLoading,
-} from "../slice/whatsapp-marketing.slice"
+} from "../slice/whatsapp-marketing.selectors"
 
 function statusColor(status: string): "default" | "success" | "warning" | "error" | "info" {
   if (status === "completed") return "success"

@@ -1,6 +1,5 @@
 import {
   createAsyncThunk,
-  createSelector,
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit"
@@ -19,7 +18,14 @@ import type {
   AudiencePreviewBody,
   CreateWhatsappMarketingCampaignBody,
 } from "../services/customers-ms-whatsapp-marketing.types"
-import type { WhatsappMarketingState } from "./whatsapp-marketing.state"
+import { listCustomerStepsV2 } from "../../steps-v2/services/customer-steps-v2.service"
+import type { WhatsappMarketingCampaignFieldErrors } from "../utils/validate-whatsapp-marketing-campaign"
+import type { WhatsappMarketingNewFieldErrorKey } from "../types/whatsapp-marketing-new-form.type"
+import {
+  createInitialWhatsappMarketingNewCampaignForm,
+  type WhatsappMarketingNewCampaignFormState,
+  type WhatsappMarketingState,
+} from "./whatsapp-marketing.state"
 
 const initialState: WhatsappMarketingState = {
   listItems: [],
@@ -37,9 +43,11 @@ const initialState: WhatsappMarketingState = {
   audiencePreview: null,
   audiencePreviewLoading: false,
   audiencePreviewError: null,
+  audiencePreviewRequestKey: null,
   createStatus: "idle",
   createError: null,
   lastCreatedCampaignId: null,
+  newCampaignForm: createInitialWhatsappMarketingNewCampaignForm(),
 }
 
 export const fetchWhatsappMarketingCampaignsThunk = createAsyncThunk(
@@ -72,6 +80,23 @@ export const fetchWhatsappMarketingDetailThunk = createAsyncThunk(
 export const previewWhatsappMarketingAudienceThunk = createAsyncThunk(
   "whatsappMarketing/previewAudience",
   async (body: AudiencePreviewBody) => previewWhatsappMarketingAudience(body),
+  {
+    condition: (body, { getState }) => {
+      const slice = (getState() as RootState).whatsappMarketing
+      const requestKey = JSON.stringify(body)
+      if (slice.audiencePreviewLoading && slice.audiencePreviewRequestKey === requestKey) {
+        return false
+      }
+      if (
+        !slice.audiencePreviewLoading &&
+        slice.audiencePreviewRequestKey === requestKey &&
+        slice.audiencePreview != null
+      ) {
+        return false
+      }
+      return true
+    },
+  },
 )
 
 export const createAndLaunchWhatsappMarketingCampaignThunk = createAsyncThunk(
@@ -96,6 +121,14 @@ export const retryWhatsappMarketingRecipientThunk = createAsyncThunk(
   },
 )
 
+export const fetchWhatsappMarketingNewStepsThunk = createAsyncThunk(
+  "whatsappMarketing/fetchNewWizardSteps",
+  async () => {
+    const list = await listCustomerStepsV2()
+    return Array.isArray(list) ? list : []
+  },
+)
+
 const whatsappMarketingSlice = createSlice({
   name: "whatsappMarketing",
   initialState,
@@ -115,6 +148,40 @@ const whatsappMarketingSlice = createSlice({
       state.audiencePreview = null
       state.audiencePreviewLoading = false
       state.audiencePreviewError = null
+      state.audiencePreviewRequestKey = null
+    },
+    resetWhatsappMarketingNewWizardAct: (state) => {
+      state.newCampaignForm = createInitialWhatsappMarketingNewCampaignForm()
+      state.createStatus = "idle"
+      state.createError = null
+      state.lastCreatedCampaignId = null
+      state.audiencePreview = null
+      state.audiencePreviewLoading = false
+      state.audiencePreviewError = null
+      state.audiencePreviewRequestKey = null
+    },
+    patchWhatsappMarketingNewCampaignFormAct: (
+      state,
+      action: PayloadAction<Partial<WhatsappMarketingNewCampaignFormState>>,
+    ) => {
+      state.newCampaignForm = { ...state.newCampaignForm, ...action.payload }
+    },
+    clearWhatsappMarketingNewFieldErrorAct: (
+      state,
+      action: PayloadAction<WhatsappMarketingNewFieldErrorKey>,
+    ) => {
+      if (state.newCampaignForm.fieldErrors[action.payload] === undefined) {
+        return
+      }
+      const next = { ...state.newCampaignForm.fieldErrors }
+      delete next[action.payload]
+      state.newCampaignForm.fieldErrors = next
+    },
+    setWhatsappMarketingNewFieldErrorsAct: (
+      state,
+      action: PayloadAction<WhatsappMarketingCampaignFieldErrors>,
+    ) => {
+      state.newCampaignForm.fieldErrors = action.payload
     },
     clearWhatsappMarketingDetailAct: (state) => {
       state.detailCampaignId = null
@@ -170,9 +237,10 @@ const whatsappMarketingSlice = createSlice({
             ? action.error.message
             : "Error al cargar campaña"
       })
-      .addCase(previewWhatsappMarketingAudienceThunk.pending, (state) => {
+      .addCase(previewWhatsappMarketingAudienceThunk.pending, (state, action) => {
         state.audiencePreviewLoading = true
         state.audiencePreviewError = null
+        state.audiencePreviewRequestKey = JSON.stringify(action.meta.arg)
       })
       .addCase(previewWhatsappMarketingAudienceThunk.fulfilled, (state, action) => {
         state.audiencePreviewLoading = false
@@ -230,6 +298,9 @@ const whatsappMarketingSlice = createSlice({
             ? action.error.message
             : "Error al reintentar"
       })
+      .addCase(fetchWhatsappMarketingNewStepsThunk.fulfilled, (state, action) => {
+        state.newCampaignForm.steps = action.payload
+      })
   },
 })
 
@@ -237,75 +308,12 @@ export const {
   setWhatsappMarketingRecipientsStatusFilterAct,
   resetWhatsappMarketingCreateAct,
   resetWhatsappMarketingAudiencePreviewAct,
+  resetWhatsappMarketingNewWizardAct,
+  patchWhatsappMarketingNewCampaignFormAct,
+  clearWhatsappMarketingNewFieldErrorAct,
+  setWhatsappMarketingNewFieldErrorsAct,
   clearWhatsappMarketingDetailAct,
   clearWhatsappMarketingErrorsAct,
 } = whatsappMarketingSlice.actions
-
-const selectSlice = (state: RootState): WhatsappMarketingState => state.whatsappMarketing
-
-export const selectWhatsappMarketingListItems = createSelector(
-  [selectSlice],
-  (s) => s.listItems,
-)
-export const selectWhatsappMarketingListLoading = createSelector(
-  [selectSlice],
-  (s) => s.listLoading,
-)
-export const selectWhatsappMarketingListError = createSelector(
-  [selectSlice],
-  (s) => s.listError,
-)
-export const selectWhatsappMarketingDetailCampaign = createSelector(
-  [selectSlice],
-  (s) => s.detailCampaign,
-)
-export const selectWhatsappMarketingDetailLoading = createSelector(
-  [selectSlice],
-  (s) => s.detailLoading,
-)
-export const selectWhatsappMarketingDetailError = createSelector(
-  [selectSlice],
-  (s) => s.detailError,
-)
-export const selectWhatsappMarketingRecipients = createSelector(
-  [selectSlice],
-  (s) => s.recipients,
-)
-export const selectWhatsappMarketingRecipientsStatusFilter = createSelector(
-  [selectSlice],
-  (s) => s.recipientsStatusFilter,
-)
-export const selectWhatsappMarketingRetryingRecipientId = createSelector(
-  [selectSlice],
-  (s) => s.retryingRecipientId,
-)
-export const selectWhatsappMarketingCancelLoading = createSelector(
-  [selectSlice],
-  (s) => s.cancelLoading,
-)
-export const selectWhatsappMarketingAudiencePreview = createSelector(
-  [selectSlice],
-  (s) => s.audiencePreview,
-)
-export const selectWhatsappMarketingAudiencePreviewLoading = createSelector(
-  [selectSlice],
-  (s) => s.audiencePreviewLoading,
-)
-export const selectWhatsappMarketingAudiencePreviewError = createSelector(
-  [selectSlice],
-  (s) => s.audiencePreviewError,
-)
-export const selectWhatsappMarketingCreateStatus = createSelector(
-  [selectSlice],
-  (s) => s.createStatus,
-)
-export const selectWhatsappMarketingCreateError = createSelector(
-  [selectSlice],
-  (s) => s.createError,
-)
-export const selectWhatsappMarketingLastCreatedCampaignId = createSelector(
-  [selectSlice],
-  (s) => s.lastCreatedCampaignId,
-)
 
 export default whatsappMarketingSlice.reducer

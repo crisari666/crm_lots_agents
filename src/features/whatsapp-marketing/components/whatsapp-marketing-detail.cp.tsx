@@ -26,6 +26,9 @@ import {
   cancelWhatsappMarketingCampaignThunk,
   fetchWhatsappMarketingDetailThunk,
   retryWhatsappMarketingRecipientThunk,
+  setWhatsappMarketingRecipientsStatusFilterAct,
+} from "../slice/whatsapp-marketing.slice"
+import {
   selectWhatsappMarketingCancelLoading,
   selectWhatsappMarketingDetailCampaign,
   selectWhatsappMarketingDetailError,
@@ -33,8 +36,7 @@ import {
   selectWhatsappMarketingRecipients,
   selectWhatsappMarketingRecipientsStatusFilter,
   selectWhatsappMarketingRetryingRecipientId,
-  setWhatsappMarketingRecipientsStatusFilterAct,
-} from "../slice/whatsapp-marketing.slice"
+} from "../slice/whatsapp-marketing.selectors"
 import type { WhatsappMarketingRecipientStatus } from "../services/customers-ms-whatsapp-marketing.types"
 
 function recipientStatusColor(
