@@ -44,6 +44,12 @@ const selectNewCampaignTemplateLanguage = (state: RootState) =>
 const selectNewCampaignTemplateParamsText = (state: RootState) =>
   state.whatsappMarketing.newCampaignForm.templateParamsText
 
+const selectNewCampaignTemplateHeaderMediaId = (state: RootState) =>
+  state.whatsappMarketing.newCampaignForm.templateHeaderMediaId
+
+const selectNewCampaignTemplateHeaderMediaType = (state: RootState) =>
+  state.whatsappMarketing.newCampaignForm.templateHeaderMediaType
+
 const selectNewCampaignBatchSize = (state: RootState) =>
   state.whatsappMarketing.newCampaignForm.batchSize
 
@@ -65,7 +71,9 @@ export const selectWhatsappMarketingNewFormSnapshot = createSelector(
     name: form.name,
     templateName: form.templateName,
     templateLanguage: form.templateLanguage,
-    templateParamsText: form.templateParamsText,
+    templateParamsText: form.templateParamsText ?? "",
+    templateHeaderMediaId: form.templateHeaderMediaId ?? "",
+    templateHeaderMediaType: form.templateHeaderMediaType ?? "image",
     batchSize: form.batchSize,
     batchDelayMs: form.batchDelayMs,
     campaignType: form.campaignType,
@@ -84,6 +92,8 @@ export const selectWhatsappMarketingNewCampaignConfigFields = createSelector(
     selectNewCampaignTemplateName,
     selectNewCampaignTemplateLanguage,
     selectNewCampaignTemplateParamsText,
+    selectNewCampaignTemplateHeaderMediaId,
+    selectNewCampaignTemplateHeaderMediaType,
     selectNewCampaignBatchSize,
     selectNewCampaignBatchDelayMs,
     selectNewCampaignType,
@@ -97,6 +107,8 @@ export const selectWhatsappMarketingNewCampaignConfigFields = createSelector(
     templateName,
     templateLanguage,
     templateParamsText,
+    templateHeaderMediaId,
+    templateHeaderMediaType,
     batchSize,
     batchDelayMs,
     campaignType,
@@ -108,7 +120,9 @@ export const selectWhatsappMarketingNewCampaignConfigFields = createSelector(
     name,
     templateName,
     templateLanguage,
-    templateParamsText,
+    templateParamsText: templateParamsText ?? "",
+    templateHeaderMediaId: templateHeaderMediaId ?? "",
+    templateHeaderMediaType: templateHeaderMediaType ?? "image",
     batchSize,
     batchDelayMs,
     campaignType,

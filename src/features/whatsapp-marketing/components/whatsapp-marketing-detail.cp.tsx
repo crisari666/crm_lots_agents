@@ -107,6 +107,9 @@ export default function WhatsappMarketingDetailCP({
           <Typography color="text.secondary">
             Plantilla: {campaign?.templateName} · Modo: {campaign?.audienceMode} · Lote:{" "}
             {campaign?.batchSize} / {campaign?.batchDelayMs}ms
+            {campaign?.templateHeaderMediaId != null && campaign.templateHeaderMediaId.trim() !== ""
+              ? ` · Header ${campaign.templateHeaderMediaType ?? "image"}: ${campaign.templateHeaderMediaId}`
+              : null}
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>

@@ -1,9 +1,11 @@
 import type {
   WhatsappMarketingAudienceMode,
   WhatsappMarketingCampaignType,
+  WhatsappMarketingTemplateHeaderMediaType,
 } from "../services/customers-ms-whatsapp-marketing.types"
 
 const NAME_MAX_LENGTH = 120
+const TEMPLATE_HEADER_MEDIA_ID_MAX_LENGTH = 256
 const TEMPLATE_LANGUAGE_MAX_LENGTH = 16
 const BATCH_SIZE_MIN = 1
 const BATCH_SIZE_MAX = 50
@@ -15,6 +17,8 @@ export type WhatsappMarketingCampaignFormValues = {
   readonly templateName: string
   readonly templateLanguage: string
   readonly templateParamsText: string
+  readonly templateHeaderMediaId?: string
+  readonly templateHeaderMediaType?: WhatsappMarketingTemplateHeaderMediaType
   readonly batchSize: number
   readonly batchDelayMs: number
   readonly campaignType: WhatsappMarketingCampaignType
@@ -31,6 +35,7 @@ export type WhatsappMarketingCampaignFieldErrors = Partial<{
   templateName: string
   templateLanguage: string
   templateParamsText: string
+  templateHeaderMediaId: string
   batchSize: string
   batchDelayMs: string
   audience: string
@@ -88,6 +93,10 @@ export function validateWhatsappMarketingCampaignForm(
   if (!componentsParse.ok) {
     errors.templateParamsText =
       "Debe ser un JSON válido: un arreglo de componentes de plantilla"
+  }
+  const trimmedHeaderMediaId = (values.templateHeaderMediaId ?? "").trim()
+  if (trimmedHeaderMediaId.length > TEMPLATE_HEADER_MEDIA_ID_MAX_LENGTH) {
+    errors.templateHeaderMediaId = `Máximo ${TEMPLATE_HEADER_MEDIA_ID_MAX_LENGTH} caracteres`
   }
   if (!isIntegerInRange(values.batchSize, BATCH_SIZE_MIN, BATCH_SIZE_MAX)) {
     errors.batchSize = `Entre ${BATCH_SIZE_MIN} y ${BATCH_SIZE_MAX}`

@@ -45,6 +45,8 @@ export default function WhatsappMarketingNewSubmitCP() {
     templateName: form.templateName,
     templateLanguage: form.templateLanguage,
     templateParamsText: form.templateParamsText,
+    templateHeaderMediaId: form.templateHeaderMediaId,
+    templateHeaderMediaType: form.templateHeaderMediaType,
     batchSize: form.batchSize,
     batchDelayMs: form.batchDelayMs,
     campaignType: form.campaignType,
@@ -71,6 +73,9 @@ export default function WhatsappMarketingNewSubmitCP() {
         templateName: form.templateName.trim(),
         templateLanguage: form.templateLanguage.trim() || "es",
         templateComponents,
+        templateHeaderMediaId:
+          form.templateHeaderMediaId.trim() !== "" ? form.templateHeaderMediaId.trim() : undefined,
+        templateHeaderMediaType: form.templateHeaderMediaType,
         audienceMode: form.audienceMode,
         audienceFilter:
           form.audienceMode !== "manual"

@@ -12,7 +12,7 @@ import {
 } from "@mui/material"
 import type { SelectChangeEvent } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
-import type { WhatsappMarketingCampaignType } from "../services/customers-ms-whatsapp-marketing.types"
+import type { WhatsappMarketingCampaignType, WhatsappMarketingTemplateHeaderMediaType } from "../services/customers-ms-whatsapp-marketing.types"
 import {
   clearWhatsappMarketingNewFieldErrorAct,
   patchWhatsappMarketingNewCampaignFormAct,
@@ -26,6 +26,8 @@ export default function WhatsappMarketingNewConfigCP() {
     templateName,
     templateLanguage,
     templateParamsText,
+    templateHeaderMediaId,
+    templateHeaderMediaType,
     batchSize,
     batchDelayMs,
     campaignType,
@@ -83,8 +85,44 @@ export default function WhatsappMarketingNewConfigCP() {
           size="small"
           sx={{ maxWidth: 160 }}
         />
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+          <TextField
+            label="Media ID header (WhatsApp upload)"
+            value={templateHeaderMediaId}
+            onChange={(e) => {
+              dispatch(
+                patchWhatsappMarketingNewCampaignFormAct({ templateHeaderMediaId: e.target.value }),
+              )
+              clearFieldError("templateHeaderMediaId")
+            }}
+            error={fieldErrors.templateHeaderMediaId !== undefined}
+            helperText={
+              fieldErrors.templateHeaderMediaId ??
+              "Obligatorio si la plantilla tiene header IMAGE/VIDEO. Pega el id devuelto por Meta."
+            }
+            fullWidth
+            size="small"
+          />
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>Tipo header</InputLabel>
+            <Select
+              label="Tipo header"
+              value={templateHeaderMediaType}
+              onChange={(e: SelectChangeEvent) =>
+                dispatch(
+                  patchWhatsappMarketingNewCampaignFormAct({
+                    templateHeaderMediaType: e.target.value as WhatsappMarketingTemplateHeaderMediaType,
+                  }),
+                )
+              }
+            >
+              <MenuItem value="image">Imagen</MenuItem>
+              <MenuItem value="video">Video</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
         <TextField
-          label="Parámetros plantilla (JSON components, opcional)"
+          label="Parámetros plantilla (JSON body/buttons, opcional)"
           value={templateParamsText}
           onChange={(e) => {
             dispatch(patchWhatsappMarketingNewCampaignFormAct({ templateParamsText: e.target.value }))

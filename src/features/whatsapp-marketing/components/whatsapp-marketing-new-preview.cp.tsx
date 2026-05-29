@@ -24,6 +24,8 @@ export default function WhatsappMarketingNewPreviewCP() {
     templateName: form.templateName,
     templateLanguage: form.templateLanguage,
     templateParamsText: form.templateParamsText,
+    templateHeaderMediaId: form.templateHeaderMediaId,
+    templateHeaderMediaType: form.templateHeaderMediaType,
     batchSize: form.batchSize,
     batchDelayMs: form.batchDelayMs,
     campaignType: form.campaignType,

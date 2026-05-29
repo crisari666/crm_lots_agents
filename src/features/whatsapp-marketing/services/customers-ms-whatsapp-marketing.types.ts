@@ -44,11 +44,15 @@ export type AudiencePreviewResponse = {
   mode: WhatsappMarketingAudienceMode
 }
 
+export type WhatsappMarketingTemplateHeaderMediaType = "image" | "video"
+
 export type CreateWhatsappMarketingCampaignBody = {
   name: string
   templateName: string
   templateLanguage?: string
   templateComponents?: Record<string, unknown>[]
+  templateHeaderMediaId?: string
+  templateHeaderMediaType?: WhatsappMarketingTemplateHeaderMediaType
   audienceMode: WhatsappMarketingAudienceMode
   audienceFilter?: MarketingAudienceFilterBody
   manualCustomerIds?: string[]
@@ -82,6 +86,8 @@ export type WhatsappMarketingCampaignListItem = {
 export type WhatsappMarketingCampaignDetail = WhatsappMarketingCampaignListItem & {
   templateLanguage: string
   templateComponents?: Record<string, unknown>[]
+  templateHeaderMediaId?: string
+  templateHeaderMediaType?: WhatsappMarketingTemplateHeaderMediaType
   audienceMode: WhatsappMarketingAudienceMode
   audienceFilter?: MarketingAudienceFilterBody
   manualCustomerIds: string[]

@@ -2,6 +2,7 @@ import type { FilterFormState } from "../../customer-v2/types/filter-form.types"
 import type {
   WhatsappMarketingAudienceMode,
   WhatsappMarketingCampaignType,
+  WhatsappMarketingTemplateHeaderMediaType,
 } from "../services/customers-ms-whatsapp-marketing.types"
 import type { WhatsappMarketingCampaignFieldErrors } from "../utils/validate-whatsapp-marketing-campaign"
 
@@ -10,6 +11,8 @@ export type WhatsappMarketingNewFormSnapshot = {
   readonly templateName: string
   readonly templateLanguage: string
   readonly templateParamsText: string
+  readonly templateHeaderMediaId: string
+  readonly templateHeaderMediaType: WhatsappMarketingTemplateHeaderMediaType
   readonly batchSize: number
   readonly batchDelayMs: number
   readonly campaignType: WhatsappMarketingCampaignType

@@ -8,6 +8,7 @@ import type {
   WhatsappMarketingCampaignListItem,
   WhatsappMarketingCampaignType,
   WhatsappMarketingRecipientListItem,
+  WhatsappMarketingTemplateHeaderMediaType,
 } from "../services/customers-ms-whatsapp-marketing.types"
 import type { WhatsappMarketingCampaignFieldErrors } from "../utils/validate-whatsapp-marketing-campaign"
 import { emptyMarketingCampaignAudienceFilters } from "../utils/build-marketing-audience-filter"
@@ -19,6 +20,8 @@ export type WhatsappMarketingNewCampaignFormState = {
   readonly templateName: string
   readonly templateLanguage: string
   readonly templateParamsText: string
+  readonly templateHeaderMediaId: string
+  readonly templateHeaderMediaType: WhatsappMarketingTemplateHeaderMediaType
   readonly batchSize: number
   readonly batchDelayMs: number
   readonly campaignType: WhatsappMarketingCampaignType
@@ -40,6 +43,8 @@ export function createInitialWhatsappMarketingNewCampaignForm(): WhatsappMarketi
     templateName: "",
     templateLanguage: "es",
     templateParamsText: "",
+    templateHeaderMediaId: "",
+    templateHeaderMediaType: "image",
     batchSize: 5,
     batchDelayMs: 200,
     campaignType: "standard",
