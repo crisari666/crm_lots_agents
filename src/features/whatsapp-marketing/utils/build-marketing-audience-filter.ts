@@ -5,6 +5,7 @@ import type { MarketingAudienceFilterBody } from "../services/customers-ms-whats
 export function emptyMarketingCampaignAudienceFilters(): FilterFormState {
   return {
     ...emptyFilters(),
+    excludeFecha: false,
     unassignedOnly: false,
   }
 }

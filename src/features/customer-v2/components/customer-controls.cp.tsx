@@ -2,14 +2,13 @@ import React, { useMemo, useState } from "react"
 import {
   Box,
   Button,
-  FormControlLabel,
   Stack,
-  Switch,
   Typography,
 } from "@mui/material"
 import { Add as AddIcon, BarChart as BarChartIcon } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import AddCustomerDialogCP from "./add-customer-dialog.cp"
+import CustomerFilterTogglesCP from "./customer-filter-toggles.cp"
 import CustomerStepsDistributionDialogCP from "./customer-steps-distribution-dialog.cp"
 import type { FilterFormState } from "../types/filter-form.types"
 import { aggregateStepsFromListItems } from "../utils/aggregate-steps-from-list-items"
@@ -75,74 +74,10 @@ export default function CustomerControlsCP({
         </Stack>
       </Box>
 
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={2}
-        flexWrap="wrap"
-        useFlexGap
-        alignItems={{ xs: "stretch", sm: "center" }}
-        sx={{
-          py: 1.5,
-          px: 2,
-          borderRadius: 2,
-          border: 1,
-          borderColor: "divider",
-          bgcolor: "grey.50",
-        }}
-      >
-        <FormControlLabel
-          control={
-            <Switch
-              checked={filterDraft.excludeFecha}
-              onChange={(_e, checked) =>
-                onFilterDraftChange({ excludeFecha: checked })
-              }
-              color="primary"
-            />
-          }
-          label="Excluir fecha"
-          sx={{ mr: 0, width: { xs: "100%", sm: "auto" } }}
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={filterDraft.unassignedOnly}
-              onChange={(_e, checked) =>
-                onFilterDraftChange({ unassignedOnly: checked })
-              }
-              color="primary"
-            />
-          }
-          label="Solo sin asignar"
-          sx={{ mr: 0, width: { xs: "100%", sm: "auto" } }}
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={filterDraft.enabledOnly}
-              onChange={(_e, checked) =>
-                onFilterDraftChange({ enabledOnly: checked })
-              }
-              color="primary"
-            />
-          }
-          label="Solo clientes activos"
-          sx={{ mr: 0, width: { xs: "100%", sm: "auto" } }}
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={filterDraft.referralOnly}
-              onChange={(_e, checked) =>
-                onFilterDraftChange({ referralOnly: checked })
-              }
-              color="primary"
-            />
-          }
-          label="Solo referidos"
-          sx={{ mr: 0, width: { xs: "100%", sm: "auto" } }}
-        />
-      </Stack>
+      <CustomerFilterTogglesCP
+        filterDraft={filterDraft}
+        onFilterDraftChange={onFilterDraftChange}
+      />
 
       <AddCustomerDialogCP
         open={dialogOpen}

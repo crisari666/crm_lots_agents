@@ -11,6 +11,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material"
+import CustomerFilterTogglesCP from "../../customer-v2/components/customer-filter-toggles.cp"
 import CustomerListFiltersCP from "../../customer-v2/components/customer-list-filters.cp"
 import CustomerAutocompleteAsyncCP from "../../customer-v2/components/customer-autocomplete-async.cp"
 import CustomerStepMultiAutocompleteCP from "../../customer-v2/components/customer-step-multi-autocomplete.cp"
@@ -74,6 +75,26 @@ export default function WhatsappMarketingNewAudienceCP() {
     dispatch(patchWhatsappMarketingNewCampaignFormAct({ draft: nextDraft }))
   }
 
+  const handleFilterToggleChange = (
+    patch: Partial<
+      Pick<
+        FilterFormState,
+        "excludeFecha" | "unassignedOnly" | "enabledOnly" | "referralOnly"
+      >
+    >,
+  ) => {
+    dispatch(
+      patchWhatsappMarketingNewCampaignFormAct({
+        draft: {
+          ...draft,
+          ...patch,
+          ...(patch.unassignedOnly === true ? { assignedTo: "" } : {}),
+        },
+      }),
+    )
+    clearFieldError("preview")
+  }
+
   const handleAddManual = () => {
     if (picker == null) return
     if (manualPicks.some((p) => p.id === picker.id)) return
@@ -113,6 +134,15 @@ export default function WhatsappMarketingNewAudienceCP() {
       </FormControl>
       {audienceMode !== "manual" ? (
         <Stack spacing={2} sx={{ mt: 1 }}>
+          <CustomerFilterTogglesCP
+            filterDraft={{
+              excludeFecha: draft.excludeFecha,
+              unassignedOnly: draft.unassignedOnly,
+              enabledOnly: draft.enabledOnly,
+              referralOnly: draft.referralOnly,
+            }}
+            onFilterDraftChange={handleFilterToggleChange}
+          />
           <CustomerListFiltersCP
             draft={draft}
             setDraft={handleDraftChange}
