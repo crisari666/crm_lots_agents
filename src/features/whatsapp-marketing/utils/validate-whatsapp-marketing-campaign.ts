@@ -9,7 +9,8 @@ const TEMPLATE_HEADER_MEDIA_ID_MAX_LENGTH = 256
 const TEMPLATE_LANGUAGE_MAX_LENGTH = 16
 const BATCH_SIZE_MIN = 1
 const BATCH_SIZE_MAX = 50
-export const BATCH_DELAY_MS_MIN = 0
+/** Minimum pause between dispatch batches (5 seconds). */
+export const BATCH_DELAY_MS_MIN = 5 * 1000
 /** Maximum pause between dispatch batches (20 minutes). */
 export const BATCH_DELAY_MS_MAX = 20 * 60 * 1000
 
@@ -103,7 +104,7 @@ export function validateWhatsappMarketingCampaignForm(
     errors.batchSize = `Entre ${BATCH_SIZE_MIN} y ${BATCH_SIZE_MAX}`
   }
   if (!isIntegerInRange(values.batchDelayMs, BATCH_DELAY_MS_MIN, BATCH_DELAY_MS_MAX)) {
-    errors.batchDelayMs = `Entre ${BATCH_DELAY_MS_MIN} y ${BATCH_DELAY_MS_MAX} ms`
+    errors.batchDelayMs = `Entre ${BATCH_DELAY_MS_MIN / 1000} s y ${BATCH_DELAY_MS_MAX / 60_000} min (${BATCH_DELAY_MS_MIN}–${BATCH_DELAY_MS_MAX} ms)`
   }
   if (values.audienceMode === "manual" && values.manualCustomerCount === 0) {
     errors.audience = "Agrega al menos un cliente en la búsqueda manual"

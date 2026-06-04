@@ -46,7 +46,7 @@ export function createInitialWhatsappMarketingNewCampaignForm(): WhatsappMarketi
     templateHeaderMediaId: "",
     templateHeaderMediaType: "image",
     batchSize: 5,
-    batchDelayMs: 200,
+    batchDelayMs: 5000,
     campaignType: "standard",
     audienceMode: "filter",
     draft: emptyMarketingCampaignAudienceFilters(),

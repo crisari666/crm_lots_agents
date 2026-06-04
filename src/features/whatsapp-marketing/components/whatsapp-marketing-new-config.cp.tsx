@@ -220,7 +220,7 @@ export default function WhatsappMarketingNewConfigCP() {
             error={fieldErrors.batchDelayMs !== undefined}
             helperText={
               fieldErrors.batchDelayMs ??
-              `${BATCH_DELAY_MS_MIN}–${BATCH_DELAY_MS_MAX.toLocaleString("es")} ms entre lotes (máx. 20 min)`
+              `${BATCH_DELAY_MS_MIN / 1000} s–${BATCH_DELAY_MS_MAX / 60_000} min (${BATCH_DELAY_MS_MIN.toLocaleString("es")}–${BATCH_DELAY_MS_MAX.toLocaleString("es")} ms)`
             }
             size="small"
             inputProps={{ min: BATCH_DELAY_MS_MIN, max: BATCH_DELAY_MS_MAX }}
