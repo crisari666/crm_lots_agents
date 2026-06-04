@@ -18,6 +18,10 @@ import {
   patchWhatsappMarketingNewCampaignFormAct,
 } from "../slice/whatsapp-marketing.slice"
 import { selectWhatsappMarketingNewCampaignConfigFields } from "../slice/whatsapp-marketing-new.selectors"
+import {
+  BATCH_DELAY_MS_MAX,
+  BATCH_DELAY_MS_MIN,
+} from "../utils/validate-whatsapp-marketing-campaign"
 
 export default function WhatsappMarketingNewConfigCP() {
   const dispatch = useAppDispatch()
@@ -214,10 +218,13 @@ export default function WhatsappMarketingNewConfigCP() {
               clearFieldError("batchDelayMs")
             }}
             error={fieldErrors.batchDelayMs !== undefined}
-            helperText={fieldErrors.batchDelayMs ?? "0–5000 ms entre lotes"}
+            helperText={
+              fieldErrors.batchDelayMs ??
+              `${BATCH_DELAY_MS_MIN}–${BATCH_DELAY_MS_MAX.toLocaleString("es")} ms entre lotes (máx. 20 min)`
+            }
             size="small"
-            inputProps={{ min: 0, max: 5000 }}
-            sx={{ maxWidth: 200 }}
+            inputProps={{ min: BATCH_DELAY_MS_MIN, max: BATCH_DELAY_MS_MAX }}
+            sx={{ maxWidth: 280 }}
             required
           />
         </Stack>

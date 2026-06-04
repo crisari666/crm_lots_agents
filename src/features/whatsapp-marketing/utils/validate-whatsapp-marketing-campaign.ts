@@ -9,8 +9,9 @@ const TEMPLATE_HEADER_MEDIA_ID_MAX_LENGTH = 256
 const TEMPLATE_LANGUAGE_MAX_LENGTH = 16
 const BATCH_SIZE_MIN = 1
 const BATCH_SIZE_MAX = 50
-const BATCH_DELAY_MS_MIN = 0
-const BATCH_DELAY_MS_MAX = 5000
+export const BATCH_DELAY_MS_MIN = 0
+/** Maximum pause between dispatch batches (20 minutes). */
+export const BATCH_DELAY_MS_MAX = 20 * 60 * 1000
 
 export type WhatsappMarketingCampaignFormValues = {
   readonly name: string
