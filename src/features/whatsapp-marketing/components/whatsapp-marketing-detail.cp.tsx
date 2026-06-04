@@ -38,6 +38,7 @@ import {
   selectWhatsappMarketingRetryingRecipientId,
 } from "../slice/whatsapp-marketing.selectors"
 import type { WhatsappMarketingRecipientStatus } from "../services/customers-ms-whatsapp-marketing.types"
+import { formatCampaignStatValue } from "../utils/format-campaign-stat.util"
 
 function recipientStatusColor(
   status: WhatsappMarketingRecipientStatus
@@ -133,11 +134,33 @@ export default function WhatsappMarketingDetailCP({
       {campaign != null ? (
         <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap">
           <Chip label={`Estado: ${campaign.status}`} />
-          <Chip label={`Total: ${campaign.stats.total}`} />
-          <Chip label={`Pendientes: ${campaign.stats.pending}`} color="warning" />
-          <Chip label={`Enviados: ${campaign.stats.sent}`} color="info" />
-          <Chip label={`Entregados: ${campaign.stats.delivered}`} color="success" />
-          <Chip label={`Fallidos: ${campaign.stats.failed}`} color="error" />
+          <Chip label={`Total: ${formatCampaignStatValue(campaign.stats, "total")}`} />
+          <Chip
+            label={`Pendientes: ${formatCampaignStatValue(campaign.stats, "pending")}`}
+            color="warning"
+          />
+          <Chip
+            label={`Enviados: ${formatCampaignStatValue(campaign.stats, "sent")}`}
+            color="info"
+          />
+          <Chip
+            label={`Entregados: ${formatCampaignStatValue(campaign.stats, "delivered")}`}
+            color="success"
+            variant="outlined"
+          />
+          <Chip
+            label={`Leídos: ${formatCampaignStatValue(campaign.stats, "read")}`}
+            color="success"
+          />
+          <Chip
+            label={`Fallidos: ${formatCampaignStatValue(campaign.stats, "failed")}`}
+            color="error"
+          />
+          {formatCampaignStatValue(campaign.stats, "cancelled") > 0 ? (
+            <Chip
+              label={`Cancelados: ${formatCampaignStatValue(campaign.stats, "cancelled")}`}
+            />
+          ) : null}
         </Stack>
       ) : null}
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
@@ -154,6 +177,7 @@ export default function WhatsappMarketingDetailCP({
             <MenuItem value="pending">Pendiente</MenuItem>
             <MenuItem value="sent">Enviado</MenuItem>
             <MenuItem value="delivered">Entregado</MenuItem>
+            <MenuItem value="read">Leído</MenuItem>
             <MenuItem value="failed">Fallido</MenuItem>
             <MenuItem value="replied">Respondió</MenuItem>
           </Select>
