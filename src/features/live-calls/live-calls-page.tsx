@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material"
-import LiveCallsListCP from "./live-calls-list.cp"
+import LiveCallsListCP from "./components/live-calls-list.cp"
 
 export default function LiveCallsPage() {
   return (
