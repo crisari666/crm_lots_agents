@@ -18,6 +18,7 @@ export default function CustomersPage() {
       createdFrom: draft.createdFrom ? draft.createdFrom.clone() : null,
       createdTo: draft.createdTo ? draft.createdTo.clone() : null,
       assignedTo: draft.assignedTo,
+      createdBy: draft.createdBy,
       search: draft.search,
       customerStepId: draft.customerStepId,
     })

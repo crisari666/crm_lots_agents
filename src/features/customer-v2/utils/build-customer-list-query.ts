@@ -30,5 +30,6 @@ export function buildCustomerListQueryParams(
     ...(applied.referralOnly ? { isReferral: true } : {}),
     ...(search ? { search } : {}),
     ...(stepId ? { customerStepId: stepId } : {}),
+    ...(applied.createdBy.trim() ? { createdBy: applied.createdBy.trim() } : {}),
   }
 }

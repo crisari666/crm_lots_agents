@@ -64,6 +64,15 @@ export default function CustomerListCP({
 
   const users = usersFromSlice
 
+  const creatorUsers = useMemo(() => {
+    const selectedId = draft.createdBy.trim()
+    return users.filter(
+      (u) =>
+        u._id &&
+        ((u.level ?? 99) <= 4 || (selectedId !== "" && u._id === selectedId)),
+    )
+  }, [users, draft.createdBy])
+
   const userById = useMemo(() => {
     const m = new Map<string, UserInterface>()
     for (const u of users) {
@@ -139,6 +148,7 @@ export default function CustomerListCP({
         loading={loading}
         onSearch={handleSearch}
         users={users}
+        creatorUsers={creatorUsers}
         steps={steps}
       />
 

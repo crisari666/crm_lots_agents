@@ -12,6 +12,8 @@ export type FilterFormState = {
   createdFrom: Moment | null
   createdTo: Moment | null
   assignedTo: string
+  /** Office user id who created the customer; empty = all creators. */
+  createdBy: string
   search: string
   /** Empty = all steps; otherwise Mongo id of catalog step. */
   customerStepId: string
@@ -26,6 +28,7 @@ export function emptyFilters(): FilterFormState {
     createdFrom: null,
     createdTo: null,
     assignedTo: "",
+    createdBy: "",
     search: "",
     customerStepId: "",
   }

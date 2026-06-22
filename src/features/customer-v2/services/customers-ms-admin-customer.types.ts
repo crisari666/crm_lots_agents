@@ -54,6 +54,8 @@ export type ListCustomersAdminParams = {
   assignedTo?: string
   /** When true (and no `assignedTo`), only customers with no assignee. */
   unassignedOnly?: boolean
+  /** When set, filter by customer creator office user id. */
+  createdBy?: string
   /** When true, only active customers (`enabled !== false`, includes legacy docs). Omit = no filter. */
   enabled?: boolean
   /** When set, filter by referral flag. */

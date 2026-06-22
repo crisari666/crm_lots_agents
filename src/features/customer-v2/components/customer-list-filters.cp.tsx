@@ -25,6 +25,7 @@ export type CustomerListFiltersCPProps = {
   loading: boolean
   onSearch: () => void
   users: UserInterface[]
+  creatorUsers: UserInterface[]
   steps: CustomerStepV2[]
 }
 
@@ -34,6 +35,7 @@ export default function CustomerListFiltersCP({
   loading,
   onSearch,
   users,
+  creatorUsers,
   steps,
 }: CustomerListFiltersCPProps) {
   const clearDateFilters = () => {
@@ -120,6 +122,20 @@ export default function CustomerListFiltersCP({
               }
               disabled={draft.unassignedOnly}
               label="Usuario asignado"
+              size="small"
+            />
+          </Box>
+          <Box sx={{ minWidth: { xs: "100%", sm: 280 }, flex: { sm: "1 1 280px" } }}>
+            <AssignUserAutocompleteCP
+              users={creatorUsers}
+              value={draft.createdBy}
+              onChange={(userId) =>
+                setDraft((prev) => ({
+                  ...prev,
+                  createdBy: userId,
+                }))
+              }
+              label="Creador"
               size="small"
             />
           </Box>
