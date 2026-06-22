@@ -47,6 +47,7 @@ import WhatsappMarketingView from "../features/whatsapp-marketing/whatsapp-marke
 import WhatsappMarketingListPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-list-page";
 import WhatsappMarketingNewPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-new-page";
 import WhatsappMarketingDetailPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-detail-page";
+import LiveCallsPage from "../features/live-calls/live-calls-page";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignInView /> },
@@ -60,6 +61,7 @@ const router = createBrowserRouter([
       { path: "", element: <DashboardContent /> },
       { path: "customers-v2", element: <CustomersPage /> },
       { path: "customers-v2/call-logs", element: <CustomersCallLogsPage /> },
+      { path: "customers-v2/live-calls", element: <LiveCallsPage /> },
       { path: "customers-v2/call-audit", element: <CallAuditQueuePage /> },
       { path: "customers-v2/call-audit-ai", element: <CallAuditAiReviewPage /> },
       {

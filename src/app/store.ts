@@ -44,6 +44,7 @@ import leadCandidatesReducer from "../features/lead-candidates/slice/lead-candid
 import customerPaymentsReducer from "../features/customer-payment/slice/customer-payments.slice";
 import userProfileReducer from "../features/user-profile/slice/user-profile.slice";
 import whatsappMarketingReducer from "../features/whatsapp-marketing/slice/whatsapp-marketing.slice";
+import liveCallsReducer from "../features/live-calls/redux/live-calls.slice";
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -123,6 +124,7 @@ export const store = configureStore({
     customerPayments: customerPaymentsReducer,
     userProfile: userProfileReducer,
     whatsappMarketing: whatsappMarketingReducer,
+    liveCalls: liveCallsReducer,
   },
 });
 

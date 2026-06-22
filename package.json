@@ -24,6 +24,7 @@
     "@mui/x-charts": "^7.22.1",
     "@mui/x-date-pickers": "^7.27.0",
     "@reduxjs/toolkit": "^1.9.7",
+    "@twilio/voice-sdk": "^2.18.3",
     "@wojtekmaj/react-datetimerange-picker": "^7.0.0",
     "add": "^2.0.6",
     "axios": "^1.6.2",
