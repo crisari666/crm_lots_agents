@@ -1,4 +1,4 @@
-import { useEffect, type SetStateAction } from "react"
+import { useEffect, useMemo, type SetStateAction } from "react"
 import {
   Alert,
   Button,
@@ -53,6 +53,15 @@ export default function WhatsappMarketingNewAudienceCP() {
     s.users.usersOriginal.length > 0 ? s.users.usersOriginal : s.users.users,
   )
   const gotUsers = useAppSelector((s) => s.users.gotUsers)
+
+  const creatorUsers = useMemo(() => {
+    const selectedId = draft.createdBy.trim()
+    return users.filter(
+      (u) =>
+        u._id &&
+        ((u.level ?? 99) <= 4 || (selectedId !== "" && u._id === selectedId)),
+    )
+  }, [users, draft.createdBy])
 
   useEffect(() => {
     if (!gotUsers) void dispatch(fetchUsersThunk({ enable: true }))
@@ -149,6 +158,7 @@ export default function WhatsappMarketingNewAudienceCP() {
             loading={previewLoading}
             onSearch={() => dispatch(patchWhatsappMarketingNewCampaignFormAct({ applied: { ...draft } }))}
             users={users}
+            creatorUsers={creatorUsers}
             steps={steps}
           />
           <CustomerStepMultiAutocompleteCP
