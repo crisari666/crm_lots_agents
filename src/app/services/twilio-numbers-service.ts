@@ -139,3 +139,19 @@ export async function toggleTwilioNumberPurposeReq(PNID: string): Promise<Twilio
     throw error
   }
 }
+
+export async function deleteTwilioNumberReq(PNID: string): Promise<{ PNID: string }> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.delete({ path: `twilio-numbers/${encodeURIComponent(PNID)}` })
+    const { error } = response
+    if (error == null) {
+      return response.result
+    }
+    throw new Error(typeof error === 'string' ? error : 'Failed to delete Twilio number')
+  } catch (error) {
+    console.error('ERROR ON deleteTwilioNumberReq')
+    console.error({ error })
+    throw error
+  }
+}

@@ -19,12 +19,14 @@ import {
   displayRelUserToNumberFormAct,
   getEnableUsersThunk,
   getTwilioNumbersThunk,
+  openDeleteTwilioNumberDialogAct,
   openTwilioFormForEditAct,
   toggleInternationalNumberThunk,
   toggleTwilioNumberPurposeThunk,
 } from "../slice/twilio-numbers.slice"
-import { Edit, Person } from "@mui/icons-material"
+import { Delete, Edit, Person } from "@mui/icons-material"
 import { TwilioNumberType } from "../../../app/models/twilio-number.type";
+import { twilioNumbersStrings as s } from "../../../i18n/locales/twilio-numbers.strings";
 
 function filterTwilioNumbers(
   list: TwilioNumberType[],
@@ -150,9 +152,20 @@ export default function TwilioNumbersList() {
                       friendlyNumber: twilioNumber.friendlyNumber
                     }))}
                     color="primary"
+                    aria-label="Edit Twilio number"
                   >
                     <Edit fontSize="small" />
                   </IconButton>
+                  <Tooltip title={s.deleteTooltip}>
+                    <IconButton
+                      size="small"
+                      onClick={() => dispatch(openDeleteTwilioNumberDialogAct(twilioNumber.PNID))}
+                      color="error"
+                      aria-label={s.deleteTooltip}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}

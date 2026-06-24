@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { CheckUserAllowedComponent } from "../app/components/check-user-allowed-component";
 import RelUserToTwilioNumberDialog from "../features/twilio-numbers/components/rel-user-to-number-dialog";
+import DeleteTwilioNumberConfirmDialog from "../features/twilio-numbers/components/delete-twilio-number-confirm-dialog";
 import TwilioListFilter from "../features/twilio-numbers/components/twilio-list-filter";
 import TwilioNumberFormDialog from "../features/twilio-numbers/components/twilio-number-form-dialog";
 import TwilioNumbersList from "../features/twilio-numbers/components/twilio-numbers-list";
@@ -21,6 +22,7 @@ export default function TwilioNumbersView() {
         <TwilioNumbersList/>
         <TwilioNumberFormDialog/>
         <RelUserToTwilioNumberDialog/>
+        <DeleteTwilioNumberConfirmDialog/>
       </CheckUserAllowedComponent>
     </>
   )

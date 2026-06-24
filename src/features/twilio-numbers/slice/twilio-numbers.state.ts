@@ -6,6 +6,13 @@ export type TwilioListFilter = {
   search: string
 }
 
+export type DeleteTwilioNumberTarget = {
+  PNID: string
+  number: string
+  friendlyNumber: string
+  userEmail: string | null
+}
+
 export type TwilioNumbersState = {
   loading: boolean
   twilioNumberForm: TwilioNumbersForm
@@ -16,6 +23,9 @@ export type TwilioNumbersState = {
   displayRelUserToNumberForm: boolean
   relUserToNumberDialog: RelUserToNumberDialog
   twilioListFilter: TwilioListFilter
+  displayDeleteTwilioNumberDialog: boolean
+  deleteTwilioNumberTarget: DeleteTwilioNumberTarget | null
+  deleteTwilioNumberError: string | null
 }
 
 export type TwilioNumbersForm = {

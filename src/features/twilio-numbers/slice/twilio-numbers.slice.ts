@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RelUserToNumberDialog, TwilioListFilter, TwilioNumbersForm, TwilioNumbersState } from "./twilio-numbers.state";
-import { addTwilioNumberReq, getEnableUsersReq, getTwilioNumbersReq, relUserToTwilioNumberReq, toggleInternationalNumberReq, toggleTwilioNumberPurposeReq, updateTwilioNumberReq } from "../../../app/services/twilio-numbers-service"
+import { addTwilioNumberReq, deleteTwilioNumberReq, getEnableUsersReq, getTwilioNumbersReq, relUserToTwilioNumberReq, toggleInternationalNumberReq, toggleTwilioNumberPurposeReq, updateTwilioNumberReq } from "../../../app/services/twilio-numbers-service"
 const twilioNumberFormInit: TwilioNumbersForm = {
   friendlyNumber: '', number: "", PNID: ""
 }
@@ -19,7 +19,10 @@ const initialState: TwilioNumbersState = {
   twilioNumbers: [],
   users: [],
   relUserToNumberDialog: relUserToNumberDialogInit,
-  twilioListFilter: twilioListFilterInit
+  twilioListFilter: twilioListFilterInit,
+  displayDeleteTwilioNumberDialog: false,
+  deleteTwilioNumberTarget: null,
+  deleteTwilioNumberError: null,
 }
 
 export const getTwilioNumbersThunk = createAsyncThunk( "TwilioNumbers/getTwilioNumbersThunk", async () => await getTwilioNumbersReq())
@@ -47,6 +50,18 @@ export const registerTwilioNumberThunk = createAsyncThunk( "TwilioNumbers/regist
 
 export const updateTwilioNumberThunk = createAsyncThunk( "TwilioNumbers/updateTwilioNumberThunk", async (params: {PNID: string, number: string, friendlyNumber: string}) =>
   await updateTwilioNumberReq(params)
+)
+
+export const deleteTwilioNumberThunk = createAsyncThunk(
+  "TwilioNumbers/deleteTwilioNumberThunk",
+  async (PNID: string, { rejectWithValue }) => {
+    try {
+      return await deleteTwilioNumberReq(PNID)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to delete Twilio number"
+      return rejectWithValue(message)
+    }
+  },
 )
 
 export const twilioNumbersSlice = createSlice({
@@ -82,7 +97,26 @@ export const twilioNumbersSlice = createSlice({
     updateTwilioListFilterAct: (state, action: PayloadAction<{ key: keyof TwilioListFilter; value: string }>) => {
       const { key, value } = action.payload
       state.twilioListFilter[key] = value
-    }
+    },
+    openDeleteTwilioNumberDialogAct: (state, action: PayloadAction<string>) => {
+      const row = state.twilioNumbers.find((twilio) => twilio.PNID === action.payload)
+      if (row == null) {
+        return
+      }
+      state.deleteTwilioNumberTarget = {
+        PNID: row.PNID,
+        number: row.number,
+        friendlyNumber: row.friendlyNumber,
+        userEmail: row.user?.email ?? null,
+      }
+      state.displayDeleteTwilioNumberDialog = true
+      state.deleteTwilioNumberError = null
+    },
+    closeDeleteTwilioNumberDialogAct: (state) => {
+      state.displayDeleteTwilioNumberDialog = false
+      state.deleteTwilioNumberTarget = null
+      state.deleteTwilioNumberError = null
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getTwilioNumbersThunk.fulfilled, (state, action) => {
@@ -119,14 +153,23 @@ export const twilioNumbersSlice = createSlice({
       if (index !== -1) {
         state.twilioNumbers[index] = action.payload
       }
+    }).addCase(deleteTwilioNumberThunk.fulfilled, (state, action) => {
+      state.twilioNumbers = state.twilioNumbers.filter((twilio) => twilio.PNID !== action.payload.PNID)
+      state.displayDeleteTwilioNumberDialog = false
+      state.deleteTwilioNumberTarget = null
+      state.deleteTwilioNumberError = null
+    }).addCase(deleteTwilioNumberThunk.rejected, (state, action) => {
+      state.deleteTwilioNumberError = (action.payload as string | undefined) ?? action.error.message ?? "Failed to delete Twilio number"
     })
 
     builder.addMatcher((action) => action.type.endsWith("/pending") && action.type.includes("TwilioNumbers"), (state) => {
       state.loading = true
     }).addMatcher((action) => action.type.endsWith("/fulfilled") && action.type.includes("TwilioNumbers"), (state) => {
       state.loading = false
+    }).addMatcher((action) => action.type.endsWith("/rejected") && action.type.includes("TwilioNumbers"), (state) => {
+      state.loading = false
     })
   },
 })
-export const { displayTwilioFormAct, updateInputTwilioNumberAct, openTwilioFormForEditAct, displayRelUserToNumberFormAct, changeUserToRelToNumberAct, updateTwilioListFilterAct } = twilioNumbersSlice.actions
+export const { displayTwilioFormAct, updateInputTwilioNumberAct, openTwilioFormForEditAct, displayRelUserToNumberFormAct, changeUserToRelToNumberAct, updateTwilioListFilterAct, openDeleteTwilioNumberDialogAct, closeDeleteTwilioNumberDialogAct } = twilioNumbersSlice.actions
 export default twilioNumbersSlice.reducer
