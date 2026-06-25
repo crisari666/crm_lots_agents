@@ -268,6 +268,31 @@ export async function setUserPhysicalReq({
   }
 }
 
+export async function setAutoCustomerAssignmentDisabledReq({
+  userId,
+  autoCustomerAssignmentDisabled,
+}: {
+  userId: string
+  autoCustomerAssignmentDisabled: boolean
+}): Promise<UserInterface> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.put({
+      path: `users/set-auto-customer-assignment-disabled/${userId}`,
+      data: { autoCustomerAssignmentDisabled },
+    })
+    const { error } = response
+    if (error == null) {
+      return response.result as UserInterface
+    }
+    throw error
+  } catch (error) {
+    console.error('ERROR ON setAutoCustomerAssignmentDisabledReq')
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function closeUserMobileSesionReq({userId} : {userId : string}): Promise<any>{
   try {
     const api = Api.getInstance()

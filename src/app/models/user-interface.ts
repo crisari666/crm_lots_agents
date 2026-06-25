@@ -31,6 +31,7 @@ export default interface UserInterface {
   role?: string
   root: boolean
   physical?: boolean
+  autoCustomerAssignmentDisabled?: boolean
   /** When false, CRM may send first-access welcome email (password is null). From API only. */
   hasPassword?: boolean
   [key: string]: any
