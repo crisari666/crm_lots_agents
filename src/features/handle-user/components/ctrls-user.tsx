@@ -93,7 +93,7 @@ export default function CtrlsUserCP() {
                     label={s.ctrlReceiveCustomersAuto}
                     control={
                       <Switch
-                        checked={currentUser.autoCustomerAssignmentDisabled === true}
+                        checked={currentUser.autoCustomerAssignmentDisabled === false}
                       />
                     }
                     onChange={(_e, checked) =>
