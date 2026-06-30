@@ -100,7 +100,7 @@ export default function CtrlsUserCP() {
                       dispatch(
                         setAutoCustomerAssignmentDisabledThunk({
                           userId: currentUser!._id!,
-                          autoCustomerAssignmentDisabled: checked,
+                          autoCustomerAssignmentDisabled: !checked,
                         }),
                       )
                     }
