@@ -9,7 +9,9 @@ import {
   uploadProjectImageReq,
   uploadProjectImagesMultipleReq,
   uploadProjectReelVideoReq,
+  uploadProjectReelVideosMultipleReq,
   deleteProjectReelVideoReq,
+  deleteProjectReelVideoByNameReq,
   uploadProjectPlaneReq,
   deleteProjectPlaneReq,
   uploadProjectBrochureReq,
@@ -97,6 +99,26 @@ export const uploadProjectImagesMultipleThunk = createAsyncThunk(
   "project/uploadProjectImagesMultiple",
   async ({ projectId, files }: { projectId: string; files: File[] }) => {
     return uploadProjectImagesMultipleReq({ projectId, files })
+  }
+)
+
+export const uploadProjectReelVideosMultipleThunk = createAsyncThunk(
+  "project/uploadProjectReelVideosMultiple",
+  async ({ projectId, files }: { projectId: string; files: File[] }) => {
+    return uploadProjectReelVideosMultipleReq({ projectId, files })
+  }
+)
+
+export const removeProjectReelVideoByNameThunk = createAsyncThunk(
+  "project/removeProjectReelVideoByName",
+  async ({
+    projectId,
+    videoName
+  }: {
+    projectId: string
+    videoName: string
+  }) => {
+    return deleteProjectReelVideoByNameReq({ projectId, videoName })
   }
 )
 
@@ -296,6 +318,12 @@ const projectsSlice = createSlice({
         mergeProjectFromUpload(state, action.payload)
       })
       .addCase(uploadProjectImagesMultipleThunk.fulfilled, (state, action) => {
+        mergeProjectFromUpload(state, action.payload)
+      })
+      .addCase(uploadProjectReelVideosMultipleThunk.fulfilled, (state, action) => {
+        mergeProjectFromUpload(state, action.payload)
+      })
+      .addCase(removeProjectReelVideoByNameThunk.fulfilled, (state, action) => {
         mergeProjectFromUpload(state, action.payload)
       })
       .addCase(uploadProjectReelVideoThunk.fulfilled, (state, action) => {

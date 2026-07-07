@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import { Box, Paper, Tab, Tabs, Typography } from "@mui/material"
-import ProjectFileUploadFieldCP from "./project-file-upload-field.cp"
 import ProjectVideoPickerCP, { ExistingProjectVideo } from "./project-video-picker.cp"
 import { ProjectFormState, ProjectPreviewItem } from "../types/project.types"
 import { PROJECT_VIDEO_MAX_BYTES } from "../utils/project-uploads.util"
@@ -10,12 +9,12 @@ type ProjectVideosTabsCPProps = {
   form: ProjectFormState
   onChange: (updates: Partial<ProjectFormState>) => void
   uploadsBaseUrl: string
-  existingReelVideoName?: string | null
+  existingReelVideos: ExistingProjectVideo[]
   existingHorizontalVideos: ExistingProjectVideo[]
   disabled?: boolean
   projectId?: string
-  onUploadReelVideo?: (file: File) => Promise<void>
-  onRemoveReelVideo?: () => Promise<void>
+  onUploadReelVideos?: (files: File[]) => Promise<void>
+  onRemoveReelVideo?: (videoName: string) => Promise<void>
   onUploadHorizontalVideos?: (files: File[]) => Promise<void>
   onRemoveHorizontalVideo?: (videoName: string) => Promise<void>
   onOpenPreview: (items: ProjectPreviewItem[], startIndex: number) => void
@@ -26,11 +25,11 @@ export default function ProjectVideosTabsCP({
   form,
   onChange,
   uploadsBaseUrl,
-  existingReelVideoName = null,
+  existingReelVideos,
   existingHorizontalVideos,
   disabled = false,
   projectId,
-  onUploadReelVideo,
+  onUploadReelVideos,
   onRemoveReelVideo,
   onUploadHorizontalVideos,
   onRemoveHorizontalVideo,
@@ -55,19 +54,16 @@ export default function ProjectVideosTabsCP({
       </Tabs>
       <Box role="tabpanel" hidden={tab !== 0}>
         {tab === 0 && (
-          <ProjectFileUploadFieldCP
-            label={s.reelVideoLabel}
-            helperText={s.reelVideoHelper}
-            accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
+          <ProjectVideoPickerCP
+            files={form.reelVideoFiles}
+            existingVideos={existingReelVideos}
+            onFilesChange={(reelVideoFiles) => onChange({ reelVideoFiles })}
             disabled={disabled}
-            uploadsBaseUrl={uploadsBaseUrl}
-            variant="reel"
-            pendingFile={form.reelVideoFile}
-            onPendingChange={(reelVideoFile) => onChange({ reelVideoFile })}
-            onUpload={onUploadReelVideo}
-            onRemove={onRemoveReelVideo}
-            existingFileName={existingReelVideoName}
-            onOpenPreview={(item) => onOpenPreview([item], 0)}
+            projectId={projectId}
+            onUploadVideos={onUploadReelVideos}
+            onRemoveVideo={onRemoveReelVideo}
+            onOpenPreview={onOpenPreview}
+            sectionTitle={s.reelVideosTab}
             maxFileBytes={maxVideoBytes}
           />
         )}

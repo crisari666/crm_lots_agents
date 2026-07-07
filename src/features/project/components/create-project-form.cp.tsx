@@ -9,7 +9,7 @@ import {
   uploadProjectHorizontalImagesMultipleThunk,
   uploadProjectImagesMultipleThunk,
   uploadProjectVerticalVideosMultipleThunk,
-  uploadProjectReelVideoThunk,
+  uploadProjectReelVideosMultipleThunk,
   uploadProjectPlaneThunk,
   uploadProjectBrochureThunk,
   clearProjectErrorAct
@@ -45,7 +45,7 @@ const initialForm: ProjectFormState = {
   horizontalImageFiles: [],
   imageFiles: [],
   verticalVideoFiles: [],
-  reelVideoFile: null,
+  reelVideoFiles: [],
   planeFile: null,
   brochureFile: null
 }
@@ -108,9 +108,9 @@ export default function CreateProjectFormCP() {
           uploadProjectVerticalVideosMultipleThunk({ projectId, files: form.verticalVideoFiles })
         ).unwrap()
       }
-      if (form.reelVideoFile) {
+      if (form.reelVideoFiles.length > 0) {
         await dispatch(
-          uploadProjectReelVideoThunk({ projectId, file: form.reelVideoFile })
+          uploadProjectReelVideosMultipleThunk({ projectId, files: form.reelVideoFiles })
         ).unwrap()
       }
       if (form.planeFile) {
@@ -144,6 +144,7 @@ export default function CreateProjectFormCP() {
           existingVerticalImages={[]}
           existingHorizontalImages={[]}
           existingHorizontalVideos={[]}
+          existingReelVideos={[]}
         />
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>

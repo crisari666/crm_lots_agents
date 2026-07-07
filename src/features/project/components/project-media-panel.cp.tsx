@@ -18,6 +18,7 @@ type ProjectMediaPanelCPProps = {
   existingVerticalImages: ExistingProjectImage[]
   existingHorizontalImages: ExistingProjectImage[]
   existingHorizontalVideos: ExistingProjectVideo[]
+  existingReelVideos: ExistingProjectVideo[]
   disabled?: boolean
   projectId?: string
   onUploadCard?: (file: File) => Promise<void>
@@ -26,11 +27,10 @@ type ProjectMediaPanelCPProps = {
   onRemoveVerticalImage?: (imageName: string) => Promise<void>
   onUploadHorizontalImages?: (files: File[]) => Promise<void>
   onRemoveHorizontalImage?: (imageName: string) => Promise<void>
-  existingReelVideoName?: string | null
   existingPlaneName?: string | null
   existingBrochureName?: string | null
-  onUploadReelVideo?: (file: File) => Promise<void>
-  onRemoveReelVideo?: () => Promise<void>
+  onUploadReelVideos?: (files: File[]) => Promise<void>
+  onRemoveReelVideo?: (videoName: string) => Promise<void>
   onUploadHorizontalVideos?: (files: File[]) => Promise<void>
   onRemoveHorizontalVideo?: (videoName: string) => Promise<void>
   onUploadPlane?: (file: File) => Promise<void>
@@ -47,6 +47,7 @@ export default function ProjectMediaPanelCP({
   existingVerticalImages,
   existingHorizontalImages,
   existingHorizontalVideos,
+  existingReelVideos,
   disabled = false,
   projectId,
   onUploadCard,
@@ -55,10 +56,9 @@ export default function ProjectMediaPanelCP({
   onRemoveVerticalImage,
   onUploadHorizontalImages,
   onRemoveHorizontalImage,
-  existingReelVideoName = null,
   existingPlaneName = null,
   existingBrochureName = null,
-  onUploadReelVideo,
+  onUploadReelVideos,
   onRemoveReelVideo,
   onUploadHorizontalVideos,
   onRemoveHorizontalVideo,
@@ -95,11 +95,11 @@ export default function ProjectMediaPanelCP({
         form={form}
         onChange={onChange}
         uploadsBaseUrl={uploadsBaseUrl}
-        existingReelVideoName={existingReelVideoName}
+        existingReelVideos={existingReelVideos}
         existingHorizontalVideos={existingHorizontalVideos}
         disabled={disabled}
         projectId={projectId}
-        onUploadReelVideo={onUploadReelVideo}
+        onUploadReelVideos={onUploadReelVideos}
         onRemoveReelVideo={onRemoveReelVideo}
         onUploadHorizontalVideos={onUploadHorizontalVideos}
         onRemoveHorizontalVideo={onRemoveHorizontalVideo}

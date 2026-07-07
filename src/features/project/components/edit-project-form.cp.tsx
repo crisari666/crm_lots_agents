@@ -11,13 +11,13 @@ import {
   uploadProjectHorizontalImagesMultipleThunk,
   uploadProjectImagesMultipleThunk,
   uploadProjectVerticalVideosMultipleThunk,
-  uploadProjectReelVideoThunk,
+  uploadProjectReelVideosMultipleThunk,
   uploadProjectPlaneThunk,
   uploadProjectBrochureThunk,
   removeProjectImageThunk,
   removeProjectHorizontalImageThunk,
   removeProjectVerticalVideoThunk,
-  removeProjectReelVideoThunk,
+  removeProjectReelVideoByNameThunk,
   removeProjectPlaneThunk,
   removeProjectBrochureThunk,
   clearProjectErrorAct,
@@ -40,6 +40,16 @@ import {
   isValidProjectSlugForApi,
   projectSlugForUpdateApi
 } from "../utils/project-slug.util"
+
+function resolveReelVideoNames(project?: {
+  reelVideos?: string[]
+  reelVideo?: string
+}): string[] {
+  const fromArray = (project?.reelVideos ?? []).map((name) => name.trim()).filter(Boolean)
+  if (fromArray.length > 0) return fromArray
+  const legacy = project?.reelVideo?.trim()
+  return legacy ? [legacy] : []
+}
 
 function namesToExistingImages(names: string[] | undefined, uploadsBaseUrl: string): ExistingProjectImage[] {
   return (names ?? []).map((name) => ({
@@ -104,7 +114,7 @@ function projectToFormState(project: {
     horizontalImageFiles: [],
     imageFiles: [],
     verticalVideoFiles: [],
-    reelVideoFile: null,
+    reelVideoFiles: [],
     planeFile: null,
     brochureFile: null
   }
@@ -159,9 +169,9 @@ export default function EditProjectFormCP() {
     await dispatch(uploadProjectHorizontalImagesMultipleThunk({ projectId, files })).unwrap()
   }
 
-  const handleUploadReelVideo = async (file: File) => {
-    if (!projectId) return
-    await dispatch(uploadProjectReelVideoThunk({ projectId, file })).unwrap()
+  const handleUploadReelVideos = async (files: File[]) => {
+    if (!projectId || files.length === 0) return
+    await dispatch(uploadProjectReelVideosMultipleThunk({ projectId, files })).unwrap()
   }
 
   const handleUploadHorizontalVideos = async (files: File[]) => {
@@ -179,14 +189,14 @@ export default function EditProjectFormCP() {
     await dispatch(uploadProjectBrochureThunk({ projectId, file })).unwrap()
   }
 
-  const handleRemoveReelVideo = async () => {
+  const handleRemoveReelVideo = async (videoName: string) => {
     if (!projectId) return
     try {
-      await dispatch(removeProjectReelVideoThunk({ projectId })).unwrap()
+      await dispatch(removeProjectReelVideoByNameThunk({ projectId, videoName })).unwrap()
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message ?? ""
       const message =
-        msg.includes("404") ? "Proyecto no encontrado." : "No se pudo eliminar el reel video."
+        msg.includes("404") ? "Proyecto o video no encontrados." : "No se pudo eliminar el reel video."
       dispatch(clearProjectErrorAct())
       dispatch(setProjectErrorAct(message))
       await dispatch(getProjectByIdThunk(projectId))
@@ -306,9 +316,9 @@ export default function EditProjectFormCP() {
           uploadProjectVerticalVideosMultipleThunk({ projectId, files: form.verticalVideoFiles })
         ).unwrap()
       }
-      if (form.reelVideoFile) {
+      if (form.reelVideoFiles.length > 0) {
         await dispatch(
-          uploadProjectReelVideoThunk({ projectId, file: form.reelVideoFile })
+          uploadProjectReelVideosMultipleThunk({ projectId, files: form.reelVideoFiles })
         ).unwrap()
       }
       if (form.planeFile) {
@@ -353,6 +363,10 @@ export default function EditProjectFormCP() {
   const existingVerticalImages = namesToExistingImages(currentProject?.images, uploadsBaseUrl)
   const existingHorizontalImages = namesToExistingImages(currentProject?.horizontalImages, uploadsBaseUrl)
   const existingHorizontalVideos = namesToExistingVideos(currentProject?.verticalVideos, uploadsBaseUrl)
+  const existingReelVideos = namesToExistingVideos(
+    resolveReelVideoNames(currentProject ?? undefined),
+    uploadsBaseUrl
+  )
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -370,6 +384,7 @@ export default function EditProjectFormCP() {
           existingVerticalImages={existingVerticalImages}
           existingHorizontalImages={existingHorizontalImages}
           existingHorizontalVideos={existingHorizontalVideos}
+          existingReelVideos={existingReelVideos}
           projectId={projectId}
           onUploadCard={handleUploadCard}
           onRemoveCard={handleRemoveCard}
@@ -377,10 +392,9 @@ export default function EditProjectFormCP() {
           onRemoveVerticalImage={handleRemoveVerticalImage}
           onUploadHorizontalImages={handleUploadHorizontalImages}
           onRemoveHorizontalImage={handleRemoveHorizontalImage}
-          existingReelVideoName={currentProject?.reelVideo ?? null}
           existingPlaneName={currentProject?.plane ?? null}
           existingBrochureName={currentProject?.brochure ?? null}
-          onUploadReelVideo={handleUploadReelVideo}
+          onUploadReelVideos={handleUploadReelVideos}
           onRemoveReelVideo={handleRemoveReelVideo}
           onUploadHorizontalVideos={handleUploadHorizontalVideos}
           onRemoveHorizontalVideo={handleRemoveHorizontalVideo}

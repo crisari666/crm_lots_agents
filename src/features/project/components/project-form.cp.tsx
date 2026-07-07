@@ -14,6 +14,7 @@ type ProjectFormCPProps = {
   existingVerticalImages: ExistingProjectImage[]
   existingHorizontalImages: ExistingProjectImage[]
   existingHorizontalVideos: ExistingProjectVideo[]
+  existingReelVideos: ExistingProjectVideo[]
   disabled?: boolean
   projectId?: string
   onUploadCard?: (file: File) => Promise<void>
@@ -22,11 +23,10 @@ type ProjectFormCPProps = {
   onRemoveVerticalImage?: (imageName: string) => Promise<void>
   onUploadHorizontalImages?: (files: File[]) => Promise<void>
   onRemoveHorizontalImage?: (imageName: string) => Promise<void>
-  existingReelVideoName?: string | null
   existingPlaneName?: string | null
   existingBrochureName?: string | null
-  onUploadReelVideo?: (file: File) => Promise<void>
-  onRemoveReelVideo?: () => Promise<void>
+  onUploadReelVideos?: (files: File[]) => Promise<void>
+  onRemoveReelVideo?: (videoName: string) => Promise<void>
   onUploadHorizontalVideos?: (files: File[]) => Promise<void>
   onRemoveHorizontalVideo?: (videoName: string) => Promise<void>
   onUploadPlane?: (file: File) => Promise<void>
@@ -43,6 +43,7 @@ export default function ProjectFormCP({
   existingVerticalImages = [],
   existingHorizontalImages = [],
   existingHorizontalVideos = [],
+  existingReelVideos = [],
   disabled = false,
   projectId,
   onUploadCard,
@@ -51,10 +52,9 @@ export default function ProjectFormCP({
   onRemoveVerticalImage,
   onUploadHorizontalImages,
   onRemoveHorizontalImage,
-  existingReelVideoName,
   existingPlaneName,
   existingBrochureName,
-  onUploadReelVideo,
+  onUploadReelVideos,
   onRemoveReelVideo,
   onUploadHorizontalVideos,
   onRemoveHorizontalVideo,
@@ -78,6 +78,7 @@ export default function ProjectFormCP({
             existingVerticalImages={existingVerticalImages}
             existingHorizontalImages={existingHorizontalImages}
             existingHorizontalVideos={existingHorizontalVideos}
+            existingReelVideos={existingReelVideos}
             disabled={disabled}
             projectId={projectId}
             onUploadCard={onUploadCard}
@@ -86,10 +87,9 @@ export default function ProjectFormCP({
             onRemoveVerticalImage={onRemoveVerticalImage}
             onUploadHorizontalImages={onUploadHorizontalImages}
             onRemoveHorizontalImage={onRemoveHorizontalImage}
-            existingReelVideoName={existingReelVideoName}
             existingPlaneName={existingPlaneName}
             existingBrochureName={existingBrochureName}
-            onUploadReelVideo={onUploadReelVideo}
+            onUploadReelVideos={onUploadReelVideos}
             onRemoveReelVideo={onRemoveReelVideo}
             onUploadHorizontalVideos={onUploadHorizontalVideos}
             onRemoveHorizontalVideo={onRemoveHorizontalVideo}

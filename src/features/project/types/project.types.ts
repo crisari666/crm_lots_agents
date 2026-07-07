@@ -51,6 +51,8 @@ export type ProjectType = {
   horizontalImages?: string[]
   /** Portrait promotional video filenames */
   verticalVideos?: string[]
+  reelVideos?: string[]
+  /** @deprecated Legacy single reel; use reelVideos */
   reelVideo?: string
   plane?: string
   brochure?: string
@@ -134,7 +136,7 @@ export type ProjectFormState = {
   horizontalImageFiles: File[]
   imageFiles: File[]
   verticalVideoFiles: File[]
-  reelVideoFile: File | null
+  reelVideoFiles: File[]
   planeFile: File | null
   brochureFile: File | null
 }

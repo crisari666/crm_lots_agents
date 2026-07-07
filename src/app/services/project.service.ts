@@ -363,6 +363,51 @@ export async function deleteProjectVerticalVideoReq({
   }
 }
 
+export async function uploadProjectReelVideosMultipleReq({
+  projectId,
+  files
+}: {
+  projectId: string
+  files: File[]
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const formData = new FormData()
+    files.forEach((f) => formData.append("files", f))
+    const response = await api.post({
+      path: `projects/${projectId}/reel-videos/multiple`,
+      data: formData,
+      isFormData: true
+    })
+    return parseProjectFromUploadResponse(response, projectId)
+  } catch (error) {
+    console.error("ERROR ON uploadProjectReelVideosMultipleReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function deleteProjectReelVideoByNameReq({
+  projectId,
+  videoName
+}: {
+  projectId: string
+  videoName: string
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const path = `projects/${projectId}/reel-videos/${encodeURIComponent(videoName)}`
+    const response = await api.delete({ path })
+    const project = parseProjectStrict(response)
+    if (!project) throw new Error("Invalid response")
+    return project
+  } catch (error) {
+    console.error("ERROR ON deleteProjectReelVideoByNameReq")
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function uploadProjectReelVideoReq({
   projectId,
   file
