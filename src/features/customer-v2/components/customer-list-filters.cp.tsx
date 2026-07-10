@@ -29,8 +29,8 @@ export type CustomerListFiltersCPProps = {
   users: UserInterface[]
   creatorUsers: UserInterface[]
   steps: CustomerStepV2[]
-  showOfficeFilter: boolean
-  offices: OfficeInterface[]
+  showOfficeFilter?: boolean
+  offices?: OfficeInterface[]
 }
 
 export default function CustomerListFiltersCP({
@@ -41,8 +41,8 @@ export default function CustomerListFiltersCP({
   users,
   creatorUsers,
   steps,
-  showOfficeFilter,
-  offices,
+  showOfficeFilter = false,
+  offices = [],
 }: CustomerListFiltersCPProps) {
   const clearDateFilters = () => {
     setDraft((prev) => ({ ...prev, createdFrom: null, createdTo: null }))
