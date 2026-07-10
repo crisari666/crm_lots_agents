@@ -19,34 +19,28 @@ import { alpha } from "@mui/material/styles"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { clearListErrorAct, fetchCustomerListAdminThunk } from "../redux/customer-v2.slice"
-import { listCustomerStepsV2, type CustomerStepV2 } from "../../steps-v2/services/customer-steps-v2.service"
 import type { FilterFormState } from "../types/filter-form.types"
 import { aggregateStepsFromListItems } from "../utils/aggregate-steps-from-list-items"
 import { buildCustomerListQueryParams } from "../utils/build-customer-list-query"
+import { resolveCustomerListScopeUserIds } from "../business-logic/resolve-customer-list-scope-user-ids"
 import CustomerDetailDialogCP from "./customer-detail-dialog.cp"
-import CustomerListFiltersCP from "./customer-list-filters.cp"
 import CustomerListItemCP from "./customer-list-item.cp"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 
 const ROWS_PER_PAGE_OPTIONS = [50, 100, 200] as const
 
 export type CustomerListCPProps = {
-  draft: FilterFormState
-  setDraft: React.Dispatch<React.SetStateAction<FilterFormState>>
   applied: FilterFormState
-  onApplyFilters: () => void
   /** Increment to refetch after mutations (e.g. new customer). */
   refreshVersion?: number
 }
 
 export default function CustomerListCP({
-  draft,
-  setDraft,
   applied,
-  onApplyFilters,
   refreshVersion = 0,
 }: CustomerListCPProps) {
   const dispatch = useAppDispatch()
+  const currentUser = useAppSelector((s) => s.login.currentUser)
   const items = useAppSelector((s) => s.customerV2.listItems)
   const stepDistribution = useAppSelector((s) => s.customerV2.listStepDistribution)
   const total = useAppSelector((s) => s.customerV2.listTotal)
@@ -57,31 +51,28 @@ export default function CustomerListCP({
   )
   const gotUsers = useAppSelector((s) => s.users.gotUsers)
 
-  const [steps, setSteps] = useState<CustomerStepV2[]>([])
-
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(50)
 
-  const users = usersFromSlice
-
-  const creatorUsers = useMemo(() => {
-    const selectedId = draft.createdBy.trim()
-    return users.filter(
-      (u) =>
-        u._id &&
-        ((u.level ?? 99) <= 4 || (selectedId !== "" && u._id === selectedId)),
-    )
-  }, [users, draft.createdBy])
+  const scopeUserIds = useMemo(
+    () =>
+      resolveCustomerListScopeUserIds({
+        currentUser,
+        officeId: applied.officeId,
+        users: usersFromSlice,
+      }),
+    [applied.officeId, currentUser, usersFromSlice],
+  )
 
   const userById = useMemo(() => {
-    const m = new Map<string, UserInterface>()
-    for (const u of users) {
-      if (u._id) {
-        m.set(u._id, u)
+    const map = new Map<string, UserInterface>()
+    for (const user of usersFromSlice) {
+      if (user._id) {
+        map.set(user._id, user)
       }
     }
-    return m
-  }, [users])
+    return map
+  }, [usersFromSlice])
 
   useEffect(() => {
     if (!gotUsers) {
@@ -89,24 +80,14 @@ export default function CustomerListCP({
     }
   }, [dispatch, gotUsers])
 
-  useEffect(() => {
-    void listCustomerStepsV2()
-      .then((list) => {
-        if (Array.isArray(list)) setSteps(list)
-      })
-      .catch(() => {
-        setSteps([])
-      })
-  }, [])
-
   const load = useCallback(async () => {
     const params = {
-      ...buildCustomerListQueryParams(applied),
+      ...buildCustomerListQueryParams(applied, { scopeUserIds }),
       limit: rowsPerPage,
       skip: page * rowsPerPage,
     }
     await dispatch(fetchCustomerListAdminThunk(params))
-  }, [applied, page, rowsPerPage, dispatch])
+  }, [applied, page, rowsPerPage, dispatch, scopeUserIds])
 
   useEffect(() => {
     void load()
@@ -118,10 +99,6 @@ export default function CustomerListCP({
   useLayoutEffect(() => {
     setPage(0)
   }, [applied, refreshVersion])
-
-  const handleSearch = () => {
-    onApplyFilters()
-  }
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -142,15 +119,6 @@ export default function CustomerListCP({
       }}
     >
       <CustomerDetailDialogCP />
-      <CustomerListFiltersCP
-        draft={draft}
-        setDraft={setDraft}
-        loading={loading}
-        onSearch={handleSearch}
-        users={users}
-        creatorUsers={creatorUsers}
-        steps={steps}
-      />
 
       {hasStepSummary && (
         <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
@@ -164,7 +132,7 @@ export default function CustomerListCP({
           ) : (
             <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1} sx={{ mb: 1 }}>
               {stepDigest.map((row) => {
-                const c = row.color?.trim()
+                const color = row.color?.trim()
                 return (
                   <Chip
                     key={`page_${row.customerStepId ?? "__none__"}`}
@@ -175,10 +143,10 @@ export default function CustomerListCP({
                       cursor: "default",
                       maxWidth: 320,
                       "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
-                      ...(c
+                      ...(color
                         ? {
-                            borderColor: c,
-                            bgcolor: alpha(c, 0.12),
+                            borderColor: color,
+                            bgcolor: alpha(color, 0.12),
                           }
                         : {}),
                     }}
@@ -197,7 +165,7 @@ export default function CustomerListCP({
           ) : (
             <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
               {stepDistribution.map((row) => {
-                const c = row.color?.trim()
+                const color = row.color?.trim()
                 return (
                   <Chip
                     key={`all_${row.customerStepId ?? "__none__"}`}
@@ -208,10 +176,10 @@ export default function CustomerListCP({
                       cursor: "default",
                       maxWidth: 320,
                       "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
-                      ...(c
+                      ...(color
                         ? {
-                            borderColor: c,
-                            bgcolor: alpha(c, 0.12),
+                            borderColor: color,
+                            bgcolor: alpha(color, 0.12),
                           }
                         : {}),
                     }}
@@ -277,7 +245,7 @@ export default function CustomerListCP({
                 <CustomerListItemCP
                   key={row.id}
                   row={row}
-                  users={users}
+                  users={usersFromSlice}
                   userById={userById}
                   onAssigneeUpdated={() => void load()}
                 />

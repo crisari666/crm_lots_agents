@@ -4,6 +4,8 @@ import type { FilterFormState } from "../types/filter-form.types"
 export type BuildListQueryOptions = {
   /** When true, omit `customerStepId` (e.g. step distribution / summary under other filters). */
   excludeStepFilter?: boolean
+  /** Office/team user ids for `assignedToIn` when no single assignee is selected. */
+  scopeUserIds?: string[]
 }
 
 export function buildCustomerListQueryParams(
@@ -13,6 +15,15 @@ export function buildCustomerListQueryParams(
   const search = applied.search.trim()
   const stepId =
     options?.excludeStepFilter === true ? "" : applied.customerStepId.trim()
+  const scopeUserIds = options?.scopeUserIds ?? []
+  const hasAssignedTo = applied.assignedTo.trim() !== ""
+  const assigneeFilter = hasAssignedTo
+    ? { assignedTo: applied.assignedTo }
+    : scopeUserIds.length > 0
+      ? { assignedToIn: scopeUserIds }
+      : applied.unassignedOnly
+        ? { unassignedOnly: true }
+        : {}
   return {
     ...(applied.excludeFecha ? { omitDateRange: true } : {}),
     ...(!applied.excludeFecha && applied.createdFrom
@@ -21,11 +32,7 @@ export function buildCustomerListQueryParams(
     ...(!applied.excludeFecha && applied.createdTo
       ? { createdTo: applied.createdTo.clone().endOf("day").toISOString() }
       : {}),
-    ...(applied.assignedTo
-      ? { assignedTo: applied.assignedTo }
-      : applied.unassignedOnly
-        ? { unassignedOnly: true }
-        : {}),
+    ...assigneeFilter,
     ...(applied.enabledOnly ? { enabled: true } : {}),
     ...(applied.referralOnly ? { isReferral: true } : {}),
     ...(search ? { search } : {}),

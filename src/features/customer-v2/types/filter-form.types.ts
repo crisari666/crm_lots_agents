@@ -12,6 +12,8 @@ export type FilterFormState = {
   createdFrom: Moment | null
   createdTo: Moment | null
   assignedTo: string
+  /** Office id for admin/coordinator office scope; empty = all offices. */
+  officeId: string
   /** Office user id who created the customer; empty = all creators. */
   createdBy: string
   search: string
@@ -28,6 +30,7 @@ export function emptyFilters(): FilterFormState {
     createdFrom: null,
     createdTo: null,
     assignedTo: "",
+    officeId: "",
     createdBy: "",
     search: "",
     customerStepId: "",

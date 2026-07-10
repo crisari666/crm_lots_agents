@@ -1,10 +1,13 @@
 import React, { useCallback, useState } from "react"
 import { Box } from "@mui/material"
+import { useAppSelector } from "../../../app/hooks"
 import CustomerControlsCP from "../components/customer-controls.cp"
 import CustomerListCP from "../components/customer-list.cp"
+import CustomerListFiltersSectionCP from "../components/customer-list-filters-section.cp"
 import { emptyFilters, type FilterFormState } from "../types/filter-form.types"
 
 export default function CustomersPage() {
+  const listLoading = useAppSelector((s) => s.customerV2.listLoading)
   const [listVersion, setListVersion] = useState(0)
   const [draft, setDraft] = useState<FilterFormState>(emptyFilters)
   const [applied, setApplied] = useState<FilterFormState>(emptyFilters)
@@ -17,6 +20,7 @@ export default function CustomersPage() {
       referralOnly: draft.referralOnly,
       createdFrom: draft.createdFrom ? draft.createdFrom.clone() : null,
       createdTo: draft.createdTo ? draft.createdTo.clone() : null,
+      officeId: draft.officeId,
       assignedTo: draft.assignedTo,
       createdBy: draft.createdBy,
       search: draft.search,
@@ -54,13 +58,13 @@ export default function CustomersPage() {
         }}
         onFilterDraftChange={patchFilterDraft}
       />
-      <CustomerListCP
+      <CustomerListFiltersSectionCP
         draft={draft}
         setDraft={setDraft}
-        applied={applied}
-        onApplyFilters={applyFilters}
-        refreshVersion={listVersion}
+        loading={listLoading}
+        onSearch={applyFilters}
       />
+      <CustomerListCP applied={applied} refreshVersion={listVersion} />
     </Box>
   )
 }

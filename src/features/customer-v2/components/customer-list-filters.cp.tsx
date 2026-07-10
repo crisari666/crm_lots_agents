@@ -1,5 +1,6 @@
 import React from "react"
 import {
+  Autocomplete,
   Box,
   Button,
   FormControl,
@@ -15,6 +16,7 @@ import {
 import { Search as SearchIcon } from "@mui/icons-material"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import UserInterface from "../../../app/models/user-interface"
+import { OfficeInterface } from "../../../app/models/office.inteface"
 import type { CustomerStepV2 } from "../../steps-v2/services/customer-steps-v2.service"
 import type { FilterFormState } from "../types/filter-form.types"
 import AssignUserAutocompleteCP from "./assign-user-autocomplete.cp"
@@ -27,6 +29,8 @@ export type CustomerListFiltersCPProps = {
   users: UserInterface[]
   creatorUsers: UserInterface[]
   steps: CustomerStepV2[]
+  showOfficeFilter: boolean
+  offices: OfficeInterface[]
 }
 
 export default function CustomerListFiltersCP({
@@ -37,6 +41,8 @@ export default function CustomerListFiltersCP({
   users,
   creatorUsers,
   steps,
+  showOfficeFilter,
+  offices,
 }: CustomerListFiltersCPProps) {
   const clearDateFilters = () => {
     setDraft((prev) => ({ ...prev, createdFrom: null, createdTo: null }))
@@ -46,8 +52,10 @@ export default function CustomerListFiltersCP({
     setDraft((prev) => ({ ...prev, customerStepId: e.target.value }))
   }
 
+  const selectedOffice = offices.find((office) => office._id === draft.officeId) ?? null
+
   return (
-    <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
+    <Box sx={{ p: 2, bgcolor: "grey.50" }}>
       <Stack spacing={2}>
         <Stack
           direction={{ xs: "column", md: "row" }}
@@ -88,6 +96,7 @@ export default function CustomerListFiltersCP({
             Buscar
           </Button>
         </Stack>
+
         <Stack
           direction={{ xs: "column", sm: "row" }}
           spacing={2}
@@ -109,6 +118,52 @@ export default function CustomerListFiltersCP({
             disabled={draft.excludeFecha}
             slotProps={{ textField: { size: "small", sx: { minWidth: 160 } } }}
           />
+          {!draft.excludeFecha && (draft.createdFrom || draft.createdTo) ? (
+            <Typography
+              component="button"
+              type="button"
+              onClick={clearDateFilters}
+              sx={{
+                cursor: "pointer",
+                border: "none",
+                background: "none",
+                color: "primary.main",
+                textDecoration: "underline",
+                fontSize: "0.875rem",
+                p: 0,
+                alignSelf: "center",
+              }}
+            >
+              Limpiar fechas
+            </Typography>
+          ) : null}
+        </Stack>
+
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          flexWrap="wrap"
+          useFlexGap
+          alignItems={{ xs: "stretch", sm: "center" }}
+        >
+          {showOfficeFilter ? (
+            <Autocomplete
+              size="small"
+              sx={{ minWidth: { xs: "100%", sm: 220 } }}
+              options={offices}
+              value={selectedOffice}
+              onChange={(_, option) =>
+                setDraft((prev) => ({
+                  ...prev,
+                  officeId: option?._id ?? "",
+                  assignedTo: "",
+                  createdBy: "",
+                }))
+              }
+              getOptionLabel={(option) => option.name}
+              renderInput={(params) => <TextField {...params} label="Oficina" />}
+            />
+          ) : null}
           <Box sx={{ minWidth: { xs: "100%", sm: 280 }, flex: { sm: "1 1 280px" } }}>
             <AssignUserAutocompleteCP
               users={users}
@@ -150,17 +205,17 @@ export default function CustomerListFiltersCP({
               <MenuItem value="">
                 <em>Todos los pasos</em>
               </MenuItem>
-              {steps.map((s) => (
-                <MenuItem key={s.id} value={s.id}>
+              {steps.map((step) => (
+                <MenuItem key={step.id} value={step.id}>
                   <Stack direction="row" alignItems="center" spacing={1} sx={{ py: 0.25 }}>
-                    {s.color?.trim() ? (
+                    {step.color?.trim() ? (
                       <Box
                         component="span"
                         sx={{
                           width: 10,
                           height: 10,
                           borderRadius: "50%",
-                          bgcolor: s.color,
+                          bgcolor: step.color,
                           flexShrink: 0,
                           border: 1,
                           borderColor: "divider",
@@ -179,33 +234,14 @@ export default function CustomerListFiltersCP({
                       />
                     )}
                     <Typography variant="body2" component="span">
-                      {s.name}
-                      {!s.isActive ? " (inactivo)" : ""}
+                      {step.name}
+                      {!step.isActive ? " (inactivo)" : ""}
                     </Typography>
                   </Stack>
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          {!draft.excludeFecha && (draft.createdFrom || draft.createdTo) && (
-            <Typography
-              component="button"
-              type="button"
-              onClick={clearDateFilters}
-              sx={{
-                cursor: "pointer",
-                border: "none",
-                background: "none",
-                color: "primary.main",
-                textDecoration: "underline",
-                fontSize: "0.875rem",
-                p: 0,
-                alignSelf: "center",
-              }}
-            >
-              Limpiar fechas
-            </Typography>
-          )}
         </Stack>
       </Stack>
     </Box>

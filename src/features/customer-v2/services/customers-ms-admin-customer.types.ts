@@ -52,6 +52,8 @@ export type ListCustomersAdminParams = {
   createdFrom?: string
   createdTo?: string
   assignedTo?: string
+  /** When set (and no `assignedTo`), only customers whose `assignedTo` is in this list. */
+  assignedToIn?: string[]
   /** When true (and no `assignedTo`), only customers with no assignee. */
   unassignedOnly?: boolean
   /** When set, filter by customer creator office user id. */
