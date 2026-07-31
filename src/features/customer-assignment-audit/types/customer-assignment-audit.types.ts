@@ -9,6 +9,8 @@ export type CustomerAssignmentChangeItem = {
   assignedFrom?: string
   assignedTo?: string
   action: "create" | "update"
+  attendedAt?: string
+  timeToAttendMs?: number
 }
 
 export type ListCustomerAssignmentChangesParams = {
@@ -24,4 +26,6 @@ export type ListCustomerAssignmentChangesResponse = {
   total: number
   limit: number
   skip: number
+  attendedCount: number
+  avgTimeToAttendMs: number | null
 }

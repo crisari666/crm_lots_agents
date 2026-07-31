@@ -22,6 +22,8 @@ export type CustomerAssignmentAuditState = {
   total: number
   limit: number
   skip: number
+  attendedCount: number
+  avgTimeToAttendMs: number | null
   loading: boolean
   error: string | null
   lastParams: ListCustomerAssignmentChangesParams | null
@@ -39,6 +41,8 @@ const initialState: CustomerAssignmentAuditState = {
   total: 0,
   limit: 100,
   skip: 0,
+  attendedCount: 0,
+  avgTimeToAttendMs: null,
   loading: false,
   error: null,
   lastParams: null,
@@ -104,6 +108,11 @@ const customerAssignmentAuditSlice = createSlice({
         state.total = action.payload.total
         state.limit = action.payload.limit
         state.skip = action.payload.skip
+        state.attendedCount = action.payload.attendedCount ?? 0
+        state.avgTimeToAttendMs =
+          typeof action.payload.avgTimeToAttendMs === "number"
+            ? action.payload.avgTimeToAttendMs
+            : null
       })
       .addCase(fetchCustomerAssignmentChangesThunk.rejected, (state, action) => {
         state.loading = false
@@ -113,6 +122,8 @@ const customerAssignmentAuditSlice = createSlice({
           "No se pudo cargar el historial de asignaciones."
         state.items = []
         state.total = 0
+        state.attendedCount = 0
+        state.avgTimeToAttendMs = null
       })
   },
 })

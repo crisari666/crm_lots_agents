@@ -25,10 +25,11 @@ import {
 } from "../redux/staff-performance-report.slice"
 import StaffPerformanceReportFiltersCP from "./staff-performance-report-filters.cp"
 
-const COLUMN_VISIBILITY_STORAGE_KEY = "staffPerformanceReport.columnVisibility.v1"
+const COLUMN_VISIBILITY_STORAGE_KEY = "staffPerformanceReport.columnVisibility.v2"
 
 type ColumnVisibility = {
   calls: boolean
+  attendance: boolean
   stepVisibility: Record<string, boolean>
 }
 
@@ -44,11 +45,12 @@ function readColumnVisibility(): ColumnVisibility | null {
     }
     const o = parsed as Record<string, unknown>
     const calls = o.calls === true || o.calls === false ? o.calls : true
+    const attendance = o.attendance === true || o.attendance === false ? o.attendance : true
     const stepVisibility =
       typeof o.stepVisibility === "object" && o.stepVisibility !== null && !Array.isArray(o.stepVisibility)
         ? (o.stepVisibility as Record<string, boolean>)
         : {}
-    return { calls, stepVisibility }
+    return { calls, attendance, stepVisibility }
   } catch {
     return null
   }
@@ -63,7 +65,7 @@ function defaultVisibility(stepIds: readonly string[]): ColumnVisibility {
   stepIds.forEach((id) => {
     stepVisibility[id] = true
   })
-  return { calls: true, stepVisibility }
+  return { calls: true, attendance: true, stepVisibility }
 }
 
 function mergeVisibility(
@@ -82,6 +84,7 @@ function mergeVisibility(
   })
   return {
     calls: preferences.calls !== false,
+    attendance: preferences.attendance !== false,
     stepVisibility,
   }
 }
@@ -89,12 +92,31 @@ function mergeVisibility(
 function readInitialColumnVisibilityFromStorage(): ColumnVisibility {
   const stored = readColumnVisibility()
   if (stored === null) {
-    return { calls: true, stepVisibility: {} }
+    return { calls: true, attendance: true, stepVisibility: {} }
   }
   return {
     calls: stored.calls !== false,
+    attendance: stored.attendance !== false,
     stepVisibility: { ...stored.stepVisibility },
   }
+}
+
+function formatDurationFromMs(ms: number | null | undefined): string {
+  if (ms === null || ms === undefined || !Number.isFinite(ms) || ms < 0) {
+    return "—"
+  }
+  const totalMinutes = Math.round(ms / 60000)
+  if (totalMinutes < 60) {
+    return `${totalMinutes}m`
+  }
+  const totalHours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  if (totalHours < 48) {
+    return minutes > 0 ? `${totalHours}h ${minutes}m` : `${totalHours}h`
+  }
+  const days = Math.floor(totalHours / 24)
+  const hours = totalHours % 24
+  return hours > 0 ? `${days}d ${hours}h` : `${days}d`
 }
 
 function toStartOfDayIso(dateStr: string): string {
@@ -171,8 +193,12 @@ export default function StaffPerformanceReportContentCP() {
       const stored = readColumnVisibility()
       const preferences: ColumnVisibility =
         stored !== null
-          ? { calls: stored.calls !== false, stepVisibility: { ...stored.stepVisibility } }
-          : { calls: true, stepVisibility: {} }
+          ? {
+              calls: stored.calls !== false,
+              attendance: stored.attendance !== false,
+              stepVisibility: { ...stored.stepVisibility },
+            }
+          : { calls: true, attendance: true, stepVisibility: {} }
       const merged = mergeVisibility(preferences, ids)
       writeColumnVisibility(merged)
       return merged
@@ -258,6 +284,19 @@ export default function StaffPerformanceReportContentCP() {
                   label="Llamadas (resumen)"
                 />
               </MenuItem>
+              <MenuItem onClick={(e) => e.stopPropagation()} disableRipple sx={{ display: "block" }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={columnVisibility.attendance}
+                      onChange={(_, checked) =>
+                        persistVisibility({ ...columnVisibility, attendance: checked })
+                      }
+                    />
+                  }
+                  label="Tiempo a atender"
+                />
+              </MenuItem>
               {(report?.stepsMeta ?? []).map((step) => (
                 <MenuItem key={step.id} onClick={(e) => e.stopPropagation()} disableRipple sx={{ display: "block" }}>
                   <FormControlLabel
@@ -308,6 +347,13 @@ export default function StaffPerformanceReportContentCP() {
                     <TableCell align="right">Fallidas</TableCell>
                   </>
                 ) : null}
+                {columnVisibility.attendance ? (
+                  <>
+                    <TableCell align="right">Atendidos</TableCell>
+                    <TableCell align="right">Sin atender</TableCell>
+                    <TableCell align="right">Prom. tiempo a atender</TableCell>
+                  </>
+                ) : null}
                 {(report.stepsMeta ?? []).map((step) =>
                   columnVisibility.stepVisibility[step.id] === false ? null : (
                     <TableCell key={step.id} align="right">
@@ -328,6 +374,15 @@ export default function StaffPerformanceReportContentCP() {
                       <TableCell align="right">{row.calls.answered}</TableCell>
                       <TableCell align="right">{row.calls.dontAnswered}</TableCell>
                       <TableCell align="right">{row.calls.failed}</TableCell>
+                    </>
+                  ) : null}
+                  {columnVisibility.attendance ? (
+                    <>
+                      <TableCell align="right">{row.attendedCount ?? 0}</TableCell>
+                      <TableCell align="right">{row.unattendedCount ?? 0}</TableCell>
+                      <TableCell align="right">
+                        {formatDurationFromMs(row.avgTimeToAttendMs)}
+                      </TableCell>
                     </>
                   ) : null}
                   {(report.stepsMeta ?? []).map((step) =>

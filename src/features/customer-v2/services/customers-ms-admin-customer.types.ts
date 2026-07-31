@@ -250,6 +250,9 @@ export type StaffPerformanceReportRow = {
     dontAnswered: number
     failed: number
   }
+  attendedCount: number
+  unattendedCount: number
+  avgTimeToAttendMs: number | null
   steps: Record<string, number>
 }
 

@@ -64,11 +64,28 @@ function buildCustomerLabel(
   return base
 }
 
+function formatDurationFromMs(ms: number | null | undefined): string {
+  if (ms === null || ms === undefined || !Number.isFinite(ms) || ms < 0) {
+    return "—"
+  }
+  const totalMinutes = Math.round(ms / 60000)
+  if (totalMinutes < 60) {
+    return `${totalMinutes}m`
+  }
+  const totalHours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  if (totalHours < 48) {
+    return minutes > 0 ? `${totalHours}h ${minutes}m` : `${totalHours}h`
+  }
+  const days = Math.floor(totalHours / 24)
+  const hours = totalHours % 24
+  return hours > 0 ? `${days}d ${hours}h` : `${days}d`
+}
+
 export default function CustomerAssignmentAuditTableCP(): React.ReactElement {
   const dispatch = useAppDispatch()
-  const { items, total, loading, error, filters, lastParams } = useAppSelector(
-    (state) => state.customerAssignmentAudit
-  )
+  const { items, total, loading, error, filters, lastParams, attendedCount, avgTimeToAttendMs } =
+    useAppSelector((state) => state.customerAssignmentAudit)
   const gotUsers = useAppSelector((state) => state.users.gotUsers)
   const usersOriginal = useAppSelector((state) => state.users.usersOriginal)
   useEffect(() => {
@@ -127,9 +144,14 @@ export default function CustomerAssignmentAuditTableCP(): React.ReactElement {
         </Alert>
       ) : null}
       {filters.assigneeUserId.trim() !== "" && lastParams !== null ? (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {s.resultCount(total)}
-        </Typography>
+        <Box sx={{ mb: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            {s.resultCount(total)}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {s.attendanceSummary(attendedCount, formatDurationFromMs(avgTimeToAttendMs))}
+          </Typography>
+        </Box>
       ) : null}
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
@@ -140,12 +162,14 @@ export default function CustomerAssignmentAuditTableCP(): React.ReactElement {
               <TableCell>{s.colPreviousAssignee}</TableCell>
               <TableCell>{s.colAssignedTo}</TableCell>
               <TableCell>{s.colActor}</TableCell>
+              <TableCell>{s.colAttendedAt}</TableCell>
+              <TableCell>{s.colTimeToAttend}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={7} align="center">
                   <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
                     {lastParams === null ? s.emptyAssignee : s.noRows}
                   </Typography>
@@ -175,6 +199,12 @@ export default function CustomerAssignmentAuditTableCP(): React.ReactElement {
                   <TableCell>{resolveUserLabel(row.assignedFrom, userDisplayMap)}</TableCell>
                   <TableCell>{resolveUserLabel(row.assignedTo, userDisplayMap)}</TableCell>
                   <TableCell>{resolveUserLabel(row.actorUserId, userDisplayMap)}</TableCell>
+                  <TableCell>
+                    {row.attendedAt !== undefined && row.attendedAt !== ""
+                      ? moment(row.attendedAt).format("DD/MM/YYYY HH:mm")
+                      : "—"}
+                  </TableCell>
+                  <TableCell>{formatDurationFromMs(row.timeToAttendMs)}</TableCell>
                 </TableRow>
               ))
             )}
