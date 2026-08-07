@@ -349,7 +349,10 @@ export async function setUserGoalReq({userId, goal} : {userId : string, goal: nu
 export async function updateFcmTokenForUserReq({FCM} : {FCM : string}): Promise<any>{
   try {
     const api = Api.getInstance()
-    const response = await api.patch({path: `users/set-fcm-token/${FCM}`})
+    const response = await api.patch({
+      path: `users/fcm-token`,
+      data: { token: FCM, platform: 'web' },
+    })
     const { error } = response
     if(error == null) {
       return response.result
