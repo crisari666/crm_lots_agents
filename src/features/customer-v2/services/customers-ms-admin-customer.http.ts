@@ -108,6 +108,17 @@ export async function listCallLogsAdmin(
   return response.data
 }
 
+export async function refreshMeetCallTranscript(
+  callLogId: string
+): Promise<CustomerCallLogAdminItem> {
+  const response = await customersMsAxios.post<CustomerCallLogAdminItem>(
+    `admin/customer/call-logs/${encodeURIComponent(callLogId)}/meet-transcript/refresh`,
+    {},
+    auth()
+  )
+  return response.data
+}
+
 export async function searchCustomersAutocomplete(
   params: SearchCustomersAutocompleteParams
 ): Promise<CustomerAutocompleteItem[]> {

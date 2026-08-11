@@ -18,6 +18,7 @@ import { fetchCallLogsAdminThunk } from "../../redux/customer-call-logs.slice"
 import type { ListCallLogsAdminParams } from "../../services/customers-ms.service"
 
 type OutcomeFilter = NonNullable<ListCallLogsAdminParams["outcome"]>
+type ChannelFilter = NonNullable<ListCallLogsAdminParams["channel"]>
 
 export default function CallLogsFiltersCP() {
   const dispatch = useAppDispatch()
@@ -26,10 +27,12 @@ export default function CallLogsFiltersCP() {
   const [from, setFrom] = useState<Moment | null>(() => moment().subtract(7, "days").startOf("day"))
   const [to, setTo] = useState<Moment | null>(() => moment().endOf("day"))
   const [outcome, setOutcome] = useState<OutcomeFilter>("all")
+  const [channel, setChannel] = useState<ChannelFilter>("all")
 
   const params = useMemo((): ListCallLogsAdminParams => {
     const p: ListCallLogsAdminParams = {
       outcome,
+      channel,
       limit: 100,
       skip: 0,
     }
@@ -40,7 +43,7 @@ export default function CallLogsFiltersCP() {
       p.callTo = to.clone().endOf("day").toISOString()
     }
     return p
-  }, [from, to, outcome])
+  }, [from, to, outcome, channel])
 
   const rangeOk = from !== null && to !== null
 
@@ -60,6 +63,10 @@ export default function CallLogsFiltersCP() {
 
   const onOutcomeChange = (e: SelectChangeEvent<OutcomeFilter>) => {
     setOutcome(e.target.value as OutcomeFilter)
+  }
+
+  const onChannelChange = (e: SelectChangeEvent<ChannelFilter>) => {
+    setChannel(e.target.value as ChannelFilter)
   }
 
   return (
@@ -92,9 +99,22 @@ export default function CallLogsFiltersCP() {
             onChange={onOutcomeChange}
           >
             <MenuItem value="all">Todas</MenuItem>
-            <MenuItem value="answered">Contestada</MenuItem>
+            <MenuItem value="answered">Contestada / atendida</MenuItem>
             <MenuItem value="busy">Ocupado</MenuItem>
-            <MenuItem value="no_answer">Sin contestar / otros</MenuItem>
+            <MenuItem value="no_answer">Sin contestar / no atendida</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <InputLabel id="call-log-channel-filter">Canal</InputLabel>
+          <Select
+            labelId="call-log-channel-filter"
+            label="Canal"
+            value={channel}
+            onChange={onChannelChange}
+          >
+            <MenuItem value="all">Todos</MenuItem>
+            <MenuItem value="voip">VoIP</MenuItem>
+            <MenuItem value="meet">Google Meet</MenuItem>
           </Select>
         </FormControl>
         <Button

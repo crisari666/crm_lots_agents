@@ -3,7 +3,9 @@ import axios from "axios"
 import {
   type ListCallLogsAdminParams,
   type ListCallLogsAdminResponse,
+  type CustomerCallLogAdminItem,
   listCallLogsAdmin,
+  refreshMeetCallTranscript,
 } from "../services/customers-ms.service"
 
 export type CustomerCallLogsState = {
@@ -12,6 +14,7 @@ export type CustomerCallLogsState = {
   loading: boolean
   error: string | null
   lastParams: ListCallLogsAdminParams | null
+  refreshingMeetById: Record<string, boolean>
 }
 
 const initialState: CustomerCallLogsState = {
@@ -20,6 +23,7 @@ const initialState: CustomerCallLogsState = {
   loading: false,
   error: null,
   lastParams: null,
+  refreshingMeetById: {},
 }
 
 function axiosMessage(err: unknown, fallback: string): string {
@@ -42,6 +46,19 @@ export const fetchCallLogsAdminThunk = createAsyncThunk(
       return await listCallLogsAdmin(params)
     } catch (err: unknown) {
       return rejectWithValue(axiosMessage(err, "No se pudo cargar el historial de llamadas."))
+    }
+  }
+)
+
+export const refreshMeetTranscriptThunk = createAsyncThunk(
+  "customerCallLogs/refreshMeetTranscript",
+  async (callLogId: string, { rejectWithValue }) => {
+    try {
+      return await refreshMeetCallTranscript(callLogId)
+    } catch (err: unknown) {
+      return rejectWithValue(
+        axiosMessage(err, "No se pudo actualizar la transcripción de Meet.")
+      )
     }
   }
 )
@@ -74,6 +91,25 @@ const customerCallLogsSlice = createSlice({
           "No se pudo cargar el historial de llamadas."
         state.items = []
         state.total = 0
+      })
+      .addCase(refreshMeetTranscriptThunk.pending, (state, action) => {
+        state.refreshingMeetById[action.meta.arg] = true
+        state.error = null
+      })
+      .addCase(refreshMeetTranscriptThunk.fulfilled, (state, action) => {
+        const updated = action.payload as CustomerCallLogAdminItem
+        state.refreshingMeetById[updated.id] = false
+        const idx = state.items.findIndex((row) => row.id === updated.id)
+        if (idx >= 0) {
+          state.items[idx] = updated
+        }
+      })
+      .addCase(refreshMeetTranscriptThunk.rejected, (state, action) => {
+        state.refreshingMeetById[action.meta.arg] = false
+        state.error =
+          (action.payload as string) ??
+          action.error.message ??
+          "No se pudo actualizar la transcripción de Meet."
       })
   },
 })

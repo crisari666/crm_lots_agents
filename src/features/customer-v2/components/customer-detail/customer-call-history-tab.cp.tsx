@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react"
 import {
   Box,
+  Chip,
   CircularProgress,
   IconButton,
   List,
@@ -10,7 +11,10 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material"
-import { Subject as SubjectIcon } from "@mui/icons-material"
+import {
+  Subject as SubjectIcon,
+  VideoCall as VideoCallIcon,
+} from "@mui/icons-material"
 import moment from "moment"
 import type { CustomerCallLogAdminItem } from "../../services/customers-ms.service"
 import { listCustomerCallLogs } from "../../services/customers-ms.service"
@@ -92,6 +96,8 @@ export default function CustomerCallHistoryTabCP({ customerId }: CustomerCallHis
         {rows.map((row) => {
           const when = moment(row.completedAt ?? row.updatedAt ?? row.createdAt)
           const dir = directionLabelEs(row.direction)
+          const isMeet = row.channel === "meet" || row.provider === "google_meet"
+          const meetUrl = row.googleMeetUrl?.trim()
           const transcriptAvailable = (row.transcript ?? row.text ?? "").trim() !== ""
           const showTranscriptBtn = row.resolvedOutcome === "answered" && transcriptAvailable
           const numbersLine = [row.from, row.to].filter(Boolean).join(" → ")
@@ -115,6 +121,13 @@ export default function CustomerCallHistoryTabCP({ customerId }: CustomerCallHis
                     <Typography variant="body2" fontWeight={600}>
                       {when.format("DD/MM/YY HH:mm")}
                     </Typography>
+                    <Chip
+                      size="small"
+                      label={isMeet ? "Meet" : "VoIP"}
+                      color={isMeet ? "secondary" : "default"}
+                      variant={isMeet ? "filled" : "outlined"}
+                      sx={{ height: 20 }}
+                    />
                     <Typography variant="caption" color="text.secondary">
                       {outcomeLabelEs(row.resolvedOutcome)}
                       {dir ? ` · ${dir}` : ""}
@@ -128,10 +141,27 @@ export default function CustomerCallHistoryTabCP({ customerId }: CustomerCallHis
                   ) : null}
                 </Box>
                 <Stack direction="row" spacing={0.25} alignItems="center" flexShrink={0}>
-                  <CallLogPlayRecordingButtonCP
-                    callSid={row.callSid}
-                    resolvedOutcome={row.resolvedOutcome}
-                  />
+                  {!isMeet ? (
+                    <CallLogPlayRecordingButtonCP
+                      callSid={row.callSid}
+                      resolvedOutcome={row.resolvedOutcome}
+                    />
+                  ) : null}
+                  {isMeet && meetUrl ? (
+                    <Tooltip title="Abrir Meet">
+                      <IconButton
+                        size="small"
+                        aria-label="Abrir Google Meet"
+                        component="a"
+                        href={meetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ cursor: "pointer", transition: "color 0.2s ease" }}
+                      >
+                        <VideoCallIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  ) : null}
                   {showTranscriptBtn ? (
                     <Tooltip title="Transcripción">
                       <IconButton

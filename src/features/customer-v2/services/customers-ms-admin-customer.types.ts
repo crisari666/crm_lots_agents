@@ -142,6 +142,8 @@ export type CustomerCallLogAdminItem = {
   id: string
   callSid: string
   provider: string
+  channel?: "voip" | "meet"
+  googleMeetUrl?: string
   from?: string
   to?: string
   direction?: string
@@ -165,6 +167,7 @@ export type ListCallLogsAdminParams = {
   callFrom?: string
   callTo?: string
   outcome?: "all" | "answered" | "busy" | "no_answer"
+  channel?: "all" | "voip" | "meet"
   limit?: number
   skip?: number
 }

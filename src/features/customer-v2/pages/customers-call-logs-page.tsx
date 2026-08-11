@@ -10,8 +10,9 @@ export default function CustomersCallLogsPage() {
         Registro de llamadas
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Llamadas registradas en CRM (Twilio / voz). Estado derivado del último evento antes de
-        &quot;completed&quot;.
+        Llamadas VoIP (Twilio) y reuniones Google Meet de asesores. Para VoIP, el estado se deriva
+        del último evento antes de &quot;completed&quot;. Meet: atendida si hubo conferencia al
+        marcar la visita como hecha; no atendida si no hubo.
       </Typography>
 
       <CallLogsFiltersCP />

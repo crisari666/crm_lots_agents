@@ -33,6 +33,7 @@ export {
   getCustomerAdminDetail,
   getCustomerMetaLeadMappedFieldsAdmin,
   listCallLogsAdmin,
+  refreshMeetCallTranscript,
   listCustomerEventsAdmin,
   listCustomerEventsByCustomerId,
   listCustomerCallLogs,
