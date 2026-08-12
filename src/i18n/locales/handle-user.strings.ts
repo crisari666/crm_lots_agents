@@ -31,6 +31,7 @@ export const handleUserStrings = {
   errorUpdateUserTitle: "Error al actualizar el usuario",
   ctrlEnable: "Activar",
   ctrlPhysical: "Usuario físico",
+  ctrlOnLand: "En terreno",
   ctrlReceiveCustomersAuto: "Recibir clientes automáticamente",
   sendWelcomeAccess: "Enviar correo de primer acceso",
   sendWelcomeAccessSuccessTitle: "Correo enviado",

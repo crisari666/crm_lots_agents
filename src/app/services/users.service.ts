@@ -268,6 +268,31 @@ export async function setUserPhysicalReq({
   }
 }
 
+export async function setUserOnLandReq({
+  userId,
+  isOnLand,
+}: {
+  userId: string
+  isOnLand: boolean
+}): Promise<UserInterface> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.put({
+      path: `users/${userId}/on-land`,
+      data: { isOnLand },
+    })
+    const { error } = response
+    if (error == null) {
+      return response.result as UserInterface
+    }
+    throw error
+  } catch (error) {
+    console.error('ERROR ON setUserOnLandReq')
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function setAutoCustomerAssignmentDisabledReq({
   userId,
   autoCustomerAssignmentDisabled,

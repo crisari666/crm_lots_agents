@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Grid, Paper, Switch } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { handleUserStrings as s } from "../../../i18n/locales/handle-user.strings"
-import { setAutoCustomerAssignmentDisabledThunk, setUserPhysicalThunk, toggleEnableUserThunk, updateUserTnunk } from "../handle-user.slice"
+import { setAutoCustomerAssignmentDisabledThunk, setUserOnLandThunk, setUserPhysicalThunk, toggleEnableUserThunk, updateUserTnunk } from "../handle-user.slice"
 import SendFirstAccessWelcomeCp from "./send-first-access-welcome.cp"
 import SendUserContractCp from "./send-user-contract.cp"
 import { Person } from "@mui/icons-material"
@@ -83,6 +83,24 @@ export default function CtrlsUserCP() {
                         userId: currentUser!._id!,
                         physical: checked
                       })
+                    )
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <FormControlLabel
+                  label={s.ctrlOnLand}
+                  control={
+                    <Switch
+                      checked={currentUser?.isOnLand === true}
+                    />
+                  }
+                  onChange={(_e, checked) =>
+                    dispatch(
+                      setUserOnLandThunk({
+                        userId: currentUser!._id!,
+                        isOnLand: checked,
+                      }),
                     )
                   }
                 />

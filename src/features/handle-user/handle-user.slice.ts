@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
 import { generateContractReq, type GenerateContractPayload } from "../../app/services/google.service"
-import { getUserByIdReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, setAutoCustomerAssignmentDisabledReq, toggleEnableUserReq, updateUserService, type UserCreateRequestBody } from "../../app/services/users.service"
+import { getUserByIdReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, setUserOnLandReq, setAutoCustomerAssignmentDisabledReq, toggleEnableUserReq, updateUserService, type UserCreateRequestBody } from "../../app/services/users.service"
 import { filterLeadsForOffice } from "../users-list/business-logic/filter-leads-for-office"
 import { RootState } from "../../app/store"
 import { leadFieldToId, officeFieldToId, subadminFieldToId } from "./user-field-ids"
@@ -140,6 +140,11 @@ export const setUserPhysicalThunk = createAsyncThunk(
   async (params: { userId: string, physical: boolean }) => setUserPhysicalReq(params)
 )
 
+export const setUserOnLandThunk = createAsyncThunk(
+  "handleUser/setUserOnLand",
+  async (params: { userId: string; isOnLand: boolean }) => setUserOnLandReq(params),
+)
+
 export const setAutoCustomerAssignmentDisabledThunk = createAsyncThunk(
   "handleUser/setAutoCustomerAssignmentDisabled",
   async (params: { userId: string; autoCustomerAssignmentDisabled: boolean }) =>
@@ -204,6 +209,10 @@ export const HandleUserSlice = createSlice({
     }).addCase(setUserPhysicalThunk.fulfilled, (state, action) => {
       if (state.currentUser && action.payload?.physical !== undefined) {
         state.currentUser.physical = action.payload.physical
+      }
+    }).addCase(setUserOnLandThunk.fulfilled, (state, action) => {
+      if (state.currentUser && action.payload?.isOnLand !== undefined) {
+        state.currentUser.isOnLand = action.payload.isOnLand
       }
     }).addCase(setAutoCustomerAssignmentDisabledThunk.fulfilled, (state, action) => {
       if (state.currentUser && action.payload?.autoCustomerAssignmentDisabled !== undefined) {
