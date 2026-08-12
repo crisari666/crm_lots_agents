@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
 import {
   Alert,
   Autocomplete,
@@ -8,6 +8,7 @@ import {
   CardContent,
   Chip,
   CircularProgress,
+  Collapse,
   Divider,
   IconButton,
   Paper,
@@ -21,15 +22,27 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Search as SearchIcon, Receipt as ReceiptIcon } from "@mui/icons-material"
+import {
+  Search as SearchIcon,
+  Receipt as ReceiptIcon,
+  ExpandMore as ExpandMoreIcon,
+} from "@mui/icons-material"
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined"
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import AppDateRangeSelector from "../../../app/components/app-date-range-selector"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 import { fetchProjectsThunk } from "../../project/slice/projects.slice"
-import { fetchCustomerPaymentsThunk } from "../slice/customer-payments.slice"
-import CustomerPaymentEvidencePreviewDialogCP from "./customer-payment-evidence-preview-dialog.cp"
+import { fetchCustomerDownPaymentsThunk } from "../slice/customer-payments.slice"
+import CustomerPaymentFilePreviewDialogCP from "./customer-payment-file-preview-dialog.cp"
+import {
+  fetchDownPaymentContractBlob,
+  fetchFeeEvidenceBlob,
+  listFeesByDownPaymentReq,
+} from "../../customer-v2/services/customer-payments-ms.http"
+import type { CustomerPaymentFeeItem } from "../../customer-v2/services/customer-payments-ms.types"
 import type UserInterface from "../../../app/models/user-interface"
+import type { ProjectType } from "../../project/types/project.types"
 import { customerPaymentStrings as payS } from "../../../i18n/locales/customer-payment.strings"
 
 const PAGE_SIZE = 50
@@ -61,8 +74,18 @@ export default function CustomerPaymentsAuditoryPanelCP() {
   })
   const [dateEnd, setDateEnd] = useState<Date>(() => new Date())
   const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null)
+  const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null)
+  const [statusFilter, setStatusFilter] = useState<"pending" | "completed" | "">("")
   const [page, setPage] = useState(0)
-  const [previewPaymentId, setPreviewPaymentId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [feesByDownPayment, setFeesByDownPayment] = useState<
+    Record<string, CustomerPaymentFeeItem[]>
+  >({})
+  const [feesLoadingId, setFeesLoadingId] = useState<string | null>(null)
+  const [preview, setPreview] = useState<{
+    title: string
+    fetchBlob: () => Promise<Blob>
+  } | null>(null)
 
   useEffect(() => {
     if (!gotUsers) {
@@ -79,6 +102,11 @@ export default function CustomerPaymentsAuditoryPanelCP() {
   const physicalUsers = useMemo(
     () => usersOriginal.filter((user) => user.physical === true),
     [usersOriginal],
+  )
+
+  const enabledProjects = useMemo(
+    () => projects.filter((p) => p.enabled !== false && p.deleted !== true),
+    [projects],
   )
 
   const userById = useMemo(() => {
@@ -99,16 +127,18 @@ export default function CustomerPaymentsAuditoryPanelCP() {
     (pageNum = 0) => {
       setPage(pageNum)
       void dispatch(
-        fetchCustomerPaymentsThunk({
+        fetchCustomerDownPaymentsThunk({
           dateFrom: dateStart.toISOString(),
           dateTo: dateEnd.toISOString(),
           recordedBy: selectedUser?._id || undefined,
+          projectId: selectedProject?._id || undefined,
+          status: statusFilter || undefined,
           skip: pageNum * PAGE_SIZE,
           limit: PAGE_SIZE,
         }),
       )
     },
-    [dispatch, dateStart, dateEnd, selectedUser],
+    [dispatch, dateStart, dateEnd, selectedUser, selectedProject, statusFilter],
   )
 
   const formatCurrency = (value: number): string =>
@@ -120,12 +150,34 @@ export default function CustomerPaymentsAuditoryPanelCP() {
     return `${u.name ?? ""} ${u.lastName ?? ""}`.trim()
   }
 
-  const totalPageAmount = useMemo(
-    () => payments.reduce((sum, p) => sum + p.paymentValue, 0),
+  const totalPagePaid = useMemo(
+    () => payments.reduce((sum, p) => sum + p.totalPaid, 0),
     [payments],
   )
 
-  let runningTotal = 0
+  const toggleExpand = async (downPaymentId: string) => {
+    if (expandedId === downPaymentId) {
+      setExpandedId(null)
+      return
+    }
+    setExpandedId(downPaymentId)
+    if (feesByDownPayment[downPaymentId]) return
+    setFeesLoadingId(downPaymentId)
+    try {
+      const fees = await listFeesByDownPaymentReq(downPaymentId)
+      setFeesByDownPayment((prev) => ({ ...prev, [downPaymentId]: fees }))
+    } catch {
+      setFeesByDownPayment((prev) => ({ ...prev, [downPaymentId]: [] }))
+    } finally {
+      setFeesLoadingId(null)
+    }
+  }
+
+  const statusOptions = [
+    { id: "", label: "Todos" },
+    { id: "pending", label: payS.statusPending },
+    { id: "completed", label: payS.statusCompleted },
+  ] as const
 
   return (
     <Stack spacing={2.5}>
@@ -139,6 +191,7 @@ export default function CustomerPaymentsAuditoryPanelCP() {
               direction={{ xs: "column", md: "row" }}
               spacing={2}
               alignItems={{ xs: "stretch", md: "center" }}
+              flexWrap="wrap"
             >
               <Box sx={{ minWidth: 280, flex: "0 0 auto" }}>
                 <AppDateRangeSelector
@@ -153,13 +206,35 @@ export default function CustomerPaymentsAuditoryPanelCP() {
               </Box>
               <Autocomplete
                 size="small"
-                sx={{ minWidth: 260, flex: 1 }}
+                sx={{ minWidth: 220, flex: 1 }}
+                options={enabledProjects}
+                value={selectedProject}
+                onChange={(_, option) => setSelectedProject(option)}
+                getOptionLabel={(option) => option.title}
+                isOptionEqualToValue={(a, b) => a._id === b._id}
+                renderInput={(params) => <TextField {...params} label="Proyecto" />}
+              />
+              <Autocomplete
+                size="small"
+                sx={{ minWidth: 200, flex: 1 }}
                 options={physicalUsers}
                 value={selectedUser}
                 onChange={(_, option) => setSelectedUser(option)}
                 getOptionLabel={(option) => `${option.name ?? ""} ${option.lastName ?? ""}`.trim()}
                 isOptionEqualToValue={(a, b) => a._id === b._id}
-                renderInput={(params) => <TextField {...params} label="Usuario (físico)" />}
+                renderInput={(params) => <TextField {...params} label="Registrado por" />}
+              />
+              <Autocomplete
+                size="small"
+                sx={{ minWidth: 160 }}
+                options={[...statusOptions]}
+                value={statusOptions.find((o) => o.id === statusFilter) ?? statusOptions[0]}
+                onChange={(_, option) =>
+                  setStatusFilter((option?.id as "pending" | "completed" | "") ?? "")
+                }
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(a, b) => a.id === b.id}
+                renderInput={(params) => <TextField {...params} label="Estado" />}
               />
               <Button
                 variant="contained"
@@ -184,10 +259,7 @@ export default function CustomerPaymentsAuditoryPanelCP() {
           <CardContent sx={{ py: 6, textAlign: "center" }}>
             <ReceiptIcon sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
             <Typography variant="body1" color="text.secondary">
-              No se encontraron pagos para los filtros seleccionados.
-            </Typography>
-            <Typography variant="body2" color="text.disabled" sx={{ mt: 0.5 }}>
-              Ajusta el rango de fechas o el usuario y busca de nuevo.
+              No se encontraron separaciones para los filtros seleccionados.
             </Typography>
           </CardContent>
         </Card>
@@ -203,7 +275,7 @@ export default function CustomerPaymentsAuditoryPanelCP() {
               >
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Typography variant="subtitle2" fontWeight={600}>
-                    Resultados
+                    Separaciones
                   </Typography>
                   <Chip
                     size="small"
@@ -213,7 +285,7 @@ export default function CustomerPaymentsAuditoryPanelCP() {
                   />
                 </Stack>
                 <Typography variant="body2" color="text.secondary">
-                  Total en página: <strong>{formatCurrency(totalPageAmount)}</strong>
+                  Pagado en página: <strong>{formatCurrency(totalPagePaid)}</strong>
                 </Typography>
               </Stack>
               <Divider />
@@ -221,74 +293,186 @@ export default function CustomerPaymentsAuditoryPanelCP() {
                 <Table size="small">
                   <TableHead>
                     <TableRow sx={{ bgcolor: "action.hover" }}>
+                      <TableCell sx={headerCellSx} width={40} />
                       <TableCell sx={headerCellSx}>Fecha</TableCell>
+                      <TableCell sx={headerCellSx}>Cliente</TableCell>
                       <TableCell sx={headerCellSx}>Proyecto</TableCell>
-                      <TableCell sx={{ ...headerCellSx, textAlign: "right" }}>Valor</TableCell>
-                      <TableCell sx={{ ...headerCellSx, textAlign: "right" }}>Acumulado</TableCell>
-                      <TableCell sx={headerCellSx}>Recibo</TableCell>
-                      <TableCell sx={headerCellSx}>Método</TableCell>
+                      <TableCell sx={headerCellSx}>Lote</TableCell>
+                      <TableCell sx={{ ...headerCellSx, textAlign: "right" }}>Esperado</TableCell>
+                      <TableCell sx={{ ...headerCellSx, textAlign: "right" }}>Pagado</TableCell>
+                      <TableCell sx={{ ...headerCellSx, textAlign: "right" }}>Restante</TableCell>
+                      <TableCell sx={headerCellSx}>Estado</TableCell>
                       <TableCell sx={headerCellSx}>Registrado por</TableCell>
-                      <TableCell sx={headerCellSx}>Notas</TableCell>
-                      <TableCell sx={{ ...headerCellSx, textAlign: "center" }}>{payS.evidenceColumn}</TableCell>
+                      <TableCell sx={{ ...headerCellSx, textAlign: "center" }}>
+                        {payS.contractColumn}
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {payments.map((p) => {
-                      runningTotal += p.paymentValue
+                    {payments.map((dp) => {
+                      const open = expandedId === dp.id
+                      const fees = feesByDownPayment[dp.id] ?? []
                       return (
-                        <TableRow
-                          key={p.id}
-                          hover
-                          sx={{ "&:last-child td": { border: 0 } }}
-                        >
-                          <TableCell sx={{ whiteSpace: "nowrap" }}>
-                            {new Date(p.datePayment).toLocaleDateString("es-CO")}
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" noWrap sx={{ maxWidth: 180 }}>
-                              {projectById.get(p.projectId) ?? p.projectId}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 500 }}>
-                            {formatCurrency(p.paymentValue)}
-                          </TableCell>
-                          <TableCell align="right" sx={{ color: "text.secondary" }}>
-                            {formatCurrency(runningTotal)}
-                          </TableCell>
-                          <TableCell>{p.receiptNumber ?? "-"}</TableCell>
-                          <TableCell>{p.paymentMethod ?? "-"}</TableCell>
-                          <TableCell>
-                            <Typography variant="body2" noWrap sx={{ maxWidth: 160 }}>
-                              {getUserName(p.recordedBy)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {p.notes ?? "-"}
-                          </TableCell>
-                          <TableCell align="center" sx={{ width: 72 }}>
-                            {p.hasEvidence ? (
+                        <Fragment key={dp.id}>
+                          <TableRow hover>
+                            <TableCell>
                               <IconButton
                                 size="small"
-                                aria-label={payS.previewEvidenceAria}
-                                onClick={() => setPreviewPaymentId(p.id)}
-                                sx={{ cursor: "pointer" }}
+                                onClick={() => void toggleExpand(dp.id)}
+                                sx={{
+                                  cursor: "pointer",
+                                  transform: open ? "rotate(180deg)" : "none",
+                                  transition: "transform 150ms",
+                                }}
                               >
-                                <ImageOutlinedIcon fontSize="small" />
+                                <ExpandMoreIcon fontSize="small" />
                               </IconButton>
-                            ) : (
-                              <Typography variant="body2" color="text.disabled" component="span">
-                                {payS.noEvidenceDash}
+                            </TableCell>
+                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                              {new Date(dp.createdAt).toLocaleDateString("es-CO")}
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" noWrap sx={{ maxWidth: 160 }}>
+                                {dp.customerName ?? dp.customerId}
                               </Typography>
-                            )}
-                          </TableCell>
-                        </TableRow>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" noWrap sx={{ maxWidth: 160 }}>
+                                {dp.projectName ?? projectById.get(dp.projectId) ?? dp.projectId}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>{dp.lotNumber}</TableCell>
+                            <TableCell align="right">{formatCurrency(dp.expectedValue)}</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 500 }}>
+                              {formatCurrency(dp.totalPaid)}
+                            </TableCell>
+                            <TableCell align="right">{formatCurrency(dp.remaining)}</TableCell>
+                            <TableCell>
+                              <Chip
+                                size="small"
+                                label={
+                                  dp.status === "completed"
+                                    ? payS.statusCompleted
+                                    : payS.statusPending
+                                }
+                                color={dp.status === "completed" ? "success" : "warning"}
+                                variant="outlined"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" noWrap sx={{ maxWidth: 140 }}>
+                                {getUserName(dp.recordedBy)}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="center">
+                              {dp.hasContract ? (
+                                <IconButton
+                                  size="small"
+                                  aria-label={payS.previewContractAria}
+                                  onClick={() =>
+                                    setPreview({
+                                      title: payS.previewContractTitle,
+                                      fetchBlob: () => fetchDownPaymentContractBlob(dp.id),
+                                    })
+                                  }
+                                  sx={{ cursor: "pointer" }}
+                                >
+                                  <DescriptionOutlinedIcon fontSize="small" />
+                                </IconButton>
+                              ) : (
+                                payS.noEvidenceDash
+                              )}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell colSpan={11} sx={{ py: 0, border: 0 }}>
+                              <Collapse in={open} timeout="auto" unmountOnExit>
+                                <Box sx={{ py: 1.5, pl: 6, pr: 2 }}>
+                                  {feesLoadingId === dp.id ? (
+                                    <CircularProgress size={22} />
+                                  ) : fees.length === 0 ? (
+                                    <Typography variant="body2" color="text.secondary">
+                                      Sin abonos
+                                    </Typography>
+                                  ) : (
+                                    <Table size="small">
+                                      <TableHead>
+                                        <TableRow>
+                                          <TableCell>Fecha</TableCell>
+                                          <TableCell align="right">Valor</TableCell>
+                                          <TableCell>Recibo</TableCell>
+                                          <TableCell>Método</TableCell>
+                                          <TableCell>Notas</TableCell>
+                                          <TableCell align="center">
+                                            {payS.evidenceColumn}
+                                          </TableCell>
+                                        </TableRow>
+                                      </TableHead>
+                                      <TableBody>
+                                        {fees.map((fee) => (
+                                          <TableRow key={fee.id}>
+                                            <TableCell>
+                                              {new Date(fee.datePayment).toLocaleDateString(
+                                                "es-CO",
+                                              )}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                              {formatCurrency(fee.paymentValue)}
+                                            </TableCell>
+                                            <TableCell>{fee.receiptNumber ?? "-"}</TableCell>
+                                            <TableCell>{fee.paymentMethod ?? "-"}</TableCell>
+                                            <TableCell
+                                              sx={{
+                                                maxWidth: 200,
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap",
+                                              }}
+                                            >
+                                              {fee.notes ?? "-"}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                              {fee.hasEvidence ? (
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() =>
+                                                    setPreview({
+                                                      title: payS.previewDialogTitle,
+                                                      fetchBlob: () =>
+                                                        fetchFeeEvidenceBlob(fee.id),
+                                                    })
+                                                  }
+                                                  sx={{ cursor: "pointer" }}
+                                                >
+                                                  <ImageOutlinedIcon fontSize="small" />
+                                                </IconButton>
+                                              ) : (
+                                                payS.noEvidenceDash
+                                              )}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  )}
+                                </Box>
+                              </Collapse>
+                            </TableCell>
+                          </TableRow>
+                        </Fragment>
                       )
                     })}
                   </TableBody>
                 </Table>
               </TableContainer>
               {total > PAGE_SIZE && (
-                <Stack direction="row" spacing={1.5} justifyContent="center" alignItems="center" sx={{ pt: 1 }}>
+                <Stack
+                  direction="row"
+                  spacing={1.5}
+                  justifyContent="center"
+                  alignItems="center"
+                  sx={{ pt: 1 }}
+                >
                   <Button
                     size="small"
                     variant="outlined"
@@ -299,7 +483,8 @@ export default function CustomerPaymentsAuditoryPanelCP() {
                     Anterior
                   </Button>
                   <Typography variant="body2" color="text.secondary">
-                    Página <strong>{page + 1}</strong> de <strong>{Math.ceil(total / PAGE_SIZE)}</strong>
+                    Página <strong>{page + 1}</strong> de{" "}
+                    <strong>{Math.ceil(total / PAGE_SIZE)}</strong>
                   </Typography>
                   <Button
                     size="small"
@@ -316,10 +501,11 @@ export default function CustomerPaymentsAuditoryPanelCP() {
           </CardContent>
         </Card>
       )}
-      <CustomerPaymentEvidencePreviewDialogCP
-        open={previewPaymentId !== null}
-        paymentId={previewPaymentId}
-        onClose={() => setPreviewPaymentId(null)}
+      <CustomerPaymentFilePreviewDialogCP
+        open={preview !== null}
+        title={preview?.title}
+        fetchBlob={preview?.fetchBlob ?? null}
+        onClose={() => setPreview(null)}
       />
     </Stack>
   )

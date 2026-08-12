@@ -9,24 +9,29 @@ import {
   IconButton,
 } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
-import { fetchCustomerPaymentEvidenceBlob } from "../../customer-v2/services/customer-payments-ms.http"
 import { customerPaymentStrings as s } from "../../../i18n/locales/customer-payment.strings"
 
-export default function CustomerPaymentEvidencePreviewDialogCP({
+type FetchBlob = () => Promise<Blob>
+
+export default function CustomerPaymentFilePreviewDialogCP({
   open,
-  paymentId,
+  title,
   onClose,
+  fetchBlob,
 }: {
   open: boolean
-  paymentId: string | null
+  title?: string
   onClose: () => void
+  fetchBlob: FetchBlob | null
 }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [mimeType, setMimeType] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   useEffect(() => {
-    if (!open || !paymentId) {
+    if (!open || !fetchBlob) {
       setPreviewUrl(null)
+      setMimeType(null)
       setLoadError(null)
       setIsLoading(false)
       return undefined
@@ -36,12 +41,14 @@ export default function CustomerPaymentEvidencePreviewDialogCP({
     setIsLoading(true)
     setLoadError(null)
     setPreviewUrl(null)
-    void fetchCustomerPaymentEvidenceBlob(paymentId)
+    setMimeType(null)
+    void fetchBlob()
       .then((blob) => {
         if (cancelled) {
           return
         }
         objectUrl = URL.createObjectURL(blob)
+        setMimeType(blob.type || null)
         setPreviewUrl(objectUrl)
       })
       .catch(() => {
@@ -60,11 +67,12 @@ export default function CustomerPaymentEvidencePreviewDialogCP({
         URL.revokeObjectURL(objectUrl)
       }
     }
-  }, [open, paymentId])
+  }, [open, fetchBlob])
+  const isPdf = mimeType === "application/pdf" || previewUrl?.includes("pdf")
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ pr: 6 }}>
-        {s.previewDialogTitle}
+        {title ?? s.previewDialogTitle}
         <IconButton
           aria-label={s.closePreviewDialog}
           onClick={onClose}
@@ -80,7 +88,15 @@ export default function CustomerPaymentEvidencePreviewDialogCP({
           </Box>
         )}
         {loadError && !isLoading && <Alert severity="error">{loadError}</Alert>}
-        {previewUrl && !isLoading && !loadError && (
+        {previewUrl && !isLoading && !loadError && isPdf && (
+          <Box
+            component="iframe"
+            src={previewUrl}
+            title={title ?? s.previewDialogTitle}
+            sx={{ width: "100%", height: "70vh", border: 0 }}
+          />
+        )}
+        {previewUrl && !isLoading && !loadError && !isPdf && (
           <Box
             component="img"
             src={previewUrl}

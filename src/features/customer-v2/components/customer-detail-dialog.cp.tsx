@@ -157,7 +157,12 @@ export default function CustomerDetailDialogCP() {
             {tab === 2 && <CustomerCallHistoryTabCP customerId={form.id} />}
             {tab === 3 && <CustomerConversationsTabCP />}
             {tab === 4 && <CustomerEventsTabCP customerId={form.id} />}
-            {tab === 5 && <CustomerPaymentTabCP customerId={form.id} />}
+            {tab === 5 && (
+              <CustomerPaymentTabCP
+                customerId={form.id}
+                customerName={`${form.name ?? ""} ${form.lastName ?? ""}`.trim()}
+              />
+            )}
             {tab === 6 && <CustomerMetaLeadTabCP customerId={form.id} />}
           </>
         )}

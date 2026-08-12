@@ -26,7 +26,7 @@ export default function CustomerPaymentsAuditoryPage() {
               Pagos de Clientes
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Registro y auditoría de pagos por proyecto
+              Separaciones (enganche) y abonos por proyecto
             </Typography>
           </Stack>
         </Stack>

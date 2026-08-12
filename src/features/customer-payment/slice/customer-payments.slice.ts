@@ -1,45 +1,46 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import {
-  createCustomerPaymentReq,
-  getPaymentSummaryByCustomerReq,
-  listCustomerPaymentsReq,
-  listPaymentsByCustomerReq,
+  addCustomerPaymentFeeReq,
+  createCustomerDownPaymentReq,
+  listCustomerDownPaymentsReq,
+  listDownPaymentsByCustomerReq,
 } from "../../customer-v2/services/customer-payments-ms.http"
 import type {
-  CreateCustomerPaymentThunkInput,
-  ListCustomerPaymentsParams,
+  CreateCustomerDownPaymentThunkInput,
+  CreateCustomerPaymentFeeThunkInput,
+  ListCustomerDownPaymentsParams,
 } from "../../customer-v2/services/customer-payments-ms.types"
 import type { CustomerPaymentsState } from "./customer-payments.state"
 
 const initialState: CustomerPaymentsState = {
   payments: [],
   total: 0,
-  customerPayments: [],
-  summaries: [],
+  customerDownPayments: [],
   isLoading: false,
   isSaving: false,
   error: null,
 }
 
-export const fetchCustomerPaymentsThunk = createAsyncThunk(
+export const fetchCustomerDownPaymentsThunk = createAsyncThunk(
   "customerPayments/fetchList",
-  async (params: ListCustomerPaymentsParams) => listCustomerPaymentsReq(params),
+  async (params: ListCustomerDownPaymentsParams) => listCustomerDownPaymentsReq(params),
 )
 
-export const fetchPaymentsByCustomerThunk = createAsyncThunk(
+export const fetchDownPaymentsByCustomerThunk = createAsyncThunk(
   "customerPayments/fetchByCustomer",
-  async (customerId: string) => listPaymentsByCustomerReq(customerId),
+  async (customerId: string) => listDownPaymentsByCustomerReq(customerId),
 )
 
-export const fetchPaymentSummaryByCustomerThunk = createAsyncThunk(
-  "customerPayments/fetchSummary",
-  async (customerId: string) => getPaymentSummaryByCustomerReq(customerId),
+export const createCustomerDownPaymentThunk = createAsyncThunk(
+  "customerPayments/createDownPayment",
+  async ({ body, contractFile, evidenceFile }: CreateCustomerDownPaymentThunkInput) =>
+    createCustomerDownPaymentReq(body, contractFile, evidenceFile),
 )
 
-export const createCustomerPaymentThunk = createAsyncThunk(
-  "customerPayments/create",
-  async ({ body, evidenceFile }: CreateCustomerPaymentThunkInput) =>
-    createCustomerPaymentReq(body, evidenceFile),
+export const addCustomerPaymentFeeThunk = createAsyncThunk(
+  "customerPayments/addFee",
+  async ({ downPaymentId, body, evidenceFile }: CreateCustomerPaymentFeeThunkInput) =>
+    addCustomerPaymentFeeReq(downPaymentId, body, evidenceFile),
 )
 
 const customerPaymentsSlice = createSlice({
@@ -50,51 +51,64 @@ const customerPaymentsSlice = createSlice({
       state.error = null
     },
     clearCustomerPaymentsAct: (state) => {
-      state.customerPayments = []
-      state.summaries = []
+      state.customerDownPayments = []
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCustomerPaymentsThunk.pending, (state) => {
+      .addCase(fetchCustomerDownPaymentsThunk.pending, (state) => {
         state.isLoading = true
         state.error = null
       })
-      .addCase(fetchCustomerPaymentsThunk.fulfilled, (state, action) => {
+      .addCase(fetchCustomerDownPaymentsThunk.fulfilled, (state, action) => {
         state.isLoading = false
         state.payments = action.payload.data
         state.total = action.payload.total
       })
-      .addCase(fetchCustomerPaymentsThunk.rejected, (state, action) => {
+      .addCase(fetchCustomerDownPaymentsThunk.rejected, (state, action) => {
         state.isLoading = false
-        state.error = action.error.message ?? "Error al cargar pagos"
+        state.error = action.error.message ?? "Error al cargar separaciones"
       })
-      .addCase(fetchPaymentsByCustomerThunk.pending, (state) => {
+      .addCase(fetchDownPaymentsByCustomerThunk.pending, (state) => {
         state.isLoading = true
         state.error = null
       })
-      .addCase(fetchPaymentsByCustomerThunk.fulfilled, (state, action) => {
+      .addCase(fetchDownPaymentsByCustomerThunk.fulfilled, (state, action) => {
         state.isLoading = false
-        state.customerPayments = action.payload
+        state.customerDownPayments = action.payload
       })
-      .addCase(fetchPaymentsByCustomerThunk.rejected, (state, action) => {
+      .addCase(fetchDownPaymentsByCustomerThunk.rejected, (state, action) => {
         state.isLoading = false
-        state.error = action.error.message ?? "Error al cargar pagos del cliente"
+        state.error = action.error.message ?? "Error al cargar separaciones del cliente"
       })
-      .addCase(fetchPaymentSummaryByCustomerThunk.fulfilled, (state, action) => {
-        state.summaries = action.payload
-      })
-      .addCase(createCustomerPaymentThunk.pending, (state) => {
+      .addCase(createCustomerDownPaymentThunk.pending, (state) => {
         state.isSaving = true
         state.error = null
       })
-      .addCase(createCustomerPaymentThunk.fulfilled, (state, action) => {
+      .addCase(createCustomerDownPaymentThunk.fulfilled, (state, action) => {
         state.isSaving = false
-        state.customerPayments.unshift(action.payload)
+        state.customerDownPayments = [
+          action.payload,
+          ...state.customerDownPayments.filter((d) => d.id !== action.payload.id),
+        ]
       })
-      .addCase(createCustomerPaymentThunk.rejected, (state, action) => {
+      .addCase(createCustomerDownPaymentThunk.rejected, (state, action) => {
         state.isSaving = false
-        state.error = action.error.message ?? "Error al registrar pago"
+        state.error = action.error.message ?? "Error al registrar separación"
+      })
+      .addCase(addCustomerPaymentFeeThunk.pending, (state) => {
+        state.isSaving = true
+        state.error = null
+      })
+      .addCase(addCustomerPaymentFeeThunk.fulfilled, (state, action) => {
+        state.isSaving = false
+        state.customerDownPayments = state.customerDownPayments.map((d) =>
+          d.id === action.payload.id ? action.payload : d,
+        )
+      })
+      .addCase(addCustomerPaymentFeeThunk.rejected, (state, action) => {
+        state.isSaving = false
+        state.error = action.error.message ?? "Error al registrar abono"
       })
   },
 })
