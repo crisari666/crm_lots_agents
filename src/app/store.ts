@@ -20,6 +20,7 @@ import twilioNumbersSlice from "../features/twilio-numbers/slice/twilio-numbers.
 import OfficesLevelSlice from "../features/offices/office-levels/slice/office-level.slice";
 import projectsSlice from "../features/project/slice/projects.slice";
 import amenitiesSlice from "../features/project/slice/amenities.slice";
+import lotInventorySlice from "../features/project/lot-inventory/slice/lot-inventory.slice";
 import importUsersSlice from "../features/import-users/import-users.slice";
 import importCustomersSlice from "../features/import-customers/import-customers.slice";
 import usersOnboardingStatusSlice from "../features/users-onboarding-status/slice/users-onboarding-status.slice";
@@ -93,6 +94,7 @@ export const store = configureStore({
     officeDashboard: officeDashboardSlice,
     officesLevel: OfficesLevelSlice,
     projects: projectsSlice,
+    lotInventory: lotInventorySlice,
     projectReleases: projectReleasesReducer,
     amenities: amenitiesSlice,
     qrArrive: qrArriveSlice,

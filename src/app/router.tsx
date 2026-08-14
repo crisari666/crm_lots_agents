@@ -22,6 +22,8 @@ import AuditsPage from "../views/audits-page";
 import ProjectListPage from "../features/project/pages/project-list-page";
 import CreateProjectPage from "../features/project/pages/create-project-page";
 import EditProjectPage from "../features/project/pages/edit-project-page";
+import LotInventoryHubPage from "../features/project/lot-inventory/pages/lot-inventory-hub-page";
+import LotInventoryWorkspacePage from "../features/project/lot-inventory/pages/lot-inventory-workspace-page";
 import UsersOnboardingStatusView from "../features/users-onboarding-status/users-onboarding-status-view";
 import TrainingTrakingPage from "../features/training-traking/pages/training-traking-page";
 import TrainingSessionsPage from "../features/training-sessions/pages/training-sessions-page";
@@ -76,6 +78,8 @@ const router = createBrowserRouter([
       { path: "office-dashboard/:officeId", element: <OfficeDashboardView /> },
       { path: "twilio-numbers", element: <TwilioNumbersView /> },
       { path: "projects", element: <ProjectListPage /> },
+      { path: "lot-inventory", element: <LotInventoryHubPage /> },
+      { path: "lot-inventory/:projectId", element: <LotInventoryWorkspacePage /> },
       { path: "project-releases", element: <ProjectReleasesPage /> },
       { path: "create-project", element: <CreateProjectPage /> },
       { path: "edit-project/:projectId", element: <EditProjectPage /> },

@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, GridView, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -31,6 +31,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     { to: "", Icon: <Dashboard />, title: "Resume" },
     { Icon: <BusinessOutlined />, title: "Projects", children: [
       { to: "/dashboard/projects", Icon: <BusinessOutlined />, title: "Proyectos" },
+      { to: "/dashboard/lot-inventory", Icon: <GridView />, title: "Inventario de lotes" },
       { to: "/dashboard/project-releases", Icon: <Done />, title: "Proyectos finalizado" },
     ]},
     // { Icon: <Person2Outlined />, title: "Clientes", children: [
@@ -153,6 +154,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
   
   const mapRoutesContent: RouteItemI[] = [
     { Icon: <BusinessOutlined />, title: "Projects", children: [
+      { to: "/dashboard/lot-inventory", Icon: <GridView />, title: "Inventario de lotes" },
       { to: "/dashboard/projects", Icon: <BusinessOutlined />, title: "Proyectos" },
       { to: "/dashboard/project-releases", Icon: <Done />, title: "Proyectos finalizado" },
     ]},

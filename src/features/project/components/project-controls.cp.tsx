@@ -5,9 +5,13 @@ import { useNavigate } from "react-router-dom"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
 import AmenitiesDialogCP from "./amenities-dialog.cp"
 import GlobalDocumentIngestionDialogCP from "./global-document-ingestion-dialog.cp"
+import { useAppSelector } from "../../../app/hooks"
+import { RootState } from "../../../app/store"
 
 export default function ProjectControlsCP() {
   const navigate = useNavigate()
+  const currentUser = useAppSelector((state: RootState) => state.login.currentUser)
+  const isContentUser = currentUser?.level === 9
   const [amenitiesOpen, setAmenitiesOpen] = useState(false)
   const [globalIngestionOpen, setGlobalIngestionOpen] = useState(false)
 
@@ -17,27 +21,31 @@ export default function ProjectControlsCP() {
         Projects
       </Typography>
       <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-        <Button
-          variant="outlined"
-          startIcon={<PublicIcon />}
-          onClick={() => setGlobalIngestionOpen(true)}
-        >
-          {s.globalIngestionButton}
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<AmenitiesIcon />}
-          onClick={() => setAmenitiesOpen(true)}
-        >
-          Amenities
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate("/dashboard/create-project")}
-        >
-          Add Project
-        </Button>
+        {!isContentUser && (
+          <>
+            <Button
+              variant="outlined"
+              startIcon={<PublicIcon />}
+              onClick={() => setGlobalIngestionOpen(true)}
+            >
+              {s.globalIngestionButton}
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<AmenitiesIcon />}
+              onClick={() => setAmenitiesOpen(true)}
+            >
+              Amenities
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate("/dashboard/create-project")}
+            >
+              Add Project
+            </Button>
+          </>
+        )}
       </Box>
       <AmenitiesDialogCP open={amenitiesOpen} onClose={() => setAmenitiesOpen(false)} />
       <GlobalDocumentIngestionDialogCP
