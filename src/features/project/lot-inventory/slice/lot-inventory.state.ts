@@ -24,6 +24,7 @@ export type LotInventoryState = {
   lotsError: string | null
   kindFilter: ProjectLotKind
   statusFilter: ProjectLotStatus | "all"
+  stageFilter: string | "all"
   searchNumber: string
   viewMode: LotInventoryViewMode
   selectedLotIds: string[]

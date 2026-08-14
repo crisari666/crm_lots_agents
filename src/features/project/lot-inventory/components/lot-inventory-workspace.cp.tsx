@@ -29,6 +29,7 @@ import {
   resetWorkspaceAct,
   setSearchNumberAct,
   setStatusFilterAct,
+  setStageFilterAct,
   setViewModeAct
 } from "../slice/lot-inventory.slice"
 import LotInventorySummaryBarCP from "./lot-inventory-summary-bar.cp"
@@ -58,10 +59,12 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
   const navigate = useNavigate()
   const searchRef = useRef<HTMLInputElement>(null)
   const {
+    lots,
     lotsLoading,
     lotsError,
     viewMode,
     statusFilter,
+    stageFilter,
     searchNumber,
     selectedLotIds,
     hubRows,
@@ -78,6 +81,20 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
     () => hubRows.find((r) => r.projectId === projectId),
     [hubRows, projectId]
   )
+
+  const stageOptions = useMemo(() => {
+    const byKey = new Map<string, { key: string; name: string; order: number }>()
+    for (const lot of lots) {
+      const key = lot.stageKey || "default"
+      if (byKey.has(key)) continue
+      byKey.set(key, {
+        key,
+        name: lot.stageName || (key === "default" ? s.stageGeneral : key),
+        order: lot.stageOrder ?? 0
+      })
+    }
+    return Array.from(byKey.values()).sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
+  }, [lots])
 
   useEffect(() => {
     void dispatch(fetchLotInventoryHubThunk())
@@ -193,6 +210,37 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
           />
         ))}
       </Stack>
+
+      {stageOptions.length > 0 && (
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ mb: 2 }}
+          flexWrap="wrap"
+          useFlexGap
+        >
+          <Chip
+            clickable
+            color={stageFilter === "all" ? "secondary" : "default"}
+            variant={stageFilter === "all" ? "filled" : "outlined"}
+            label={s.filterAllStages}
+            onClick={() => dispatch(setStageFilterAct("all"))}
+            sx={{ cursor: "pointer" }}
+          />
+          {stageOptions.map((st) => (
+            <Chip
+              key={st.key}
+              clickable
+              color={stageFilter === st.key ? "secondary" : "default"}
+              variant={stageFilter === st.key ? "filled" : "outlined"}
+              label={st.name}
+              onClick={() => dispatch(setStageFilterAct(st.key))}
+              sx={{ cursor: "pointer" }}
+            />
+          ))}
+        </Stack>
+      )}
 
       {selectedLotIds.length > 0 && (
         <Stack

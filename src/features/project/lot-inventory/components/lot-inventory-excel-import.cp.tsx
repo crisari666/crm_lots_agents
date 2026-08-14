@@ -19,7 +19,7 @@ import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory
 
 function downloadTemplate(): void {
   const csv =
-    "nLots,area,price,ventor,status\n1,200,450000000,,\n2,200,450000000,Juan,V\n3,180,420000000,,S\n"
+    "stage,stageName,nLots,area,price,ventor,status\n1,Etapa Norte,1,200,450000000,,\n2,Etapa Sur,1,180,420000000,,S\n,General,2,200,450000000,Juan,V\n"
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")

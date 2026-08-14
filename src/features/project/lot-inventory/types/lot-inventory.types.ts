@@ -25,6 +25,10 @@ export type ProjectLotType = {
   price: number
   soldBy?: string
   ventorName?: string
+  holdUntil?: string | null
+  stageKey?: string
+  stageName?: string
+  stageOrder?: number
   createdAt?: string
   updatedAt?: string
 }
@@ -51,6 +55,10 @@ export type UpdateProjectLotDto = {
   status?: ProjectLotStatus
   ventorName?: string
   soldBy?: string
+  holdUntil?: string | null
+  stageKey?: string
+  stageName?: string
+  stageOrder?: number
 }
 
 export type BulkUpdateLotStatusDto = {
@@ -58,6 +66,7 @@ export type BulkUpdateLotStatusDto = {
   status: ProjectLotStatus
   ventorName?: string
   soldBy?: string
+  holdUntil?: string | null
 }
 
 export type GenerateProjectLotsDto = {

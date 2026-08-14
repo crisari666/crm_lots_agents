@@ -30,6 +30,7 @@ const initialState: LotInventoryState = {
   lotsError: null,
   kindFilter: "lot",
   statusFilter: "all",
+  stageFilter: "all",
   searchNumber: "",
   viewMode: "board",
   selectedLotIds: [],
@@ -105,6 +106,9 @@ const lotInventorySlice = createSlice({
     ) {
       state.statusFilter = action.payload
     },
+    setStageFilterAct(state, action: PayloadAction<string | "all">) {
+      state.stageFilter = action.payload
+    },
     setSearchNumberAct(state, action: PayloadAction<string>) {
       state.searchNumber = action.payload
     },
@@ -136,6 +140,7 @@ const lotInventorySlice = createSlice({
       state.drawerLotId = null
       state.searchNumber = ""
       state.statusFilter = "all"
+      state.stageFilter = "all"
       state.importResult = null
       state.lotsError = null
     }
@@ -228,6 +233,7 @@ export const {
   setHubSearchAct,
   setKindFilterAct,
   setStatusFilterAct,
+  setStageFilterAct,
   setSearchNumberAct,
   setViewModeAct,
   toggleLotSelectedAct,

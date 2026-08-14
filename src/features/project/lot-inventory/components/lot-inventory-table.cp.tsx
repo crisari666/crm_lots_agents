@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react"
 import {
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -29,12 +30,27 @@ function formatMoneyCop(n: number): string {
   }).format(n)
 }
 
+function formatHoldUntil(iso?: string | null): string {
+  if (!iso) return ""
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ""
+  return d.toLocaleString("es-CO", {
+    dateStyle: "short",
+    timeStyle: "short"
+  })
+}
+
+function stageLabel(lot: ProjectLotType): string {
+  return lot.stageName || (lot.stageKey === "default" || !lot.stageKey ? s.stageGeneral : lot.stageKey)
+}
+
 export default function LotInventoryTableCP() {
   const dispatch = useAppDispatch()
   const {
     lots,
     kindFilter,
     statusFilter,
+    stageFilter,
     searchNumber,
     projectId,
     actionLoading
@@ -48,12 +64,19 @@ export default function LotInventoryTableCP() {
       .filter((lot) => {
         if (lot.kind !== kindFilter) return false
         if (statusFilter !== "all" && lot.status !== statusFilter) return false
+        if (stageFilter !== "all" && (lot.stageKey || "default") !== stageFilter) {
+          return false
+        }
         if (q && !lot.number.toLowerCase().includes(q)) return false
         return true
       })
       .slice()
-      .sort((a, b) => parseInt(a.number, 10) - parseInt(b.number, 10))
-  }, [lots, kindFilter, statusFilter, searchNumber])
+      .sort((a, b) => {
+        const orderDiff = (a.stageOrder ?? 0) - (b.stageOrder ?? 0)
+        if (orderDiff !== 0) return orderDiff
+        return parseInt(a.number, 10) - parseInt(b.number, 10)
+      })
+  }, [lots, kindFilter, statusFilter, stageFilter, searchNumber])
 
   const commitArea = async (lot: ProjectLotType) => {
     if (!projectId || editingAreaId !== lot._id) return
@@ -84,6 +107,7 @@ export default function LotInventoryTableCP() {
         <TableHead>
           <TableRow>
             <TableCell>{s.colNumber}</TableCell>
+            <TableCell>{s.colStage}</TableCell>
             <TableCell>{s.colArea}</TableCell>
             <TableCell>{s.colPrice}</TableCell>
             <TableCell>{s.colStatus}</TableCell>
@@ -101,6 +125,7 @@ export default function LotInventoryTableCP() {
               <TableCell>
                 <Typography fontWeight={600}>{lot.number}</Typography>
               </TableCell>
+              <TableCell>{stageLabel(lot)}</TableCell>
               <TableCell
                 onClick={(e) => {
                   e.stopPropagation()
@@ -128,7 +153,14 @@ export default function LotInventoryTableCP() {
               </TableCell>
               <TableCell>{formatMoneyCop(lot.price)}</TableCell>
               <TableCell>
-                <LotStatusChip status={lot.status} />
+                <Stack spacing={0.25}>
+                  <LotStatusChip status={lot.status} />
+                  {lot.status === "hold" && lot.holdUntil ? (
+                    <Typography variant="caption" color="text.secondary">
+                      {s.colHoldUntil}: {formatHoldUntil(lot.holdUntil)}
+                    </Typography>
+                  ) : null}
+                </Stack>
               </TableCell>
               <TableCell>{lot.ventorName || "—"}</TableCell>
             </TableRow>

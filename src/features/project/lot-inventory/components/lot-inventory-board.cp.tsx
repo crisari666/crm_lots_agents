@@ -14,12 +14,16 @@ function filterLots(
   lots: ProjectLotType[],
   kindFilter: string,
   statusFilter: string,
+  stageFilter: string,
   searchNumber: string
 ): ProjectLotType[] {
   const q = searchNumber.trim().toLowerCase()
   return lots.filter((lot) => {
     if (lot.kind !== kindFilter) return false
     if (statusFilter !== "all" && lot.status !== statusFilter) return false
+    if (stageFilter !== "all" && (lot.stageKey || "default") !== stageFilter) {
+      return false
+    }
     if (q && !lot.number.toLowerCase().includes(q)) return false
     return true
   })
@@ -27,13 +31,18 @@ function filterLots(
 
 export default function LotInventoryBoardCP() {
   const dispatch = useAppDispatch()
-  const { lots, kindFilter, statusFilter, searchNumber, selectedLotIds } =
+  const { lots, kindFilter, statusFilter, stageFilter, searchNumber, selectedLotIds } =
     useAppSelector((state: RootState) => state.lotInventory)
 
   const visible = useMemo(
-    () => filterLots(lots, kindFilter, statusFilter, searchNumber),
-    [lots, kindFilter, statusFilter, searchNumber]
+    () => filterLots(lots, kindFilter, statusFilter, stageFilter, searchNumber),
+    [lots, kindFilter, statusFilter, stageFilter, searchNumber]
   )
+
+  const showStageCaption = useMemo(() => {
+    const keys = new Set(visible.map((l) => l.stageKey || "default"))
+    return keys.size > 1 || stageFilter === "all"
+  }, [visible, stageFilter])
 
   if (visible.length === 0) {
     return (
@@ -53,11 +62,17 @@ export default function LotInventoryBoardCP() {
     >
       {visible.map((lot) => {
         const selected = selectedLotIds.includes(lot._id)
+        const stageName =
+          lot.stageName ||
+          (lot.stageKey === "default" || !lot.stageKey
+            ? s.stageGeneral
+            : lot.stageKey)
         return (
           <Box
             key={lot._id}
             role="button"
             tabIndex={0}
+            title={showStageCaption ? stageName : undefined}
             onClick={(e) => {
               if (e.metaKey || e.ctrlKey || selectedLotIds.length > 0) {
                 dispatch(toggleLotSelectedAct(lot._id))
@@ -89,6 +104,15 @@ export default function LotInventoryBoardCP() {
             <Typography variant="caption" sx={{ opacity: 0.8 }}>
               {Math.round(lot.area)}m²
             </Typography>
+            {showStageCaption ? (
+              <Typography
+                variant="caption"
+                sx={{ opacity: 0.7, fontSize: 9, lineHeight: 1.1, px: 0.25 }}
+                noWrap
+              >
+                {stageName}
+              </Typography>
+            ) : null}
           </Box>
         )
       })}
