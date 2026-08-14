@@ -60,6 +60,12 @@ export type ProjectType = {
   legalBusinessRegistration?: string
   legalBankCertificate?: string
   legalLibertarianCertificate?: string
+  nLots?: number
+  nCommercialSpaces?: number
+  baseLotArea?: number
+  baseCommercialArea?: number
+  defaultLotPrice?: number
+  defaultCommercialPrice?: number
   createdAt?: string
   updatedAt?: string
   __v?: number
