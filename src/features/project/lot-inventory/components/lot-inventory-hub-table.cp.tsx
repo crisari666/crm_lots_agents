@@ -25,6 +25,7 @@ import {
 } from "../slice/lot-inventory.slice"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
 import type { LotStatusSummary } from "../types/lot-inventory.types"
+import ProjectStockPublicLinkCP from "../../components/project-stock-public-link.cp"
 
 function SummaryChips({ summary }: { summary: LotStatusSummary }) {
   return (
@@ -91,6 +92,7 @@ export default function LotInventoryHubTableCP() {
             <TableHead>
               <TableRow>
                 <TableCell>{s.hubColProject}</TableCell>
+                <TableCell>{s.hubPublicStock}</TableCell>
                 <TableCell>{s.hubColLotsAvailable}</TableCell>
                 <TableCell>{s.hubColCommercialAvailable}</TableCell>
                 <TableCell>{s.hubColSummary}</TableCell>
@@ -100,7 +102,7 @@ export default function LotInventoryHubTableCP() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5}>
+                  <TableCell colSpan={6}>
                     <Typography color="text.secondary">{s.hubEmpty}</Typography>
                   </TableCell>
                 </TableRow>
@@ -119,6 +121,9 @@ export default function LotInventoryHubTableCP() {
                       {!row.enabled && (
                         <Chip size="small" label="Disabled" sx={{ mt: 0.5 }} />
                       )}
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <ProjectStockPublicLinkCP projectId={row.projectId} />
                     </TableCell>
                     <TableCell>
                       {row.summary.lot.available} / {row.summary.lot.total || row.nLots}

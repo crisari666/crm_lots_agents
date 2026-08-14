@@ -224,4 +224,10 @@ export const projectStrings = {
   legalDocBusinessRegistration: "Registro mercantil",
   legalDocBankCertificate: "Certificado bancario",
   legalDocLibertarianCertificate: "Certificado de libertad",
+
+  listColPublicStock: "Inventario público",
+  listOpenPublicStock: "Abrir inventario público",
+  listCopyPublicStock: "Copiar enlace público",
+  listCopiedPublicStock: "Copiado",
+  listMissingAgentBaseUrl: "Configura VITE_AGENT_BASE_URL",
 } as const

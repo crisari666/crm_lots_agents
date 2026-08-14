@@ -19,6 +19,8 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import { fetchProjectsThunk, setProjectEnabledThunk } from "../slice/projects.slice"
 import { ProjectType } from "../types/project.types"
+import { projectStrings as s } from "../../../i18n/locales/project.strings"
+import ProjectStockPublicLinkCP from "./project-stock-public-link.cp"
 
 export default function ProjectListCP() {
   const navigate = useNavigate()
@@ -84,6 +86,7 @@ export default function ProjectListCP() {
         <TableHead>
           <TableRow>
             <TableCell>Título</TableCell>
+            <TableCell>{s.listColPublicStock}</TableCell>
             <TableCell align="center">Habilitado</TableCell>
             <TableCell>Ubicación</TableCell>
             <TableCell align="right">Precio venta (COP)</TableCell>
@@ -105,6 +108,9 @@ export default function ProjectListCP() {
                 <Typography variant="body2" fontWeight="medium">
                   {project.title}
                 </Typography>
+              </TableCell>
+              <TableCell onClick={(e) => e.stopPropagation()}>
+                <ProjectStockPublicLinkCP projectId={project._id} />
               </TableCell>
               <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                 <Switch
@@ -152,7 +158,7 @@ export default function ProjectListCP() {
           ))}
           {projects.length === 0 && !isLoading && (
             <TableRow>
-              <TableCell colSpan={8} align="center">
+              <TableCell colSpan={9} align="center">
                 <Typography variant="body2" color="text.secondary">
                   No se encontraron proyectos
                 </Typography>

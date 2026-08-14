@@ -8,6 +8,7 @@ export const lotInventoryStrings = {
   hubColSummary: "Resumen",
   hubEmpty: "No hay proyectos.",
   hubOpen: "Abrir inventario",
+  hubPublicStock: "Inventario público",
   statusAvailable: "Disponible",
   statusSold: "Vendido",
   statusHold: "Separado",
