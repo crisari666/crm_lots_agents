@@ -216,7 +216,7 @@ export default function LotInventoryMapCP({ projectId }: Props) {
   const mapRef = useRef<Map | null>(null)
   const popupRef = useRef<mapboxgl.Popup | null>(null)
   const fittedKeyRef = useRef<string>("")
-  const [perspective, setPerspective] = useState<"2d" | "3d">("3d")
+  const [perspective, setPerspective] = useState<"2d" | "3d">("2d")
   const perspectiveRef = useRef<"2d" | "3d">(perspective)
   perspectiveRef.current = perspective
   const {
