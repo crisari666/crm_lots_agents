@@ -10,6 +10,12 @@ import { getBoardTileSx } from "./lot-status-chip.cp"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
 import type { ProjectLotType } from "../types/lot-inventory.types"
 
+function compareLotOrder(a: ProjectLotType, b: ProjectLotType): number {
+  const orderDiff = (a.stageOrder ?? 0) - (b.stageOrder ?? 0)
+  if (orderDiff !== 0) return orderDiff
+  return a.number.localeCompare(b.number, undefined, { numeric: true })
+}
+
 function filterLots(
   lots: ProjectLotType[],
   kindFilter: string,
@@ -18,15 +24,18 @@ function filterLots(
   searchNumber: string
 ): ProjectLotType[] {
   const q = searchNumber.trim().toLowerCase()
-  return lots.filter((lot) => {
-    if (lot.kind !== kindFilter) return false
-    if (statusFilter !== "all" && lot.status !== statusFilter) return false
-    if (stageFilter !== "all" && (lot.stageKey || "default") !== stageFilter) {
-      return false
-    }
-    if (q && !lot.number.toLowerCase().includes(q)) return false
-    return true
-  })
+  return lots
+    .filter((lot) => {
+      if (lot.kind !== kindFilter) return false
+      if (statusFilter !== "all" && lot.status !== statusFilter) return false
+      if (stageFilter !== "all" && (lot.stageKey || "default") !== stageFilter) {
+        return false
+      }
+      if (q && !lot.number.toLowerCase().includes(q)) return false
+      return true
+    })
+    .slice()
+    .sort(compareLotOrder)
 }
 
 export default function LotInventoryBoardCP() {

@@ -74,7 +74,7 @@ export default function LotInventoryTableCP() {
       .sort((a, b) => {
         const orderDiff = (a.stageOrder ?? 0) - (b.stageOrder ?? 0)
         if (orderDiff !== 0) return orderDiff
-        return parseInt(a.number, 10) - parseInt(b.number, 10)
+        return a.number.localeCompare(b.number, undefined, { numeric: true })
       })
   }, [lots, kindFilter, statusFilter, stageFilter, searchNumber])
 

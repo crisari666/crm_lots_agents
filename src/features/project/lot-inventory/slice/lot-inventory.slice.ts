@@ -1,11 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import {
   bulkUpdateLotStatusReq,
+  deleteLotsMapReq,
   fetchLotInventoryHubReq,
+  fetchLotsMapReq,
   fetchProjectLotsReq,
   generateProjectLotsReq,
   importProjectLotsExcelReq,
-  updateProjectLotReq
+  updateProjectLotReq,
+  uploadLotsMapKmlReq
 } from "../../../../app/services/project-lots.service"
 import {
   BulkUpdateLotStatusDto,
@@ -36,7 +39,11 @@ const initialState: LotInventoryState = {
   selectedLotIds: [],
   drawerLotId: null,
   importResult: null,
-  actionLoading: false
+  actionLoading: false,
+  mapPaint: null,
+  mapLoading: false,
+  mapError: null,
+  mapUploadResult: null
 }
 
 export const fetchLotInventoryHubThunk = createAsyncThunk(
@@ -89,6 +96,28 @@ export const importProjectLotsExcelThunk = createAsyncThunk(
   }) => importProjectLotsExcelReq(params)
 )
 
+export const fetchLotsMapThunk = createAsyncThunk(
+  "lotInventory/fetchMap",
+  async (projectId: string) => fetchLotsMapReq({ projectId })
+)
+
+export const uploadLotsMapKmlThunk = createAsyncThunk(
+  "lotInventory/uploadMapKml",
+  async (params: {
+    projectId: string
+    file: File
+    swapStages?: boolean
+  }) => uploadLotsMapKmlReq(params)
+)
+
+export const deleteLotsMapThunk = createAsyncThunk(
+  "lotInventory/deleteMap",
+  async (projectId: string) => {
+    await deleteLotsMapReq({ projectId })
+    return projectId
+  }
+)
+
 const lotInventorySlice = createSlice({
   name: "lotInventory",
   initialState,
@@ -132,6 +161,9 @@ const lotInventorySlice = createSlice({
     clearImportResultAct(state) {
       state.importResult = null
     },
+    clearMapUploadResultAct(state) {
+      state.mapUploadResult = null
+    },
     resetWorkspaceAct(state) {
       state.projectId = null
       state.lots = []
@@ -143,6 +175,9 @@ const lotInventorySlice = createSlice({
       state.stageFilter = "all"
       state.importResult = null
       state.lotsError = null
+      state.mapPaint = null
+      state.mapError = null
+      state.mapUploadResult = null
     }
   },
   extraReducers: (builder) => {
@@ -226,6 +261,42 @@ const lotInventorySlice = createSlice({
       .addCase(importProjectLotsExcelThunk.rejected, (state) => {
         state.actionLoading = false
       })
+      .addCase(fetchLotsMapThunk.pending, (state) => {
+        state.mapLoading = true
+        state.mapError = null
+      })
+      .addCase(fetchLotsMapThunk.fulfilled, (state, action) => {
+        state.mapLoading = false
+        state.mapPaint = action.payload
+      })
+      .addCase(fetchLotsMapThunk.rejected, (state, action) => {
+        state.mapLoading = false
+        state.mapPaint = null
+        state.mapError = action.error.message ?? "Error"
+      })
+      .addCase(uploadLotsMapKmlThunk.pending, (state) => {
+        state.actionLoading = true
+        state.mapUploadResult = null
+      })
+      .addCase(uploadLotsMapKmlThunk.fulfilled, (state, action) => {
+        state.actionLoading = false
+        state.mapUploadResult = action.payload
+      })
+      .addCase(uploadLotsMapKmlThunk.rejected, (state, action) => {
+        state.actionLoading = false
+        state.mapError = action.error.message ?? "Error"
+      })
+      .addCase(deleteLotsMapThunk.pending, (state) => {
+        state.actionLoading = true
+      })
+      .addCase(deleteLotsMapThunk.fulfilled, (state) => {
+        state.actionLoading = false
+        state.mapPaint = null
+        state.mapUploadResult = null
+      })
+      .addCase(deleteLotsMapThunk.rejected, (state) => {
+        state.actionLoading = false
+      })
   }
 })
 
@@ -240,6 +311,7 @@ export const {
   clearLotSelectionAct,
   setDrawerLotIdAct,
   clearImportResultAct,
+  clearMapUploadResultAct,
   resetWorkspaceAct
 } = lotInventorySlice.actions
 

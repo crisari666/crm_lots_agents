@@ -16,6 +16,7 @@ import {
   ArrowBack as BackIcon,
   GridView as BoardIcon,
   TableRows as TableIcon,
+  Map as MapIcon,
   Add as AddIcon
 } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
@@ -25,6 +26,7 @@ import {
   bulkUpdateLotStatusThunk,
   clearLotSelectionAct,
   fetchLotInventoryHubThunk,
+  fetchLotsMapThunk,
   fetchProjectLotsThunk,
   resetWorkspaceAct,
   setSearchNumberAct,
@@ -38,6 +40,8 @@ import LotInventoryTableCP from "./lot-inventory-table.cp"
 import LotInventoryDrawerCP from "./lot-inventory-drawer.cp"
 import LotInventoryExcelImportCP from "./lot-inventory-excel-import.cp"
 import LotInventoryGenerateDialogCP from "./lot-inventory-generate-dialog.cp"
+import LotInventoryMapCP from "./lot-inventory-map.cp"
+import LotInventoryMapUploadCP from "./lot-inventory-map-upload.cp"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
 import type { ProjectLotStatus } from "../types/lot-inventory.types"
 import { getStatusLabel } from "./lot-status-chip.cp"
@@ -131,6 +135,9 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
       })
     )
     void dispatch(fetchProjectLotsThunk({ projectId }))
+    if (viewMode === "map") {
+      void dispatch(fetchLotsMapThunk(projectId))
+    }
   }
 
   return (
@@ -196,6 +203,10 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
           <ToggleButton value="table">
             <TableIcon fontSize="small" sx={{ mr: 0.5 }} />
             {s.viewTable}
+          </ToggleButton>
+          <ToggleButton value="map">
+            <MapIcon fontSize="small" sx={{ mr: 0.5 }} />
+            {s.viewMap}
           </ToggleButton>
         </ToggleButtonGroup>
         {STATUS_FILTERS.map((st) => (
@@ -274,20 +285,23 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
       )}
 
       <LotInventoryExcelImportCP />
+      {isAdmin && <LotInventoryMapUploadCP projectId={projectId} />}
 
       {lotsError && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {lotsError}
         </Alert>
       )}
-      {lotsLoading ? (
+      {lotsLoading && viewMode !== "map" ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
           <CircularProgress />
         </Box>
       ) : viewMode === "board" ? (
         <LotInventoryBoardCP />
-      ) : (
+      ) : viewMode === "table" ? (
         <LotInventoryTableCP />
+      ) : (
+        <LotInventoryMapCP projectId={projectId} />
       )}
 
       <LotInventoryDrawerCP />

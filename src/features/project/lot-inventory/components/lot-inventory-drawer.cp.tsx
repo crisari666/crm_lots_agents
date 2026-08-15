@@ -13,6 +13,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { RootState } from "../../../../app/store"
 import {
+  fetchLotsMapThunk,
   fetchProjectLotsThunk,
   setDrawerLotIdAct,
   updateProjectLotThunk
@@ -113,6 +114,7 @@ export default function LotInventoryDrawerCP() {
       })
     )
     void dispatch(fetchProjectLotsThunk({ projectId }))
+    void dispatch(fetchLotsMapThunk(projectId))
     close()
   }
 

@@ -4,6 +4,8 @@ import type {
   GenerateProjectLotsDto,
   ImportLotsResult,
   ListLotsResponse,
+  LotMapPaintResponse,
+  LotMapUploadResponse,
   ProjectLotInventoryRow,
   ProjectLotKind,
   ProjectLotType,
@@ -88,4 +90,42 @@ export async function importProjectLotsExcelReq({
     data: formData,
     isFormData: true
   })
+}
+
+export async function fetchLotsMapReq({
+  projectId
+}: {
+  projectId: string
+}): Promise<LotMapPaintResponse> {
+  const api = RagApi.getInstance()
+  return api.get({ path: `projects/${projectId}/lots/map` })
+}
+
+export async function uploadLotsMapKmlReq({
+  projectId,
+  file,
+  swapStages = false
+}: {
+  projectId: string
+  file: File
+  swapStages?: boolean
+}): Promise<LotMapUploadResponse> {
+  const api = RagApi.getInstance()
+  const formData = new FormData()
+  formData.append("file", file)
+  formData.append("swapStages", swapStages ? "true" : "false")
+  return api.post({
+    path: `projects/${projectId}/lots/map/kml`,
+    data: formData,
+    isFormData: true
+  })
+}
+
+export async function deleteLotsMapReq({
+  projectId
+}: {
+  projectId: string
+}): Promise<{ cleared: true }> {
+  const api = RagApi.getInstance()
+  return api.delete({ path: `projects/${projectId}/lots/map` })
 }

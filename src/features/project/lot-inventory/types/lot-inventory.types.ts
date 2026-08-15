@@ -85,7 +85,55 @@ export type ImportLotsResult = {
   errors: string[]
 }
 
-export type LotInventoryViewMode = "board" | "table"
+export type LotInventoryViewMode = "board" | "table" | "map"
+
+export type LotMapFeatureProperties = {
+  lotNumber: string
+  stageKey: string
+  stageName: string
+  stageOrder: number
+  status?: ProjectLotStatus | null
+  lotId?: string | null
+  area?: number | null
+  price?: number | null
+  ventorName?: string | null
+  holdUntil?: string | null
+  soldBy?: string | null
+}
+
+export type LotMapGeoJsonFeature = {
+  type: "Feature"
+  properties: LotMapFeatureProperties
+  geometry: {
+    type: "Polygon"
+    coordinates: number[][][]
+  }
+}
+
+export type LotMapGeoJson = {
+  type: "FeatureCollection"
+  features: LotMapGeoJsonFeature[]
+}
+
+export type LotMapPaintResponse = {
+  projectId: string
+  projectTitle: string
+  lotsMapKml: string
+  lotsMapGeojson: string
+  geojson: LotMapGeoJson
+  featureCount: number
+  matchedCount: number
+}
+
+export type LotMapUploadResponse = {
+  projectId: string
+  lotsMapKml: string
+  lotsMapGeojson: string
+  featureCount: number
+  createdLots: number
+  stages: Array<{ stageKey: string; stageName: string; count: number }>
+  swapStages: boolean
+}
 
 export const EMPTY_STATUS_SUMMARY: LotStatusSummary = {
   available: 0,

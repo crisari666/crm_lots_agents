@@ -4,6 +4,8 @@ import {
   ImportLotsResult,
   LotInventoryViewMode,
   LotKindSummary,
+  LotMapPaintResponse,
+  LotMapUploadResponse,
   ProjectLotInventoryRow,
   ProjectLotKind,
   ProjectLotStatus,
@@ -31,4 +33,8 @@ export type LotInventoryState = {
   drawerLotId: string | null
   importResult: ImportLotsResult | null
   actionLoading: boolean
+  mapPaint: LotMapPaintResponse | null
+  mapLoading: boolean
+  mapError: string | null
+  mapUploadResult: LotMapUploadResponse | null
 }
