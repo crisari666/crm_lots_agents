@@ -7,10 +7,19 @@ export function getAgentAppBaseUrl(): string {
   return fromSignup.replace(/\/$/, "")
 }
 
-export function buildProjectStockPublicUrl(projectId: string): string {
+export type ProjectStockPublicView = "map" | "grid" | "columns" | "glance"
+
+export function buildProjectStockPublicUrl(
+  projectId: string,
+  view?: ProjectStockPublicView | ""
+): string {
   const base = getAgentAppBaseUrl()
   if (base === "" || projectId.trim() === "") {
     return ""
   }
-  return `${base}/stock/${encodeURIComponent(projectId)}`
+  const path = `${base}/stock/${encodeURIComponent(projectId)}`
+  if (!view) {
+    return path
+  }
+  return `${path}#${view}`
 }

@@ -229,5 +229,10 @@ export const projectStrings = {
   listOpenPublicStock: "Abrir inventario público",
   listCopyPublicStock: "Copiar enlace público",
   listCopiedPublicStock: "Copiado",
+  listPublicStockViewLabel: "Vista del enlace",
+  listPublicStockViewDefault: "Predeterminada",
+  listPublicStockViewMap: "Mapa (#map)",
+  listPublicStockViewGrid: "Cuadrícula (#grid)",
+  listPublicStockViewColumns: "Columnas (#columns)",
   listMissingAgentBaseUrl: "Configura VITE_AGENT_BASE_URL",
 } as const
