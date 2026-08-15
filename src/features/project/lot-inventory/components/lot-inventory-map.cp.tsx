@@ -40,7 +40,7 @@ const TERRAIN_SOURCE_ID = "mapbox-dem"
 const SKY_LAYER_ID = "sky"
 const MAP_PITCH = 60
 const MAP_BEARING = -20
-const LOT_EXTRUSION_HEIGHT_M = 1
+const LOT_EXTRUSION_HEIGHT_M = 0.05
 const EMPTY_GEOJSON: LotMapGeoJson = {
   type: "FeatureCollection",
   features: []
@@ -112,7 +112,7 @@ function enableMap3d(map: Map): void {
       maxzoom: 14
     })
   }
-  map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: 1 })
+  map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: 0 })
   if (!map.getLayer(SKY_LAYER_ID)) {
     map.addLayer({
       id: SKY_LAYER_ID,
