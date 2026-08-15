@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   FormControlLabel,
-  Paper,
   Stack,
   Switch,
   Typography
@@ -63,7 +62,7 @@ export default function LotInventoryMapUploadCP({ projectId }: Props) {
   }
 
   return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+    <Box>
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>
         {s.mapUploadTitle}
       </Typography>
@@ -145,6 +144,6 @@ export default function LotInventoryMapUploadCP({ projectId }: Props) {
             .join(" ·")}
         </Alert>
       )}
-    </Paper>
+    </Box>
   )
 }

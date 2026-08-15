@@ -3,7 +3,6 @@ import {
   Alert,
   Box,
   Button,
-  Paper,
   Stack,
   Typography
 } from "@mui/material"
@@ -58,7 +57,7 @@ export default function LotInventoryExcelImportCP() {
   }
 
   return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+    <Box>
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>
         {s.excelTitle}
       </Typography>
@@ -125,6 +124,6 @@ export default function LotInventoryExcelImportCP() {
             ` — ${importResult.errors.length} ${s.excelErrors}: ${importResult.errors.slice(0, 3).join("; ")}`}
         </Alert>
       )}
-    </Paper>
+    </Box>
   )
 }

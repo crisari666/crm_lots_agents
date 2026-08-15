@@ -17,7 +17,8 @@ import {
   GridView as BoardIcon,
   TableRows as TableIcon,
   Map as MapIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  UploadFile as UploadIcon
 } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
@@ -38,10 +39,9 @@ import LotInventorySummaryBarCP from "./lot-inventory-summary-bar.cp"
 import LotInventoryBoardCP from "./lot-inventory-board.cp"
 import LotInventoryTableCP from "./lot-inventory-table.cp"
 import LotInventoryDrawerCP from "./lot-inventory-drawer.cp"
-import LotInventoryExcelImportCP from "./lot-inventory-excel-import.cp"
 import LotInventoryGenerateDialogCP from "./lot-inventory-generate-dialog.cp"
 import LotInventoryMapCP from "./lot-inventory-map.cp"
-import LotInventoryMapUploadCP from "./lot-inventory-map-upload.cp"
+import LotInventoryUploadsDialogCP from "./lot-inventory-uploads-dialog.cp"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
 import type { ProjectLotStatus } from "../types/lot-inventory.types"
 import { getStatusLabel } from "./lot-status-chip.cp"
@@ -80,6 +80,7 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
   const isAdmin =
     currentUser?.level === 0 || currentUser?.level === 1
   const [generateOpen, setGenerateOpen] = useState(false)
+  const [uploadsOpen, setUploadsOpen] = useState(false)
 
   const projectMeta = useMemo(
     () => hubRows.find((r) => r.projectId === projectId),
@@ -168,6 +169,13 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
             {s.generateButton}
           </Button>
         )}
+        <Button
+          variant="outlined"
+          startIcon={<UploadIcon />}
+          onClick={() => setUploadsOpen(true)}
+        >
+          {s.uploadsButton}
+        </Button>
       </Stack>
 
       <LotInventorySummaryBarCP />
@@ -284,8 +292,12 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
         </Stack>
       )}
 
-      <LotInventoryExcelImportCP />
-      {isAdmin && <LotInventoryMapUploadCP projectId={projectId} />}
+      <LotInventoryUploadsDialogCP
+        open={uploadsOpen}
+        onClose={() => setUploadsOpen(false)}
+        projectId={projectId}
+        showMapUpload={isAdmin}
+      />
 
       {lotsError && (
         <Alert severity="error" sx={{ mb: 2 }}>

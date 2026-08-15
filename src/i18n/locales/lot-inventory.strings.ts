@@ -32,6 +32,13 @@ export const lotInventoryStrings = {
   mapMatched: "vinculados",
   mapMissing: "Aún no hay mapa. Un administrador debe subir el KML.",
   mapEmpty: "No hay polígonos para mostrar con los filtros actuales.",
+  mapMissingToken:
+    "Configura VITE_MAPBOX_ACCESS_TOKEN en el .env para ver el mapa satelital.",
+  mapView2d: "2D",
+  mapView3d: "3D",
+  uploadsButton: "Importar archivos",
+  uploadsDialogTitle: "Importar Excel / KML",
+  uploadsDialogClose: "Cerrar",
   searchLotPlaceholder: "Buscar por número…",
   selectMode: "Seleccionar",
   applyStatus: "Aplicar estado",
