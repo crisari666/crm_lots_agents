@@ -6,11 +6,16 @@ import {
   Stack,
   Typography
 } from "@mui/material"
-import { UploadFile as UploadIcon, Download as DownloadIcon } from "@mui/icons-material"
+import {
+  UploadFile as UploadIcon,
+  Download as DownloadIcon,
+  Clear as ClearIcon
+} from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { RootState } from "../../../../app/store"
 import {
   clearImportResultAct,
+  fetchLotsMapThunk,
   fetchProjectLotsThunk,
   importProjectLotsExcelThunk
 } from "../slice/lot-inventory.slice"
@@ -18,7 +23,7 @@ import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory
 
 function downloadTemplate(): void {
   const csv =
-    "stage,stageName,nLots,area,price,ventor,status\n1,Etapa Norte,1,200,450000000,,\n2,Etapa Sur,1,180,420000000,,S\n,General,2,200,450000000,Juan,V\n"
+    "stage,stageName,nLots,area,price,ventor,status\n1,Etapa 1,1,200,450000000,,\n1,Etapa 1,65,72,34999999,ZAIDA RODRIGUEZ,V\n2,Etapa 2,1,180,420000000,,S\n"
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
@@ -44,6 +49,15 @@ export default function LotInventoryExcelImportCP() {
     dispatch(clearImportResultAct())
   }
 
+  const clearFile = () => {
+    setPendingFile(null)
+    setFileName(null)
+    if (inputRef.current) {
+      inputRef.current.value = ""
+    }
+    dispatch(clearImportResultAct())
+  }
+
   const runImport = async () => {
     if (!projectId || !pendingFile) return
     await dispatch(
@@ -54,6 +68,7 @@ export default function LotInventoryExcelImportCP() {
       })
     )
     void dispatch(fetchProjectLotsThunk({ projectId }))
+    void dispatch(fetchLotsMapThunk(projectId))
   }
 
   return (
@@ -103,6 +118,15 @@ export default function LotInventoryExcelImportCP() {
           onClick={() => void runImport()}
         >
           {s.excelImport}
+        </Button>
+        <Button
+          variant="outlined"
+          color="inherit"
+          startIcon={<ClearIcon />}
+          disabled={!pendingFile && !importResult}
+          onClick={clearFile}
+        >
+          {s.excelClearFile}
         </Button>
         <Button
           variant="outlined"
