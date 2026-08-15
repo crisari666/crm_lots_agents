@@ -112,7 +112,7 @@ function enableMap3d(map: Map): void {
       maxzoom: 14
     })
   }
-  map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: 0 })
+  map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: 0.1})
   if (!map.getLayer(SKY_LAYER_ID)) {
     map.addLayer({
       id: SKY_LAYER_ID,
