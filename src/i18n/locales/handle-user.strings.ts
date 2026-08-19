@@ -23,6 +23,7 @@ export const handleUserStrings = {
   levelFinance: "Finanzas",
   levelSecretary: "Secretaría",
   levelContent: "Contenido",
+  levelExternalAgent: "Agente externo",
   validationTitle: "Revise el formulario",
   validationRequiredFields:
     "El nombre, apellidos, correo, teléfono y nivel son obligatorios.",

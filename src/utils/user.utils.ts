@@ -20,6 +20,8 @@ export const getUserLevelDesc = (level: number) => {
       return "Oficina"
     case 9:
       return "Asignador"
+    case 10:
+      return "Agente externo"
     default:
       return "Unknown"
   }
