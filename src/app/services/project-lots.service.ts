@@ -11,6 +11,7 @@ import type {
   ProjectLotType,
   UpdateProjectLotDto
 } from "../../features/project/lot-inventory/types/lot-inventory.types"
+import type { ProjectLotStatusLogType } from "../../features/project/lot-inventory/types/project-lot-status-log.type"
 
 export async function fetchLotInventoryHubReq(): Promise<ProjectLotInventoryRow[]> {
   const api = RagApi.getInstance()
@@ -128,4 +129,54 @@ export async function deleteLotsMapReq({
 }): Promise<{ cleared: true }> {
   const api = RagApi.getInstance()
   return api.delete({ path: `projects/${projectId}/lots/map` })
+}
+
+export async function deleteProjectLotsReq({
+  projectId,
+  kind = "all"
+}: {
+  projectId: string
+  kind?: ProjectLotKind | "all"
+}): Promise<{ deletedLots: number; deletedLogs: number }> {
+  const api = RagApi.getInstance()
+  return api.delete({
+    path: `projects/${projectId}/lots?kind=${kind}`
+  })
+}
+
+export async function fetchLotHistoryReq({
+  projectId,
+  lotId
+}: {
+  projectId: string
+  lotId: string
+}): Promise<ProjectLotStatusLogType[]> {
+  const api = RagApi.getInstance()
+  const response = await api.get({
+    path: `projects/${projectId}/lots/${lotId}/history`
+  })
+  if (Array.isArray(response)) return response
+  return []
+}
+
+export async function desistProjectLotReq({
+  projectId,
+  lotId,
+  files,
+  note
+}: {
+  projectId: string
+  lotId: string
+  files: File[]
+  note?: string
+}): Promise<ProjectLotType> {
+  const api = RagApi.getInstance()
+  const formData = new FormData()
+  files.forEach((file) => formData.append("files", file))
+  if (note?.trim()) formData.append("note", note.trim())
+  return api.post({
+    path: `projects/${projectId}/lots/${lotId}/desist`,
+    data: formData,
+    isFormData: true
+  })
 }

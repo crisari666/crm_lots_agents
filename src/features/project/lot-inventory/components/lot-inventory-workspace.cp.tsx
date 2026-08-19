@@ -18,7 +18,8 @@ import {
   TableRows as TableIcon,
   Map as MapIcon,
   Add as AddIcon,
-  UploadFile as UploadIcon
+  UploadFile as UploadIcon,
+  DeleteForever as DeleteIcon
 } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
@@ -26,6 +27,7 @@ import { RootState } from "../../../../app/store"
 import {
   bulkUpdateLotStatusThunk,
   clearLotSelectionAct,
+  deleteProjectLotsThunk,
   fetchLotInventoryHubThunk,
   fetchLotsMapThunk,
   fetchProjectLotsThunk,
@@ -42,6 +44,7 @@ import LotInventoryDrawerCP from "./lot-inventory-drawer.cp"
 import LotInventoryGenerateDialogCP from "./lot-inventory-generate-dialog.cp"
 import LotInventoryMapCP from "./lot-inventory-map.cp"
 import LotInventoryUploadsDialogCP from "./lot-inventory-uploads-dialog.cp"
+import LotInventoryClearDialogCP from "./lot-inventory-clear-dialog.cp"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
 import type { ProjectLotStatus } from "../types/lot-inventory.types"
 import { getStatusLabel } from "./lot-status-chip.cp"
@@ -79,8 +82,13 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
   )
   const isAdmin =
     currentUser?.level === 0 || currentUser?.level === 1
+  const canClearInventory =
+    currentUser?.level === 0 ||
+    currentUser?.level === 1 ||
+    currentUser?.level === 9
   const [generateOpen, setGenerateOpen] = useState(false)
   const [uploadsOpen, setUploadsOpen] = useState(false)
+  const [clearOpen, setClearOpen] = useState(false)
 
   const projectMeta = useMemo(
     () => hubRows.find((r) => r.projectId === projectId),
@@ -141,6 +149,17 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
     }
   }
 
+  const confirmClearInventory = async () => {
+    const result = await dispatch(
+      deleteProjectLotsThunk({ projectId, kind: "all" })
+    )
+    if (!deleteProjectLotsThunk.fulfilled.match(result)) return
+    setClearOpen(false)
+    void dispatch(fetchProjectLotsThunk({ projectId }))
+    void dispatch(fetchLotsMapThunk(projectId))
+    void dispatch(fetchLotInventoryHubThunk())
+  }
+
   return (
     <Box>
       <Stack
@@ -176,6 +195,17 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
         >
           {s.uploadsButton}
         </Button>
+        {canClearInventory ? (
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteIcon />}
+            disabled={actionLoading || lots.length === 0}
+            onClick={() => setClearOpen(true)}
+          >
+            {s.excelClearInventory}
+          </Button>
+        ) : null}
       </Stack>
 
       <LotInventorySummaryBarCP />
@@ -297,6 +327,12 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
         onClose={() => setUploadsOpen(false)}
         projectId={projectId}
         showMapUpload={isAdmin}
+      />
+      <LotInventoryClearDialogCP
+        open={clearOpen}
+        loading={actionLoading}
+        onClose={() => setClearOpen(false)}
+        onConfirm={() => void confirmClearInventory()}
       />
 
       {lotsError && (

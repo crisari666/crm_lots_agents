@@ -13,6 +13,7 @@ import {
   UpdateProjectLotDto,
   EMPTY_KIND_SUMMARY
 } from "../types/lot-inventory.types"
+import type { ProjectLotStatusLogType } from "../types/project-lot-status-log.type"
 
 export type LotInventoryState = {
   hubRows: ProjectLotInventoryRow[]
@@ -37,4 +38,6 @@ export type LotInventoryState = {
   mapLoading: boolean
   mapError: string | null
   mapUploadResult: LotMapUploadResponse | null
+  historyLogs: ProjectLotStatusLogType[]
+  historyLoading: boolean
 }

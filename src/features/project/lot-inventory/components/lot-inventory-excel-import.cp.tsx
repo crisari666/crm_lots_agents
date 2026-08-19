@@ -15,11 +15,14 @@ import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { RootState } from "../../../../app/store"
 import {
   clearImportResultAct,
+  deleteProjectLotsThunk,
+  fetchLotInventoryHubThunk,
   fetchLotsMapThunk,
   fetchProjectLotsThunk,
   importProjectLotsExcelThunk
 } from "../slice/lot-inventory.slice"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
+import LotInventoryClearDialogCP from "./lot-inventory-clear-dialog.cp"
 
 function downloadTemplate(): void {
   const csv =
@@ -41,6 +44,7 @@ export default function LotInventoryExcelImportCP() {
   )
   const [fileName, setFileName] = useState<string | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [clearOpen, setClearOpen] = useState(false)
 
   const onFile = (file: File | null) => {
     if (!file) return
@@ -69,6 +73,18 @@ export default function LotInventoryExcelImportCP() {
     )
     void dispatch(fetchProjectLotsThunk({ projectId }))
     void dispatch(fetchLotsMapThunk(projectId))
+  }
+
+  const runClearInventory = async () => {
+    if (!projectId) return
+    const result = await dispatch(
+      deleteProjectLotsThunk({ projectId, kind: "all" })
+    )
+    if (!deleteProjectLotsThunk.fulfilled.match(result)) return
+    setClearOpen(false)
+    void dispatch(fetchProjectLotsThunk({ projectId }))
+    void dispatch(fetchLotsMapThunk(projectId))
+    void dispatch(fetchLotInventoryHubThunk())
   }
 
   return (
@@ -130,6 +146,14 @@ export default function LotInventoryExcelImportCP() {
         </Button>
         <Button
           variant="outlined"
+          color="error"
+          disabled={actionLoading || !projectId}
+          onClick={() => setClearOpen(true)}
+        >
+          {s.excelClearInventory}
+        </Button>
+        <Button
+          variant="outlined"
           startIcon={<DownloadIcon />}
           onClick={downloadTemplate}
         >
@@ -148,6 +172,12 @@ export default function LotInventoryExcelImportCP() {
             ` — ${importResult.errors.length} ${s.excelErrors}: ${importResult.errors.slice(0, 3).join("; ")}`}
         </Alert>
       )}
+      <LotInventoryClearDialogCP
+        open={clearOpen}
+        loading={actionLoading}
+        onClose={() => setClearOpen(false)}
+        onConfirm={() => void runClearInventory()}
+      />
     </Box>
   )
 }

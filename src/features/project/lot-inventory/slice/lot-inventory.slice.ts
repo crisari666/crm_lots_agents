@@ -2,9 +2,12 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import {
   bulkUpdateLotStatusReq,
   deleteLotsMapReq,
+  deleteProjectLotsReq,
   fetchLotInventoryHubReq,
   fetchLotsMapReq,
+  fetchLotHistoryReq,
   fetchProjectLotsReq,
+  desistProjectLotReq,
   generateProjectLotsReq,
   importProjectLotsExcelReq,
   updateProjectLotReq,
@@ -43,7 +46,9 @@ const initialState: LotInventoryState = {
   mapPaint: null,
   mapLoading: false,
   mapError: null,
-  mapUploadResult: null
+  mapUploadResult: null,
+  historyLogs: [],
+  historyLoading: false
 }
 
 export const fetchLotInventoryHubThunk = createAsyncThunk(
@@ -118,6 +123,29 @@ export const deleteLotsMapThunk = createAsyncThunk(
   }
 )
 
+export const deleteProjectLotsThunk = createAsyncThunk(
+  "lotInventory/deleteLots",
+  async (params: { projectId: string; kind?: ProjectLotKind | "all" }) => {
+    const result = await deleteProjectLotsReq(params)
+    return { ...result, projectId: params.projectId }
+  }
+)
+
+export const fetchLotHistoryThunk = createAsyncThunk(
+  "lotInventory/fetchHistory",
+  async (params: { projectId: string; lotId: string }) => fetchLotHistoryReq(params)
+)
+
+export const desistProjectLotThunk = createAsyncThunk(
+  "lotInventory/desistLot",
+  async (params: {
+    projectId: string
+    lotId: string
+    files: File[]
+    note?: string
+  }) => desistProjectLotReq(params)
+)
+
 const lotInventorySlice = createSlice({
   name: "lotInventory",
   initialState,
@@ -157,6 +185,9 @@ const lotInventorySlice = createSlice({
     },
     setDrawerLotIdAct(state, action: PayloadAction<string | null>) {
       state.drawerLotId = action.payload
+      if (!action.payload) {
+        state.historyLogs = []
+      }
     },
     clearImportResultAct(state) {
       state.importResult = null
@@ -178,6 +209,8 @@ const lotInventorySlice = createSlice({
       state.mapPaint = null
       state.mapError = null
       state.mapUploadResult = null
+      state.historyLogs = []
+      state.historyLoading = false
     }
   },
   extraReducers: (builder) => {
@@ -295,6 +328,43 @@ const lotInventorySlice = createSlice({
         state.mapUploadResult = null
       })
       .addCase(deleteLotsMapThunk.rejected, (state) => {
+        state.actionLoading = false
+      })
+      .addCase(deleteProjectLotsThunk.pending, (state) => {
+        state.actionLoading = true
+      })
+      .addCase(deleteProjectLotsThunk.fulfilled, (state) => {
+        state.actionLoading = false
+        state.lots = []
+        state.summary = EMPTY_KIND_SUMMARY
+        state.selectedLotIds = []
+        state.drawerLotId = null
+        state.historyLogs = []
+      })
+      .addCase(deleteProjectLotsThunk.rejected, (state) => {
+        state.actionLoading = false
+      })
+      .addCase(fetchLotHistoryThunk.pending, (state) => {
+        state.historyLoading = true
+      })
+      .addCase(fetchLotHistoryThunk.fulfilled, (state, action) => {
+        state.historyLoading = false
+        state.historyLogs = action.payload
+      })
+      .addCase(fetchLotHistoryThunk.rejected, (state) => {
+        state.historyLoading = false
+        state.historyLogs = []
+      })
+      .addCase(desistProjectLotThunk.pending, (state) => {
+        state.actionLoading = true
+      })
+      .addCase(desistProjectLotThunk.fulfilled, (state, action) => {
+        state.actionLoading = false
+        const updated = action.payload
+        const idx = state.lots.findIndex((l) => l._id === updated._id)
+        if (idx >= 0) state.lots[idx] = updated
+      })
+      .addCase(desistProjectLotThunk.rejected, (state) => {
         state.actionLoading = false
       })
   }
