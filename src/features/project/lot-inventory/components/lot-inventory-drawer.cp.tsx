@@ -13,6 +13,8 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { RootState } from "../../../../app/store"
 import {
+  desistProjectLotThunk,
+  fetchLotHistoryThunk,
   fetchLotsMapThunk,
   fetchProjectLotsThunk,
   setDrawerLotIdAct,
@@ -21,8 +23,12 @@ import {
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
 import type { ProjectLotStatus } from "../types/lot-inventory.types"
 import { getStatusLabel } from "./lot-status-chip.cp"
+import LotInventoryHistoryListCP from "./lot-inventory-history-list.cp"
+import LotInventoryDesistDialogCP from "./lot-inventory-desist-dialog.cp"
 
 const STATUSES: ProjectLotStatus[] = ["available", "hold", "locked", "sold"]
+const DESIST_LEVELS = new Set([0, 1, 2, 9])
+const PATCH_LEVELS = new Set([0, 1, 9])
 
 function toDatetimeLocalValue(isoOrDate: string | Date): string {
   const d = typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate
@@ -37,16 +43,29 @@ function defaultHoldUntilLocal(): string {
 
 export default function LotInventoryDrawerCP() {
   const dispatch = useAppDispatch()
-  const { lots, drawerLotId, projectId, actionLoading } = useAppSelector(
-    (state: RootState) => state.lotInventory
+  const {
+    lots,
+    drawerLotId,
+    projectId,
+    actionLoading,
+    historyLogs,
+    historyLoading
+  } = useAppSelector((state: RootState) => state.lotInventory)
+  const currentUser = useAppSelector(
+    (state: RootState) => state.login.currentUser
   )
   const lot = lots.find((l) => l._id === drawerLotId) ?? null
+  const userLevel = currentUser?.level ?? -1
+  const canDesist =
+    Boolean(lot && lot.status === "sold" && DESIST_LEVELS.has(userLevel))
+  const canPatch = PATCH_LEVELS.has(userLevel)
   const [area, setArea] = useState("")
   const [price, setPrice] = useState("")
   const [ventorName, setVentorName] = useState("")
   const [soldBy, setSoldBy] = useState("")
   const [status, setStatus] = useState<ProjectLotStatus>("available")
   const [holdUntilLocal, setHoldUntilLocal] = useState("")
+  const [desistOpen, setDesistOpen] = useState(false)
 
   useEffect(() => {
     if (!lot) return
@@ -64,6 +83,11 @@ export default function LotInventoryDrawerCP() {
     }
   }, [lot])
 
+  useEffect(() => {
+    if (!lot || !projectId) return
+    void dispatch(fetchLotHistoryThunk({ projectId, lotId: lot._id }))
+  }, [dispatch, lot, projectId])
+
   const holdUntilError = useMemo(() => {
     if (status !== "hold") return null
     if (!holdUntilLocal.trim()) return s.holdUntilRequired
@@ -76,8 +100,12 @@ export default function LotInventoryDrawerCP() {
 
   const close = () => dispatch(setDrawerLotIdAct(null))
 
-  const handleStatusChange = (_e: React.MouseEvent, value: ProjectLotStatus | null) => {
+  const handleStatusChange = (
+    _e: React.MouseEvent,
+    value: ProjectLotStatus | null
+  ) => {
     if (!value) return
+    if (lot?.status === "sold" && value === "available") return
     setStatus(value)
     if (value === "hold") {
       setHoldUntilLocal((current) => current || defaultHoldUntilLocal())
@@ -85,8 +113,9 @@ export default function LotInventoryDrawerCP() {
   }
 
   const save = async () => {
-    if (!lot || !projectId) return
+    if (!lot || !projectId || !canPatch) return
     if (status === "hold" && holdUntilError) return
+    if (lot.status === "sold" && status === "available") return
     const data: {
       area: number
       price: number
@@ -118,6 +147,23 @@ export default function LotInventoryDrawerCP() {
     close()
   }
 
+  const handleDesist = async (params: { files: File[]; note: string }) => {
+    if (!lot || !projectId) return
+    const result = await dispatch(
+      desistProjectLotThunk({
+        projectId,
+        lotId: lot._id,
+        files: params.files,
+        note: params.note
+      })
+    )
+    if (!desistProjectLotThunk.fulfilled.match(result)) return
+    setDesistOpen(false)
+    void dispatch(fetchProjectLotsThunk({ projectId }))
+    void dispatch(fetchLotsMapThunk(projectId))
+    void dispatch(fetchLotHistoryThunk({ projectId, lotId: lot._id }))
+  }
+
   return (
     <Drawer anchor="right" open={Boolean(lot)} onClose={close}>
       <Box sx={{ width: { xs: 320, sm: 380 }, p: 2.5 }} role="presentation">
@@ -145,12 +191,36 @@ export default function LotInventoryDrawerCP() {
               onChange={handleStatusChange}
               sx={{ flexWrap: "wrap", gap: 0.5 }}
             >
-              {STATUSES.map((st) => (
-                <ToggleButton key={st} value={st} sx={{ textTransform: "none" }}>
-                  {getStatusLabel(st)}
-                </ToggleButton>
-              ))}
+              {STATUSES.map((st) => {
+                const isBlockedAvailable =
+                  lot.status === "sold" && st === "available"
+                return (
+                  <ToggleButton
+                    key={st}
+                    value={st}
+                    disabled={!canPatch || isBlockedAvailable}
+                    sx={{ textTransform: "none" }}
+                  >
+                    {getStatusLabel(st)}
+                  </ToggleButton>
+                )
+              })}
             </ToggleButtonGroup>
+            {lot.status === "sold" ? (
+              <Typography variant="caption" color="text.secondary">
+                {s.statusSoldLocked}
+              </Typography>
+            ) : null}
+            {canDesist ? (
+              <Button
+                variant="outlined"
+                color="warning"
+                onClick={() => setDesistOpen(true)}
+                disabled={actionLoading}
+              >
+                {s.desistButton}
+              </Button>
+            ) : null}
             {status === "hold" ? (
               <TextField
                 label={s.fieldHoldUntil}
@@ -160,6 +230,7 @@ export default function LotInventoryDrawerCP() {
                 onChange={(e) => setHoldUntilLocal(e.target.value)}
                 fullWidth
                 required
+                disabled={!canPatch}
                 error={Boolean(holdUntilError)}
                 helperText={holdUntilError ?? s.fieldHoldUntilHelper}
                 InputLabelProps={{ shrink: true }}
@@ -172,6 +243,7 @@ export default function LotInventoryDrawerCP() {
               value={area}
               onChange={(e) => setArea(e.target.value)}
               fullWidth
+              disabled={!canPatch}
             />
             <TextField
               label={s.fieldPrice}
@@ -180,6 +252,7 @@ export default function LotInventoryDrawerCP() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               fullWidth
+              disabled={!canPatch}
             />
             <TextField
               label={s.fieldVentor}
@@ -187,6 +260,7 @@ export default function LotInventoryDrawerCP() {
               value={ventorName}
               onChange={(e) => setVentorName(e.target.value)}
               fullWidth
+              disabled={!canPatch}
             />
             <TextField
               label={s.fieldSoldBy}
@@ -194,17 +268,32 @@ export default function LotInventoryDrawerCP() {
               value={soldBy}
               onChange={(e) => setSoldBy(e.target.value)}
               fullWidth
+              disabled={!canPatch}
             />
-            <Button
-              variant="contained"
-              onClick={() => void save()}
-              disabled={actionLoading || Boolean(holdUntilError)}
-            >
-              {s.drawerSave}
-            </Button>
+            {canPatch ? (
+              <Button
+                variant="contained"
+                onClick={() => void save()}
+                disabled={actionLoading || Boolean(holdUntilError)}
+              >
+                {s.drawerSave}
+              </Button>
+            ) : null}
+            <Divider />
+            <Typography variant="subtitle2">{s.historyTitle}</Typography>
+            <LotInventoryHistoryListCP
+              logs={historyLogs}
+              loading={historyLoading}
+            />
           </Stack>
         )}
       </Box>
+      <LotInventoryDesistDialogCP
+        open={desistOpen}
+        loading={actionLoading}
+        onClose={() => setDesistOpen(false)}
+        onConfirm={(params) => void handleDesist(params)}
+      />
     </Drawer>
   )
 }

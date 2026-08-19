@@ -40,7 +40,7 @@ const TERRAIN_SOURCE_ID = "mapbox-dem"
 const SKY_LAYER_ID = "sky"
 const MAP_PITCH = 60
 const MAP_BEARING = -20
-const LOT_EXTRUSION_HEIGHT_M = 1
+const LOT_EXTRUSION_HEIGHT_M = 0
 const MAPBOX_STYLE = "mapbox://styles/mapbox/satellite-streets-v12"
 const EMPTY_GEOJSON: LotMapGeoJson = {
   type: "FeatureCollection",

@@ -128,6 +128,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
   const mapRoutesAssigner: RouteItemI[] = [
     { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios" },
     { to: "/dashboard/customers-v2", Icon: <Dvr />, title: "Clientes" },
+    { to: "/dashboard/lot-inventory", Icon: <GridView />, title: "Inventario de lotes" },
   ]
 
   const mapRoutesFinance: RouteItemI[] = []
