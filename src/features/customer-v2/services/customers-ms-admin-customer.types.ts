@@ -296,3 +296,27 @@ export type CustomerMetaLeadMappedFieldsResponse = {
   leadgenId?: string
   items: CustomerMetaLeadMappedFieldItem[]
 }
+
+export type CustomerMetadataFieldType = "select" | "text" | "project"
+
+export type CustomerMetadataFieldDefinition = {
+  key: string
+  type: CustomerMetadataFieldType
+  required: boolean
+  optionCodes?: string[]
+}
+
+export type CustomerMetadataResponse = {
+  customerId: string
+  fields: CustomerMetadataFieldDefinition[]
+  values: Record<string, string>
+  completedRequiredCount: number
+  requiredCount: number
+  isComplete: boolean
+  updatedAt?: string
+  updatedBy?: string
+}
+
+export type UpsertCustomerMetadataBody = {
+  values: Record<string, string>
+}

@@ -3,6 +3,8 @@ import type {
   CreateCustomerAdminBody,
   CustomerAdminDetail,
   CustomerMetaLeadMappedFieldsResponse,
+  CustomerMetadataResponse,
+  UpsertCustomerMetadataBody,
   CustomerAdminListResponse,
   CustomerAutocompleteItem,
   CustomerCallLogAdminItem,
@@ -61,6 +63,29 @@ export async function getCustomerMetaLeadMappedFieldsAdmin(
 ): Promise<CustomerMetaLeadMappedFieldsResponse> {
   const response = await customersMsAxios.get<CustomerMetaLeadMappedFieldsResponse>(
     `admin/customer/${encodeURIComponent(customerId)}/meta-lead-mapped-fields`,
+    auth()
+  )
+  return response.data
+}
+
+/** Stage 3 capture — ventor route `customer/:id/metadata` (JWT shared with admin). */
+export async function getCustomerMetadata(
+  customerId: string
+): Promise<CustomerMetadataResponse> {
+  const response = await customersMsAxios.get<CustomerMetadataResponse>(
+    `customer/${encodeURIComponent(customerId)}/metadata`,
+    auth()
+  )
+  return response.data
+}
+
+export async function putCustomerMetadata(
+  customerId: string,
+  body: UpsertCustomerMetadataBody
+): Promise<CustomerMetadataResponse> {
+  const response = await customersMsAxios.put<CustomerMetadataResponse>(
+    `customer/${encodeURIComponent(customerId)}/metadata`,
+    body,
     auth()
   )
   return response.data

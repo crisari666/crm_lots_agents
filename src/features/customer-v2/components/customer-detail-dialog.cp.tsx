@@ -30,6 +30,8 @@ import CustomerDetailFormTabCP from "./customer-detail/customer-detail-form-tab.
 import CustomerDetailNotesTabCP from "./customer-detail/customer-detail-notes-tab.cp"
 import CustomerPaymentTabCP from "./customer-detail/customer-payment-tab.cp"
 import CustomerMetaLeadTabCP from "./customer-detail/customer-meta-lead-tab.cp"
+import CustomerCaptureTabCP from "./customer-detail/customer-capture-tab.cp"
+import { customerCaptureStrings } from "../../../i18n/locales/customer-capture.strings"
 
 function buildUpdateBody(form: CustomerAdminDetail): UpdateCustomerAdminBody {
   const interestedProjects = form.interestedProjects
@@ -137,6 +139,10 @@ export default function CustomerDetailDialogCP() {
               sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}
             >
               <Tab label="Cliente" sx={{ cursor: "pointer", textTransform: "none" }} />
+              <Tab
+                label={customerCaptureStrings.tabLabel}
+                sx={{ cursor: "pointer", textTransform: "none" }}
+              />
               <Tab label={`Notas (${form.notes.length})`} sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label="Llamadas" sx={{ cursor: "pointer", textTransform: "none" }} />
               <Tab label="Conversaciones" sx={{ cursor: "pointer", textTransform: "none" }} />
@@ -153,17 +159,18 @@ export default function CustomerDetailDialogCP() {
                 onToggleReferral={handleToggleReferral}
               />
             )}
-            {tab === 1 && <CustomerDetailNotesTabCP notes={form.notes} />}
-            {tab === 2 && <CustomerCallHistoryTabCP customerId={form.id} />}
-            {tab === 3 && <CustomerConversationsTabCP />}
-            {tab === 4 && <CustomerEventsTabCP customerId={form.id} />}
-            {tab === 5 && (
+            {tab === 1 && <CustomerCaptureTabCP customerId={form.id} />}
+            {tab === 2 && <CustomerDetailNotesTabCP notes={form.notes} />}
+            {tab === 3 && <CustomerCallHistoryTabCP customerId={form.id} />}
+            {tab === 4 && <CustomerConversationsTabCP />}
+            {tab === 5 && <CustomerEventsTabCP customerId={form.id} />}
+            {tab === 6 && (
               <CustomerPaymentTabCP
                 customerId={form.id}
                 customerName={`${form.name ?? ""} ${form.lastName ?? ""}`.trim()}
               />
             )}
-            {tab === 6 && <CustomerMetaLeadTabCP customerId={form.id} />}
+            {tab === 7 && <CustomerMetaLeadTabCP customerId={form.id} />}
           </>
         )}
       </DialogContent>
@@ -171,14 +178,16 @@ export default function CustomerDetailDialogCP() {
         <Button onClick={handleClose} disabled={detailSaving} sx={{ cursor: "pointer" }}>
           Cerrar
         </Button>
-        <Button
-          variant="contained"
-          onClick={() => void handleSave()}
-          disabled={detailLoading || detailSaving || form === null}
-          sx={{ cursor: "pointer", minWidth: 120 }}
-        >
-          {detailSaving ? <CircularProgress size={22} color="inherit" /> : "Guardar"}
-        </Button>
+        {tab === 0 ? (
+          <Button
+            variant="contained"
+            onClick={() => void handleSave()}
+            disabled={detailLoading || detailSaving || form === null}
+            sx={{ cursor: "pointer", minWidth: 120 }}
+          >
+            {detailSaving ? <CircularProgress size={22} color="inherit" /> : "Guardar"}
+          </Button>
+        ) : null}
       </DialogActions>
     </Dialog>
   )
