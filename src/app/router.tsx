@@ -49,6 +49,7 @@ import WhatsappMarketingView from "../features/whatsapp-marketing/whatsapp-marke
 import WhatsappMarketingListPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-list-page";
 import WhatsappMarketingNewPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-new-page";
 import WhatsappMarketingDetailPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-detail-page";
+import WebinarPage from "../features/webinar/pages/webinar-page";
 import LiveCallsPage from "../features/live-calls/live-calls-page";
 
 const router = createBrowserRouter([
@@ -73,6 +74,7 @@ const router = createBrowserRouter([
       { path: "customers-v2/events", element: <CustomersEventsPage /> },
       { path: "customers-v2/assignment-audit", element: <CustomerAssignmentAuditPage /> },
       { path: "customers-v2/import", element: <ImportCustomersPage /> },
+      { path: "webinar", element: <WebinarPage /> },
       { path: "steps-v2", element: <StepsV2Page /> },
       { path: "staff-performance", element: <StaffPerformanceReportPage /> },
       { path: "office-dashboard/:officeId", element: <OfficeDashboardView /> },

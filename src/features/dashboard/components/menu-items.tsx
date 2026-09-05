@@ -63,6 +63,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
       { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
       { to: "/dashboard/whatsapp-marketing", Icon: <Campaign />, title: "Campañas WhatsApp", crmAdminOnly: true },
+      { to: "/dashboard/webinar", Icon: <VideoCallOutlined />, title: "Webinars / MasterClass", crmAdminOnly: true },
     ]},
 
     // { Icon: <CampaignOutlined />, title: "Campaña", 
