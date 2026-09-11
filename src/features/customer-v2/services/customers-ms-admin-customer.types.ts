@@ -144,6 +144,8 @@ export type CustomerCallLogAdminItem = {
   provider: string
   channel?: "voip" | "meet"
   googleMeetUrl?: string
+  recordingDriveFileId?: string
+  transcriptDriveDocId?: string
   from?: string
   to?: string
   direction?: string

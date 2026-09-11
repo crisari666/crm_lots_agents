@@ -143,6 +143,16 @@ export default function CallLogsListCP() {
                         <Typography variant="caption" color="text.secondary" noWrap>
                           {outcomeLabelEs(row.resolvedOutcome)}
                         </Typography>
+                        {isMeet && row.recordingDriveFileId ? (
+                          <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                            Rec Drive: {row.recordingDriveFileId}
+                          </Typography>
+                        ) : null}
+                        {isMeet && row.transcriptDriveDocId ? (
+                          <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                            Doc transcript: {row.transcriptDriveDocId}
+                          </Typography>
+                        ) : null}
                       </Box>
                     </Stack>
                   </TableCell>
@@ -221,11 +231,11 @@ export default function CallLogsListCP() {
                         </Tooltip>
                       ) : null}
                       {isMeet ? (
-                        <Tooltip title="Reintentar transcripción Meet">
+                        <Tooltip title="Obtener archivos / transcripción Meet">
                           <span>
                             <IconButton
                               size="small"
-                              aria-label="Reintentar transcripción Meet"
+                              aria-label="Obtener archivos Meet"
                               disabled={refreshingMeet}
                               onClick={() => onRefreshMeetTranscript(row.id)}
                               sx={{ cursor: refreshingMeet ? "default" : "pointer" }}
