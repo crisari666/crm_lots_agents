@@ -2,12 +2,15 @@ export type CallAuditIndicatorConfig = {
   key: string
   label: string
   description: string
+  maxPoints: number
 }
 
 export type CallAuditIndicatorResult = {
   key: string
   label: string
   passed: boolean
+  maxPoints: number
+  pointsEarned: number
   rationale?: string
   evidence?: string
 }
@@ -15,6 +18,16 @@ export type CallAuditIndicatorResult = {
 export type CallAuditSpeakerTurn = {
   role: "agent" | "customer"
   text: string
+  startMs?: number
+  endMs?: number
+  speakerLabel?: string
+}
+
+export type CallAuditUtterance = {
+  speaker?: string
+  text?: string
+  start?: number
+  end?: number
 }
 
 export type CallAuditRecord = {
@@ -25,6 +38,8 @@ export type CallAuditRecord = {
   source: "human" | "ai"
   configVersion: string
   indicators: CallAuditIndicatorResult[]
+  totalScore: number
+  maxScore: number
   interestScore: number
   interestScoreRationale?: string
   speakerTurns?: CallAuditSpeakerTurn[]
@@ -56,6 +71,7 @@ export type CallAuditsByCallResponse = {
   transcript?: string
   resolvedOutcome?: string
   durationSeconds?: number
+  utterances?: CallAuditUtterance[]
   human: CallAuditRecord | null
   ai: CallAuditRecord | null
 }
@@ -64,6 +80,9 @@ export type CallAuditIndicatorsSummary = {
   passed: number
   total: number
   failedLabels: string[]
+  earnedPoints: number
+  maxPoints: number
+  scorePercent: number
 }
 
 export type CallAuditResultItem = {
@@ -74,6 +93,8 @@ export type CallAuditResultItem = {
   auditorUserId: string
   reviewerNotes?: string
   interestScore: number
+  totalScore: number
+  maxScore: number
   indicatorsSummary: CallAuditIndicatorsSummary
   analyzedAt?: string
 }
@@ -131,6 +152,7 @@ export type CallAuditAiReviewSummary = {
   aiFailed: number
   aiNone: number
   avgInterestScore: number | null
+  avgTotalScore: number | null
   topFailedIndicators: Array<{ label: string; count: number }>
 }
 
