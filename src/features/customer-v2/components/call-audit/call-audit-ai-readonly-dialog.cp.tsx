@@ -74,13 +74,16 @@ export default function CallAuditAiReadonlyDialogCP({
       : ""
   const when = liveItem.completedAt ? moment(liveItem.completedAt) : null
   const isAnalyzingThis = analyzingCallLogIds.includes(callLogId)
-  const canRunAi =
-    liveItem.aiStatus === "none" ||
-    liveItem.aiStatus === "failed" ||
-    liveItem.aiStatus === "pending"
+  const canRunAi = liveItem.hasTranscript
+  const analyzeLabel =
+    liveItem.aiStatus === "completed" ? s.reanalyzeAi : s.runAiAnalysis
   const hasRubricDetail =
     !loadingAudits && ai?.status === "completed" && ai.indicators.length > 0
   const hasDiarized = ai?.speakerTurns !== undefined && ai.speakerTurns.length > 0
+  const utterances =
+    auditsByCall !== null && auditsByCall.callLogId === callLogId
+      ? auditsByCall.utterances ?? []
+      : []
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -158,7 +161,7 @@ export default function CallAuditAiReadonlyDialogCP({
                 }
                 sx={{ cursor: "pointer" }}
               >
-                {isAnalyzingThis ? s.aiStatusPending : s.runAiAnalysis}
+                {isAnalyzingThis ? s.aiStatusPending : analyzeLabel}
               </Button>
             ) : null}
           </Stack>
@@ -169,10 +172,16 @@ export default function CallAuditAiReadonlyDialogCP({
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={1}>
-                  {ai.indicators.map((ind) => (
+                  {ai!.totalScore !== undefined ? (
+                    <Typography variant="body2" fontWeight={700}>
+                      {s.totalScore}: {ai!.totalScore}/{ai!.maxScore ?? 100}
+                    </Typography>
+                  ) : null}
+                  {ai!.indicators.map((ind) => (
                     <Box key={ind.key}>
                       <Typography variant="body2" fontWeight={600}>
-                        {ind.label}: {ind.passed ? "Sí" : "No"}
+                        {ind.label}: {ind.passed ? "Sí" : "No"} (
+                        {ind.pointsEarned ?? 0}/{ind.maxPoints ?? 0})
                       </Typography>
                       {ind.rationale ? (
                         <Typography variant="caption" color="text.secondary" display="block">
@@ -190,6 +199,23 @@ export default function CallAuditAiReadonlyDialogCP({
                         </Typography>
                       ) : null}
                     </Box>
+                  ))}
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+          ) : null}
+          {utterances.length > 0 ? (
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle2">{s.utterancesSection}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={0.5}>
+                  {utterances.map((utterance, idx) => (
+                    <Typography key={`utt-${idx}`} variant="body2">
+                      <strong>{utterance.speaker?.trim() || "Speaker"}:</strong>{" "}
+                      {utterance.text}
+                    </Typography>
                   ))}
                 </Stack>
               </AccordionDetails>
@@ -214,9 +240,14 @@ export default function CallAuditAiReadonlyDialogCP({
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={0.5}>
-                  {ai.speakerTurns!.map((turn, idx) => (
+                  {ai!.speakerTurns!.map((turn, idx) => (
                     <Typography key={`${turn.role}-${idx}`} variant="body2">
-                      <strong>{turn.role === "agent" ? "Asesor" : "Cliente"}:</strong> {turn.text}
+                      <strong>
+                        {turn.speakerLabel?.trim() ||
+                          (turn.role === "agent" ? "Asesor" : "Cliente")}
+                        :
+                      </strong>{" "}
+                      {turn.text}
                     </Typography>
                   ))}
                 </Stack>

@@ -55,7 +55,12 @@ export default function CallAuditFormHumanSectionCP({
             }
             label={
               <Box>
-                <Typography variant="body2">{ind.label}</Typography>
+                <Typography variant="body2">
+                  {ind.label}{" "}
+                  <Typography component="span" variant="caption" color="text.secondary">
+                    ({ind.maxPoints} {s.pointsLabel})
+                  </Typography>
+                </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {ind.description}
                 </Typography>

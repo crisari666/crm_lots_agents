@@ -28,6 +28,7 @@ import CallAuditFormCallHeaderCP from "./call-audit-form-call-header.cp"
 import CallAuditFormDiarizedSectionCP from "./call-audit-form-diarized-section.cp"
 import CallAuditFormHumanSectionCP from "./call-audit-form-human-section.cp"
 import CallAuditFormTranscriptSectionCP from "./call-audit-form-transcript-section.cp"
+import CallAuditFormUtterancesSectionCP from "./call-audit-form-utterances-section.cp"
 import { resolveCallAuditUserLabel } from "./call-audit-user-label.util"
 
 export type CallAuditFormDialogCPProps = {
@@ -129,6 +130,7 @@ export default function CallAuditFormDialogCP({
   }, [scoreMin, scoreMax])
   const ai = isAdmin ? (auditsByCall?.ai ?? null) : null
   const speakerTurns = isAdmin ? (ai?.speakerTurns ?? []) : []
+  const utterances = auditsByCall?.utterances ?? []
   const handleHumanCheckChange = useCallback((key: string, passed: boolean) => {
     setHumanChecks((prev) => ({ ...prev, [key]: passed }))
   }, [])
@@ -171,9 +173,14 @@ export default function CallAuditFormDialogCP({
                 <CallAuditAiIndicatorsTableCP
                   indicators={ai.indicators}
                   interestScore={ai.interestScore}
+                  totalScore={ai.totalScore}
+                  maxScore={ai.maxScore}
                 />
               ) : null}
               <CallAuditFormTranscriptSectionCP transcript={transcript} />
+              {utterances.length > 0 ? (
+                <CallAuditFormUtterancesSectionCP utterances={utterances} />
+              ) : null}
               {isAdmin ? (
                 <>
                   <CallAuditFormAiSectionCP loading={loadingAudits} ai={ai} />

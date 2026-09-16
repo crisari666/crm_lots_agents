@@ -40,7 +40,13 @@ function buildCallRowFromCompleted(item: CallAuditResultItem): CustomerCallLogAd
 }
 
 function formatIndicatorsCell(item: CallAuditResultItem): string {
-  const { passed, total } = item.indicatorsSummary
+  const { earnedPoints, maxPoints, passed, total } = item.indicatorsSummary
+  if (item.totalScore !== undefined && item.maxScore !== undefined) {
+    return `${item.totalScore}/${item.maxScore}`
+  }
+  if (maxPoints > 0) {
+    return `${earnedPoints}/${maxPoints}`
+  }
   if (total === 0) {
     return "—"
   }

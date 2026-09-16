@@ -54,6 +54,12 @@ export default function CallAuditAiReviewKpisCP() {
             summary.avgInterestScore !== null ? String(summary.avgInterestScore) : "—"
           }
         />
+        <KpiCard
+          label={s.kpiAvgTotalScore}
+          value={
+            summary.avgTotalScore !== null ? `${summary.avgTotalScore}/100` : "—"
+          }
+        />
         <KpiCard label={s.kpiTopFailedRubric} value={topFailed.value} tooltip={topFailed.tooltip} />
       </Stack>
     </Box>

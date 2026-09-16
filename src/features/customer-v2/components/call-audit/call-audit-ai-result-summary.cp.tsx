@@ -65,8 +65,12 @@ export default function CallAuditAiResultSummaryCP({
       </Typography>
     )
   }
-  const { passed, total, failedLabels } = buildCallAuditIndicatorsSummary(ai.indicators)
-  const checklistLabel = formatChecklistLabel(passed, total, s.checklistSummary)
+  const { passed, total, failedLabels, earnedPoints, maxPoints } =
+    buildCallAuditIndicatorsSummary(ai.indicators)
+  const checklistLabel =
+    maxPoints > 0
+      ? `${ai.totalScore ?? earnedPoints}/${ai.maxScore ?? maxPoints} ${s.totalScoreOf}`
+      : formatChecklistLabel(passed, total, s.checklistSummary)
   const failedTooltip = buildFailedTooltip(failedLabels)
   const interestLabel = resolveInterestLabel(ai.interestScore, config)
   const showInterest = !showRubricOnly
@@ -74,16 +78,28 @@ export default function CallAuditAiResultSummaryCP({
   return (
     <Stack spacing={variant === "dialog" ? 1 : 0.5}>
       {showInterest ? (
-        <Chip
-          size="small"
-          label={`${s.interestScore}: ${ai.interestScore} · ${interestLabel}`}
-          color={interestScoreChipColor(ai.interestScore)}
-          variant="outlined"
-        />
+        <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+          <Chip
+            size="small"
+            label={`${s.totalScore}: ${ai.totalScore ?? earnedPoints}/${ai.maxScore ?? (maxPoints || 100)}`}
+            color="primary"
+            variant="outlined"
+          />
+          <Chip
+            size="small"
+            label={`${s.interestScore}: ${ai.interestScore} · ${interestLabel}`}
+            color={interestScoreChipColor(ai.interestScore)}
+            variant="outlined"
+          />
+        </Stack>
       ) : null}
       {showRubric && total > 0 && variant === "dialog" ? (
         <Stack spacing={0.5}>
-          <CallAuditAiIndicatorsListCP indicators={ai.indicators} />
+          <CallAuditAiIndicatorsListCP
+            indicators={ai.indicators}
+            totalScore={ai.totalScore}
+            maxScore={ai.maxScore}
+          />
           {failedTooltip !== "" ? (
             <Tooltip title={`${s.failedIndicatorsTooltip}: ${failedTooltip}`}>
               <Typography variant="caption" color="text.secondary" sx={{ cursor: "default" }}>
@@ -100,7 +116,10 @@ export default function CallAuditAiResultSummaryCP({
       {showRubric && total > 0 && variant === "table" ? (
         <Stack direction="row" spacing={0.25} alignItems="center" flexWrap="wrap" useFlexGap>
           {ai.indicators.map((ind) => (
-            <Tooltip key={ind.key} title={`${ind.label}: ${ind.passed ? "Sí" : "No"}`}>
+            <Tooltip
+              key={ind.key}
+              title={`${ind.label}: ${ind.passed ? "Sí" : "No"} (${ind.pointsEarned ?? 0}/${ind.maxPoints ?? 0})`}
+            >
               <Box
                 component="span"
                 aria-label={`${ind.label}: ${ind.passed ? "Sí" : "No"}`}
@@ -114,17 +133,16 @@ export default function CallAuditAiResultSummaryCP({
               </Box>
             </Tooltip>
           ))}
+          <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
+            {ai.totalScore ?? earnedPoints}/{ai.maxScore ?? (maxPoints || 100)}
+          </Typography>
           {failedTooltip !== "" ? (
             <Tooltip title={`${s.failedIndicatorsTooltip}: ${failedTooltip}`}>
               <Typography variant="caption" color="text.secondary" sx={{ cursor: "default" }}>
                 {checklistLabel}
               </Typography>
             </Tooltip>
-          ) : (
-            <Typography variant="caption" color="text.secondary">
-              {checklistLabel}
-            </Typography>
-          )}
+          ) : null}
         </Stack>
       ) : null}
       {showInterest && variant === "dialog" && ai.interestScoreRationale ? (

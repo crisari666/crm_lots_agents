@@ -13,10 +13,14 @@ import type { CallAuditIndicatorResult } from "../../services/customers-ms-admin
 
 export type CallAuditAiIndicatorsListCPProps = {
   indicators: CallAuditIndicatorResult[]
+  totalScore?: number
+  maxScore?: number
 }
 
 export default function CallAuditAiIndicatorsListCP({
   indicators,
+  totalScore,
+  maxScore,
 }: CallAuditAiIndicatorsListCPProps) {
   if (indicators.length === 0) {
     return null
@@ -28,9 +32,17 @@ export default function CallAuditAiIndicatorsListCP({
           {indicators.map((ind) => (
             <TableRow key={ind.key}>
               <TableCell sx={{ border: 0, py: 0.5, pl: 0, pr: 1 }}>
-                <Typography variant="body2">{ind.label}</Typography>
+                <Typography variant="body2">
+                  {ind.label}{" "}
+                  <Typography component="span" variant="caption" color="text.secondary">
+                    ({ind.maxPoints ?? 0} {s.pointsLabel})
+                  </Typography>
+                </Typography>
               </TableCell>
-              <TableCell align="right" sx={{ border: 0, py: 0.5, width: 40 }}>
+              <TableCell align="right" sx={{ border: 0, py: 0.5, width: 72 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+                  {ind.pointsEarned ?? 0}/{ind.maxPoints ?? 0}
+                </Typography>
                 {ind.passed ? (
                   <CheckCircleOutlineIcon
                     fontSize="small"
@@ -47,6 +59,20 @@ export default function CallAuditAiIndicatorsListCP({
               </TableCell>
             </TableRow>
           ))}
+          {totalScore !== undefined ? (
+            <TableRow>
+              <TableCell sx={{ border: 0, py: 0.75, pl: 0, pr: 1 }}>
+                <Typography variant="body2" fontWeight={600}>
+                  {s.totalScore}
+                </Typography>
+              </TableCell>
+              <TableCell align="right" sx={{ border: 0, py: 0.75 }}>
+                <Typography variant="body2" fontWeight={700}>
+                  {totalScore}/{maxScore ?? 100}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ) : null}
         </TableBody>
       </Table>
     </TableContainer>

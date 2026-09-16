@@ -337,6 +337,17 @@ export default function CeoOperationsSummaryCP() {
                 onClick={openCallAuditAiReview}
               />
               <KpiCard
+                title={callAuditS.kpiAvgTotalScore}
+                value={
+                  callAuditAiSummary.avgTotalScore !== null
+                    ? `${callAuditAiSummary.avgTotalScore}/100`
+                    : "—"
+                }
+                subtitle={callAuditMonthLabel}
+                icon={<RuleOutlined fontSize="small" />}
+                onClick={openCallAuditAiReview}
+              />
+              <KpiCard
                 title={callAuditS.kpiTopFailedRubric}
                 value={callAuditTopFailed?.value ?? "—"}
                 subtitle={

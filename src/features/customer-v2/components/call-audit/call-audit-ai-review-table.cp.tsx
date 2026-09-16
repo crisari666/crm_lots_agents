@@ -165,7 +165,13 @@ export default function CallAuditAiReviewTableCP() {
               const agentLabel = resolveUserLabel(row.agentExternalRef, usersOriginal)
               const isAnalyzing = analyzingCallLogIds.includes(row.callLogId)
               const needsAi =
-                row.aiStatus === "none" || row.aiStatus === "failed" || row.aiStatus === "pending"
+                row.hasTranscript &&
+                (row.aiStatus === "none" ||
+                  row.aiStatus === "failed" ||
+                  row.aiStatus === "pending" ||
+                  row.aiStatus === "completed")
+              const analyzeLabel =
+                row.aiStatus === "completed" ? s.reanalyzeAi : s.runAiAnalysis
               const atRisk = resolveRowAtRisk(row)
               const canOpenRow =
                 row.aiStatus !== "none" || isAnalyzing
@@ -255,7 +261,7 @@ export default function CallAuditAiReviewTableCP() {
                           }
                           sx={{ cursor: "pointer" }}
                         >
-                          {isAnalyzing ? s.aiStatusPending : s.runAiAnalysis}
+                          {isAnalyzing ? s.aiStatusPending : analyzeLabel}
                         </Button>
                       ) : null}
                       <Button

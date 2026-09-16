@@ -36,11 +36,17 @@ export default function CallAuditFormAiSectionCP({ loading, ai }: CallAuditFormA
       ) : null}
       {!loading && ai?.status === "completed" ? (
         <Stack spacing={1}>
+          <Typography variant="body2" fontWeight={700}>
+            {s.totalScore}: {ai.totalScore}/{ai.maxScore ?? 100}
+          </Typography>
           {ai.indicators.map((ind) => (
             <Box key={ind.key}>
               {ind.rationale ? (
                 <Typography variant="caption" color="text.secondary" display="block">
-                  <strong>{ind.label}:</strong> {ind.rationale}
+                  <strong>
+                    {ind.label} ({ind.pointsEarned ?? 0}/{ind.maxPoints ?? 0}):
+                  </strong>{" "}
+                  {ind.rationale}
                 </Typography>
               ) : null}
               {ind.evidence ? (
