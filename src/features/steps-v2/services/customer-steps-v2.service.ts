@@ -7,6 +7,7 @@ export type CustomerStepV2 = {
   order: number
   color?: string
   isActive: boolean
+  isPotentialBuyer: boolean
   createdAt: string
   updatedAt: string
 }
@@ -17,6 +18,7 @@ export type CreateCustomerStepV2Body = {
   order?: number
   color?: string
   isActive?: boolean
+  isPotentialBuyer?: boolean
 }
 
 export type UpdateCustomerStepV2Body = Partial<CreateCustomerStepV2Body>

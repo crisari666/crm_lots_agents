@@ -59,12 +59,14 @@ export default function DialogStepCp({
   const [order, setOrder] = useState("0")
   const [color, setColor] = useState("")
   const [isActive, setIsActive] = useState(true)
+  const [isPotentialBuyer, setIsPotentialBuyer] = useState(false)
   useEffect(() => {
     setName(selectedStep?.name ?? "")
     setDescription(selectedStep?.description ?? "")
     setOrder(String(selectedStep?.order ?? 0))
     setColor(selectedStep?.color ?? "")
     setIsActive(selectedStep?.isActive ?? true)
+    setIsPotentialBuyer(selectedStep?.isPotentialBuyer ?? false)
   }, [selectedStep, open])
   const hasValidName = useMemo(() => name.trim().length > 0, [name])
   const normalizedColor = useMemo(() => normalizeHexColor(color), [color])
@@ -80,6 +82,7 @@ export default function DialogStepCp({
       order: Number.isFinite(parsedOrder) ? parsedOrder : 0,
       color: isValidHexColor(normalizedColor) ? normalizedColor : undefined,
       isActive,
+      isPotentialBuyer,
     })
   }
   return (
@@ -175,6 +178,15 @@ export default function DialogStepCp({
               />
             }
             label="Active"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isPotentialBuyer}
+                onChange={(_, checked) => setIsPotentialBuyer(checked)}
+              />
+            }
+            label="Potential buyer (extend ventor list +15 days)"
           />
         </Stack>
       </DialogContent>

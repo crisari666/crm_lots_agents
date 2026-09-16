@@ -24,6 +24,9 @@ function ListStepItem({
         {item.color ? (
           <Chip size="small" label={item.color} sx={{ bgcolor: item.color, color: "#fff" }} />
         ) : null}
+        {item.isPotentialBuyer ? (
+          <Chip size="small" color="info" label="Potential buyer" />
+        ) : null}
         <Chip
           size="small"
           color={item.isActive ? "success" : "default"}
