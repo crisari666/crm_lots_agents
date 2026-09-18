@@ -97,6 +97,7 @@ export type CustomerAdminDetail = {
   enabled: boolean
   isReferral: boolean
   isInternational?: boolean
+  isProspect?: boolean
   createdBy: string
   createdAt: string
   updatedAt?: string
@@ -116,6 +117,7 @@ export type UpdateCustomerAdminBody = {
   enabled?: boolean
   isReferral?: boolean
   isInternational?: boolean
+  isProspect?: boolean
 }
 
 export type CustomerCallLogAdminOutcome =

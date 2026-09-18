@@ -51,6 +51,7 @@ function buildUpdateBody(form: CustomerAdminDetail): UpdateCustomerAdminBody {
     interestedProjects,
     assignedTo: form.assignedTo ?? "",
     enabled: form.enabled,
+    isProspect: form.isProspect ?? false,
   }
 }
 
