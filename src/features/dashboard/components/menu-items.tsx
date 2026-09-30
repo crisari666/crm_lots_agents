@@ -80,6 +80,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/offices-list", Icon: <BusinessOutlined />, title: "Oficinas" },
       { to: "/dashboard/signed-contracts", Icon: <Description />, title: "Contratos enviados a firma" },
       { to: "/dashboard/signup-campaigns", Icon: <Campaign />, title: "Campañas de registro" },
+      { to: "/dashboard/job-campaigns", Icon: <Campaign />, title: "Campañas de reclutamiento", crmAdminOnly: true },
       //{ to: "/dashboard/collectors", Icon: <Collections />, title: "Cobradores" },
       // { to: "/dashboard/user-log-arrive", Icon: <HistoryEdu />, title: "Historial llegadas" },
       { to: "/dashboard/audits", Icon: <AdminPanelSettings />, title: "Auditoria" },

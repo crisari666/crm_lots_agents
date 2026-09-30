@@ -39,6 +39,7 @@ import StepsV2Page from "../features/steps-v2/pages/steps-v2-page";
 import ProjectReleasesPage from "../features/project-release/pages/project-releases-page";
 import SignedContractView from "../features/signed-contract/signed-contract-view";
 import SignupCampaignView from "../features/signup-campaign/signup-campaign-view";
+import JobCampaignView from "../features/job-campaigns/job-campaign-view";
 import CeoLeadsResumePage from "../features/ceo-operations-summary/pages/ceo-leads-resume-page";
 import StaffPerformanceReportPage from "../features/staff-performance-report/pages/staff-performance-report-page";
 import ReferralFollowUpPage from "../features/referral-follow-up/pages/referral-follow-up-page";
@@ -110,6 +111,7 @@ const router = createBrowserRouter([
       { path: "users-onboarding-status", element: <UsersOnboardingStatusView /> },
       { path: "signed-contracts", element: <SignedContractView /> },
       { path: "signup-campaigns", element: <SignupCampaignView /> },
+      { path: "job-campaigns", element: <JobCampaignView /> },
       { path: "customer-payments-auditory", element: <CustomerPaymentsAuditoryPage /> },
       {
         path: "whatsapp-marketing",
