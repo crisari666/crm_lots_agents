@@ -38,6 +38,7 @@ import customerSearchReducer from "../features/customer-v2/redux/customer-search
 import projectReleasesReducer from "../features/project-release/slice/project-releases.slice";
 import signedContractReducer from "../features/signed-contract/slice/signed-contract.slice";
 import signupCampaignReducer from "../features/signup-campaign/slice/signup-campaign.slice";
+import jobCampaignReducer from "../features/job-campaigns/slice/job-campaign.slice";
 import ceoOperationsSummaryReducer from "../features/ceo-operations-summary/slice/ceo-operations-summary.slice";
 import onboardingVoiceCallAuditReducer from "../features/onboarding-voice-call-audit/slice/onboarding-voice-call-audit.slice";
 import staffPerformanceReportReducer from "../features/staff-performance-report/redux/staff-performance-report.slice";
@@ -121,6 +122,7 @@ export const store = configureStore({
     customerSearch: customerSearchReducer,
     signedContract: signedContractReducer,
     signupCampaign: signupCampaignReducer,
+    jobCampaign: jobCampaignReducer,
     ceoOperationsSummary: ceoOperationsSummaryReducer,
     onboardingVoiceCallAudit: onboardingVoiceCallAuditReducer,
     staffPerformanceReport: staffPerformanceReportReducer,

@@ -30,6 +30,13 @@ export class WsCloudMsHttp {
     return response.data
   }
 
+  /** Absolute URL for browser-loaded resources (links, <video> src). */
+  resolveUrl(path: string): string {
+    const base = baseURL.replace(/\/+$/, "")
+    const relative = path.replace(/^\/+/, "")
+    return base.length > 0 ? `${base}/${relative}` : `/${relative}`
+  }
+
   async post<T>(path: string, data: unknown): Promise<T> {
     const response: AxiosResponse<T> = await wsCloudMsAxios.post(path, data)
     return response.data
