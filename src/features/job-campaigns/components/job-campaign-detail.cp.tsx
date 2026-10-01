@@ -6,13 +6,16 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Paper,
   Stack,
   Tab,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material"
+import { DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material"
 import { useMemo, useState } from "react"
 import { jobCampaignStrings as s } from "../../../i18n/locales/job-campaigns.strings"
 import type {
@@ -21,6 +24,7 @@ import type {
   JobCampaignInterviewItem,
 } from "../types/job-campaign.types"
 import { JobCampaignCandidateProfileCp } from "./job-campaign-candidate-profile.cp"
+import { JobCandidateRemoveDialogCp } from "./job-candidate-remove-dialog.cp"
 import { JobCandidateScoreChipCp } from "./job-candidate-score-chip.cp"
 import { JobCandidateSortToggleCp } from "./job-candidate-sort-toggle.cp"
 
@@ -66,6 +70,7 @@ export function JobCampaignDetailCp(props: Props) {
   const [editName, setEditName] = useState("")
   const [editPhone, setEditPhone] = useState("")
   const [editEmail, setEditEmail] = useState("")
+  const [removeTarget, setRemoveTarget] = useState<JobCampaignCandidateItem | null>(null)
 
   const conversation = useMemo(
     () => props.selectedCandidate?.conversationLog ?? [],
@@ -95,6 +100,10 @@ export function JobCampaignDetailCp(props: Props) {
 
   return (
     <Paper sx={{ p: 2, mt: 2 }}>
+      <JobCandidateRemoveDialogCp
+        candidate={removeTarget}
+        onClose={() => setRemoveTarget(null)}
+      />
       <Typography variant="h6" mb={1}>
         {props.campaign.name}
         {props.campaign.isActive ? (
@@ -178,6 +187,23 @@ export function JobCampaignDetailCp(props: Props) {
                   <Stack direction="row" spacing={1} alignItems="center">
                     <JobCandidateScoreChipCp candidate={c} />
                     <Chip size="small" label={c.status} />
+                    <Tooltip title={s.removeCandidateAria}>
+                      <IconButton
+                        size="small"
+                        aria-label={`${s.removeCandidateAria} ${c.name} ${c.lastName}`.trim()}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setRemoveTarget(c)
+                        }}
+                        sx={{
+                          color: "text.secondary",
+                          transition: "color 150ms",
+                          "&:hover, &:focus-visible": { color: "error.main" },
+                        }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                 </Stack>
               </Box>
@@ -216,6 +242,13 @@ export function JobCampaignDetailCp(props: Props) {
               </Button>
               <Button color="warning" onClick={props.onReject}>
                 {s.reject}
+              </Button>
+              <Button
+                color="error"
+                startIcon={<DeleteOutlineIcon />}
+                onClick={() => setRemoveTarget(props.selectedCandidate)}
+              >
+                {s.removeCandidate}
               </Button>
               <Button onClick={props.onAssignInterview}>
                 {s.assignInterview}

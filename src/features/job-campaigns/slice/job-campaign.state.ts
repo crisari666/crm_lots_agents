@@ -17,6 +17,7 @@ export type JobCampaignState = {
   selectedCandidate: JobCampaignCandidateItem | null
   candidateSort: JobCampaignCandidateSort
   rescoreStatus: "idle" | "loading" | "failed"
+  removeCandidateStatus: "idle" | "loading" | "failed"
   interviews: JobCampaignInterviewItem[]
   interviewsLoading: boolean
   interviewsError: string | null
@@ -37,6 +38,7 @@ export const initialJobCampaignState: JobCampaignState = {
   selectedCandidate: null,
   candidateSort: "recent",
   rescoreStatus: "idle",
+  removeCandidateStatus: "idle",
   interviews: [],
   interviewsLoading: false,
   interviewsError: null,

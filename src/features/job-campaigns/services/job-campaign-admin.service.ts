@@ -6,6 +6,7 @@ import type {
   CreateJobCampaignInterviewBody,
   JobCampaignAdminItem,
   JobCampaignCandidateItem,
+  JobCampaignCandidateRemoval,
   JobCampaignCandidateSort,
   JobCampaignInterviewItem,
   UpdateJobCampaignBody,
@@ -157,6 +158,20 @@ export async function rejectJobCampaignCandidateReq(
   })
   if (data == null || typeof data !== "object") return null
   return data as JobCampaignCandidateItem
+}
+
+export async function removeJobCampaignCandidateReq(
+  campaignId: string,
+  candidateId: string,
+): Promise<JobCampaignCandidateRemoval | null> {
+  const api = Api.getInstance()
+  const data = await api.delete({
+    path: `job-campaigns/${campaignId}/candidates/${candidateId}`,
+  })
+  if (data == null || typeof data !== "object" || (data as JobCampaignCandidateRemoval).removed !== true) {
+    return null
+  }
+  return data as JobCampaignCandidateRemoval
 }
 
 export async function rescoreJobCampaignCandidateReq(

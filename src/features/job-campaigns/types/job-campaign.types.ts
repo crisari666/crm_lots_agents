@@ -65,6 +65,10 @@ export type JobCampaignCandidateFacebookLead = {
 
 export type JobCampaignCandidateSort = "recent" | "score"
 
+export type JobCampaignCandidateRemoval = {
+  removed: true
+  candidateId: string
+}
 
 export type JobCampaignCandidateItem = {
   id: string

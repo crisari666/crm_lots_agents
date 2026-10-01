@@ -19,6 +19,7 @@ import {
   fetchJobCampaignsReq,
   promoteJobCampaignCandidateReq,
   rejectJobCampaignCandidateReq,
+  removeJobCampaignCandidateReq,
   rescoreJobCampaignCandidateReq,
   retryJobCampaignVoiceReq,
   startJobCampaignWhatsappReq,
@@ -145,6 +146,21 @@ export const rejectJobCampaignCandidateThunk = createAsyncThunk(
     readonly campaignId: string
     readonly candidateId: string
   }) => rejectJobCampaignCandidateReq(input.campaignId, input.candidateId),
+)
+
+export const removeJobCampaignCandidateThunk = createAsyncThunk(
+  "jobCampaign/removeCandidate",
+  async (
+    input: { readonly campaignId: string; readonly candidateId: string },
+    { dispatch },
+  ) => {
+    const removal = await removeJobCampaignCandidateReq(input.campaignId, input.candidateId)
+    if (removal == null) {
+      throw new Error("remove_candidate_failed")
+    }
+    void dispatch(fetchJobCampaignInterviewsThunk(input.campaignId))
+    return removal
+  },
 )
 
 export const assignJobCampaignInterviewThunk = createAsyncThunk(
@@ -295,6 +311,20 @@ const jobCampaignSlice = createSlice({
         if (action.payload == null) return
         state.selectedCandidate = action.payload
         replaceCandidate(state, action.payload)
+      })
+      .addCase(removeJobCampaignCandidateThunk.pending, (state) => {
+        state.removeCandidateStatus = "loading"
+      })
+      .addCase(removeJobCampaignCandidateThunk.fulfilled, (state, action) => {
+        state.removeCandidateStatus = "idle"
+        const removedId = action.payload.candidateId
+        state.candidates = state.candidates.filter((c) => c.id !== removedId)
+        if (state.selectedCandidate?.id === removedId) {
+          state.selectedCandidate = null
+        }
+      })
+      .addCase(removeJobCampaignCandidateThunk.rejected, (state) => {
+        state.removeCandidateStatus = "failed"
       })
       .addCase(rescoreJobCampaignCandidateThunk.pending, (state) => {
         state.rescoreStatus = "loading"
