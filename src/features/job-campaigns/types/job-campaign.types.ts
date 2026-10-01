@@ -42,7 +42,29 @@ export type JobCampaignCandidateCvAnalysis = {
   analyzedAt: string
 }
 
+export type JobCampaignCandidateFormAnswer = {
+  fieldName: string
+  question: string
+  answer: string
+}
+
+export type JobCampaignCandidateContactChannel = "call" | "whatsapp" | "email" | ""
+
+export type JobCampaignCandidateFacebookLead = {
+  leadgenId: string
+  pageId: string
+  formId: string
+  formName: string
+  adId: string
+  campaignName: string
+  platform: string
+  leadCreatedAt: string
+  answers: JobCampaignCandidateFormAnswer[]
+  receivedAt: string
+}
+
 export type JobCampaignCandidateSort = "recent" | "score"
+
 
 export type JobCampaignCandidateItem = {
   id: string
@@ -67,6 +89,8 @@ export type JobCampaignCandidateItem = {
   hasCvText: boolean
   cvAnalysis: JobCampaignCandidateCvAnalysis | null
   videoFile: JobCampaignCandidateMediaFile | null
+  facebookLead: JobCampaignCandidateFacebookLead | null
+  preferredContactChannel: JobCampaignCandidateContactChannel
   createdAt: string
   updatedAt: string
 }

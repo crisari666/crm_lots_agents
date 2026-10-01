@@ -10,6 +10,7 @@ import {
 } from "../slice/job-campaign.slice"
 import type { JobCampaignCandidateItem } from "../types/job-campaign.types"
 import { JobCandidateCvAnalysisCp } from "./job-candidate-cv-analysis.cp"
+import { JobCandidateFacebookLeadCp } from "./job-candidate-facebook-lead.cp"
 import { JobCandidateVideoCp } from "./job-candidate-video.cp"
 
 type Props = {
@@ -119,6 +120,10 @@ export function JobCampaignCandidateProfileCp(props: Props) {
         </Box>
         <JobCandidateVideoCp videoFile={candidate.videoFile} />
       </Stack>
+      <JobCandidateFacebookLeadCp
+        facebookLead={candidate.facebookLead}
+        preferredContactChannel={candidate.preferredContactChannel ?? ""}
+      />
     </Box>
   )
 }

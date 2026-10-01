@@ -82,4 +82,12 @@ export const jobCampaignStrings = {
     "No se pudo leer el texto del archivo (¿PDF escaneado?). Revisa el CV manualmente.",
   cvAnalysisPending:
     "La hoja de vida se está analizando. Si el puntaje no aparece, usa Re-analizar CV.",
+  facebookLeadTitle: "Respuestas del formulario",
+  facebookLeadPlatformFacebook: "Facebook",
+  facebookLeadPlatformInstagram: "Instagram",
+  facebookLeadCampaign: "Campaña",
+  preferredContactLabel: "Prefiere contacto por",
+  preferredContactCall: "Llamada (se llamó con el agente de voz)",
+  preferredContactWhatsapp: "WhatsApp (se abrió WhatsApp sin llamada)",
+  preferredContactEmail: "Correo (se abrió WhatsApp sin llamada)",
 } as const
