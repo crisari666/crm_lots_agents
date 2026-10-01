@@ -5,7 +5,7 @@ export const jobCampaignStrings = {
   listEmpty: "No hay campañas de reclutamiento.",
   activeBadge: "Activa",
   activate: "Activar",
-  editSetup: "Editar agente",
+  editSetup: "Editar campaña",
   fieldName: "Nombre",
   fieldDescription: "Descripción",
   fieldVoicePrompt: "Prompt agente de voz",
