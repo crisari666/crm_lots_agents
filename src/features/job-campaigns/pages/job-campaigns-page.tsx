@@ -2,7 +2,7 @@ import { Box } from "@mui/material"
 import { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { JobCampaignDetailCp } from "../components/job-campaign-detail.cp"
-import { JobCampaignSetupDialogCp } from "../components/job-campaign-setup-dialog.cp"
+import { JobCampaignSetupDialogCp } from "../components/job-campaign-setup/job-campaign-setup-dialog.cp"
 import { JobCampaignsListCp } from "../components/job-campaigns-list.cp"
 import {
   activateJobCampaignThunk,
@@ -213,42 +213,12 @@ export default function JobCampaignsPage() {
         saving={state.createStatus === "loading"}
         onClose={() => setSetupOpen(false)}
         onSubmitCreate={(input) => {
-          void dispatch(
-            createJobCampaignThunk({
-              name: input.name,
-              description: input.description,
-              voiceAgentPrompt: input.voiceAgentPrompt,
-              whatsappAgentPrompt: input.whatsappAgentPrompt,
-              captureFields: [...input.captureFields],
-              whatsappTemplateName: input.whatsappTemplateName,
-              whatsappTemplateLanguage: input.whatsappTemplateLanguage,
-              requirements: input.requirements,
-              cvRequestMessage: input.cvRequestMessage,
-              videoRequestMessage: input.videoRequestMessage,
-              videoReceivedMessage: input.videoReceivedMessage,
-              activate: input.activate,
-            }),
-          ).then(() => setSetupOpen(false))
+          void dispatch(createJobCampaignThunk(input)).then(() => setSetupOpen(false))
         }}
         onSubmitUpdate={(input) => {
           if (state.selectedCampaignId == null) return
           void dispatch(
-            updateJobCampaignThunk({
-              id: state.selectedCampaignId,
-              body: {
-                name: input.name,
-                description: input.description,
-                voiceAgentPrompt: input.voiceAgentPrompt,
-                whatsappAgentPrompt: input.whatsappAgentPrompt,
-                captureFields: [...input.captureFields],
-                whatsappTemplateName: input.whatsappTemplateName,
-                whatsappTemplateLanguage: input.whatsappTemplateLanguage,
-                requirements: input.requirements,
-                cvRequestMessage: input.cvRequestMessage,
-                videoRequestMessage: input.videoRequestMessage,
-                videoReceivedMessage: input.videoReceivedMessage,
-              },
-            }),
+            updateJobCampaignThunk({ id: state.selectedCampaignId, body: input }),
           ).then(() => setSetupOpen(false))
         }}
       />

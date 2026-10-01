@@ -168,7 +168,14 @@ export const assignJobCampaignInterviewThunk = createAsyncThunk(
   async (input: {
     readonly campaignId: string
     readonly candidateId: string
-  }) => assignJobCampaignInterviewReq(input.campaignId, input.candidateId),
+  }) => {
+    const candidate = await assignJobCampaignInterviewReq(
+      input.campaignId,
+      input.candidateId,
+    )
+    if (candidate == null) throw new Error("assign_interview_failed")
+    return candidate
+  },
 )
 
 export const fetchJobCampaignInterviewsThunk = createAsyncThunk(
@@ -338,10 +345,19 @@ const jobCampaignSlice = createSlice({
       .addCase(rescoreJobCampaignCandidateThunk.rejected, (state) => {
         state.rescoreStatus = "failed"
       })
+      .addCase(assignJobCampaignInterviewThunk.pending, (state) => {
+        state.assignInterviewStatus = "loading"
+      })
       .addCase(assignJobCampaignInterviewThunk.fulfilled, (state, action) => {
-        if (action.payload == null) return
+        state.assignInterviewStatus = "succeeded"
         state.selectedCandidate = action.payload
         replaceCandidate(state, action.payload)
+      })
+      .addCase(assignJobCampaignInterviewThunk.rejected, (state) => {
+        state.assignInterviewStatus = "failed"
+      })
+      .addCase(fetchJobCampaignCandidateThunk.pending, (state) => {
+        state.assignInterviewStatus = "idle"
       })
       .addCase(fetchJobCampaignInterviewsThunk.pending, (state) => {
         state.interviewsLoading = true

@@ -23,6 +23,7 @@ export type JobCampaignState = {
   interviewsError: string | null
   createStatus: "idle" | "loading" | "succeeded" | "failed"
   createError: string | null
+  assignInterviewStatus: "idle" | "loading" | "succeeded" | "failed"
   detailTab: number
 }
 
@@ -44,5 +45,6 @@ export const initialJobCampaignState: JobCampaignState = {
   interviewsError: null,
   createStatus: "idle",
   createError: null,
+  assignInterviewStatus: "idle",
   detailTab: 0,
 }

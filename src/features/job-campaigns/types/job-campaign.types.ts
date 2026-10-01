@@ -20,6 +20,12 @@ export type JobCampaignAdminItem = {
   cvRequestMessage: string
   videoRequestMessage: string
   videoReceivedMessage: string
+  meetScheduledAt: string | null
+  meetDurationMinutes: number
+  meetTemplateName: string
+  meetTemplateLanguage: string
+  salesDirectorEmail: string
+  googleMeetUrl: string
   candidateCount: number
   availableInterviewCount: number
   createdAt: string
@@ -125,6 +131,15 @@ export type CreateJobCampaignBody = {
   readonly videoRequestMessage?: string
   readonly videoReceivedMessage?: string
   readonly activate?: boolean
+} & JobCampaignMeetBody
+
+/** Group Meet settings; `meetScheduledAt: ""` clears the date. */
+export type JobCampaignMeetBody = {
+  readonly meetScheduledAt?: string
+  readonly meetDurationMinutes?: number
+  readonly meetTemplateName?: string
+  readonly meetTemplateLanguage?: string
+  readonly salesDirectorEmail?: string
 }
 
 export type UpdateJobCampaignBody = {
@@ -140,7 +155,7 @@ export type UpdateJobCampaignBody = {
   readonly cvRequestMessage?: string
   readonly videoRequestMessage?: string
   readonly videoReceivedMessage?: string
-}
+} & JobCampaignMeetBody
 
 export type CreateJobCampaignInterviewBody = {
   readonly scheduledAt: string

@@ -23,6 +23,7 @@ import type {
   JobCampaignCandidateItem,
   JobCampaignInterviewItem,
 } from "../types/job-campaign.types"
+import { JobCampaignAssignMeetCp } from "./job-campaign-assign-meet.cp"
 import { JobCampaignCandidateProfileCp } from "./job-campaign-candidate-profile.cp"
 import { JobCandidateRemoveDialogCp } from "./job-candidate-remove-dialog.cp"
 import { JobCandidateScoreChipCp } from "./job-candidate-score-chip.cp"
@@ -250,10 +251,15 @@ export function JobCampaignDetailCp(props: Props) {
               >
                 {s.removeCandidate}
               </Button>
-              <Button onClick={props.onAssignInterview}>
-                {s.assignInterview}
-              </Button>
             </Stack>
+          ) : null}
+          {props.selectedCandidate != null ? (
+            <Box mt={2}>
+              <JobCampaignAssignMeetCp
+                campaign={props.campaign}
+                onAssign={props.onAssignInterview}
+              />
+            </Box>
           ) : null}
           {props.selectedCandidate != null ? (
             <JobCampaignCandidateProfileCp candidate={props.selectedCandidate} />

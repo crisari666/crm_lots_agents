@@ -9,6 +9,11 @@ export const DEFAULT_JOB_CAMPAIGN_CAPTURE_FIELDS: readonly JobCampaignCaptureFie
 export const DEFAULT_WHATSAPP_OPENING_TEMPLATE_NAME = "candidate_opening_message"
 export const DEFAULT_WHATSAPP_OPENING_TEMPLATE_LANGUAGE = "spa"
 
+export const DEFAULT_MEET_TEMPLATE_LANGUAGE = "es_CO"
+export const DEFAULT_MEET_DURATION_MINUTES = 60
+export const MIN_MEET_DURATION_MINUTES = 15
+export const MEET_TIME_ZONE = "America/Bogota"
+
 export const DEFAULT_WHATSAPP_RECRUITING_AGENT_PROMPT = `Identidad, Rol y Tono
 Eres el Asistente Virtual de Reclutamiento de un proyecto inmobiliario premium de parcelación de lotes.
 
