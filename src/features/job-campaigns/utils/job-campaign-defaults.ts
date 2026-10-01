@@ -122,7 +122,7 @@ Deseable: experiencia en ventas (idealmente inmobiliaria, seguros, banca o produ
 Valoramos actitud comercial, disciplina, orientación a metas y facilidad de comunicación.`
 
 export const DEFAULT_CV_REQUEST_MESSAGE =
-  "¡Perfecto, gracias! 📄 El siguiente paso es que me envíes tu hoja de vida (CV) en PDF o Word por este chat."
+  "¡Perfecto, gracias! 📄 El siguiente paso es que me envíes tu hoja de vida (CV) en formato PDF por este chat."
 
 export const DEFAULT_VIDEO_REQUEST_MESSAGE =
   "¡Recibimos tu hoja de vida! 🎥 Ahora envíanos un video de máximo 1 minuto presentándote: quién eres, tu experiencia y por qué quieres unirte al equipo."
