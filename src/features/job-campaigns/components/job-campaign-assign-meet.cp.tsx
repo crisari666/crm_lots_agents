@@ -4,6 +4,7 @@ import { useAppSelector } from "../../../app/hooks"
 import { jobCampaignStrings as s } from "../../../i18n/locales/job-campaigns.strings"
 import { selectJobCampaignState } from "../slice/job-campaign.slice"
 import type { JobCampaignAdminItem } from "../types/job-campaign.types"
+import { hasCampaignGroupMeet } from "../utils/campaign-group-meet.util"
 import { formatMeetDate, formatMeetTime } from "../utils/meet-schedule-format.util"
 
 type Props = {
@@ -11,18 +12,13 @@ type Props = {
   readonly onAssign: () => void
 }
 
-const hasGroupMeet = (campaign: JobCampaignAdminItem): boolean =>
-  campaign.meetScheduledAt != null &&
-  campaign.googleMeetUrl.length > 0 &&
-  campaign.meetTemplateName.trim().length > 0
-
 /**
  * "Assign Meet" action: invites the selected candidate to the campaign group Meet (or the next
  * interview slot) and reports the result inline.
  */
 export function JobCampaignAssignMeetCp(props: Props) {
   const status = useAppSelector((state) => selectJobCampaignState(state).assignInterviewStatus)
-  const isGroupMeet = hasGroupMeet(props.campaign)
+  const isGroupMeet = hasCampaignGroupMeet(props.campaign)
   const canAssign = isGroupMeet || props.campaign.availableInterviewCount > 0
   const isLoading = status === "loading"
   const meetIso = props.campaign.meetScheduledAt

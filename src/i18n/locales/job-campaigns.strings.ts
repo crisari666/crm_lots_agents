@@ -157,4 +157,34 @@ export const jobCampaignStrings = {
   preferredContactCall: "Llamada (se llamó con el agente de voz)",
   preferredContactWhatsapp: "WhatsApp (se abrió WhatsApp sin llamada)",
   preferredContactEmail: "Correo (se abrió WhatsApp sin llamada)",
+  meetBatchSelectAll: "Seleccionar todos",
+  meetBatchSelected: "seleccionados",
+  meetBatchSend: "Enviar Meet por WhatsApp",
+  meetBatchDisabledHint:
+    "Configura la fecha del Meet y la plantilla de WhatsApp en «Editar campaña» para enviar el Meet.",
+  meetBatchConfirmTitle: "¿Enviar la invitación al Meet?",
+  meetBatchConfirmBody:
+    "Se enviará la plantilla de WhatsApp del Meet y la invitación de Google Calendar a",
+  meetBatchConfirmCandidates: "candidatos",
+  meetBatchConfirmPacing:
+    "Para evitar que WhatsApp lo marque como spam, se envían 5 mensajes cada 30 segundos. Tiempo estimado:",
+  meetBatchConfirmSkipNote:
+    "Los candidatos que ya están en cola o enviándose no se vuelven a enviar.",
+  meetBatchConfirm: "Enviar",
+  meetBatchCancel: "Cancelar",
+  meetBatchQueued: "en cola",
+  meetBatchSkipped: "omitidos",
+  meetBatchError: "No se pudo poner en cola el envío. Inténtalo de nuevo.",
+  meetBatchRowAria: "Seleccionar candidato",
+  meetStatusLabel: "Meet WhatsApp",
+  meetStatusQueued: "En cola",
+  meetStatusSending: "Enviando",
+  meetStatusSent: "Enviado",
+  meetStatusDelivered: "Entregado",
+  meetStatusRead: "Leído",
+  meetStatusFailed: "Falló",
+  meetStatusSpam: "Bloqueado / spam",
+  meetStatusSpamHint:
+    "WhatsApp no entregó el mensaje por políticas de calidad o porque la persona no acepta mensajes de marketing.",
+  meetStatusUpdatedAt: "Actualizado",
 } as const

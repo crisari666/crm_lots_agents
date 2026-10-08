@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   Dialog,
   DialogActions,
@@ -16,7 +17,7 @@ import {
   Typography,
 } from "@mui/material"
 import { DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { jobCampaignStrings as s } from "../../../i18n/locales/job-campaigns.strings"
 import type {
   JobCampaignAdminItem,
@@ -25,6 +26,8 @@ import type {
 } from "../types/job-campaign.types"
 import { JobCampaignAssignMeetCp } from "./job-campaign-assign-meet.cp"
 import { JobCampaignCandidateProfileCp } from "./job-campaign-candidate-profile.cp"
+import { JobCandidateMeetBatchBarCp } from "./job-candidate-meet-batch-bar.cp"
+import { JobCandidateMeetStatusChipCp } from "./job-candidate-meet-status-chip.cp"
 import { JobCandidateRemoveDialogCp } from "./job-candidate-remove-dialog.cp"
 import { JobCandidateScoreChipCp } from "./job-candidate-score-chip.cp"
 import { JobCandidateSortToggleCp } from "./job-candidate-sort-toggle.cp"
@@ -72,6 +75,26 @@ export function JobCampaignDetailCp(props: Props) {
   const [editPhone, setEditPhone] = useState("")
   const [editEmail, setEditEmail] = useState("")
   const [removeTarget, setRemoveTarget] = useState<JobCampaignCandidateItem | null>(null)
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set())
+  const candidateIds = useMemo(() => props.candidates.map((c) => c.id), [props.candidates])
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      const visible = new Set(candidateIds)
+      const kept = [...prev].filter((id) => visible.has(id))
+      return kept.length === prev.size ? prev : new Set(kept)
+    })
+  }, [candidateIds])
+  const toggleSelected = (id: string): void => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+  const toggleAllSelected = (isChecked: boolean): void => {
+    setSelectedIds(isChecked ? new Set(candidateIds) : new Set())
+  }
 
   const conversation = useMemo(
     () => props.selectedCandidate?.conversationLog ?? [],
@@ -154,6 +177,13 @@ export function JobCampaignDetailCp(props: Props) {
             </Button>
             <JobCandidateSortToggleCp />
           </Stack>
+          <JobCandidateMeetBatchBarCp
+            campaign={props.campaign}
+            candidateIds={candidateIds}
+            selectedIds={selectedIds}
+            onToggleAll={toggleAllSelected}
+            onSent={() => setSelectedIds(new Set())}
+          />
           {props.candidates.length === 0 ? (
             <Typography color="text.secondary">{s.candidatesEmpty}</Typography>
           ) : (
@@ -176,14 +206,30 @@ export function JobCampaignDetailCp(props: Props) {
                   direction="row"
                   justifyContent="space-between"
                   alignItems="center"
+                  spacing={1}
                 >
-                  <Box>
-                    <Typography fontWeight={600}>
+                  <Checkbox
+                    size="small"
+                    checked={selectedIds.has(c.id)}
+                    onClick={(event) => event.stopPropagation()}
+                    onChange={() => toggleSelected(c.id)}
+                    inputProps={{
+                      "aria-label": `${s.meetBatchRowAria} ${c.name} ${c.lastName}`.trim(),
+                    }}
+                    sx={{ ml: -1, alignSelf: "flex-start" }}
+                  />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography fontWeight={600} noWrap>
                       {c.name} {c.lastName}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" noWrap>
                       {c.phone} · {c.email}
                     </Typography>
+                    {c.meetMessage != null ? (
+                      <Box mt={0.5}>
+                        <JobCandidateMeetStatusChipCp meetMessage={c.meetMessage} />
+                      </Box>
+                    ) : null}
                   </Box>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <JobCandidateScoreChipCp candidate={c} />
