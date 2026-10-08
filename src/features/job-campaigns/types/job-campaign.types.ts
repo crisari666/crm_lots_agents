@@ -76,6 +76,30 @@ export type JobCampaignCandidateRemoval = {
   candidateId: string
 }
 
+export type JobCampaignCandidateMeetStatus =
+  | "queued"
+  | "sending"
+  | "sent"
+  | "delivered"
+  | "read"
+  | "failed"
+  | "spam"
+
+export type JobCampaignCandidateMeetMessage = {
+  status: JobCampaignCandidateMeetStatus
+  whatsappMessageId: string
+  queuedAt: string | null
+  sentAt: string | null
+  updatedAt: string
+  errorCode: string
+  errorMessage: string
+}
+
+export type JobCampaignMeetBatchResult = {
+  queued: number
+  skipped: number
+}
+
 export type JobCampaignCandidateItem = {
   id: string
   campaignId: string
@@ -101,6 +125,7 @@ export type JobCampaignCandidateItem = {
   videoFile: JobCampaignCandidateMediaFile | null
   facebookLead: JobCampaignCandidateFacebookLead | null
   preferredContactChannel: JobCampaignCandidateContactChannel
+  meetMessage: JobCampaignCandidateMeetMessage | null
   createdAt: string
   updatedAt: string
 }

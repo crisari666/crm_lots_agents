@@ -9,6 +9,7 @@ import type {
   JobCampaignCandidateRemoval,
   JobCampaignCandidateSort,
   JobCampaignInterviewItem,
+  JobCampaignMeetBatchResult,
   UpdateJobCampaignBody,
   UpdateJobCampaignCandidateBody,
 } from "../types/job-campaign.types"
@@ -172,6 +173,21 @@ export async function removeJobCampaignCandidateReq(
     return null
   }
   return data as JobCampaignCandidateRemoval
+}
+
+export async function sendCampaignMeetBatchReq(
+  campaignId: string,
+  candidateIds: readonly string[],
+): Promise<JobCampaignMeetBatchResult | null> {
+  const api = Api.getInstance()
+  const data = await api.post({
+    path: `job-campaigns/${campaignId}/meet/send`,
+    data: { candidateIds },
+  })
+  if (data == null || typeof data !== "object" || typeof (data as JobCampaignMeetBatchResult).queued !== "number") {
+    return null
+  }
+  return data as JobCampaignMeetBatchResult
 }
 
 export async function rescoreJobCampaignCandidateReq(

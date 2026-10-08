@@ -22,6 +22,7 @@ import {
   removeJobCampaignCandidateReq,
   rescoreJobCampaignCandidateReq,
   retryJobCampaignVoiceReq,
+  sendCampaignMeetBatchReq,
   startJobCampaignWhatsappReq,
   updateJobCampaignReq,
 } from "../services/job-campaign-admin.service"
@@ -76,6 +77,28 @@ export const fetchJobCampaignCandidatesThunk = createAsyncThunk<
     input.status,
     getState().jobCampaign.candidateSort,
   ),
+)
+
+/** Background refresh (no loading flag) used while Meet messages are in flight. */
+export const refreshJobCampaignCandidatesThunk = createAsyncThunk<
+  JobCampaignCandidateItem[],
+  { readonly campaignId: string },
+  { state: RootState }
+>("jobCampaign/refreshCandidates", async (input, { getState }) =>
+  fetchJobCampaignCandidatesReq(
+    input.campaignId,
+    undefined,
+    getState().jobCampaign.candidateSort,
+  ),
+)
+
+export const sendCampaignMeetBatchThunk = createAsyncThunk(
+  "jobCampaign/sendMeetBatch",
+  async (input: { readonly campaignId: string; readonly candidateIds: readonly string[] }) => {
+    const result = await sendCampaignMeetBatchReq(input.campaignId, input.candidateIds)
+    if (result == null) throw new Error("send_meet_batch_failed")
+    return result
+  },
 )
 
 export const rescoreJobCampaignCandidateThunk = createAsyncThunk(
@@ -284,6 +307,21 @@ const jobCampaignSlice = createSlice({
         state.candidatesLoading = false
         state.candidatesError =
           action.error.message ?? "Error al cargar candidatos"
+      })
+      .addCase(refreshJobCampaignCandidatesThunk.fulfilled, (state, action) => {
+        state.candidates = action.payload
+        const selectedId = state.selectedCandidate?.id
+        const refreshed = action.payload.find((c) => c.id === selectedId)
+        if (refreshed != null) state.selectedCandidate = refreshed
+      })
+      .addCase(sendCampaignMeetBatchThunk.pending, (state) => {
+        state.meetBatchStatus = "loading"
+      })
+      .addCase(sendCampaignMeetBatchThunk.fulfilled, (state) => {
+        state.meetBatchStatus = "succeeded"
+      })
+      .addCase(sendCampaignMeetBatchThunk.rejected, (state) => {
+        state.meetBatchStatus = "failed"
       })
       .addCase(updateJobCampaignCandidateThunk.fulfilled, (state, action) => {
         if (action.payload == null) return
