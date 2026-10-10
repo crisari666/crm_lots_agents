@@ -1,5 +1,6 @@
 import {
   createAsyncThunk,
+  createSelector,
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit"
@@ -224,6 +225,9 @@ const jobCampaignSlice = createSlice({
   initialState: initialJobCampaignState,
   reducers: {
     selectJobCampaignAct: (state, action: PayloadAction<string | null>) => {
+      if (state.selectedCampaignId !== action.payload) {
+        state.candidateStepFilter = []
+      }
       state.selectedCampaignId = action.payload
       if (action.payload == null) {
         state.selectedCampaign = null
@@ -243,6 +247,15 @@ const jobCampaignSlice = createSlice({
       action: PayloadAction<JobCampaignCandidateSort>,
     ) => {
       state.candidateSort = action.payload
+    },
+    toggleCandidateStepFilterAct: (state, action: PayloadAction<string>) => {
+      const status = action.payload
+      state.candidateStepFilter = state.candidateStepFilter.includes(status)
+        ? state.candidateStepFilter.filter((s) => s !== status)
+        : [...state.candidateStepFilter, status]
+    },
+    clearCandidateStepFilterAct: (state) => {
+      state.candidateStepFilter = []
     },
   },
   extraReducers: (builder) => {
@@ -451,9 +464,44 @@ export const {
   setJobCampaignDetailTabAct,
   clearSelectedCandidateAct,
   setJobCampaignCandidateSortAct,
+  toggleCandidateStepFilterAct,
+  clearCandidateStepFilterAct,
 } = jobCampaignSlice.actions
 
 export const selectJobCampaignState = (state: RootState): JobCampaignState =>
   state.jobCampaign
+
+const selectCandidates = (state: RootState): JobCampaignCandidateItem[] =>
+  state.jobCampaign.candidates
+
+export const selectCandidateStepFilter = (state: RootState): string[] =>
+  state.jobCampaign.candidateStepFilter
+
+/** Candidates shown in the list: all of them, or only those in the selected steps. */
+export const selectVisibleJobCampaignCandidates = createSelector(
+  [selectCandidates, selectCandidateStepFilter],
+  (candidates, stepFilter): JobCampaignCandidateItem[] => {
+    if (stepFilter.length === 0) return candidates
+    const steps = new Set(stepFilter)
+    return candidates.filter((c) => steps.has(c.status))
+  },
+)
+
+export type CandidateStepCounts = {
+  readonly total: number
+  readonly byStatus: Readonly<Record<string, number>>
+}
+
+/** Number of candidates per step (over the full list, not the filtered one). */
+export const selectCandidateStepCounts = createSelector(
+  [selectCandidates],
+  (candidates): CandidateStepCounts => ({
+    total: candidates.length,
+    byStatus: candidates.reduce<Record<string, number>>((acc, c) => {
+      acc[c.status] = (acc[c.status] ?? 0) + 1
+      return acc
+    }, {}),
+  }),
+)
 
 export default jobCampaignSlice.reducer
