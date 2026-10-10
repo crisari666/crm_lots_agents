@@ -71,6 +71,22 @@ export type JobCampaignCandidateFacebookLead = {
 
 export type JobCampaignCandidateSort = "recent" | "score"
 
+export type JobCampaignCandidateStatus =
+  | "arrived"
+  | "voice_queued"
+  | "voice_completed"
+  | "voice_declined"
+  | "whatsapp_capturing"
+  | "data_complete"
+  | "awaiting_cv"
+  | "awaiting_video"
+  | "video_received"
+  | "interview_accepted"
+  | "interview_scheduled"
+  | "selected"
+  | "rejected"
+  | "discarded"
+
 export type JobCampaignCandidateRemoval = {
   removed: true
   candidateId: string
