@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Box, Paper, Tab, Tabs, Typography } from "@mui/material"
+import { Box, Tab, Tabs } from "@mui/material"
 import ProjectVideoPickerCP, { ExistingProjectVideo } from "./project-video-picker.cp"
 import { ProjectFormState, ProjectPreviewItem } from "../types/project.types"
 import { PROJECT_VIDEO_MAX_BYTES } from "../utils/project-uploads.util"
@@ -39,10 +39,7 @@ export default function ProjectVideosTabsCP({
   const [tab, setTab] = useState(0)
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="subtitle1" fontWeight="medium" sx={{ mb: 2 }}>
-        {s.projectVideosSectionTitle}
-      </Typography>
+    <Box>
       <Tabs
         value={tab}
         onChange={(_, v) => setTab(v)}
@@ -84,6 +81,6 @@ export default function ProjectVideosTabsCP({
           />
         )}
       </Box>
-    </Paper>
+    </Box>
   )
 }

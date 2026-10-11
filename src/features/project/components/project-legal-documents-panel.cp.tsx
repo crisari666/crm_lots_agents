@@ -29,10 +29,7 @@ export default function ProjectLegalDocumentsPanelCP({ uploadsBaseUrl, project }
   }
 
   return (
-    <Box sx={{ mt: 3, pt: 3, borderTop: 1, borderColor: "divider" }}>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-        {s.formSectionLegalDocuments}
-      </Typography>
+    <Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {s.legalDocumentsSectionHint}
       </Typography>

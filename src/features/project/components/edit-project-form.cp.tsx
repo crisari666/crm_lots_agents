@@ -30,6 +30,8 @@ import {
 } from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
 import ProjectLegalDocumentsPanelCP from "./project-legal-documents-panel.cp"
+import ProjectFormActionBarCP from "./project-form-action-bar.cp"
+import { hasProjectLegalDocuments } from "../utils/project-legal-documents.util"
 import { ExistingProjectImage } from "./project-image-picker.cp"
 import { ExistingProjectVideo } from "./project-video-picker.cp"
 import { buildProjectAssetUrl } from "../utils/project-uploads.util"
@@ -68,6 +70,7 @@ function namesToExistingVideos(names: string[] | undefined, uploadsBaseUrl: stri
 function projectToFormState(project: {
   title: string
   description?: string
+  shortDescription?: string
   location: string
   city?: string
   state?: string
@@ -89,6 +92,7 @@ function projectToFormState(project: {
     title: project.title,
     slug: project.slug ?? "",
     description: project.description ?? "",
+    shortDescription: project.shortDescription ?? "",
     location: project.location,
     city: project.city ?? "",
     state: project.state ?? "",
@@ -282,6 +286,7 @@ export default function EditProjectFormCP() {
       title: form.title.trim(),
       slug: projectSlugForUpdateApi(form.slug ?? ""),
       description: form.description || undefined,
+      shortDescription: form.shortDescription.trim(),
       location: form.location.trim(),
       city: form.city?.trim() || undefined,
       state: form.state?.trim() || undefined,
@@ -402,11 +407,13 @@ export default function EditProjectFormCP() {
           onRemovePlane={handleRemovePlane}
           onUploadBrochure={handleUploadBrochure}
           onRemoveBrochure={handleRemoveBrochure}
+          legalSlot={
+            currentProject && uploadsBaseUrl && hasProjectLegalDocuments(currentProject) ? (
+              <ProjectLegalDocumentsPanelCP uploadsBaseUrl={uploadsBaseUrl} project={currentProject} />
+            ) : undefined
+          }
         />
-        {currentProject && (
-          <ProjectLegalDocumentsPanelCP uploadsBaseUrl={uploadsBaseUrl} project={currentProject} />
-        )}
-        <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+        <ProjectFormActionBarCP>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>
             Cancel
           </Button>
@@ -421,7 +428,7 @@ export default function EditProjectFormCP() {
           >
             Update Project
           </Button>
-        </Box>
+        </ProjectFormActionBarCP>
       </form>
     </Paper>
   )

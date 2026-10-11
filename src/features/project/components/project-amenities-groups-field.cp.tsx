@@ -52,10 +52,7 @@ export default function ProjectAmenitiesGroupsFieldCP({ value, onChange, disable
   const dialogGroup = iconDialogIndex != null ? value[iconDialogIndex] : null
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="subtitle1" component="h2" sx={{ mb: 1, fontWeight: 600 }}>
-        {s.formSectionAmenitiesGroups}
-      </Typography>
+    <Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {s.formAmenitiesGroupsHint}
       </Typography>
@@ -190,6 +187,6 @@ export default function ProjectAmenitiesGroupsFieldCP({ value, onChange, disable
           </Button>
         </DialogActions>
       </Dialog>
-    </Paper>
+    </Box>
   )
 }

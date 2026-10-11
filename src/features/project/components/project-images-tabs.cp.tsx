@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Box, Paper, Tab, Tabs, Typography } from "@mui/material"
+import { Box, Tab, Tabs } from "@mui/material"
 import ProjectImagePickerCP, { ExistingProjectImage } from "./project-image-picker.cp"
 import ProjectCardImageCP from "./project-card-image.cp"
 import { ProjectFormState, ProjectPreviewItem } from "../types/project.types"
@@ -46,10 +46,7 @@ export default function ProjectImagesTabsCP({
   const [tab, setTab] = useState(0)
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="subtitle1" fontWeight="medium" sx={{ mb: 2 }}>
-        {s.projectImagesSectionTitle}
-      </Typography>
+    <Box>
       <Tabs
         value={tab}
         onChange={(_, v) => setTab(v)}
@@ -109,6 +106,6 @@ export default function ProjectImagesTabsCP({
           />
         )}
       </Box>
-    </Paper>
+    </Box>
   )
 }

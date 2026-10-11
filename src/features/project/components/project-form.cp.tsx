@@ -1,105 +1,96 @@
-import React from "react"
-import { Grid, Box } from "@mui/material"
-import ProjectFormFieldsCP from "./project-form-fields.cp"
-import ProjectMediaPanelCP from "./project-media-panel.cp"
-import { ExistingProjectImage } from "./project-image-picker.cp"
-import { ExistingProjectVideo } from "./project-video-picker.cp"
-import { ProjectFormState } from "../types/project.types"
+import React, { useState } from "react"
+import { Box, Button, Stack } from "@mui/material"
+import UnfoldMore from "@mui/icons-material/UnfoldMore"
+import UnfoldLess from "@mui/icons-material/UnfoldLess"
+import ProjectFormGeneralSectionCP from "./project-form-general-section.cp"
+import ProjectFormLocationSectionCP from "./project-form-location-section.cp"
+import ProjectFormSalesSectionCP from "./project-form-sales-section.cp"
+import ProjectFormMediaSectionsCP, {
+  ProjectFormMediaSectionsCPProps
+} from "./project-form-media-sections.cp"
+import ProjectFormSectionCP from "./project-form-section.cp"
+import ProjectAmenitiesGroupsFieldCP from "./project-amenities-groups-field.cp"
+import {
+  PROJECT_FORM_SECTION_IDS,
+  ProjectFormSectionId,
+  ProjectFormSectionToggleProps
+} from "../types/project-form-section.types"
+import { projectStrings as s } from "../../../i18n/locales/project.strings"
+import { formatSectionSummary } from "../utils/format-section-summary.util"
 
-type ProjectFormCPProps = {
-  form: ProjectFormState
-  onChange: (updates: Partial<ProjectFormState>) => void
-  uploadsBaseUrl: string
-  existingCardProjectName?: string | null
-  existingVerticalImages: ExistingProjectImage[]
-  existingHorizontalImages: ExistingProjectImage[]
-  existingHorizontalVideos: ExistingProjectVideo[]
-  existingReelVideos: ExistingProjectVideo[]
-  disabled?: boolean
-  projectId?: string
-  onUploadCard?: (file: File) => Promise<void>
-  onRemoveCard?: () => Promise<void>
-  onUploadVerticalImages?: (files: File[]) => Promise<void>
-  onRemoveVerticalImage?: (imageName: string) => Promise<void>
-  onUploadHorizontalImages?: (files: File[]) => Promise<void>
-  onRemoveHorizontalImage?: (imageName: string) => Promise<void>
-  existingPlaneName?: string | null
-  existingBrochureName?: string | null
-  onUploadReelVideos?: (files: File[]) => Promise<void>
-  onRemoveReelVideo?: (videoName: string) => Promise<void>
-  onUploadHorizontalVideos?: (files: File[]) => Promise<void>
-  onRemoveHorizontalVideo?: (videoName: string) => Promise<void>
-  onUploadPlane?: (file: File) => Promise<void>
-  onRemovePlane?: () => Promise<void>
-  onUploadBrochure?: (file: File) => Promise<void>
-  onRemoveBrochure?: () => Promise<void>
+type ProjectFormCPProps = Omit<ProjectFormMediaSectionsCPProps, keyof ProjectFormSectionToggleProps> & {
+  legalSlot?: React.ReactNode
 }
 
-export default function ProjectFormCP({
-  form,
-  onChange,
-  uploadsBaseUrl,
-  existingCardProjectName = null,
-  existingVerticalImages = [],
-  existingHorizontalImages = [],
-  existingHorizontalVideos = [],
-  existingReelVideos = [],
-  disabled = false,
-  projectId,
-  onUploadCard,
-  onRemoveCard,
-  onUploadVerticalImages,
-  onRemoveVerticalImage,
-  onUploadHorizontalImages,
-  onRemoveHorizontalImage,
-  existingPlaneName,
-  existingBrochureName,
-  onUploadReelVideos,
-  onRemoveReelVideo,
-  onUploadHorizontalVideos,
-  onRemoveHorizontalVideo,
-  onUploadPlane,
-  onRemovePlane,
-  onUploadBrochure,
-  onRemoveBrochure,
-}: ProjectFormCPProps) {
+const DEFAULT_EXPANDED: ProjectFormSectionId[] = ["general"]
+
+export default function ProjectFormCP({ legalSlot, ...props }: ProjectFormCPProps) {
+  const { form, onChange, disabled = false } = props
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(DEFAULT_EXPANDED))
+  const isExpanded = (id: ProjectFormSectionId): boolean => expanded.has(id)
+  const onToggle = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+  const isAllExpanded = PROJECT_FORM_SECTION_IDS.every(
+    (id) => expanded.has(id) || (id === "legal" && !legalSlot)
+  )
+  const toggleAll = () => {
+    setExpanded(isAllExpanded ? new Set() : new Set(PROJECT_FORM_SECTION_IDS))
+  }
+  const toggleProps: ProjectFormSectionToggleProps = { isExpanded, onToggle }
+
   return (
     <Box>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <ProjectFormFieldsCP form={form} onChange={onChange} disabled={disabled} />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <ProjectMediaPanelCP
-            form={form}
-            onChange={onChange}
-            uploadsBaseUrl={uploadsBaseUrl}
-            existingCardProjectName={existingCardProjectName}
-            existingVerticalImages={existingVerticalImages}
-            existingHorizontalImages={existingHorizontalImages}
-            existingHorizontalVideos={existingHorizontalVideos}
-            existingReelVideos={existingReelVideos}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+        <Button
+          type="button"
+          size="small"
+          onClick={toggleAll}
+          startIcon={isAllExpanded ? <UnfoldLess /> : <UnfoldMore />}
+        >
+          {isAllExpanded ? s.formCollapseAll : s.formExpandAll}
+        </Button>
+      </Box>
+      <Stack spacing={1.5}>
+        <ProjectFormGeneralSectionCP form={form} onChange={onChange} disabled={disabled} {...toggleProps} />
+        <ProjectFormLocationSectionCP form={form} onChange={onChange} disabled={disabled} {...toggleProps} />
+        <ProjectFormSalesSectionCP form={form} onChange={onChange} disabled={disabled} {...toggleProps} />
+        <ProjectFormSectionCP
+          id="amenities"
+          title={s.formSectionAmenitiesGroups}
+          summary={
+            form.amenitiesGroups.length > 0
+              ? formatSectionSummary(s.formSummaryGroups, form.amenitiesGroups.length)
+              : s.formSummaryEmpty
+          }
+          expanded={isExpanded("amenities")}
+          onToggle={onToggle}
+          useGrid={false}
+        >
+          <ProjectAmenitiesGroupsFieldCP
+            value={form.amenitiesGroups}
+            onChange={(amenitiesGroups) => onChange({ amenitiesGroups })}
             disabled={disabled}
-            projectId={projectId}
-            onUploadCard={onUploadCard}
-            onRemoveCard={onRemoveCard}
-            onUploadVerticalImages={onUploadVerticalImages}
-            onRemoveVerticalImage={onRemoveVerticalImage}
-            onUploadHorizontalImages={onUploadHorizontalImages}
-            onRemoveHorizontalImage={onRemoveHorizontalImage}
-            existingPlaneName={existingPlaneName}
-            existingBrochureName={existingBrochureName}
-            onUploadReelVideos={onUploadReelVideos}
-            onRemoveReelVideo={onRemoveReelVideo}
-            onUploadHorizontalVideos={onUploadHorizontalVideos}
-            onRemoveHorizontalVideo={onRemoveHorizontalVideo}
-            onUploadPlane={onUploadPlane}
-            onRemovePlane={onRemovePlane}
-            onUploadBrochure={onUploadBrochure}
-            onRemoveBrochure={onRemoveBrochure}
           />
-        </Grid>
-      </Grid>
+        </ProjectFormSectionCP>
+        <ProjectFormMediaSectionsCP {...props} {...toggleProps} />
+        {legalSlot && (
+          <ProjectFormSectionCP
+            id="legal"
+            title={s.formSectionLegal}
+            expanded={isExpanded("legal")}
+            onToggle={onToggle}
+            useGrid={false}
+          >
+            {legalSlot}
+          </ProjectFormSectionCP>
+        )}
+      </Stack>
     </Box>
   )
 }

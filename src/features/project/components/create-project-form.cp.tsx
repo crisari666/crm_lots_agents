@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Button, Paper, Alert, Box } from "@mui/material"
+import { Button, Paper, Alert } from "@mui/material"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
@@ -17,6 +17,7 @@ import {
 import { CreateProjectDto } from "../types/project.types"
 import { ProjectFormState } from "../types/project.types"
 import ProjectFormCP from "./project-form.cp"
+import ProjectFormActionBarCP from "./project-form-action-bar.cp"
 import { projectLotOptionsForApi } from "../utils/project-lot-options.util"
 import {
   normalizeProjectSlugInput,
@@ -28,6 +29,7 @@ const initialForm: ProjectFormState = {
   title: "",
   slug: "",
   description: "",
+  shortDescription: "",
   location: "",
   city: "",
   state: "",
@@ -73,6 +75,7 @@ export default function CreateProjectFormCP() {
       title: form.title.trim(),
       ...(slugPayload ? { slug: slugPayload } : {}),
       description: form.description || undefined,
+      shortDescription: form.shortDescription.trim() || undefined,
       location: form.location.trim(),
       city: form.city?.trim() || undefined,
       state: form.state?.trim() || undefined,
@@ -146,7 +149,7 @@ export default function CreateProjectFormCP() {
           existingHorizontalVideos={[]}
           existingReelVideos={[]}
         />
-        <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+        <ProjectFormActionBarCP>
           <Button type="button" onClick={() => navigate("/dashboard/projects")}>
             Cancel
           </Button>
@@ -161,7 +164,7 @@ export default function CreateProjectFormCP() {
           >
             Create Project
           </Button>
-        </Box>
+        </ProjectFormActionBarCP>
       </form>
     </Paper>
   )
