@@ -23,6 +23,8 @@ export type ProjectType = {
   /** URL-friendly unique identifier among non-deleted projects (kebab-case, max 120) */
   slug?: string
   description?: string
+  /** Plain-text teaser for cards and listings (max 300) */
+  shortDescription?: string
   location: string
   city?: string
   state?: string
@@ -75,6 +77,7 @@ export type CreateProjectDto = {
   title: string
   slug?: string
   description?: string
+  shortDescription?: string
   location: string
   city?: string
   state?: string
@@ -98,6 +101,7 @@ export type UpdateProjectDto = {
   title?: string
   slug?: string
   description?: string
+  shortDescription?: string
   location?: string
   city?: string
   state?: string
@@ -125,6 +129,7 @@ export type ProjectFormState = {
   title: string
   slug: string
   description: string
+  shortDescription: string
   location: string
   city: string
   state: string
