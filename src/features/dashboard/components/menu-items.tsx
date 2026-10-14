@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, GridView, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, EventAvailableOutlined, GridView, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -64,6 +64,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
       { to: "/dashboard/whatsapp-marketing", Icon: <Campaign />, title: "Campañas WhatsApp", crmAdminOnly: true },
       { to: "/dashboard/lead-conversations", Icon: <SmartToyOutlined />, title: "Conversaciones IA leads", crmAdminOnly: true },
+      { to: "/dashboard/lead-call-schedule", Icon: <EventAvailableOutlined />, title: "Agenda llamadas leads", crmAdminOnly: true },
       { to: "/dashboard/webinar", Icon: <VideoCallOutlined />, title: "Webinars / MasterClass", crmAdminOnly: true },
     ]},
 
