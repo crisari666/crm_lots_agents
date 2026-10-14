@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Grid, Paper, Switch } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { handleUserStrings as s } from "../../../i18n/locales/handle-user.strings"
-import { setAutoCustomerAssignmentDisabledThunk, setUserOnLandThunk, setUserPhysicalThunk, toggleEnableUserThunk, updateUserTnunk } from "../handle-user.slice"
+import { setAutoCustomerAssignmentDisabledThunk, setUserAssignAdvanceLeadsThunk, setUserOnLandThunk, setUserPhysicalThunk, toggleEnableUserThunk, updateUserTnunk } from "../handle-user.slice"
 import SendFirstAccessWelcomeCp from "./send-first-access-welcome.cp"
 import SendUserContractCp from "./send-user-contract.cp"
 import { Person } from "@mui/icons-material"
@@ -125,6 +125,20 @@ export default function CtrlsUserCP() {
                   />
                 </Grid>
               )}
+              <Grid item>
+                <FormControlLabel
+                  label={s.ctrlAssignAdvanceLeads}
+                  control={<Switch checked={currentUser?.assignAdvanceLeads === true} />}
+                  onChange={(_e, checked) =>
+                    dispatch(
+                      setUserAssignAdvanceLeadsThunk({
+                        userId: currentUser!._id!,
+                        assignAdvanceLeads: checked,
+                      }),
+                    )
+                  }
+                />
+              </Grid>
               <SendFirstAccessWelcomeCp />
               <SendUserContractCp />
               <Grid item sx={{ display: currentUser?.level === 4 ? "block" : "none" }}>

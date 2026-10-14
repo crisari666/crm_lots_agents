@@ -318,6 +318,31 @@ export async function setAutoCustomerAssignmentDisabledReq({
   }
 }
 
+export async function setUserAssignAdvanceLeadsReq({
+  userId,
+  assignAdvanceLeads,
+}: {
+  userId: string
+  assignAdvanceLeads: boolean
+}): Promise<UserInterface> {
+  try {
+    const api = Api.getInstance()
+    const response = await api.put({
+      path: `users/set-user-assign-advance-leads/${userId}`,
+      data: { assignAdvanceLeads },
+    })
+    const { error } = response
+    if (error == null) {
+      return response.result as UserInterface
+    }
+    throw error
+  } catch (error) {
+    console.error('ERROR ON setUserAssignAdvanceLeadsReq')
+    console.error({ error })
+    throw error
+  }
+}
+
 export async function closeUserMobileSesionReq({userId} : {userId : string}): Promise<any>{
   try {
     const api = Api.getInstance()

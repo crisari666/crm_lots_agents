@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import UserInterface from "../../app/models/user-interface"
 import { generateContractReq, type GenerateContractPayload } from "../../app/services/google.service"
-import { getUserByIdReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, setUserOnLandReq, setAutoCustomerAssignmentDisabledReq, toggleEnableUserReq, updateUserService, type UserCreateRequestBody } from "../../app/services/users.service"
+import { getUserByIdReq, sendUserService, sendWelcomeAccessEmailReq, setUserGoalReq, setUserLeaveDateReq, setUserPhysicalReq, setUserOnLandReq, setAutoCustomerAssignmentDisabledReq, setUserAssignAdvanceLeadsReq, toggleEnableUserReq, updateUserService, type UserCreateRequestBody } from "../../app/services/users.service"
 import { filterLeadsForOffice } from "../users-list/business-logic/filter-leads-for-office"
 import { RootState } from "../../app/store"
 import { leadFieldToId, officeFieldToId, subadminFieldToId } from "./user-field-ids"
@@ -151,6 +151,12 @@ export const setAutoCustomerAssignmentDisabledThunk = createAsyncThunk(
     setAutoCustomerAssignmentDisabledReq(params),
 )
 
+export const setUserAssignAdvanceLeadsThunk = createAsyncThunk(
+  "handleUser/setUserAssignAdvanceLeads",
+  async (params: { userId: string; assignAdvanceLeads: boolean }) =>
+    setUserAssignAdvanceLeadsReq(params),
+)
+
 export const setUserLeaveDateThunk = createAsyncThunk( "handleUser/setUserLeaveDateThunk", async (PARAM: {userId: string, date: string}) => await setUserLeaveDateReq({userId: PARAM.userId, leaveDate: PARAM.date}))
 
 export const setUserGoalThunk = createAsyncThunk( "handleUser/setUserGoalThunks", async (PARAM: {userId: string, goal: number}) => await setUserGoalReq(PARAM))
@@ -217,6 +223,10 @@ export const HandleUserSlice = createSlice({
     }).addCase(setAutoCustomerAssignmentDisabledThunk.fulfilled, (state, action) => {
       if (state.currentUser && action.payload?.autoCustomerAssignmentDisabled !== undefined) {
         state.currentUser.autoCustomerAssignmentDisabled = action.payload.autoCustomerAssignmentDisabled
+      }
+    }).addCase(setUserAssignAdvanceLeadsThunk.fulfilled, (state, action) => {
+      if (state.currentUser && action.payload?.assignAdvanceLeads !== undefined) {
+        state.currentUser.assignAdvanceLeads = action.payload.assignAdvanceLeads
       }
     }).addCase(setUserLeaveDateThunk.fulfilled, (state, action) => {
         state.currentUser!.leaveDate = action.payload.leaveDate

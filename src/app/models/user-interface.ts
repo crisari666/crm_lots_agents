@@ -34,6 +34,7 @@ export default interface UserInterface {
   /** Live presence: currently working on land (distinct from permanent physical). */
   isOnLand?: boolean
   autoCustomerAssignmentDisabled?: boolean
+  assignAdvanceLeads?: boolean
   /** When false, CRM may send first-access welcome email (password is null). From API only. */
   hasPassword?: boolean
   [key: string]: any

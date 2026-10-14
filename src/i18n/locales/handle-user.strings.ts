@@ -34,6 +34,7 @@ export const handleUserStrings = {
   ctrlPhysical: "Usuario físico",
   ctrlOnLand: "En terreno",
   ctrlReceiveCustomersAuto: "Recibir clientes automáticamente",
+  ctrlAssignAdvanceLeads: "Asignar Leads Calificados",
   sendWelcomeAccess: "Enviar correo de primer acceso",
   sendWelcomeAccessSuccessTitle: "Correo enviado",
   sendWelcomeAccessSuccessBody:
