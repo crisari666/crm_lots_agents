@@ -32,6 +32,7 @@ import customerCallAuditReducer from "../features/customer-v2/redux/customer-cal
 import customerConversationsReducer from "../features/customer-v2/redux/customer-conversations.slice";
 import customerEventsReducer from "../features/customer-v2/redux/customer-events.slice";
 import customerAssignmentAuditReducer from "../features/customer-assignment-audit/slice/customer-assignment-audit.slice";
+import leadConversationsReducer from "../features/lead-conversations/slice/lead-conversations.slice";
 import customerMetaLeadReducer from "../features/customer-v2/redux/customer-meta-lead.slice";
 import customerMetadataReducer from "../features/customer-v2/redux/customer-metadata.slice";
 import customerSearchReducer from "../features/customer-v2/redux/customer-search.slice";
@@ -117,6 +118,7 @@ export const store = configureStore({
     customerConversations: customerConversationsReducer,
     customerEvents: customerEventsReducer,
     customerAssignmentAudit: customerAssignmentAuditReducer,
+    leadConversations: leadConversationsReducer,
     customerMetaLead: customerMetaLeadReducer,
     customerMetadata: customerMetadataReducer,
     customerSearch: customerSearchReducer,

@@ -34,6 +34,7 @@ import CallAuditAiReviewPage from "../features/customer-v2/pages/call-audit-ai-r
 import OnboardingVoiceCallAuditAiReviewPage from "../features/onboarding-voice-call-audit/pages/onboarding-voice-call-audit-ai-review-page";
 import CustomersEventsPage from "../features/customer-v2/pages/customers-events-page";
 import CustomerAssignmentAuditPage from "../features/customer-assignment-audit/pages/customer-assignment-audit-page";
+import LeadConversationsPage from "../features/lead-conversations/pages/lead-conversations-page";
 import ImportCustomersPage from "../features/import-customers/import-customers-page";
 import StepsV2Page from "../features/steps-v2/pages/steps-v2-page";
 import ProjectReleasesPage from "../features/project-release/pages/project-releases-page";
@@ -74,6 +75,7 @@ const router = createBrowserRouter([
       },
       { path: "customers-v2/events", element: <CustomersEventsPage /> },
       { path: "customers-v2/assignment-audit", element: <CustomerAssignmentAuditPage /> },
+      { path: "lead-conversations", element: <LeadConversationsPage /> },
       { path: "customers-v2/import", element: <ImportCustomersPage /> },
       { path: "webinar", element: <WebinarPage /> },
       { path: "steps-v2", element: <StepsV2Page /> },
