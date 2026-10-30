@@ -36,6 +36,7 @@ import CustomersEventsPage from "../features/customer-v2/pages/customers-events-
 import CustomerAssignmentAuditPage from "../features/customer-assignment-audit/pages/customer-assignment-audit-page";
 import LeadConversationsPage from "../features/lead-conversations/pages/lead-conversations-page";
 import LeadCallSchedulePage from "../features/lead-call-schedule/pages/lead-call-schedule-page";
+import MetaLeadFormsPage from "../features/meta-lead-forms/pages/meta-lead-forms-page";
 import ImportCustomersPage from "../features/import-customers/import-customers-page";
 import StepsV2Page from "../features/steps-v2/pages/steps-v2-page";
 import ProjectReleasesPage from "../features/project-release/pages/project-releases-page";
@@ -54,7 +55,6 @@ import WhatsappMarketingNewPage from "../features/whatsapp-marketing/pages/whats
 import WhatsappMarketingDetailPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-detail-page";
 import WebinarPage from "../features/webinar/pages/webinar-page";
 import LiveCallsPage from "../features/live-calls/live-calls-page";
-
 const router = createBrowserRouter([
   { path: "/", element: <SignInView /> },
   { path: "", element: <SignInView /> },
@@ -78,6 +78,7 @@ const router = createBrowserRouter([
       { path: "customers-v2/assignment-audit", element: <CustomerAssignmentAuditPage /> },
       { path: "lead-conversations", element: <LeadConversationsPage /> },
       { path: "lead-call-schedule", element: <LeadCallSchedulePage /> },
+      { path: "meta-lead-forms", element: <MetaLeadFormsPage /> },
       { path: "customers-v2/import", element: <ImportCustomersPage /> },
       { path: "webinar", element: <WebinarPage /> },
       { path: "steps-v2", element: <StepsV2Page /> },

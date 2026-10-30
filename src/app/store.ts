@@ -51,6 +51,7 @@ import userProfileReducer from "../features/user-profile/slice/user-profile.slic
 import whatsappMarketingReducer from "../features/whatsapp-marketing/slice/whatsapp-marketing.slice";
 import webinarReducer from "../features/webinar/slice/webinar.slice";
 import liveCallsReducer from "../features/live-calls/redux/live-calls.slice";
+import metaLeadFormsReducer from "../features/meta-lead-forms/slice/meta-lead-forms.slice";
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -137,6 +138,7 @@ export const store = configureStore({
     whatsappMarketing: whatsappMarketingReducer,
     webinar: webinarReducer,
     liveCalls: liveCallsReducer,
+    metaLeadForms: metaLeadFormsReducer,
   },
 });
 
