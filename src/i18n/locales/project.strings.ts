@@ -235,6 +235,10 @@ export const projectStrings = {
   listPublicStockViewGrid: "Cuadrícula (#grid)",
   listPublicStockViewColumns: "Columnas (#columns)",
   listMissingAgentBaseUrl: "Configura VITE_AGENT_BASE_URL",
+  listColExternalDistribution: "Distribución externa",
+  listExternalDistributionHint:
+    "Solo visible para sitios de empresas aliadas. Se oculta del sitio propio, la app de ventores y el asistente.",
+  listExternalChip: "Externo",
 
   formFieldShortDescription: "WhatsApp description",
   formFieldShortDescriptionHelper: "Plain-text teaser shown on cards and listings.",

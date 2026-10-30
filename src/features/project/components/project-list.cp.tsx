@@ -11,13 +11,20 @@ import {
   IconButton,
   Alert,
   Link,
-  Switch
+  Switch,
+  Chip,
+  Stack,
+  Tooltip
 } from "@mui/material"
-import { Edit as EditIcon } from "@mui/icons-material"
+import { Edit as EditIcon, InfoOutlined as InfoOutlinedIcon } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
-import { fetchProjectsThunk, setProjectEnabledThunk } from "../slice/projects.slice"
+import {
+  fetchProjectsThunk,
+  setProjectEnabledThunk,
+  setProjectExternalDistributionThunk
+} from "../slice/projects.slice"
 import { ProjectType } from "../types/project.types"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
 import ProjectStockPublicLinkCP from "./project-stock-public-link.cp"
@@ -34,6 +41,11 @@ export default function ProjectListCP() {
   const handleToggleEnabled = (project: ProjectType, enabled: boolean) => {
     if (!project._id) return
     dispatch(setProjectEnabledThunk({ id: project._id, enabled }))
+  }
+
+  const handleToggleExternalDistribution = (project: ProjectType, externalDistribution: boolean) => {
+    if (!project._id) return
+    dispatch(setProjectExternalDistributionThunk({ id: project._id, externalDistribution }))
   }
 
   const formatDate = (dateString?: string) => {
@@ -88,6 +100,14 @@ export default function ProjectListCP() {
             <TableCell>Título</TableCell>
             <TableCell>{s.listColPublicStock}</TableCell>
             <TableCell align="center">Habilitado</TableCell>
+            <TableCell align="center">
+              <Stack direction="row" spacing={0.5} alignItems="center" justifyContent="center">
+                <span>{s.listColExternalDistribution}</span>
+                <Tooltip title={s.listExternalDistributionHint} arrow>
+                  <InfoOutlinedIcon fontSize="inherit" sx={{ color: "text.secondary", cursor: "help" }} />
+                </Tooltip>
+              </Stack>
+            </TableCell>
             <TableCell>Ubicación</TableCell>
             <TableCell align="right">Precio venta (COP)</TableCell>
             <TableCell align="right">Precio (USD)</TableCell>
@@ -105,9 +125,14 @@ export default function ProjectListCP() {
               sx={{ cursor: "pointer" }}
             >
               <TableCell>
-                <Typography variant="body2" fontWeight="medium">
-                  {project.title}
-                </Typography>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant="body2" fontWeight="medium">
+                    {project.title}
+                  </Typography>
+                  {project.externalDistribution === true && (
+                    <Chip label={s.listExternalChip} size="small" color="secondary" variant="outlined" />
+                  )}
+                </Stack>
               </TableCell>
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <ProjectStockPublicLinkCP projectId={project._id} />
@@ -119,6 +144,16 @@ export default function ProjectListCP() {
                   checked={project.enabled === true}
                   onChange={(_, checked) => handleToggleEnabled(project, checked)}
                   disabled={isLoading}
+                />
+              </TableCell>
+              <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                <Switch
+                  size="small"
+                  color="secondary"
+                  checked={project.externalDistribution === true}
+                  onChange={(_, checked) => handleToggleExternalDistribution(project, checked)}
+                  disabled={isLoading}
+                  inputProps={{ "aria-label": `${s.listColExternalDistribution}: ${project.title}` }}
                 />
               </TableCell>
               <TableCell>
@@ -158,7 +193,7 @@ export default function ProjectListCP() {
           ))}
           {projects.length === 0 && !isLoading && (
             <TableRow>
-              <TableCell colSpan={9} align="center">
+              <TableCell colSpan={10} align="center">
                 <Typography variant="body2" color="text.secondary">
                   No se encontraron proyectos
                 </Typography>
