@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, Dvr, ElectricalServices, EventAvailableOutlined, GridView, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, DynamicFormOutlined, Dvr, ElectricalServices, EventAvailableOutlined, GridView, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -34,26 +34,23 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/lot-inventory", Icon: <GridView />, title: "Inventario de lotes" },
       { to: "/dashboard/project-releases", Icon: <Done />, title: "Proyectos finalizado" },
     ]},
-    // { Icon: <Person2Outlined />, title: "Clientes", children: [
-    //   { to: "/dashboard/numbers", Icon: <Dvr />, title: "Clientes" },
-    //   { to: "/dashboard/customers-center", Icon: <SupportAgent />, title: "Customer Center" },
-    //   { to: "/dashboard/customers-database", Icon: <FaceRetouchingNatural />, title: "Customer Database" },
-    //   { to: "/dashboard/verify-payments", Icon: <CreditScore />, title: "verificar pagos" },
-    // ]},
-
-    { Icon: <SchoolOutlined />, title: "Entrenamientos", children: [
-      { to: "/dashboard/training-sessions", Icon: <VideoCallOutlined />, title: "Sesiones" },
+    { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios", children: [
+      { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios"},
+      { to: "/dashboard/users/profile", Icon: <Person />, title: "Mi perfil" },
+      { to: "/dashboard/offices-list", Icon: <BusinessOutlined />, title: "Oficinas" },
+      { to: "/dashboard/signed-contracts", Icon: <Description />, title: "Contratos enviados a firma" },
+      { to: "/dashboard/signup-campaigns", Icon: <Campaign />, title: "Campañas de registro" },
+      { to: "/dashboard/job-campaigns", Icon: <Campaign />, title: "Campañas de reclutamiento", crmAdminOnly: true },
+      { to: "/dashboard/audits", Icon: <AdminPanelSettings />, title: "Auditoria" },
     ]},
-
-    { Icon: <GroupAdd />, title: "Referidos", children: [
-      { to: "/dashboard/users/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
-      { to: "/dashboard/users-onboarding-status", Icon: <ChecklistRtl />, title: "Onboarding status" },
-      { to: "/dashboard/import-users", Icon: <UploadFileSharp />, title: "Importar usuarios" },
-      { to: "/dashboard/traninng-traking", Icon: <ChecklistRtl />, title: "Capacitaciones" },
-      { to: "/dashboard/referidos/lead-candidates", Icon: <ContactPage />, title: "Candidatos" },
+    { Icon: <ContactPhone />, title: "Leads", children: [
+      { to: "/dashboard/meta-lead-forms", Icon: <DynamicFormOutlined />, title: "Formularios Meta leads", crmAdminOnly: true },
+      { to: "/dashboard/lead-conversations", Icon: <SmartToyOutlined />, title: "Conversaciones IA leads", crmAdminOnly: true },
+      { to: "/dashboard/lead-call-schedule", Icon: <EventAvailableOutlined />, title: "Agenda llamadas leads", crmAdminOnly: true },
+      { to: "/dashboard/webinar", Icon: <VideoCallOutlined />, title: "Webinars / MasterClass", crmAdminOnly: true },
+      { to: "/dashboard/ceo-leads-resume", Icon: <CampaignOutlined />, title: "Leads Resume" },
     ]},
-
-    { Icon: <PeopleAltTwoTone />, title: "ClientesV2", children: [
+    { Icon: <PeopleAltTwoTone />, title: "Clientes", children: [
       { to: "/dashboard/customers-v2", Icon: <PeopleAltTwoTone />, title: "Clientes V2" },
       { to: "/dashboard/customers-v2/import", Icon: <PeopleAltTwoTone />, title: "Importar clientes" },
       { to: "/dashboard/customers-v2/call-logs", Icon: <HistorySharp />, title: "Registro de llamadas" },
@@ -63,35 +60,19 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
       { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
       { to: "/dashboard/whatsapp-marketing", Icon: <Campaign />, title: "Campañas WhatsApp", crmAdminOnly: true },
-      { to: "/dashboard/lead-conversations", Icon: <SmartToyOutlined />, title: "Conversaciones IA leads", crmAdminOnly: true },
-      { to: "/dashboard/lead-call-schedule", Icon: <EventAvailableOutlined />, title: "Agenda llamadas leads", crmAdminOnly: true },
-      { to: "/dashboard/webinar", Icon: <VideoCallOutlined />, title: "Webinars / MasterClass", crmAdminOnly: true },
     ]},
-
-    // { Icon: <CampaignOutlined />, title: "Campaña", 
-    //   children: [
-    //     { to: "/dashboard/campaign", Icon: <Campaign />, title: "Campaña" },
-    //     { to: "/dashboard/imports-numbers", Icon: <UploadFileSharp />, title: "Importar data", },
-    //     { to: "/dashboard/campaign-customers", Icon: <CampaignRounded />, title: "Asignar clientes", }
-    //   ] 
-    // },
-
-    { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios", children: [
-      { to: "/dashboard/users", Icon: <PeopleIcon />, title: "Usuarios"},
-      { to: "/dashboard/users/profile", Icon: <Person />, title: "Mi perfil" },
-      { to: "/dashboard/offices-list", Icon: <BusinessOutlined />, title: "Oficinas" },
-      { to: "/dashboard/signed-contracts", Icon: <Description />, title: "Contratos enviados a firma" },
-      { to: "/dashboard/signup-campaigns", Icon: <Campaign />, title: "Campañas de registro" },
-      { to: "/dashboard/job-campaigns", Icon: <Campaign />, title: "Campañas de reclutamiento", crmAdminOnly: true },
-      //{ to: "/dashboard/collectors", Icon: <Collections />, title: "Cobradores" },
-      // { to: "/dashboard/user-log-arrive", Icon: <HistoryEdu />, title: "Historial llegadas" },
-      { to: "/dashboard/audits", Icon: <AdminPanelSettings />, title: "Auditoria" },
-
-    ] },
-
+    { Icon: <GroupAdd />, title: "Referidos", children: [
+      { to: "/dashboard/users/referral-follow-up", Icon: <ListAlt />, title: "Seguimiento Referidos" },
+      { to: "/dashboard/users-onboarding-status", Icon: <ChecklistRtl />, title: "Onboarding status" },
+      { to: "/dashboard/import-users", Icon: <UploadFileSharp />, title: "Importar usuarios" },
+      { to: "/dashboard/traninng-traking", Icon: <ChecklistRtl />, title: "Capacitaciones" },
+      { to: "/dashboard/referidos/lead-candidates", Icon: <ContactPage />, title: "Candidatos" },
+    ]},
+    { Icon: <SchoolOutlined />, title: "Entrenamientos", children: [
+      { to: "/dashboard/training-sessions", Icon: <VideoCallOutlined />, title: "Sesiones" },
+    ]},
     { Icon: <ChecklistRtl />, title: "Auditoria", children: [
       // { to: "/dashboard/leads-auditory", Icon: <ChecklistRtl />, title: "Leads Auditory" },
-      { to: "/dashboard/ceo-leads-resume", Icon: <CampaignOutlined />, title: "Leads Resume" },
       { to: "/dashboard/customer-payments-auditory", Icon: <PriceChange />, title: "Pagos Clientes" },
       { to: "/dashboard/customers-v2/call-audit", Icon: <HistorySharp />, title: "Auditoría de llamadas" },
       {
