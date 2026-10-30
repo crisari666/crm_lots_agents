@@ -73,7 +73,7 @@ function parseProjectFromUploadResponse(data: unknown, fallbackProjectId: string
 export async function fetchProjectsReq(): Promise<ProjectType[]> {
   try {
     const api = RagApi.getInstance()
-    const response = await api.get({ path: "projects", data: { enable: "all" } })
+    const response = await api.get({ path: "projects", data: { enable: "all", distribution: "all" } })
     const { error } = response
     if (error == null) {
       return response
@@ -106,6 +106,31 @@ export async function setProjectEnabledReq({
     }
   } catch (error) {
     console.error("ERROR ON setProjectEnabledReq")
+    console.error({ error })
+    throw error
+  }
+}
+
+export async function setProjectExternalDistributionReq({
+  id,
+  externalDistribution
+}: {
+  id: string
+  externalDistribution: boolean
+}): Promise<ProjectType> {
+  try {
+    const api = RagApi.getInstance()
+    const response = await api.patch({
+      path: `projects/${id}/external-distribution/${externalDistribution ? "true" : "false"}`
+    })
+    const { error } = response
+    if (error == null) {
+      return response
+    } else {
+      throw error
+    }
+  } catch (error) {
+    console.error("ERROR ON setProjectExternalDistributionReq")
     console.error({ error })
     throw error
   }

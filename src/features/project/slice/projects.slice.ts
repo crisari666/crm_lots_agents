@@ -23,7 +23,8 @@ import {
   deleteProjectHorizontalImageReq,
   uploadProjectVerticalVideosMultipleReq,
   deleteProjectVerticalVideoReq,
-  setProjectEnabledReq
+  setProjectEnabledReq,
+  setProjectExternalDistributionReq
 } from "../../../app/services/project.service"
 import { ProjectsState } from "./projects.state"
 
@@ -85,6 +86,13 @@ export const setProjectEnabledThunk = createAsyncThunk(
   "project/setProjectEnabled",
   async ({ id, enabled }: { id: string; enabled: boolean }) => {
     return setProjectEnabledReq({ id, enabled })
+  }
+)
+
+export const setProjectExternalDistributionThunk = createAsyncThunk(
+  "project/setProjectExternalDistribution",
+  async ({ id, externalDistribution }: { id: string; externalDistribution: boolean }) => {
+    return setProjectExternalDistributionReq({ id, externalDistribution })
   }
 )
 
@@ -313,6 +321,12 @@ const projectsSlice = createSlice({
         if (state.currentProject?._id === action.payload._id) {
           state.currentProject = action.payload
         }
+      })
+      .addCase(setProjectExternalDistributionThunk.fulfilled, (state, action) => {
+        mergeProjectFromUpload(state, action.payload)
+      })
+      .addCase(setProjectExternalDistributionThunk.rejected, (state, action) => {
+        state.error = action.error.message ?? "Error updating external distribution"
       })
       .addCase(uploadProjectImageThunk.fulfilled, (state, action) => {
         mergeProjectFromUpload(state, action.payload)
