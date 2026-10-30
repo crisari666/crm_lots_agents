@@ -37,6 +37,8 @@ export type ProjectType = {
   priceSellUsd?: number
   deleted?: boolean
   enabled?: boolean
+  /** Partner-only project: hidden from internal consumers, served to allowlisted origins */
+  externalDistribution?: boolean
   commissionPercentage: number
   commissionValue: number
   /** Separation between lots (product-defined unit, e.g. meters) */
