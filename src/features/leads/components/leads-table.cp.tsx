@@ -26,12 +26,18 @@ import {
   TableRow,
   Typography,
 } from "@mui/material"
-import { Link as RouterLink } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { leadsStrings as s } from "../../../i18n/locales/leads.strings"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 import { fetchCustomerAdminDetailThunk } from "../../customer-v2/redux/customer-v2.slice"
 import CustomerDetailDialogCP from "../../customer-v2/components/customer-detail-dialog.cp"
+import {
+  fetchLeadConversationMessagesThunk,
+  selectLeadConversationAct,
+  setLeadConversationDrawerScheduleAct,
+  upsertLeadConversationItemAct,
+} from "../../lead-conversations/slice/lead-conversations.slice"
+import { mapLeadToConversationItem } from "../business-logic/map-lead-to-conversation-item"
 import {
   convertLeadThunk,
   fetchLeadsThunk,
@@ -85,6 +91,17 @@ export default function LeadsTableCP(): React.ReactElement {
   const openDetail = (item: LeadListItem): void => {
     setDetailLead(item)
     void dispatch(fetchCustomerAdminDetailThunk(item.id))
+  }
+
+  const openConversation = (item: LeadListItem): void => {
+    const mapped = mapLeadToConversationItem(item)
+    if (!mapped) {
+      return
+    }
+    dispatch(upsertLeadConversationItemAct(mapped))
+    dispatch(selectLeadConversationAct(mapped.sessionId))
+    dispatch(setLeadConversationDrawerScheduleAct(item.scheduledCall ?? null))
+    void dispatch(fetchLeadConversationMessagesThunk({ sessionId: mapped.sessionId }))
   }
 
   const openConvert = (item: LeadListItem): void => {
@@ -209,8 +226,7 @@ export default function LeadsTableCP(): React.ReactElement {
                     {item.leadSession?.sessionId ? (
                       <Button
                         size="small"
-                        component={RouterLink}
-                        to="/dashboard/lead-conversations"
+                        onClick={() => openConversation(item)}
                         sx={{ cursor: "pointer" }}
                       >
                         {s.openSession}

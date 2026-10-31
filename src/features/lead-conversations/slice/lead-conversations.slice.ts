@@ -7,6 +7,7 @@ import {
   listLeadConversations,
   restartLeadConversation,
 } from "../services/lead-conversations.http"
+import type { LeadScheduledCall } from "../../leads/types/leads.types"
 import type {
   LeadConversationListItem,
   LeadConversationMessage,
@@ -32,6 +33,8 @@ export type LeadConversationsState = {
   error: string | null
   filters: LeadConversationsFilters
   selectedSessionId: string | null
+  /** Optional schedule context when opening the chat drawer from the leads inbox. */
+  drawerSchedule: LeadScheduledCall | null
   messages: LeadConversationMessage[]
   messagesNextBefore: string | null
   messagesLoading: boolean
@@ -48,6 +51,7 @@ const initialState: LeadConversationsState = {
   error: null,
   filters: { status: "", step: "", search: "", page: 0, limit: 20 },
   selectedSessionId: null,
+  drawerSchedule: null,
   messages: [],
   messagesNextBefore: null,
   messagesLoading: false,
@@ -145,6 +149,23 @@ const leadConversationsSlice = createSlice({
       state.messagesNextBefore = null
       state.messagesError = null
       state.actionError = null
+      // Cleared on every select; leads inbox re-sets via setLeadConversationDrawerScheduleAct after.
+      state.drawerSchedule = null
+    },
+    upsertLeadConversationItemAct: (state, action: PayloadAction<LeadConversationListItem>) => {
+      const next = action.payload
+      const index = state.items.findIndex((row) => row.sessionId === next.sessionId)
+      if (index >= 0) {
+        state.items[index] = { ...state.items[index], ...next }
+      } else {
+        state.items = [next, ...state.items]
+      }
+    },
+    setLeadConversationDrawerScheduleAct: (
+      state,
+      action: PayloadAction<LeadScheduledCall | null>
+    ) => {
+      state.drawerSchedule = action.payload
     },
     clearLeadConversationNoticeAct: (state) => {
       state.actionNotice = null
@@ -191,6 +212,7 @@ const leadConversationsSlice = createSlice({
       .addCase(deleteLeadConversationThunk.fulfilled, (state) => {
         state.isActionRunning = false
         state.selectedSessionId = null
+        state.drawerSchedule = null
         state.messages = []
         state.actionNotice = s.deleted
       })
@@ -216,6 +238,8 @@ const leadConversationsSlice = createSlice({
 export const {
   setLeadConversationsFiltersAct,
   selectLeadConversationAct,
+  upsertLeadConversationItemAct,
+  setLeadConversationDrawerScheduleAct,
   clearLeadConversationNoticeAct,
 } = leadConversationsSlice.actions
 export default leadConversationsSlice.reducer

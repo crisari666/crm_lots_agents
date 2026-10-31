@@ -15,6 +15,14 @@ export type LeadSessionSummary = {
   step?: string
 }
 
+export type LeadScheduledCall = {
+  eventId: string
+  scheduledAt: string
+  status: string
+  ventorName?: string
+  note?: string
+}
+
 export type LeadListItem = {
   id: string
   name: string
@@ -27,6 +35,7 @@ export type LeadListItem = {
   metaLeadgenId?: string
   createdAt: string
   leadSession?: LeadSessionSummary
+  scheduledCall?: LeadScheduledCall
 }
 
 export type LeadListPage = {

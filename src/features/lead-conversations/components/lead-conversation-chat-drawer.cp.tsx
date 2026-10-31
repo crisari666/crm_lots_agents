@@ -7,6 +7,7 @@ import { selectLeadConversationAct } from "../slice/lead-conversations.slice"
 import LeadConversationActionsCP from "./lead-conversation-actions.cp"
 import { LeadConversationScoreCP, LeadConversationStatusChipCP, LeadConversationStepChipCP } from "./lead-conversation-chips.cp"
 import LeadConversationMessagesCP from "./lead-conversation-messages.cp"
+import LeadConversationScheduleStripCP from "./lead-conversation-schedule-strip.cp"
 
 const DRAWER_WIDTH = 460
 
@@ -15,33 +16,37 @@ function DrawerHeader({ sessionId }: { sessionId: string }): React.ReactElement 
   const item = useAppSelector((state) =>
     state.leadConversations.items.find((row) => row.sessionId === sessionId)
   )
+  const drawerSchedule = useAppSelector((state) => state.leadConversations.drawerSchedule)
   return (
-    <Box sx={{ px: 2.5, pt: 2, pb: 1.5 }}>
-      <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="overline" color="text.secondary">
-            {s.drawerTitle}
-          </Typography>
-          <Typography variant="h6" fontWeight={700} noWrap>
-            {item?.customerName || item?.phone || "—"}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {item?.phone}
-            {item ? ` · ${item.isAllProjects ? s.allProjects : (item.projectTitle ?? s.noProject)}` : ""}
-          </Typography>
-        </Box>
-        <IconButton aria-label={s.close} onClick={() => dispatch(selectLeadConversationAct(null))}>
-          <Close />
-        </IconButton>
-      </Stack>
-      {item ? (
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1.5 }}>
-          <LeadConversationStatusChipCP status={item.status} />
-          <LeadConversationStepChipCP step={item.step} />
-          <Box sx={{ flex: 1 }} />
-          <LeadConversationScoreCP score={item.score} maxScore={item.maxScore} priority={item.priority} />
+    <Box sx={{ pt: 2, pb: 1.5 }}>
+      <Box sx={{ px: 2.5 }}>
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="overline" color="text.secondary">
+              {s.drawerTitle}
+            </Typography>
+            <Typography variant="h6" fontWeight={700} noWrap>
+              {item?.customerName || item?.phone || "—"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {item?.phone}
+              {item ? ` · ${item.isAllProjects ? s.allProjects : (item.projectTitle ?? s.noProject)}` : ""}
+            </Typography>
+          </Box>
+          <IconButton aria-label={s.close} onClick={() => dispatch(selectLeadConversationAct(null))}>
+            <Close />
+          </IconButton>
         </Stack>
-      ) : null}
+        {item ? (
+          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1.5 }}>
+            <LeadConversationStatusChipCP status={item.status} />
+            <LeadConversationStepChipCP step={item.step} />
+            <Box sx={{ flex: 1 }} />
+            <LeadConversationScoreCP score={item.score} maxScore={item.maxScore} priority={item.priority} />
+          </Stack>
+        ) : null}
+      </Box>
+      {drawerSchedule ? <LeadConversationScheduleStripCP schedule={drawerSchedule} /> : null}
     </Box>
   )
 }

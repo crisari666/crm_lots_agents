@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material"
 import { leadsStrings as s } from "../../../i18n/locales/leads.strings"
+import LeadConversationChatDrawerCP from "../../lead-conversations/components/lead-conversation-chat-drawer.cp"
 import LeadsFiltersCP from "../components/leads-filters.cp"
 import LeadsNoticeCP from "../components/leads-notice.cp"
 import LeadsTableCP from "../components/leads-table.cp"
@@ -19,6 +20,7 @@ export default function LeadsPage() {
       <LeadsFiltersCP />
       <LeadsTableCP />
       <LeadsNoticeCP />
+      <LeadConversationChatDrawerCP />
     </Box>
   )
 }

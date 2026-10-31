@@ -45,6 +45,13 @@ export const leadConversationsStrings = {
     closed: "Cerrado",
   },
   drawerTitle: "Conversación con el asistente",
+  scheduleStripTitle: "Llamada agendada",
+  scheduleStripAgenda: "Ver agenda de llamadas",
+  scheduleStatus: {
+    pending: "Pendiente",
+    done: "Hecha",
+    cancelled: "Cancelada",
+  } as Record<string, string>,
   close: "Cerrar",
   loadOlder: "Cargar mensajes anteriores",
   messagesEmpty: "Esta conversación aún no tiene mensajes.",
