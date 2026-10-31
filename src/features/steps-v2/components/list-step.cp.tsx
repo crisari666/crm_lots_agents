@@ -29,6 +29,15 @@ function ListStepItem({
         ) : null}
         <Chip
           size="small"
+          variant="outlined"
+          label={
+            item.ventorMineVisibilityDays !== undefined
+              ? `${item.ventorMineVisibilityDays}d ventor`
+              : "30d ventor"
+          }
+        />
+        <Chip
+          size="small"
           color={item.isActive ? "success" : "default"}
           label={item.isActive ? "Active" : "Inactive"}
         />

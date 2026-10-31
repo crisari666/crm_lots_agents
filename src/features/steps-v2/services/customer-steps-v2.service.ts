@@ -8,6 +8,7 @@ export type CustomerStepV2 = {
   color?: string
   isActive: boolean
   isPotentialBuyer: boolean
+  ventorMineVisibilityDays?: number
   createdAt: string
   updatedAt: string
 }
@@ -19,6 +20,8 @@ export type CreateCustomerStepV2Body = {
   color?: string
   isActive?: boolean
   isPotentialBuyer?: boolean
+  /** Positive days, or `null` to clear (API falls back to 30). */
+  ventorMineVisibilityDays?: number | null
 }
 
 export type UpdateCustomerStepV2Body = Partial<CreateCustomerStepV2Body>

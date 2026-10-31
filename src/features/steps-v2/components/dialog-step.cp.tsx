@@ -60,6 +60,7 @@ export default function DialogStepCp({
   const [color, setColor] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [isPotentialBuyer, setIsPotentialBuyer] = useState(false)
+  const [ventorMineVisibilityDays, setVentorMineVisibilityDays] = useState("")
   useEffect(() => {
     setName(selectedStep?.name ?? "")
     setDescription(selectedStep?.description ?? "")
@@ -67,6 +68,11 @@ export default function DialogStepCp({
     setColor(selectedStep?.color ?? "")
     setIsActive(selectedStep?.isActive ?? true)
     setIsPotentialBuyer(selectedStep?.isPotentialBuyer ?? false)
+    setVentorMineVisibilityDays(
+      selectedStep?.ventorMineVisibilityDays !== undefined
+        ? String(selectedStep.ventorMineVisibilityDays)
+        : ""
+    )
   }, [selectedStep, open])
   const hasValidName = useMemo(() => name.trim().length > 0, [name])
   const normalizedColor = useMemo(() => normalizeHexColor(color), [color])
@@ -76,6 +82,14 @@ export default function DialogStepCp({
   )
   const handleSubmit = async (): Promise<void> => {
     const parsedOrder = Number(order)
+    const trimmedDays = ventorMineVisibilityDays.trim()
+    const parsedDays = trimmedDays === "" ? null : Number(trimmedDays)
+    const hasValidDays =
+      parsedDays === null ||
+      (Number.isFinite(parsedDays) && Number.isInteger(parsedDays) && parsedDays >= 1)
+    if (!hasValidDays) {
+      return
+    }
     await onSubmit({
       name: name.trim(),
       description: description.trim() || undefined,
@@ -83,6 +97,7 @@ export default function DialogStepCp({
       color: isValidHexColor(normalizedColor) ? normalizedColor : undefined,
       isActive,
       isPotentialBuyer,
+      ventorMineVisibilityDays: parsedDays,
     })
   }
   return (
@@ -179,6 +194,14 @@ export default function DialogStepCp({
             }
             label="Active"
           />
+          <TextField
+            label="Days visible to ventor"
+            type="number"
+            value={ventorMineVisibilityDays}
+            onChange={(event) => setVentorMineVisibilityDays(event.target.value)}
+            helperText="Empty = 30 days default. Controls how long assigned customers on this step stay on the ventor Clients list."
+            inputProps={{ min: 1, step: 1 }}
+          />
           <FormControlLabel
             control={
               <Switch
@@ -186,7 +209,7 @@ export default function DialogStepCp({
                 onChange={(_, checked) => setIsPotentialBuyer(checked)}
               />
             }
-            label="Potential buyer (extend ventor list +15 days)"
+            label="Potential buyer"
           />
         </Stack>
       </DialogContent>
