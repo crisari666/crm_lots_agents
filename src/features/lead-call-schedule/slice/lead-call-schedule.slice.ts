@@ -6,6 +6,7 @@ import {
   listLeadCallVentors,
   listLeadCalls,
   reassignLeadCall,
+  rescheduleLeadCall,
   updateLeadCallStatus,
 } from "../services/lead-call-schedule.http"
 import type {
@@ -102,6 +103,18 @@ export const reassignLeadCallThunk = createAsyncThunk<
   }
 })
 
+export const rescheduleLeadCallThunk = createAsyncThunk<
+  LeadCallItem,
+  { eventId: string; date: string; time: string; userId?: string },
+  { rejectValue: string }
+>("leadCallSchedule/reschedule", async ({ eventId, date, time, userId }, { rejectWithValue }) => {
+  try {
+    return await rescheduleLeadCall(eventId, { date, time, ...(userId ? { userId } : {}) })
+  } catch (err: unknown) {
+    return rejectWithValue(axiosMessage(err, s.actionError))
+  }
+})
+
 export const updateLeadCallStatusThunk = createAsyncThunk<
   LeadCallItem,
   { eventId: string; status: LeadCallEditableStatus },
@@ -159,6 +172,19 @@ const leadCallScheduleSlice = createSlice({
         state.actionNotice = s.reassigned(action.payload.ventorName || action.payload.userId)
       })
       .addCase(reassignLeadCallThunk.rejected, (state, action) => {
+        state.isActionRunning = false
+        state.actionError = action.payload ?? s.actionError
+      })
+      .addCase(rescheduleLeadCallThunk.pending, (state) => {
+        state.isActionRunning = true
+        state.actionError = null
+      })
+      .addCase(rescheduleLeadCallThunk.fulfilled, (state, action) => {
+        state.isActionRunning = false
+        state.items = replaceItem(state.items, action.payload)
+        state.actionNotice = s.rescheduled
+      })
+      .addCase(rescheduleLeadCallThunk.rejected, (state, action) => {
         state.isActionRunning = false
         state.actionError = action.payload ?? s.actionError
       })

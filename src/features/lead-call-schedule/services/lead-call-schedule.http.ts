@@ -38,6 +38,28 @@ export async function reassignLeadCall(eventId: string, userId?: string): Promis
   return response.data
 }
 
+export type RescheduleLeadCallBody = {
+  date: string
+  time: string
+  userId?: string
+}
+
+export async function rescheduleLeadCall(
+  eventId: string,
+  body: RescheduleLeadCallBody
+): Promise<LeadCallItem> {
+  const response = await customersMsAxios.patch<LeadCallItem>(
+    `${eventPath(eventId)}/reschedule`,
+    {
+      date: body.date,
+      time: body.time,
+      ...(body.userId ? { userId: body.userId } : {}),
+    },
+    auth()
+  )
+  return response.data
+}
+
 export async function updateLeadCallStatus(eventId: string, status: LeadCallEditableStatus): Promise<LeadCallItem> {
   const response = await customersMsAxios.patch<LeadCallItem>(`${eventPath(eventId)}/status`, { status }, auth())
   return response.data

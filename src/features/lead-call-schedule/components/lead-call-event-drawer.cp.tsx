@@ -7,6 +7,7 @@ import { formatCallDateTime } from "../business-logic/bogota-time"
 import { selectLeadCallAct } from "../slice/lead-call-schedule.slice"
 import type { LeadCallItem } from "../types/lead-call-schedule.types"
 import LeadCallReassignFormCP from "./lead-call-reassign-form.cp"
+import LeadCallRescheduleFormCP from "./lead-call-reschedule-form.cp"
 import LeadCallStatusActionsCP from "./lead-call-status-actions.cp"
 
 const DRAWER_WIDTH = 420
@@ -65,7 +66,9 @@ function DrawerBody({ item }: { item: LeadCallItem }): React.ReactElement {
       <Divider />
       {isPending ? (
         <>
-          <LeadCallReassignFormCP key={item.eventId} item={item} />
+          <LeadCallRescheduleFormCP key={`reschedule-${item.eventId}-${item.scheduledAt}`} item={item} />
+          <Divider />
+          <LeadCallReassignFormCP key={`reassign-${item.eventId}`} item={item} />
           <LeadCallStatusActionsCP item={item} />
         </>
       ) : (

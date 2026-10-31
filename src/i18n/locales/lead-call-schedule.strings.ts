@@ -1,7 +1,7 @@
 export const leadCallScheduleStrings = {
   title: "Agenda de llamadas de leads",
   subtitle:
-    "Llamadas de 30 minutos que el asistente IA agendó con leads calificados. Reasigna el asesor, marca la llamada como hecha o cancélala.",
+    "Llamadas de 30 minutos que el asistente IA agendó con leads calificados. Cambia la hora, reasigna el asesor, marca la llamada como hecha o cancélala.",
   previousWeek: "Semana anterior",
   nextWeek: "Semana siguiente",
   today: "Hoy",
@@ -56,6 +56,14 @@ export const leadCallScheduleStrings = {
     "Solo se puede asignar a un asesor con «Asignar Leads Calificados» y libre en ese horario. El cliente también pasa al nuevo asesor.",
   reassignAuto: "Automático (menor carga)",
   reassignButton: "Reasignar",
+  rescheduleTitle: "Cambiar fecha y hora",
+  rescheduleHint:
+    "Franjas de 30 min (Bogotá): mañana 9–12, tarde 14–17, noche 18–21. Si el asesor actual no está libre, elige otro o deja «Mantener asesor» para reasignación automática.",
+  rescheduleDateLabel: "Fecha",
+  rescheduleTimeLabel: "Hora",
+  rescheduleKeepVentor: "Mantener asesor actual",
+  rescheduleButton: "Guardar horario",
+  rescheduled: "Horario de la llamada actualizado.",
   markDone: "Marcar como hecha",
   cancelCall: "Cancelar llamada",
   cancelConfirmTitle: "¿Cancelar esta llamada?",
