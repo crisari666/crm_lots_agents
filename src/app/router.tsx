@@ -37,6 +37,7 @@ import CustomerAssignmentAuditPage from "../features/customer-assignment-audit/p
 import LeadConversationsPage from "../features/lead-conversations/pages/lead-conversations-page";
 import LeadCallSchedulePage from "../features/lead-call-schedule/pages/lead-call-schedule-page";
 import MetaLeadFormsPage from "../features/meta-lead-forms/pages/meta-lead-forms-page";
+import LeadsPage from "../features/leads/pages/leads-page";
 import ImportCustomersPage from "../features/import-customers/import-customers-page";
 import StepsV2Page from "../features/steps-v2/pages/steps-v2-page";
 import ProjectReleasesPage from "../features/project-release/pages/project-releases-page";
@@ -76,6 +77,7 @@ const router = createBrowserRouter([
       },
       { path: "customers-v2/events", element: <CustomersEventsPage /> },
       { path: "customers-v2/assignment-audit", element: <CustomerAssignmentAuditPage /> },
+      { path: "leads", element: <LeadsPage /> },
       { path: "lead-conversations", element: <LeadConversationsPage /> },
       { path: "lead-call-schedule", element: <LeadCallSchedulePage /> },
       { path: "meta-lead-forms", element: <MetaLeadFormsPage /> },

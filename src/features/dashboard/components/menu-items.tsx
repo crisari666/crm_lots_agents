@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, DynamicFormOutlined, Dvr, ElectricalServices, EventAvailableOutlined, GridView, GroupAdd, HistorySharp, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, DynamicFormOutlined, Dvr, ElectricalServices, EventAvailableOutlined, GridView, GroupAdd, HistorySharp, InboxOutlined, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -44,6 +44,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/audits", Icon: <AdminPanelSettings />, title: "Auditoria" },
     ]},
     { Icon: <ContactPhone />, title: "Leads", children: [
+      { to: "/dashboard/leads", Icon: <InboxOutlined />, title: "Bandeja de leads", crmAdminOnly: true },
       { to: "/dashboard/meta-lead-forms", Icon: <DynamicFormOutlined />, title: "Formularios Meta leads", crmAdminOnly: true },
       { to: "/dashboard/lead-conversations", Icon: <SmartToyOutlined />, title: "Conversaciones IA leads", crmAdminOnly: true },
       { to: "/dashboard/lead-call-schedule", Icon: <EventAvailableOutlined />, title: "Agenda llamadas leads", crmAdminOnly: true },

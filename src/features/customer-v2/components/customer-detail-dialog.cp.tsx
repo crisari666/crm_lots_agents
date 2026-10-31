@@ -33,6 +33,10 @@ import CustomerMetaLeadTabCP from "./customer-detail/customer-meta-lead-tab.cp"
 import CustomerCaptureTabCP from "./customer-detail/customer-capture-tab.cp"
 import { customerCaptureStrings } from "../../../i18n/locales/customer-capture.strings"
 
+type CustomerDetailDialogProps = {
+  leadStrip?: React.ReactNode
+}
+
 function buildUpdateBody(form: CustomerAdminDetail): UpdateCustomerAdminBody {
   const interestedProjects = form.interestedProjects
     .filter((p) => p.projectId.trim() !== "")
@@ -55,7 +59,7 @@ function buildUpdateBody(form: CustomerAdminDetail): UpdateCustomerAdminBody {
   }
 }
 
-export default function CustomerDetailDialogCP() {
+export default function CustomerDetailDialogCP({ leadStrip }: CustomerDetailDialogProps = {}) {
   const dispatch = useAppDispatch()
   const [tab, setTab] = useState(0)
   const dialogOpen = useAppSelector((s) => s.customerV2.dialogOpen)
@@ -132,6 +136,7 @@ export default function CustomerDetailDialogCP() {
         )}
         {!detailLoading && form && (
           <>
+            {leadStrip}
             <Tabs
               value={tab}
               onChange={(_, v) => setTab(v)}
