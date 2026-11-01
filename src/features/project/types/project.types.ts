@@ -37,7 +37,9 @@ export type ProjectType = {
   priceSellUsd?: number
   deleted?: boolean
   enabled?: boolean
-  /** Partner-only project: hidden from internal consumers, served to allowlisted origins */
+  /** Visible on La Ceiba consumers; independent of externalDistribution */
+  laCeibaDistribution?: boolean
+  /** Visible on partner origins; independent of laCeibaDistribution */
   externalDistribution?: boolean
   commissionPercentage: number
   commissionValue: number

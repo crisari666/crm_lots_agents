@@ -235,10 +235,14 @@ export const projectStrings = {
   listPublicStockViewGrid: "Cuadrícula (#grid)",
   listPublicStockViewColumns: "Columnas (#columns)",
   listMissingAgentBaseUrl: "Configura VITE_AGENT_BASE_URL",
-  listColExternalDistribution: "Distribución externa",
-  listExternalDistributionHint:
-    "Solo visible para sitios de empresas aliadas. Se oculta del sitio propio, la app de ventores y el asistente.",
+  listColAudience: "Audiencia",
+  listAudienceLaCeiba: "La Ceiba",
+  listAudienceExternal: "Externa",
+  listAudienceHint:
+    "Puedes activar La Ceiba (sitio propio, ventores y asistente), Distribución externa (empresas aliadas), o ambas. Al menos una debe quedar activa.",
+  listLaCeibaChip: "La Ceiba",
   listExternalChip: "Externo",
+  listBothChip: "La Ceiba + Externo",
 
   formFieldShortDescription: "WhatsApp description",
   formFieldShortDescriptionHelper: "Plain-text teaser shown on cards and listings.",

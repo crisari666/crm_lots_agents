@@ -24,7 +24,7 @@ import {
   uploadProjectVerticalVideosMultipleReq,
   deleteProjectVerticalVideoReq,
   setProjectEnabledReq,
-  setProjectExternalDistributionReq
+  setProjectDistributionReq
 } from "../../../app/services/project.service"
 import { ProjectsState } from "./projects.state"
 
@@ -89,10 +89,18 @@ export const setProjectEnabledThunk = createAsyncThunk(
   }
 )
 
-export const setProjectExternalDistributionThunk = createAsyncThunk(
-  "project/setProjectExternalDistribution",
-  async ({ id, externalDistribution }: { id: string; externalDistribution: boolean }) => {
-    return setProjectExternalDistributionReq({ id, externalDistribution })
+export const setProjectDistributionThunk = createAsyncThunk(
+  "project/setProjectDistribution",
+  async ({
+    id,
+    laCeibaDistribution,
+    externalDistribution
+  }: {
+    id: string
+    laCeibaDistribution: boolean
+    externalDistribution: boolean
+  }) => {
+    return setProjectDistributionReq({ id, laCeibaDistribution, externalDistribution })
   }
 )
 
@@ -322,11 +330,11 @@ const projectsSlice = createSlice({
           state.currentProject = action.payload
         }
       })
-      .addCase(setProjectExternalDistributionThunk.fulfilled, (state, action) => {
+      .addCase(setProjectDistributionThunk.fulfilled, (state, action) => {
         mergeProjectFromUpload(state, action.payload)
       })
-      .addCase(setProjectExternalDistributionThunk.rejected, (state, action) => {
-        state.error = action.error.message ?? "Error updating external distribution"
+      .addCase(setProjectDistributionThunk.rejected, (state, action) => {
+        state.error = action.error.message ?? "Error updating project distribution"
       })
       .addCase(uploadProjectImageThunk.fulfilled, (state, action) => {
         mergeProjectFromUpload(state, action.payload)

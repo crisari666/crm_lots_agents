@@ -111,17 +111,20 @@ export async function setProjectEnabledReq({
   }
 }
 
-export async function setProjectExternalDistributionReq({
+export async function setProjectDistributionReq({
   id,
+  laCeibaDistribution,
   externalDistribution
 }: {
   id: string
+  laCeibaDistribution: boolean
   externalDistribution: boolean
 }): Promise<ProjectType> {
   try {
     const api = RagApi.getInstance()
     const response = await api.patch({
-      path: `projects/${id}/external-distribution/${externalDistribution ? "true" : "false"}`
+      path: `projects/${id}/distribution`,
+      data: { laCeibaDistribution, externalDistribution }
     })
     const { error } = response
     if (error == null) {
@@ -130,7 +133,7 @@ export async function setProjectExternalDistributionReq({
       throw error
     }
   } catch (error) {
-    console.error("ERROR ON setProjectExternalDistributionReq")
+    console.error("ERROR ON setProjectDistributionReq")
     console.error({ error })
     throw error
   }

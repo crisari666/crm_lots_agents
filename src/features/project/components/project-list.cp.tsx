@@ -14,7 +14,9 @@ import {
   Switch,
   Chip,
   Stack,
-  Tooltip
+  Tooltip,
+  ToggleButton,
+  ToggleButtonGroup
 } from "@mui/material"
 import { Edit as EditIcon, InfoOutlined as InfoOutlinedIcon } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
@@ -23,11 +25,33 @@ import { RootState } from "../../../app/store"
 import {
   fetchProjectsThunk,
   setProjectEnabledThunk,
-  setProjectExternalDistributionThunk
+  setProjectDistributionThunk
 } from "../slice/projects.slice"
 import { ProjectType } from "../types/project.types"
 import { projectStrings as s } from "../../../i18n/locales/project.strings"
 import ProjectStockPublicLinkCP from "./project-stock-public-link.cp"
+import {
+  AudienceChannel,
+  audienceChannelsFromProject,
+  isExternalDistribution,
+  isLaCeibaDistribution
+} from "../utils/project-distribution.util"
+
+function audienceChipLabel(project: ProjectType): string {
+  const laCeiba = isLaCeibaDistribution(project)
+  const external = isExternalDistribution(project)
+  if (laCeiba && external) return s.listBothChip
+  if (external) return s.listExternalChip
+  return s.listLaCeibaChip
+}
+
+function audienceChipColor(project: ProjectType): "primary" | "secondary" | "default" {
+  const laCeiba = isLaCeibaDistribution(project)
+  const external = isExternalDistribution(project)
+  if (laCeiba && external) return "default"
+  if (external) return "secondary"
+  return "primary"
+}
 
 export default function ProjectListCP() {
   const navigate = useNavigate()
@@ -43,9 +67,15 @@ export default function ProjectListCP() {
     dispatch(setProjectEnabledThunk({ id: project._id, enabled }))
   }
 
-  const handleToggleExternalDistribution = (project: ProjectType, externalDistribution: boolean) => {
-    if (!project._id) return
-    dispatch(setProjectExternalDistributionThunk({ id: project._id, externalDistribution }))
+  const handleAudienceChange = (project: ProjectType, channels: AudienceChannel[]) => {
+    if (!project._id || channels.length === 0) return
+    dispatch(
+      setProjectDistributionThunk({
+        id: project._id,
+        laCeibaDistribution: channels.includes("la-ceiba"),
+        externalDistribution: channels.includes("external")
+      })
+    )
   }
 
   const formatDate = (dateString?: string) => {
@@ -102,8 +132,8 @@ export default function ProjectListCP() {
             <TableCell align="center">Habilitado</TableCell>
             <TableCell align="center">
               <Stack direction="row" spacing={0.5} alignItems="center" justifyContent="center">
-                <span>{s.listColExternalDistribution}</span>
-                <Tooltip title={s.listExternalDistributionHint} arrow>
+                <span>{s.listColAudience}</span>
+                <Tooltip title={s.listAudienceHint} arrow>
                   <InfoOutlinedIcon fontSize="inherit" sx={{ color: "text.secondary", cursor: "help" }} />
                 </Tooltip>
               </Stack>
@@ -129,9 +159,12 @@ export default function ProjectListCP() {
                   <Typography variant="body2" fontWeight="medium">
                     {project.title}
                   </Typography>
-                  {project.externalDistribution === true && (
-                    <Chip label={s.listExternalChip} size="small" color="secondary" variant="outlined" />
-                  )}
+                  <Chip
+                    label={audienceChipLabel(project)}
+                    size="small"
+                    color={audienceChipColor(project)}
+                    variant="outlined"
+                  />
                 </Stack>
               </TableCell>
               <TableCell onClick={(e) => e.stopPropagation()}>
@@ -147,14 +180,21 @@ export default function ProjectListCP() {
                 />
               </TableCell>
               <TableCell align="center" onClick={(e) => e.stopPropagation()}>
-                <Switch
+                <ToggleButtonGroup
                   size="small"
-                  color="secondary"
-                  checked={project.externalDistribution === true}
-                  onChange={(_, checked) => handleToggleExternalDistribution(project, checked)}
+                  color="primary"
+                  value={audienceChannelsFromProject(project)}
+                  onChange={(_, value: AudienceChannel[]) => handleAudienceChange(project, value)}
                   disabled={isLoading}
-                  inputProps={{ "aria-label": `${s.listColExternalDistribution}: ${project.title}` }}
-                />
+                  aria-label={`${s.listColAudience}: ${project.title}`}
+                >
+                  <ToggleButton value="la-ceiba" sx={{ textTransform: "none", px: 1, whiteSpace: "nowrap" }}>
+                    {s.listAudienceLaCeiba}
+                  </ToggleButton>
+                  <ToggleButton value="external" sx={{ textTransform: "none", px: 1, whiteSpace: "nowrap" }}>
+                    {s.listAudienceExternal}
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </TableCell>
               <TableCell>
                 {getMapsQuery(project) ? (
