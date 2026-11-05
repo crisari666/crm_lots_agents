@@ -19,7 +19,8 @@ import {
   Map as MapIcon,
   Add as AddIcon,
   UploadFile as UploadIcon,
-  DeleteForever as DeleteIcon
+  DeleteForever as DeleteIcon,
+  ViewInAr as StudioIcon
 } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
@@ -46,6 +47,7 @@ import LotInventoryMapCP from "./lot-inventory-map.cp"
 import LotInventoryUploadsDialogCP from "./lot-inventory-uploads-dialog.cp"
 import LotInventoryClearDialogCP from "./lot-inventory-clear-dialog.cp"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
+import { project3dStudioStrings as studioS } from "../../../../i18n/locales/project-3d-studio.strings"
 import type { ProjectLotStatus } from "../types/lot-inventory.types"
 import { getStatusLabel } from "./lot-status-chip.cp"
 
@@ -83,6 +85,10 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
   const isAdmin =
     currentUser?.level === 0 || currentUser?.level === 1
   const canClearInventory =
+    currentUser?.level === 0 ||
+    currentUser?.level === 1 ||
+    currentUser?.level === 9
+  const canOpenStudio =
     currentUser?.level === 0 ||
     currentUser?.level === 1 ||
     currentUser?.level === 9
@@ -179,6 +185,17 @@ export default function LotInventoryWorkspaceCP({ projectId }: Props) {
         <Typography variant="h5" fontWeight={700} sx={{ flex: 1 }}>
           {projectMeta?.title ?? s.hubTitle}
         </Typography>
+        {canOpenStudio && (
+          <Button
+            variant="contained"
+            startIcon={<StudioIcon />}
+            onClick={() =>
+              navigate(`/dashboard/lot-inventory/${projectId}/studio`)
+            }
+          >
+            {studioS.openStudio}
+          </Button>
+        )}
         {isAdmin && (
           <Button
             variant="outlined"

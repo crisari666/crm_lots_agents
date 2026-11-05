@@ -15,7 +15,10 @@ import {
   TextField,
   Typography
 } from "@mui/material"
-import { OpenInNew as OpenIcon } from "@mui/icons-material"
+import {
+  OpenInNew as OpenIcon,
+  ViewInAr as StudioIcon
+} from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { RootState } from "../../../../app/store"
@@ -24,6 +27,7 @@ import {
   setHubSearchAct
 } from "../slice/lot-inventory.slice"
 import { lotInventoryStrings as s } from "../../../../i18n/locales/lot-inventory.strings"
+import { project3dStudioStrings as studioS } from "../../../../i18n/locales/project-3d-studio.strings"
 import type { LotStatusSummary } from "../types/lot-inventory.types"
 import ProjectStockPublicLinkCP from "../../components/project-stock-public-link.cp"
 
@@ -44,6 +48,13 @@ export default function LotInventoryHubTableCP() {
   const { hubRows, hubLoading, hubError, hubSearch } = useAppSelector(
     (state: RootState) => state.lotInventory
   )
+  const currentUser = useAppSelector(
+    (state: RootState) => state.login.currentUser
+  )
+  const canOpenStudio =
+    currentUser?.level === 0 ||
+    currentUser?.level === 1 ||
+    currentUser?.level === 9
 
   useEffect(() => {
     void dispatch(fetchLotInventoryHubThunk())
@@ -136,6 +147,19 @@ export default function LotInventoryHubTableCP() {
                       <SummaryChips summary={row.summary.lot} />
                     </TableCell>
                     <TableCell align="right">
+                      {canOpenStudio && (
+                        <IconButton
+                          aria-label={studioS.openStudio}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigate(
+                              `/dashboard/lot-inventory/${row.projectId}/studio`
+                            )
+                          }}
+                        >
+                          <StudioIcon />
+                        </IconButton>
+                      )}
                       <IconButton
                         aria-label={s.hubOpen}
                         onClick={(e) => {
