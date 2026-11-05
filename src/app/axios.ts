@@ -235,6 +235,25 @@ export class RagApi {
     }
   }
 
+  async put({ path, data = {} }: { path: string; data?: any }) {
+    const token = this.getToken()
+    const headers = { token: token!, "Content-type": "application/json" }
+    try {
+      const responsePut: AxiosResponse = await ragApiAxios.put(path, data, { headers })
+      return await responsePut.data
+    } catch (error) {
+      const e = error as AxiosError
+      if (e.response?.status === 401 && e.response?.data !== undefined) {
+        const data: any = e.response?.data
+        if (data.error != null && data.error === "Unauthorized") {
+          store.dispatch(endSessionForceUserAction())
+          localStorage.removeItem("auth")
+        }
+      }
+      throw error
+    }
+  }
+
   async delete({ path, data }: { path: string; data?: object }) {
     const token = this.getToken()
     try {

@@ -24,6 +24,7 @@ import CreateProjectPage from "../features/project/pages/create-project-page";
 import EditProjectPage from "../features/project/pages/edit-project-page";
 import LotInventoryHubPage from "../features/project/lot-inventory/pages/lot-inventory-hub-page";
 import LotInventoryWorkspacePage from "../features/project/lot-inventory/pages/lot-inventory-workspace-page";
+import Project3dStudioPage from "../features/project/project-3d-studio/pages/project-3d-studio-page";
 import UsersOnboardingStatusView from "../features/users-onboarding-status/users-onboarding-status-view";
 import TrainingTrakingPage from "../features/training-traking/pages/training-traking-page";
 import TrainingSessionsPage from "../features/training-sessions/pages/training-sessions-page";
@@ -90,6 +91,7 @@ const router = createBrowserRouter([
       { path: "projects", element: <ProjectListPage /> },
       { path: "lot-inventory", element: <LotInventoryHubPage /> },
       { path: "lot-inventory/:projectId", element: <LotInventoryWorkspacePage /> },
+      { path: "lot-inventory/:projectId/studio", element: <Project3dStudioPage /> },
       { path: "project-releases", element: <ProjectReleasesPage /> },
       { path: "create-project", element: <CreateProjectPage /> },
       { path: "edit-project/:projectId", element: <EditProjectPage /> },

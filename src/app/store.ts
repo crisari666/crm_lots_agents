@@ -21,6 +21,7 @@ import OfficesLevelSlice from "../features/offices/office-levels/slice/office-le
 import projectsSlice from "../features/project/slice/projects.slice";
 import amenitiesSlice from "../features/project/slice/amenities.slice";
 import lotInventorySlice from "../features/project/lot-inventory/slice/lot-inventory.slice";
+import project3dStudioSlice from "../features/project/project-3d-studio/slice/project-3d-studio.slice";
 import importUsersSlice from "../features/import-users/import-users.slice";
 import importCustomersSlice from "../features/import-customers/import-customers.slice";
 import usersOnboardingStatusSlice from "../features/users-onboarding-status/slice/users-onboarding-status.slice";
@@ -102,6 +103,7 @@ export const store = configureStore({
     officesLevel: OfficesLevelSlice,
     projects: projectsSlice,
     lotInventory: lotInventorySlice,
+    project3dStudio: project3dStudioSlice,
     projectReleases: projectReleasesReducer,
     amenities: amenitiesSlice,
     qrArrive: qrArriveSlice,
