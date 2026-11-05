@@ -74,6 +74,28 @@ const LIVE_LAYER = "studio-live-preview-point"
 const PROJECT_SOURCE = "studio-project-pin"
 const PROJECT_LAYER = "studio-project-pin-point"
 const PROJECT_HALO_LAYER = "studio-project-pin-halo"
+const CATEGORY_FALLBACK_COLORS = [
+  "#38BDF8",
+  "#F59E0B",
+  "#22C55E",
+  "#F43F5E",
+  "#A78BFA",
+  "#14B8A6"
+] as const
+
+function categoryDotColor(
+  categories: readonly { key: string; color?: string }[],
+  categoryKey: string
+): string {
+  const chosen = categories.find((row) => row.key === categoryKey)?.color ?? ""
+  if (/^#[0-9A-Fa-f]{6}$/.test(chosen)) return chosen.toUpperCase()
+  let hash = 0
+  const key = categoryKey || "other"
+  for (let index = 0; index < key.length; index += 1) {
+    hash = (hash * 31 + key.charCodeAt(index)) >>> 0
+  }
+  return CATEGORY_FALLBACK_COLORS[hash % CATEGORY_FALLBACK_COLORS.length]
+}
 
 function resolveMapboxToken(): string {
   return (
@@ -254,13 +276,33 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
         // Layer may already be at top.
       }
     })
+    ;[
+      LOC_FILL_LAYER,
+      LOC_LINE_LAYER,
+      LOC_POINT_LAYER,
+      ASSET_LAYER,
+      ASSET_LABEL_LAYER,
+      STUDIO_GLB_LAYER_ID,
+      LIVE_LAYER,
+      PROJECT_HALO_LAYER,
+      PROJECT_LAYER
+    ].forEach((layerId) => {
+      if (!map.getLayer(layerId)) return
+      try {
+        map.moveLayer(layerId)
+      } catch {
+        // Overlay may not be mounted yet.
+      }
+    })
   }
 
   useEffect(() => {
     void dispatch(fetchLotsMapThunk(projectId))
   }, [dispatch, projectId])
 
+  const amenityCategories = experience?.amenityCategories
   const locationsGeoJson = useMemo(() => {
+    const categories = amenityCategories ?? []
     return {
       type: "FeatureCollection" as const,
       features: locations.map((loc) => ({
@@ -270,13 +312,15 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
           id: loc._id,
           name: loc.name,
           category: loc.category,
+          categoryKey: loc.categoryKey ?? "",
+          color: categoryDotColor(categories, loc.categoryKey ?? ""),
           importance: loc.importance,
           isVisible: loc.isVisible
         },
         geometry: loc.geometry
       }))
     }
-  }, [locations])
+  }, [amenityCategories, locations])
 
   const assetsGeoJson = useMemo(() => {
     return {
@@ -526,7 +570,7 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
           filter: ["==", ["geometry-type"], "Point"],
           paint: {
             "circle-radius": 7,
-            "circle-color": "#fbbf24",
+            "circle-color": ["coalesce", ["get", "color"], "#fbbf24"],
             "circle-stroke-width": 1.5,
             "circle-stroke-color": "#0f172a"
           }
