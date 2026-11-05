@@ -1,8 +1,11 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Box, Button, Chip, Stack, TextField, Typography } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../../../../app/hooks"
 import { RootState } from "../../../../../app/store"
-import { updateExperienceThunk } from "../../slice/project-3d-studio.slice"
+import {
+  setAmenityCategoriesAct,
+  updateExperienceThunk
+} from "../../slice/project-3d-studio.slice"
 import type { AmenityCategoryType } from "../../types/project-experience.types"
 import { project3dStudioStrings as s } from "../../../../../i18n/locales/project-3d-studio.strings"
 
@@ -27,14 +30,41 @@ export default function AmenityCategoriesEditorCP({ projectId }: Props) {
     (state: RootState) => state.project3dStudio.experience?.amenityCategories ?? []
   )
   const [label, setLabel] = useState("")
+  const committedRef = useRef(categories)
+  const pendingRef = useRef(false)
+  const saveTimerRef = useRef<number | null>(null)
+  useEffect(() => {
+    if (pendingRef.current) return
+    committedRef.current = categories
+  }, [categories])
 
-  const saveCategories = (next: AmenityCategoryType[]) => {
-    void dispatch(
-      updateExperienceThunk({
-        projectId,
-        data: { amenityCategories: next }
-      })
-    )
+  const saveCategories = (next: AmenityCategoryType[], debounceMs = 0) => {
+    pendingRef.current = true
+    dispatch(setAmenityCategoriesAct(next))
+    if (saveTimerRef.current != null) window.clearTimeout(saveTimerRef.current)
+    const send = () => {
+      saveTimerRef.current = null
+      void dispatch(
+        updateExperienceThunk({
+          projectId,
+          data: { amenityCategories: next }
+        })
+      )
+        .unwrap()
+        .then(() => {
+          pendingRef.current = false
+          committedRef.current = next
+        })
+        .catch(() => {
+          pendingRef.current = false
+          dispatch(setAmenityCategoriesAct(committedRef.current))
+        })
+    }
+    if (debounceMs <= 0) {
+      send()
+      return
+    }
+    saveTimerRef.current = window.setTimeout(send, debounceMs)
   }
 
   const addCategory = () => {
@@ -66,7 +96,8 @@ export default function AmenityCategoriesEditorCP({ projectId }: Props) {
                     item.key === row.key
                       ? { ...item, color: event.target.value.toUpperCase() }
                       : item
-                  )
+                  ),
+                  300
                 )
               }
               sx={{

@@ -30,6 +30,7 @@ import {
 import type {
   CreateLocationPayload,
   ExperienceSceneType,
+  LocationGeometry,
   PlaceAssetPayload,
   ProjectExperienceAssetType,
   ProjectLatLng,
@@ -37,12 +38,15 @@ import type {
   StudioPanel,
   StudioSelection,
   StudioTool,
+  AmenityCategoryType,
   UpdateAssetPayload,
   UpdateExperiencePayload,
   UpdateLocationPayload
 } from "../types/project-experience.types"
 import { toProjectLatLng } from "../utils/project-coords.util"
 import type { Project3dStudioState } from "./project-3d-studio.state"
+
+const pendingLocationGeometry = new Map<string, LocationGeometry>()
 
 const initialState: Project3dStudioState = {
   projectId: null,
@@ -254,6 +258,7 @@ export const uploadAssetThunk = createAsyncThunk(
     name?: string
     longitude?: number
     latitude?: number
+    altitude?: number | null
   }) => uploadExperienceAssetReq(params)
 )
 
@@ -308,6 +313,13 @@ const project3dStudioSlice = createSlice({
     resetStudioAct: () => initialState,
     setActivePanelAct: (state, action: PayloadAction<StudioPanel>) => {
       state.activePanel = action.payload
+    },
+    setAmenityCategoriesAct: (
+      state,
+      action: PayloadAction<AmenityCategoryType[]>
+    ) => {
+      if (!state.experience) return
+      state.experience.amenityCategories = action.payload
     },
     setActiveToolAct: (state, action: PayloadAction<StudioTool>) => {
       state.activeTool = action.payload
@@ -439,11 +451,31 @@ const project3dStudioSlice = createSlice({
       .addCase(createLocationThunk.fulfilled, (state, action) => {
         state.locations.push(action.payload)
       })
+      .addCase(updateLocationThunk.pending, (state, action) => {
+        const nextGeometry = action.meta.arg.data.geometry
+        if (!nextGeometry) return
+        const location = state.locations.find(
+          (row) => row._id === action.meta.arg.locationId
+        )
+        if (!location) return
+        pendingLocationGeometry.set(action.meta.requestId, location.geometry)
+        location.geometry = nextGeometry
+      })
       .addCase(updateLocationThunk.fulfilled, (state, action) => {
+        pendingLocationGeometry.delete(action.meta.requestId)
         const idx = state.locations.findIndex(
           (l) => l._id === action.payload._id
         )
         if (idx >= 0) state.locations[idx] = action.payload
+      })
+      .addCase(updateLocationThunk.rejected, (state, action) => {
+        const previous = pendingLocationGeometry.get(action.meta.requestId)
+        pendingLocationGeometry.delete(action.meta.requestId)
+        if (!previous) return
+        const location = state.locations.find(
+          (row) => row._id === action.meta.arg.locationId
+        )
+        if (location) location.geometry = previous
       })
       .addCase(uploadLocationGalleryThunk.fulfilled, (state, action) => {
         const idx = state.locations.findIndex(
@@ -585,6 +617,7 @@ const project3dStudioSlice = createSlice({
 export const {
   resetStudioAct,
   setActivePanelAct,
+  setAmenityCategoriesAct,
   setActiveToolAct,
   setSelectionAct,
   setPlacingAssetIdAct,
