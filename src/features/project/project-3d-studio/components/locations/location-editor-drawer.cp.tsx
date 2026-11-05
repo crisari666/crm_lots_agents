@@ -134,10 +134,8 @@ export default function LocationEditorDrawerCP({
   const [openSection, setOpenSection] = useState<PlaceSectionId | null>("data")
   const isPoint = location?.geometry.type === "Point"
   const locationId = location?._id ?? ""
-  const pointKey =
-    location?.geometry.type === "Point"
-      ? `${location.geometry.coordinates[0]},${location.geometry.coordinates[1]}`
-      : ""
+  const point = location ? readPointCoordinates(location) : null
+  const pointKey = point ? `${point.longitude},${point.latitude}` : ""
   const isRelocating =
     activeTool === "relocateLocation" && relocatingLocationId === locationId
 
