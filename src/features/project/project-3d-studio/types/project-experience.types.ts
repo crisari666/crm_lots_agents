@@ -175,7 +175,9 @@ export type ProjectExperienceType = {
     buildings3DEnabled: boolean
     satelliteEnabled: boolean
     fogEnabled: boolean
+    showSceneTitles?: boolean
     roadsStyle?: ExperienceRoadsStyleType
+    availableLotColor?: string
   }
   layers: {
     lots: boolean

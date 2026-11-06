@@ -53,6 +53,7 @@ declare module "@omega/project-experience" {
         opacity: number
         line?: "solid" | "double" | "dashed"
       }
+      availableLotColor?: string
       initialCamera: {
         longitude: number
         latitude: number

@@ -27,6 +27,41 @@ export const EMPTY_GEOJSON: LotMapGeoJson = {
   features: []
 }
 
+const AVAILABLE_LOT_COLOR = /^#[0-9A-Fa-f]{6}$/
+const DEFAULT_AVAILABLE_LOT_COLOR = "#15803d"
+
+/**
+ * Studio lot fills use the saved available color. Inventory keeps FILL_COLOR_EXPR.
+ */
+export function paintAvailableLotColor(
+  map: Map,
+  color: string | undefined
+): void {
+  const available =
+    color && AVAILABLE_LOT_COLOR.test(color.trim())
+      ? color.trim()
+      : DEFAULT_AVAILABLE_LOT_COLOR
+  const expression: mapboxgl.ExpressionSpecification = [
+    "match",
+    ["coalesce", ["get", "status"], ""],
+    "available",
+    available,
+    "hold",
+    STATUS_COLORS.hold,
+    "locked",
+    STATUS_COLORS.locked,
+    "sold",
+    STATUS_COLORS.sold,
+    STATUS_COLORS.default
+  ]
+  if (map.getLayer(LOTS_FLAT_FILL_LAYER_ID)) {
+    map.setPaintProperty(LOTS_FLAT_FILL_LAYER_ID, "fill-color", expression)
+  }
+  if (map.getLayer(LOTS_FILL_LAYER_ID)) {
+    map.setPaintProperty(LOTS_FILL_LAYER_ID, "fill-extrusion-color", expression)
+  }
+}
+
 export const FILL_COLOR_EXPR: mapboxgl.ExpressionSpecification = [
   "match",
   ["coalesce", ["get", "status"], ""],

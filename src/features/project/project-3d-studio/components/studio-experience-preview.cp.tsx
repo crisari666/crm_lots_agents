@@ -88,6 +88,7 @@ export default function StudioExperiencePreviewCP({ projectId }: Props) {
         buildings3D: experience.settings.buildings3DEnabled === true,
         fog: experience.settings.fogEnabled !== false,
         roadsStyle: experience.settings.roadsStyle,
+        availableLotColor: experience.settings.availableLotColor,
         initialCamera: {
           longitude: centerLng,
           latitude: centerLat,

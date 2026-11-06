@@ -129,7 +129,7 @@ export default function MapSettingsPanelCP({ projectId }: Props) {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto", p: 2 }}>
       <Typography variant="subtitle1" sx={{ color: "#f8fafc", mb: 2 }}>
         {s.panelMap}
       </Typography>
@@ -234,19 +234,54 @@ export default function MapSettingsPanelCP({ projectId }: Props) {
           label={s.mapFog}
           sx={{ color: "#e2e8f0" }}
         />
-        <Typography variant="subtitle2" sx={{ color: "#94a3b8", pt: 1 }}>
-          {s.mapLayers}
-        </Typography>
         <FormControlLabel
           control={
             <Switch
-              checked={experience.layers.lots !== false}
-              onChange={(e) => patchLayers({ lots: e.target.checked })}
+              checked={experience.settings.showSceneTitles !== false}
+              onChange={(e) =>
+                patchSettings({ showSceneTitles: e.target.checked })
+              }
             />
           }
-          label={s.layerLots}
+          label={s.mapShowSceneTitles}
           sx={{ color: "#e2e8f0" }}
         />
+        <Typography variant="caption" sx={{ color: "#94a3b8", mt: -1 }}>
+          {s.mapShowSceneTitlesHint}
+        </Typography>
+        <Typography variant="subtitle2" sx={{ color: "#94a3b8", pt: 1 }}>
+          {s.mapLayers}
+        </Typography>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <FormControlLabel
+            sx={{ color: "#e2e8f0", flex: 1, mr: 0 }}
+            control={
+              <Switch
+                checked={experience.layers.lots !== false}
+                onChange={(e) => patchLayers({ lots: e.target.checked })}
+              />
+            }
+            label={s.layerLots}
+          />
+          <Box
+            component="input"
+            type="color"
+            aria-label={s.availableLotColor}
+            value={experience.settings.availableLotColor || "#15803d"}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              patchSettings({ availableLotColor: event.target.value })
+            }
+            sx={{
+              width: 36,
+              height: 32,
+              p: 0.25,
+              border: "1px solid #334155",
+              borderRadius: 1,
+              bgcolor: "transparent",
+              cursor: "pointer"
+            }}
+          />
+        </Stack>
         <Stack direction="row" alignItems="center" spacing={0.5}>
           <FormControlLabel
             sx={{ color: "#e2e8f0", flex: 1, mr: 0 }}

@@ -31,6 +31,7 @@ import {
   disableMap3d,
   enableMap3d,
   ensureLotsLayers,
+  paintAvailableLotColor,
   LOTS_FLAT_FILL_LAYER_ID,
   LOTS_FILL_LAYER_ID,
   LOTS_LINE_LAYER_ID,
@@ -250,6 +251,8 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
   mapPaintRef.current = mapPaint
   const lotsVisibleRef = useRef(experience?.layers.lots !== false)
   lotsVisibleRef.current = experience?.layers.lots !== false
+  const availableLotColorRef = useRef(experience?.settings.availableLotColor)
+  availableLotColorRef.current = experience?.settings.availableLotColor
   const roadsVisibleRef = useRef(experience?.layers.roads !== false)
   roadsVisibleRef.current = experience?.layers.roads !== false
   const roadsStyleRef = useRef(experience?.settings.roadsStyle)
@@ -294,6 +297,7 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
       if (!map.getLayer(layerId)) return
       map.setLayoutProperty(layerId, "visibility", lotsVisible)
     })
+    paintAvailableLotColor(map, availableLotColorRef.current)
     // Keep lots above basemap/buildings so they stay visible in studio.
     ;[
       LOTS_FLAT_FILL_LAYER_ID,
@@ -1057,6 +1061,16 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
     appliedStyleUrlRef.current = nextStyle
     map.setStyle(nextStyle)
   }, [experience?.settings.styleUrl])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const apply = () => {
+      paintAvailableLotColor(map, experience?.settings.availableLotColor)
+    }
+    if (map.isStyleLoaded()) apply()
+    else map.once("style.load", apply)
+  }, [experience?.settings.availableLotColor])
 
   useEffect(() => {
     const map = mapRef.current
