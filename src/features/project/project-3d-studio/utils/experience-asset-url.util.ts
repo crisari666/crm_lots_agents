@@ -1,4 +1,19 @@
 /**
+ * Prefers the absolute URL saved on the resource or placement.
+ * Falls back to building one from the file name for older rows.
+ */
+export function resolveExperienceAssetUrl(asset: {
+  url?: string
+  fileName: string
+}): string {
+  const stored = asset.url?.trim() ?? ""
+  if (stored.startsWith("http://") || stored.startsWith("https://")) {
+    return stored
+  }
+  return buildExperienceAssetUrl(asset.fileName)
+}
+
+/**
  * Builds a public URL for an experience asset / library file under RAG uploads.
  */
 export function buildExperienceAssetUrl(fileName: string): string {
