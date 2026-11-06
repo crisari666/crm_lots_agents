@@ -13,6 +13,14 @@ type Props = {
   projectId: string
 }
 
+function toSavedCategory(row: AmenityCategoryType): AmenityCategoryType {
+  const color = row.color?.trim().toUpperCase() ?? ""
+  if (!/^#[0-9A-F]{6}$/.test(color)) {
+    return { key: row.key, label: row.label, sortOrder: row.sortOrder }
+  }
+  return { key: row.key, label: row.label, sortOrder: row.sortOrder, color }
+}
+
 function toCategoryKey(label: string): string {
   return label
     .trim()
@@ -30,6 +38,9 @@ export default function AmenityCategoriesEditorCP({ projectId }: Props) {
     (state: RootState) => state.project3dStudio.experience?.amenityCategories ?? []
   )
   const [label, setLabel] = useState("")
+  const [editingKey, setEditingKey] = useState<string | null>(null)
+  const [draftLabel, setDraftLabel] = useState("")
+  const skipBlurRef = useRef(false)
   const committedRef = useRef(categories)
   const pendingRef = useRef(false)
   const saveTimerRef = useRef<number | null>(null)
@@ -47,7 +58,7 @@ export default function AmenityCategoriesEditorCP({ projectId }: Props) {
       void dispatch(
         updateExperienceThunk({
           projectId,
-          data: { amenityCategories: next }
+          data: { amenityCategories: next.map(toSavedCategory) }
         })
       )
         .unwrap()
@@ -67,6 +78,29 @@ export default function AmenityCategoriesEditorCP({ projectId }: Props) {
     saveTimerRef.current = window.setTimeout(send, debounceMs)
   }
 
+  const cancelRename = () => {
+    setEditingKey(null)
+    setDraftLabel("")
+  }
+  const commitRename = (row: AmenityCategoryType) => {
+    const nextLabel = draftLabel.trim()
+    const slug = toCategoryKey(nextLabel)
+    const conflicts = categories.some(
+      (item) => item.key !== row.key && item.key === slug
+    )
+    if (!nextLabel || !slug || conflicts) {
+      cancelRename()
+      return
+    }
+    if (nextLabel !== row.label) {
+      saveCategories(
+        categories.map((item) =>
+          item.key === row.key ? { ...item, label: nextLabel } : item
+        )
+      )
+    }
+    cancelRename()
+  }
   const addCategory = () => {
     const key = toCategoryKey(label)
     if (!key || categories.some((row) => row.key === key)) return
@@ -109,15 +143,49 @@ export default function AmenityCategoriesEditorCP({ projectId }: Props) {
                 cursor: "pointer"
               }}
             />
-            <Chip
-              label={row.label}
-              size="small"
-              onDelete={() =>
-                saveCategories(categories.filter((item) => item.key !== row.key))
-              }
-              sx={{ color: "#e2e8f0", borderColor: "#334155" }}
-              variant="outlined"
-            />
+            {editingKey === row.key ? (
+              <TextField
+                size="small"
+                autoFocus
+                value={draftLabel}
+                label={s.amenityCategoryRename}
+                onChange={(event) => setDraftLabel(event.target.value)}
+                onBlur={() => {
+                  if (skipBlurRef.current) {
+                    skipBlurRef.current = false
+                    return
+                  }
+                  commitRename(row)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    event.preventDefault()
+                    skipBlurRef.current = true
+                    cancelRename()
+                  }
+                  if (event.key === "Enter") {
+                    event.preventDefault()
+                    skipBlurRef.current = true
+                    commitRename(row)
+                  }
+                }}
+                inputProps={{ "aria-label": s.amenityCategoryRename }}
+              />
+            ) : (
+              <Chip
+                label={row.label}
+                size="small"
+                onClick={() => {
+                  setEditingKey(row.key)
+                  setDraftLabel(row.label)
+                }}
+                onDelete={() =>
+                  saveCategories(categories.filter((item) => item.key !== row.key))
+                }
+                sx={{ color: "#e2e8f0", borderColor: "#334155" }}
+                variant="outlined"
+              />
+            )}
           </Stack>
         ))}
       </Stack>
