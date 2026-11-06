@@ -28,6 +28,10 @@ export default function ScenePlayerBarCP({
   const scenePlaying = useAppSelector(
     (state: RootState) => state.project3dStudio.scenePlaying
   )
+  const showSceneTitles = useAppSelector(
+    (state: RootState) =>
+      state.project3dStudio.experience?.settings.showSceneTitles !== false
+  )
   const activeSceneId = useAppSelector(
     (state: RootState) => state.project3dStudio.activeSceneId
   )
@@ -127,38 +131,50 @@ export default function ScenePlayerBarCP({
         transform: "translateX(-50%)",
         bgcolor: "rgba(15,23,42,0.92)",
         border: "1px solid #334155",
-        borderRadius: 2,
-        px: 2,
-        py: 1,
-        zIndex: 6,
-        minWidth: 280
+        borderRadius: 1.5,
+        px: 0.5,
+        py: 0.5,
+        zIndex: 6
       }}
     >
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack direction="row" alignItems="center" spacing={0.25}>
         <IconButton
+          size="small"
           aria-label={s.scenesPrev}
           onClick={goPrev}
           sx={{ color: "#e2e8f0" }}
         >
-          <PrevIcon />
+          <PrevIcon fontSize="small" />
         </IconButton>
         <IconButton
+          size="small"
           aria-label={scenePlaying ? s.scenesPause : s.scenesPlay}
           onClick={() => dispatch(setScenePlayingAct(!scenePlaying))}
           sx={{ color: "#38bdf8" }}
         >
-          {scenePlaying ? <PauseIcon /> : <PlayIcon />}
+          {scenePlaying ? (
+            <PauseIcon fontSize="small" />
+          ) : (
+            <PlayIcon fontSize="small" />
+          )}
         </IconButton>
         <IconButton
+          size="small"
           aria-label={s.scenesNext}
           onClick={goNext}
           sx={{ color: "#e2e8f0" }}
         >
-          <NextIcon />
+          <NextIcon fontSize="small" />
         </IconButton>
-        <Typography variant="body2" sx={{ color: "#f8fafc", flex: 1 }} noWrap>
-          {current.title}
-        </Typography>
+        {showSceneTitles && (
+          <Typography
+            variant="caption"
+            sx={{ color: "#f8fafc", maxWidth: 140, px: 0.5 }}
+            noWrap
+          >
+            {current.title}
+          </Typography>
+        )}
       </Stack>
     </Box>
   )

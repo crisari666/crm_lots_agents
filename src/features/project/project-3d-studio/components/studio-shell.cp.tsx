@@ -183,6 +183,10 @@ export default function StudioShellCP({ projectId }: Props) {
             sx={{
               width: 380,
               flexShrink: 0,
+              minHeight: 0,
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
               bgcolor: "#0b1220",
               borderRight: "1px solid #1e293b",
               overflow: "hidden"
@@ -206,6 +210,8 @@ export default function StudioShellCP({ projectId }: Props) {
                   sx={{
                     display: activePanel === id ? "flex" : "none",
                     flexDirection: "column",
+                    flex: 1,
+                    minHeight: 0,
                     height: "100%",
                     overflow: "hidden"
                   }}
