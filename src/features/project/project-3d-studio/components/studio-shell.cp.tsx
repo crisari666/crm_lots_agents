@@ -217,7 +217,7 @@ export default function StudioShellCP({ projectId }: Props) {
           </Box>
         )}
         <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>
-          <StudioMapCP ref={mapRef} projectId={projectId} />
+          {!previewMode && <StudioMapCP ref={mapRef} projectId={projectId} />}
           {!previewMode && <ProjectPinControlCP />}
           {!previewMode && (
             <MapChromeControlsCP
