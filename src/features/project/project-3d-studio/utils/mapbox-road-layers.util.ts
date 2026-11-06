@@ -1,4 +1,5 @@
 import type { ExpressionSpecification, Map, AnyLayer } from "mapbox-gl"
+import { applyRoadLineStyle, resolveRoadLine } from "@omega/project-experience"
 import {
   DEFAULT_ROADS_STYLE,
   type ExperienceRoadsStyleType
@@ -35,7 +36,8 @@ function resolveRoadsStyle(
     opacity:
       typeof style?.opacity === "number" && style.opacity >= 0.2
         ? style.opacity
-        : DEFAULT_ROADS_STYLE.opacity
+        : DEFAULT_ROADS_STYLE.opacity,
+    line: resolveRoadLine(style?.line)
   }
 }
 
@@ -99,4 +101,5 @@ export function applyStudioRoadLayers(
 ): void {
   enhanceRoadColors(map, roadsStyle)
   setRoadsVisibility(map, roadsVisible)
+  applyRoadLineStyle(map, resolveRoadLine(roadsStyle?.line), roadsVisible)
 }

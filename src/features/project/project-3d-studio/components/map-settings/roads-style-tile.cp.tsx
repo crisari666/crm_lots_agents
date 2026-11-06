@@ -10,6 +10,7 @@ import {
 } from "@mui/material"
 import {
   DEFAULT_ROADS_STYLE,
+  type ExperienceRoadLineType,
   type ExperienceRoadsStyleType
 } from "../../types/project-experience.types"
 import { project3dStudioStrings as s } from "../../../../../i18n/locales/project-3d-studio.strings"
@@ -149,6 +150,44 @@ export default function RoadsStyleTileCP({
               })
             }
           />
+        </Box>
+        <Box>
+          <Typography variant="caption" sx={{ color: "#94a3b8" }}>
+            {s.roadsStyleLine}
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ mt: 0.75 }}>
+            {(
+              [
+                ["solid", s.roadsStyleLineSolid],
+                ["double", s.roadsStyleLineDouble],
+                ["dashed", s.roadsStyleLineDashed]
+              ] as const
+            ).map(([line, label]) => {
+              const selected = (roadsStyle.line ?? "solid") === line
+              return (
+                <Button
+                  key={line}
+                  size="small"
+                  variant={selected ? "contained" : "outlined"}
+                  aria-pressed={selected}
+                  onClick={() =>
+                    onChange({
+                      ...roadsStyle,
+                      line: line as ExperienceRoadLineType
+                    })
+                  }
+                  sx={{
+                    flex: 1,
+                    color: selected ? "#0f172a" : "#e2e8f0",
+                    borderColor: "#334155",
+                    bgcolor: selected ? "#38bdf8" : "transparent"
+                  }}
+                >
+                  {label}
+                </Button>
+              )
+            })}
+          </Stack>
         </Box>
         <Button
           size="small"
