@@ -1,20 +1,36 @@
 declare module "@omega/project-experience" {
   import type { ReactElement } from "react"
 
+  export type PlaceRoute = {
+    profile: "driving"
+    distanceMeters: number
+    durationSeconds: number
+    geometry: {
+      type: "LineString"
+      coordinates: readonly (readonly number[])[]
+    }
+  }
+
   export type PublicAmenity = {
     id: string
     name: string
     description: string
     subtitle: string
+    category: string
     categoryKey: string
     categoryLabel: string
     panoramaAssetId?: string
+    linkedAssetId?: string
+    linkedResourceId?: string
+    routeColor?: string
+    routeLine?: "solid" | "double" | "dashed"
     geometry: {
       type: "Point" | "LineString" | "Polygon"
       coordinates: unknown
     }
     distanceMeters: number | null
     estimatedTravelMinutes: number | null
+    route?: PlaceRoute | null
     media: {
       cover: string | null
       gallery: readonly string[]
@@ -35,6 +51,7 @@ declare module "@omega/project-experience" {
         color: string
         width: number
         opacity: number
+        line?: "solid" | "double" | "dashed"
       }
       initialCamera: {
         longitude: number
@@ -101,6 +118,7 @@ declare module "@omega/project-experience" {
   export type AmenitySelectPayload = {
     id: string
     name: string
+    category: string
     categoryKey: string
     categoryLabel: string
     description: string
@@ -116,6 +134,7 @@ declare module "@omega/project-experience" {
     projectId: string
     apiBaseUrl?: string
     mapboxAccessToken: string
+    googleMapsApiKey?: string
     data?: ExperiencePlayerData
     amenitiesVisible?: boolean
     navigationVisible?: boolean
@@ -140,6 +159,16 @@ declare module "@omega/project-experience" {
       travelError: string
     }>
   }
+
+  export type RoadLineStyle = "solid" | "double" | "dashed"
+
+  export function applyRoadLineStyle(
+    map: import("mapbox-gl").Map,
+    lineStyle: RoadLineStyle,
+    roadsVisible: boolean
+  ): void
+
+  export function resolveRoadLine(line: string | undefined): RoadLineStyle
 
   export function ProjectExperience(props: ProjectExperienceProps): ReactElement
   export function loadPublishedExperience(params: {

@@ -41,7 +41,11 @@ import type { LotMapGeoJson } from "../../lot-inventory/types/lot-inventory.type
 import { lotInventoryStrings as lotS } from "../../../../i18n/locales/lot-inventory.strings"
 import { getLocationLngLat } from "../utils/location-lng-lat.util"
 import { hasValidProjectCoords } from "../utils/project-coords.util"
-import { buildExperienceAssetUrl } from "../utils/experience-asset-url.util"
+import { resolveExperienceAssetUrl } from "../utils/experience-asset-url.util"
+import {
+  applyLinkedResourceDraft,
+  buildLinkedResourceModels
+} from "../utils/linked-resource-model.util"
 import {
   playCameraMotion,
   tourTurnFromBearings,
@@ -53,7 +57,11 @@ import {
   type StudioGlbCustomLayer,
   type StudioGlbPlacement
 } from "../utils/studio-glb-custom-layer.util"
-import type { ExperienceAssetType } from "../types/project-experience.types"
+import type {
+  ExperienceAssetType,
+  ExperienceResourceType,
+  ProjectLocationType
+} from "../types/project-experience.types"
 import { applyStudioRoadLayers } from "../utils/mapbox-road-layers.util"
 import {
   resolveMapStyleUrl,
@@ -109,13 +117,15 @@ function buildStudioGlbPlacements(
   assets: readonly ExperienceAssetType[]
 ): StudioGlbPlacement[] {
   return assets
-    .filter((asset) => asset.type === "model_3d" && asset.fileName)
+    .filter(
+      (asset) => asset.type === "model_3d" && (asset.url || asset.fileName)
+    )
     .filter((asset) => asset.visible !== false)
     .map((asset) => {
       const rotation = asset.transform?.rotation ?? [0, 0, 0]
       return {
         id: asset._id,
-        url: buildExperienceAssetUrl(asset.fileName),
+        url: resolveExperienceAssetUrl(asset),
         longitude: Number(asset.position.longitude),
         latitude: Number(asset.position.latitude),
         altitude: Number(asset.position.altitude) || 0,
@@ -134,9 +144,11 @@ function resyncStudioGlbLayer(params: {
   map: Map
   layerRef: React.MutableRefObject<StudioGlbCustomLayer | null>
   assets: readonly ExperienceAssetType[]
+  locations: readonly ProjectLocationType[]
+  resources: readonly ExperienceResourceType[]
   modelsVisible: boolean
 }): void {
-  const { map, layerRef, assets, modelsVisible } = params
+  const { map, layerRef, assets, locations, resources, modelsVisible } = params
   if (map.getLayer("studio-assets-model")) {
     try {
       map.removeLayer("studio-assets-model")
@@ -147,7 +159,16 @@ function resyncStudioGlbLayer(params: {
   const glbLayer = ensureStudioGlbLayer(map, layerRef.current)
   layerRef.current = glbLayer
   glbLayer.setVisible(modelsVisible)
-  void glbLayer.syncPlacements(buildStudioGlbPlacements(assets)).then(() => {
+  const linked = buildLinkedResourceModels(locations, resources).map((model) => ({
+    id: model.id,
+    url: model.url,
+    longitude: model.longitude,
+    latitude: model.latitude,
+    altitude: model.altitude,
+    scale: 1,
+    rotation: model.rotation
+  }))
+  void glbLayer.syncPlacements([...buildStudioGlbPlacements(assets), ...linked]).then(() => {
     try {
       if (map.getLayer(STUDIO_GLB_LAYER_ID)) {
         map.moveLayer(STUDIO_GLB_LAYER_ID)
@@ -191,6 +212,8 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
     experience,
     projectLatLng,
     locations,
+    resources,
+    locationLinkDraft,
     assets,
     activeTool,
     discoverRadiusMeters,
@@ -209,6 +232,12 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
   relocatingLocationIdRef.current = relocatingLocationId
   const assetsRef = useRef(assets)
   assetsRef.current = assets
+  const locationsRef = useRef(locations)
+  locationsRef.current = locations
+  const resourcesRef = useRef(resources)
+  resourcesRef.current = resources
+  const locationLinkDraftRef = useRef(locationLinkDraft)
+  locationLinkDraftRef.current = locationLinkDraft
   const mapPaint = useAppSelector(
     (state: RootState) => state.lotInventory.mapPaint
   )
@@ -531,14 +560,6 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
       reapplyBasemapExtras()
       // Composite building source can lag one frame after setStyle.
       requestAnimationFrame(reapplyBasemapExtras)
-      try {
-        if (drawRef.current) {
-          map.removeControl(drawRef.current as unknown as mapboxgl.IControl)
-          map.addControl(drawRef.current as unknown as mapboxgl.IControl)
-        }
-      } catch {
-        // Draw may already be attached on first load.
-      }
       if (!map.getSource(LOC_SOURCE)) {
         map.addSource(LOC_SOURCE, {
           type: "geojson",
@@ -731,6 +752,11 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
           map,
           layerRef: glbLayerRef,
           assets: assetsRef.current,
+          locations: applyLinkedResourceDraft(
+            locationsRef.current,
+            locationLinkDraftRef.current
+          ),
+          resources: resourcesRef.current,
           modelsVisible: models3dVisibleRef.current
         })
       }
@@ -1046,7 +1072,8 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
     experience?.layers.roads,
     experience?.settings.roadsStyle?.color,
     experience?.settings.roadsStyle?.width,
-    experience?.settings.roadsStyle?.opacity
+    experience?.settings.roadsStyle?.opacity,
+    experience?.settings.roadsStyle?.line
   ])
 
   useEffect(() => {
@@ -1118,6 +1145,8 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
       map,
       layerRef: glbLayerRef,
       assets,
+      locations: applyLinkedResourceDraft(locations, locationLinkDraft),
+      resources,
       modelsVisible
     })
   }, [
@@ -1125,7 +1154,10 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
     assetsGeoJson,
     experience?.layers.assets,
     experience?.layers.models3D,
-    mapEpoch
+    locationLinkDraft,
+    locations,
+    mapEpoch,
+    resources
   ])
 
   useEffect(() => {

@@ -78,6 +78,13 @@ export type ProjectLocationType = {
   category: ProjectLocationCategory
   categoryKey: string
   panoramaAssetId: string
+  linkedAssetId: string
+  linkedResourceId: string
+  modelAltitude?: number
+  modelRotation?: number[]
+  routeColor: string
+  routeLine: ExperienceRoadLineType
+  showRoute?: boolean
   geometry: LocationGeometry
   source: ProjectLocationSource
   sourceId: string
@@ -90,6 +97,15 @@ export type ProjectLocationType = {
   distanceMeters: number | null
   roadDistanceMeters: number | null
   estimatedTravelMinutes: number | null
+  route?: {
+    profile: "driving"
+    distanceMeters: number
+    durationSeconds: number
+    geometry: {
+      type: "LineString"
+      coordinates: number[][]
+    }
+  } | null
   isVisible: boolean
   isVerified: boolean
   verifiedAt: string | null
@@ -126,16 +142,20 @@ export type ExperiencePoiSettingsType = {
   minImportance: ProjectLocationImportance
 }
 
+export type ExperienceRoadLineType = "solid" | "double" | "dashed"
+
 export type ExperienceRoadsStyleType = {
   color: string
   width: number
   opacity: number
+  line: ExperienceRoadLineType
 }
 
 export const DEFAULT_ROADS_STYLE: ExperienceRoadsStyleType = {
   color: "#38bdf8",
   width: 3,
-  opacity: 0.95
+  opacity: 0.95,
+  line: "solid"
 }
 
 export type ProjectExperienceType = {
@@ -177,7 +197,9 @@ export type ExperienceResourceType = {
   name: string
   type: ProjectExperienceAssetType
   fileName: string
+  url: string
   thumbnailFileName: string
+  thumbnailUrl: string
   sizeBytes: number
   mimeType: string
 }
@@ -189,7 +211,9 @@ export type ExperienceAssetType = {
   name: string
   type: ProjectExperienceAssetType
   fileName: string
+  url: string
   thumbnailFileName: string
+  thumbnailUrl: string
   position: {
     longitude: number
     latitude: number
@@ -258,6 +282,13 @@ export type UpdateLocationPayload = Partial<{
   category: ProjectLocationCategory
   categoryKey: string
   panoramaAssetId: string
+  linkedAssetId: string
+  linkedResourceId: string
+  modelAltitude: number
+  modelRotation: number[]
+  routeColor: string
+  routeLine: ExperienceRoadLineType
+  showRoute: boolean
   gallery: string[]
   geometry: LocationGeometry
   importance: ProjectLocationImportance

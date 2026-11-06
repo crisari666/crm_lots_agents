@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
+import Close from "@mui/icons-material/Close"
 import ExpandMore from "@mui/icons-material/ExpandMore"
 import {
   Accordion,
@@ -7,9 +8,15 @@ import {
   Box,
   Button,
   Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Drawer,
   FormControl,
   FormControlLabel,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -22,6 +29,7 @@ import { useAppDispatch, useAppSelector } from "../../../../../app/hooks"
 import { RootState } from "../../../../../app/store"
 import {
   deleteLocationThunk,
+  setLocationLinkDraftAct,
   setRelocatingLocationIdAct,
   updateAssetThunk,
   updateLocationThunk,
@@ -29,7 +37,11 @@ import {
   uploadLocationGalleryThunk,
   verifyLocationThunk
 } from "../../slice/project-3d-studio.slice"
-import type { ProjectLocationImportance, ProjectLocationType } from "../../types/project-experience.types"
+import type {
+  ExperienceRoadLineType,
+  ProjectLocationImportance,
+  ProjectLocationType
+} from "../../types/project-experience.types"
 import { project3dStudioStrings as s } from "../../../../../i18n/locales/project-3d-studio.strings"
 import { buildExperienceAssetUrl } from "../../utils/experience-asset-url.util"
 import { compressPanoramaFile } from "../../utils/compress-panorama-file.util"
@@ -108,6 +120,9 @@ export default function LocationEditorDrawerCP({
   const panoramaAssets = useAppSelector((state: RootState) =>
     state.project3dStudio.assets.filter((asset) => asset.type === "panorama")
   )
+  const libraryResources = useAppSelector(
+    (state: RootState) => state.project3dStudio.resources
+  )
   const panoramaAssetsRef = useRef(panoramaAssets)
   panoramaAssetsRef.current = panoramaAssets
   const [name, setName] = useState("")
@@ -121,6 +136,21 @@ export default function LocationEditorDrawerCP({
   )
   const [categoryKey, setCategoryKey] = useState("")
   const [panoramaAssetId, setPanoramaAssetId] = useState("")
+  const [linkedResourceId, setLinkedResourceId] = useState("")
+  const [routeColor, setRouteColor] = useState("#e07a3d")
+  const [routeLine, setRouteLine] = useState<ExperienceRoadLineType>("solid")
+  const [showRoute, setShowRoute] = useState(true)
+  const [modelAltitude, setModelAltitude] = useState("0")
+  const [modelPitch, setModelPitch] = useState(0)
+  const [modelHeading, setModelHeading] = useState(0)
+  const [modelRoll, setModelRoll] = useState(0)
+  const [galleryRemoveFile, setGalleryRemoveFile] = useState<string | null>(null)
+  const linkedResourceIdRef = useRef(linkedResourceId)
+  linkedResourceIdRef.current = linkedResourceId
+  const modelAltitudeRef = useRef(modelAltitude)
+  const modelRotationRef = useRef<[number, number, number]>([0, 0, 0])
+  modelAltitudeRef.current = modelAltitude
+  modelRotationRef.current = [modelPitch, modelHeading, modelRoll]
   const [isPanorama, setIsPanorama] = useState(false)
   const [rotHeading, setRotHeading] = useState(0)
   const [cameraHeight, setCameraHeight] = useState("")
@@ -134,6 +164,7 @@ export default function LocationEditorDrawerCP({
   const [openSection, setOpenSection] = useState<PlaceSectionId | null>("data")
   const isPoint = location?.geometry.type === "Point"
   const locationId = location?._id ?? ""
+  const previousLocationIdRef = useRef<string | null>(null)
   const point = location ? readPointCoordinates(location) : null
   const pointKey = point ? `${point.longitude},${point.latitude}` : ""
   const isRelocating =
@@ -146,6 +177,23 @@ export default function LocationEditorDrawerCP({
     setSubtitle(location.subtitle ?? "")
     setCategoryKey(location.categoryKey ?? "")
     setPanoramaAssetId(location.panoramaAssetId ?? "")
+    setLinkedResourceId(location.linkedResourceId ?? "")
+    setRouteColor(location.routeColor || "#e07a3d")
+    setRouteLine(location.routeLine || "solid")
+    setShowRoute(location.showRoute !== false)
+    const savedRotation = location.modelRotation ?? [0, 0, 0]
+    const savedAltitude =
+      location.modelAltitude != null ? String(location.modelAltitude) : "0"
+    setModelAltitude(savedAltitude)
+    setModelPitch(Number(savedRotation[0]) || 0)
+    setModelHeading(Number(savedRotation[1]) || 0)
+    setModelRoll(Number(savedRotation[2]) || 0)
+    modelAltitudeRef.current = savedAltitude
+    modelRotationRef.current = [
+      Number(savedRotation[0]) || 0,
+      Number(savedRotation[1]) || 0,
+      Number(savedRotation[2]) || 0
+    ]
     setIsPanorama(Boolean(location.panoramaAssetId))
     const linked = panoramaAssetsRef.current.find(
       (asset) => asset._id === (location.panoramaAssetId ?? "")
@@ -175,14 +223,87 @@ export default function LocationEditorDrawerCP({
 
   useEffect(() => {
     if (!location || !pointKey) return
-    const point = readPointCoordinates(location)
-    if (!point) return
-    setLatitude(point.latitude)
-    setLongitude(point.longitude)
+    const nextPoint = readPointCoordinates(location)
+    if (!nextPoint) return
+    setLatitude(nextPoint.latitude)
+    setLongitude(nextPoint.longitude)
     setCoordError("")
-  }, [location, locationId, pointKey])
+    const resourceId = linkedResourceIdRef.current
+    if (!resourceId) return
+    dispatch(
+      setLocationLinkDraftAct({
+        locationId,
+        linkedResourceId: resourceId,
+        longitude: Number(nextPoint.longitude),
+        latitude: Number(nextPoint.latitude),
+        modelAltitude: Number(modelAltitudeRef.current) || 0,
+        modelRotation: modelRotationRef.current
+      })
+    )
+  }, [dispatch, location, locationId, pointKey])
+  useEffect(() => {
+    const previousLocationId = previousLocationIdRef.current
+    previousLocationIdRef.current = locationId
+    if (previousLocationId == null || previousLocationId === locationId) return
+    dispatch(setLocationLinkDraftAct(null))
+  }, [dispatch, locationId])
 
   if (!location) return null
+
+  const publishLinkDraft = (
+    resourceId: string,
+    latText: string,
+    lngText: string
+  ): void => {
+    if (location.geometry.type !== "Point") return
+    const parsedLatitude = Number(latText)
+    const parsedLongitude = Number(lngText)
+    const saved = readPointCoordinates(location)
+    const nextLatitude = isValidLatitude(parsedLatitude)
+      ? parsedLatitude
+      : Number(saved?.latitude)
+    const nextLongitude = isValidLongitude(parsedLongitude)
+      ? parsedLongitude
+      : Number(saved?.longitude)
+    if (!Number.isFinite(nextLatitude) || !Number.isFinite(nextLongitude)) return
+    dispatch(
+      setLocationLinkDraftAct({
+        locationId,
+        linkedResourceId: resourceId,
+        longitude: nextLongitude,
+        latitude: nextLatitude,
+        modelAltitude: Number(modelAltitudeRef.current) || 0,
+        modelRotation: modelRotationRef.current
+      })
+    )
+  }
+
+  const publishModelPose = (
+    altitude: string,
+    rotation: [number, number, number]
+  ): void => {
+    modelAltitudeRef.current = altitude
+    modelRotationRef.current = rotation
+    setModelAltitude(altitude)
+    setModelPitch(rotation[0])
+    setModelHeading(rotation[1])
+    setModelRoll(rotation[2])
+    publishLinkDraft(linkedResourceIdRef.current, latitude, longitude)
+  }
+
+  const confirmRemoveGalleryImage = (): void => {
+    const fileName = galleryRemoveFile
+    if (!fileName) return
+    const gallery = (location.media?.gallery ?? []).filter((name) => name !== fileName)
+    setGalleryRemoveFile(null)
+    void dispatch(
+      updateLocationThunk({
+        projectId,
+        locationId: location._id,
+        data: { gallery }
+      })
+    )
+  }
 
   const save = async () => {
     const parsedLatitude = Number(latitude)
@@ -195,6 +316,12 @@ export default function LocationEditorDrawerCP({
       setOpenSection("place")
       return
     }
+    const savedPoint = isPoint ? readPointCoordinates(location) : null
+    const pointMoved =
+      isPoint &&
+      (savedPoint == null ||
+        savedPoint.latitude !== String(parsedLatitude) ||
+        savedPoint.longitude !== String(parsedLongitude))
     const point = isPoint
       ? { lng: parsedLongitude, lat: parsedLatitude }
       : getLocationLngLat(location.geometry)
@@ -231,13 +358,20 @@ export default function LocationEditorDrawerCP({
           subtitle,
           categoryKey,
           panoramaAssetId: nextPanoramaId,
+          linkedResourceId,
+          linkedAssetId: "",
+          modelAltitude: Number(modelAltitude) || 0,
+          modelRotation: [modelPitch, modelHeading, modelRoll],
+          routeColor,
+          routeLine,
+          showRoute,
           importance,
           isVisible,
           estimatedTravelMinutes:
             estimatedTravelMinutes.trim() === ""
               ? undefined
               : Number(estimatedTravelMinutes),
-          ...(isPoint
+          ...(pointMoved
             ? {
                 geometry: {
                   type: "Point" as const,
@@ -380,6 +514,198 @@ export default function LocationEditorDrawerCP({
               ))}
             </Select>
           </FormControl>
+          <FormControl size="small" fullWidth>
+            <InputLabel>{s.locationSource}</InputLabel>
+            <Select
+              label={s.locationSource}
+              value={linkedResourceId}
+              onChange={(event) => {
+                const nextId = String(event.target.value)
+                const nextResource = libraryResources.find(
+                  (resource) => resource._id === nextId
+                )
+                setLinkedResourceId(nextId)
+                if (!nextId || nextResource?.type !== "model_3d") {
+                  modelAltitudeRef.current = "0"
+                  modelRotationRef.current = [0, 0, 0]
+                  setModelAltitude("0")
+                  setModelPitch(0)
+                  setModelHeading(0)
+                  setModelRoll(0)
+                }
+                publishLinkDraft(nextId, latitude, longitude)
+              }}
+            >
+              <MenuItem value="">{s.locationSourceNone}</MenuItem>
+              {libraryResources.map((resource) => (
+                <MenuItem key={resource._id} value={resource._id}>
+                  {resource.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {libraryResources.some(
+            (resource) =>
+              resource._id === linkedResourceId && resource.type === "model_3d"
+          ) && (
+            <Stack spacing={1}>
+              <TextField
+                label={s.assetsAltitude}
+                size="small"
+                type="number"
+                value={modelAltitude}
+                onChange={(event) =>
+                  publishModelPose(event.target.value, [
+                    modelPitch,
+                    modelHeading,
+                    modelRoll
+                  ])
+                }
+                fullWidth
+              />
+              <TextField
+                label={s.assetsRotationHeading}
+                size="small"
+                type="number"
+                value={modelHeading}
+                onChange={(event) =>
+                  publishModelPose(modelAltitude, [
+                    modelPitch,
+                    Number(event.target.value) || 0,
+                    modelRoll
+                  ])
+                }
+                fullWidth
+              />
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  label={s.assetsRotationPitch}
+                  size="small"
+                  type="number"
+                  value={modelPitch}
+                  onChange={(event) =>
+                    publishModelPose(modelAltitude, [
+                      Number(event.target.value) || 0,
+                      modelHeading,
+                      modelRoll
+                    ])
+                  }
+                  fullWidth
+                />
+                <TextField
+                  label={s.assetsRotationRoll}
+                  size="small"
+                  type="number"
+                  value={modelRoll}
+                  onChange={(event) =>
+                    publishModelPose(modelAltitude, [
+                      modelPitch,
+                      modelHeading,
+                      Number(event.target.value) || 0
+                    ])
+                  }
+                  fullWidth
+                />
+              </Stack>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() =>
+                    publishModelPose(modelAltitude, [
+                      modelPitch,
+                      modelHeading - 15,
+                      modelRoll
+                    ])
+                  }
+                  sx={{ flex: 1 }}
+                >
+                  −15°
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() =>
+                    publishModelPose(modelAltitude, [
+                      modelPitch,
+                      modelHeading + 15,
+                      modelRoll
+                    ])
+                  }
+                  sx={{ flex: 1 }}
+                >
+                  +15°
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => publishModelPose("0", [0, 0, 0])}
+                  sx={{ flex: 1 }}
+                >
+                  0°
+                </Button>
+              </Stack>
+            </Stack>
+          )}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showRoute}
+                onChange={(event) => setShowRoute(event.target.checked)}
+              />
+            }
+            label={s.locationShowRoute}
+          />
+          {showRoute && (
+          <>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Box
+              component="input"
+              type="color"
+              aria-label={s.locationRouteColor}
+              value={routeColor}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                setRouteColor(event.target.value)
+              }
+              sx={{
+                width: 40,
+                height: 36,
+                p: 0.25,
+                border: "1px solid rgba(226,232,240,0.24)",
+                borderRadius: 1,
+                bgcolor: "transparent",
+                cursor: "pointer"
+              }}
+            />
+            <Typography variant="body2" sx={{ color: "#e2e8f0" }}>
+              {s.locationRouteColor}
+            </Typography>
+          </Stack>
+          <Typography variant="caption" sx={{ color: "#94a3b8" }}>
+            {s.locationRouteLine}
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            {(
+              [
+                ["solid", s.roadsStyleLineSolid],
+                ["double", s.roadsStyleLineDouble],
+                ["dashed", s.roadsStyleLineDashed]
+              ] as const
+            ).map(([line, label]) => (
+              <Button
+                key={line}
+                size="small"
+                variant={routeLine === line ? "contained" : "outlined"}
+                aria-pressed={routeLine === line}
+                onClick={() => setRouteLine(line)}
+                sx={{ flex: 1 }}
+              >
+                {label}
+              </Button>
+            ))}
+          </Stack>
+          </>
+          )}
           <TextField
             label={s.description}
             size="small"
@@ -403,8 +729,10 @@ export default function LocationEditorDrawerCP({
                 type="number"
                 value={latitude}
                 onChange={(e) => {
-                  setLatitude(e.target.value)
+                  const nextLatitude = e.target.value
+                  setLatitude(nextLatitude)
                   setCoordError("")
+                  publishLinkDraft(linkedResourceId, nextLatitude, longitude)
                 }}
                 error={Boolean(coordError)}
                 inputProps={{ min: -90, max: 90, step: "any" }}
@@ -416,8 +744,10 @@ export default function LocationEditorDrawerCP({
                 type="number"
                 value={longitude}
                 onChange={(e) => {
-                  setLongitude(e.target.value)
+                  const nextLongitude = e.target.value
+                  setLongitude(nextLongitude)
                   setCoordError("")
+                  publishLinkDraft(linkedResourceId, latitude, nextLongitude)
                 }}
                 error={Boolean(coordError)}
                 helperText={coordError || undefined}
@@ -528,14 +858,35 @@ export default function LocationEditorDrawerCP({
                   sx={{ width: 72, height: 72, objectFit: "cover", borderRadius: 1 }}
                 />
               )}
-              {(location.media?.gallery ?? []).map((fileName) => (
+              {(location.media?.gallery ?? []).map((fileName, index) => (
                 <Box
                   key={fileName}
-                  component="img"
-                  src={buildExperienceAssetUrl(fileName)}
-                  alt=""
-                  sx={{ width: 72, height: 72, objectFit: "cover", borderRadius: 1 }}
-                />
+                  sx={{ position: "relative", width: 72, height: 72, flexShrink: 0 }}
+                >
+                  <Box
+                    component="img"
+                    src={buildExperienceAssetUrl(fileName)}
+                    alt={`${s.amenityGalleryImage} ${index + 1}`}
+                    sx={{ width: 72, height: 72, objectFit: "cover", borderRadius: 1 }}
+                  />
+                  <IconButton
+                    aria-label={`${s.amenityGalleryRemove} ${index + 1}`}
+                    onClick={() => setGalleryRemoveFile(fileName)}
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      width: 44,
+                      height: 44,
+                      color: "#f8fafc",
+                      bgcolor: "rgba(15,23,42,0.72)",
+                      "&:hover": { bgcolor: "rgba(15,23,42,0.88)" }
+                    }}
+                  >
+                    <Close fontSize="small" />
+                  </IconButton>
+                </Box>
               ))}
             </Stack>
             <Button variant="outlined" component="label" size="small">
@@ -587,6 +938,24 @@ export default function LocationEditorDrawerCP({
             )}
         </PlaceSection>
       </Box>
+      <Dialog
+        open={galleryRemoveFile != null}
+        onClose={() => setGalleryRemoveFile(null)}
+        aria-labelledby="remove-gallery-image-title"
+      >
+        <DialogTitle id="remove-gallery-image-title">
+          {s.amenityGalleryRemove}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>{s.amenityGalleryRemoveConfirm}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setGalleryRemoveFile(null)}>{s.cancel}</Button>
+          <Button color="error" onClick={confirmRemoveGalleryImage}>
+            {s.amenityGalleryRemove}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Stack
         direction="row"
         spacing={1}

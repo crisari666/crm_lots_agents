@@ -1,3 +1,4 @@
+import type { LocationLinkDraft } from "../utils/linked-resource-model.util"
 import type {
   ExperienceAssetType,
   ExperienceResourceType,
@@ -48,5 +49,7 @@ export type Project3dStudioState = {
   placingAssetId: string | null
   /** Location id targeted by the relocateLocation map tool. */
   relocatingLocationId: string | null
+  /** Unsaved library pick drawn on the place until Save or close. */
+  locationLinkDraft: LocationLinkDraft | null
   discoverRadiusMeters: number
 }

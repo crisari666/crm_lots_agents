@@ -43,6 +43,7 @@ import type {
   UpdateExperiencePayload,
   UpdateLocationPayload
 } from "../types/project-experience.types"
+import type { LocationLinkDraft } from "../utils/linked-resource-model.util"
 import { toProjectLatLng } from "../utils/project-coords.util"
 import type { Project3dStudioState } from "./project-3d-studio.state"
 
@@ -76,6 +77,7 @@ const initialState: Project3dStudioState = {
   pendingAssetPosition: null,
   placingAssetId: null,
   relocatingLocationId: null,
+  locationLinkDraft: null,
   discoverRadiusMeters: 10000
 }
 
@@ -335,6 +337,12 @@ const project3dStudioSlice = createSlice({
       state.activeTool = action.payload ? "relocateLocation" : "select"
       if (action.payload) state.placingAssetId = null
     },
+    setLocationLinkDraftAct: (
+      state,
+      action: PayloadAction<LocationLinkDraft | null>
+    ) => {
+      state.locationLinkDraft = action.payload
+    },
     setSelectionAct: (state, action: PayloadAction<StudioSelection>) => {
       state.selection = action.payload
     },
@@ -463,6 +471,7 @@ const project3dStudioSlice = createSlice({
       })
       .addCase(updateLocationThunk.fulfilled, (state, action) => {
         pendingLocationGeometry.delete(action.meta.requestId)
+        state.locationLinkDraft = null
         const idx = state.locations.findIndex(
           (l) => l._id === action.payload._id
         )
@@ -622,6 +631,7 @@ export const {
   setSelectionAct,
   setPlacingAssetIdAct,
   setRelocatingLocationIdAct,
+  setLocationLinkDraftAct,
   setPreviewModeAct,
   setDirtyAct,
   setScenePlayingAct,
