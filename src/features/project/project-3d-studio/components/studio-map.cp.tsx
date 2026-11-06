@@ -40,6 +40,7 @@ import {
 import type { LotMapGeoJson } from "../../lot-inventory/types/lot-inventory.types"
 import { lotInventoryStrings as lotS } from "../../../../i18n/locales/lot-inventory.strings"
 import { getLocationLngLat } from "../utils/location-lng-lat.util"
+import { hasValidProjectCoords } from "../utils/project-coords.util"
 import { buildExperienceAssetUrl } from "../utils/experience-asset-url.util"
 import {
   playCameraMotion,
@@ -240,6 +241,7 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
   models3dVisibleRef.current = experience?.layers.models3D !== false
   const appliedStyleUrlRef = useRef<string | null>(null)
   const sceneMotionAbortRef = useRef<AbortController | null>(null)
+  const hasCenteredOnProjectRef = useRef(false)
   const pendingCameraRestoreRef = useRef<{
     center: { lng: number; lat: number }
     zoom: number
@@ -460,8 +462,17 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
   useEffect(() => {
     if (!accessToken || !containerRef.current || mapRef.current) return
     mapboxgl.accessToken = accessToken
-    const centerLng = experience?.settings.centerLongitude ?? -74.08175
-    const centerLat = experience?.settings.centerLatitude ?? 4.60971
+    const markedCenter = hasValidProjectCoords(
+      experience?.settings.centerLatitude,
+      experience?.settings.centerLongitude
+    )
+    const fallbackCenter = projectLatLngRef.current
+    const centerLng = markedCenter
+      ? (experience?.settings.centerLongitude as number)
+      : fallbackCenter?.lng ?? -74.08175
+    const centerLat = markedCenter
+      ? (experience?.settings.centerLatitude as number)
+      : fallbackCenter?.lat ?? 4.60971
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: resolveMapStyleUrl(experience?.settings.styleUrl),
@@ -884,9 +895,39 @@ const StudioMapCP = forwardRef<StudioMapHandle, Props>(function StudioMapCP(
       mapRef.current = null
       drawRef.current = null
       appliedStyleUrlRef.current = null
+      hasCenteredOnProjectRef.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, projectId, dispatch])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || hasCenteredOnProjectRef.current) return
+    const markedLat = experience?.settings.centerLatitude
+    const markedLng = experience?.settings.centerLongitude
+    const marked = hasValidProjectCoords(markedLat, markedLng)
+      ? { lat: markedLat as number, lng: markedLng as number }
+      : null
+    const target = marked ?? projectLatLng
+    if (!target) return
+    if (mapPaint?.geojson && computeBounds(mapPaint.geojson as LotMapGeoJson)) {
+      hasCenteredOnProjectRef.current = true
+      return
+    }
+    hasCenteredOnProjectRef.current = true
+    map.jumpTo({
+      center: [target.lng, target.lat],
+      zoom: experience?.settings.defaultZoom ?? 14,
+      pitch: map.getPitch(),
+      bearing: map.getBearing()
+    })
+  }, [
+    experience?.settings.centerLatitude,
+    experience?.settings.centerLongitude,
+    experience?.settings.defaultZoom,
+    mapPaint,
+    projectLatLng
+  ])
 
   useEffect(() => {
     const draw = drawRef.current
