@@ -37,6 +37,7 @@ import {
   setLeadConversationDrawerScheduleAct,
   upsertLeadConversationItemAct,
 } from "../../lead-conversations/slice/lead-conversations.slice"
+import { canConvertLead } from "../business-logic/can-convert-lead"
 import { mapLeadToConversationItem } from "../business-logic/map-lead-to-conversation-item"
 import {
   convertLeadThunk,
@@ -232,7 +233,7 @@ export default function LeadsTableCP(): React.ReactElement {
                         {s.openSession}
                       </Button>
                     ) : null}
-                    {!item.isPromoted ? (
+                    {canConvertLead(item) ? (
                       <Button
                         size="small"
                         variant="contained"
@@ -242,11 +243,11 @@ export default function LeadsTableCP(): React.ReactElement {
                       >
                         {s.convert}
                       </Button>
-                    ) : (
+                    ) : item.isPromoted ? (
                       <Typography variant="caption" color="text.secondary">
                         {s.promoted}
                       </Typography>
-                    )}
+                    ) : null}
                   </Stack>
                 </TableCell>
               </TableRow>

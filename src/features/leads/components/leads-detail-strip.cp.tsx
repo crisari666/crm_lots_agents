@@ -1,6 +1,7 @@
 import React from "react"
 import { Box, Button, Chip, Stack, Typography } from "@mui/material"
 import { leadsStrings as s } from "../../../i18n/locales/leads.strings"
+import { canConvertLead } from "../business-logic/can-convert-lead"
 import type { LeadListItem } from "../types/leads.types"
 import LeadsSourceChipCP from "./leads-source-chip.cp"
 
@@ -50,7 +51,7 @@ export default function LeadsDetailStripCP({
             ))}
           </Stack>
         </Box>
-        {!lead.isPromoted ? (
+        {canConvertLead(lead) ? (
           <Button
             variant="contained"
             size="small"
