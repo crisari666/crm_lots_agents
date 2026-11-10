@@ -25,9 +25,15 @@ function FlowChip({ item }: { readonly item: MetaLeadFormItem }) {
   return <Chip size="small" color="primary" label={s.chipImmediate} />
 }
 
+function LeadCountChip({ count }: { readonly count: number }) {
+  const label = count === 1 ? `1 ${s.leadCountOne}` : `${count} ${s.leadCount}`
+  return <Chip size="small" variant="outlined" label={label} />
+}
+
 export default function MetaLeadFormsListCP() {
   const dispatch = useAppDispatch()
   const items = useAppSelector((state) => state.metaLeadForms.items)
+  const leadCountByFormId = useAppSelector((state) => state.metaLeadForms.leadCountByFormId)
   const loading = useAppSelector((state) => state.metaLeadForms.loading)
 
   if (loading) {
@@ -53,54 +59,58 @@ export default function MetaLeadFormsListCP() {
 
   return (
     <Stack spacing={0} divider={<Box sx={{ borderBottom: 1, borderColor: "divider" }} />}>
-      {items.map((item) => (
-        <Box
-          key={item.id}
-          onClick={() => dispatch(openEditPanelAct(item))}
-          sx={{
-            py: 2,
-            px: 1,
-            cursor: "pointer",
-            transition: "background-color 200ms",
-            "&:hover": { bgcolor: "action.hover" },
-          }}
-        >
-          <Stack direction="row" alignItems="flex-start" justifyContent="space-between" gap={2}>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="subtitle1" fontWeight={600} noWrap>
-                {item.formName}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
-              >
-                {item.formId}
-              </Typography>
-              {item.notes.length > 0 ? (
-                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-                  {item.notes}
+      {items.map((item) => {
+        const leadCount = leadCountByFormId[item.formId] ?? 0
+        return (
+          <Box
+            key={item.id}
+            onClick={() => dispatch(openEditPanelAct(item))}
+            sx={{
+              py: 2,
+              px: 1,
+              cursor: "pointer",
+              transition: "background-color 200ms",
+              "&:hover": { bgcolor: "action.hover" },
+            }}
+          >
+            <Stack direction="row" alignItems="flex-start" justifyContent="space-between" gap={2}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="subtitle1" fontWeight={600} noWrap>
+                  {item.formName}
                 </Typography>
-              ) : null}
-            </Box>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <FlowChip item={item} />
-              <IconButton
-                size="small"
-                aria-label={s.delete}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  if (window.confirm(s.deleteConfirm)) {
-                    void dispatch(deleteMetaLeadFormThunk(item.id))
-                  }
-                }}
-              >
-                <DeleteOutline fontSize="small" />
-              </IconButton>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+                >
+                  {item.formId}
+                </Typography>
+                {item.notes.length > 0 ? (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+                    {item.notes}
+                  </Typography>
+                ) : null}
+              </Box>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <LeadCountChip count={leadCount} />
+                <FlowChip item={item} />
+                <IconButton
+                  size="small"
+                  aria-label={s.delete}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    if (window.confirm(s.deleteConfirm)) {
+                      void dispatch(deleteMetaLeadFormThunk(item.id))
+                    }
+                  }}
+                >
+                  <DeleteOutline fontSize="small" />
+                </IconButton>
+              </Stack>
             </Stack>
-          </Stack>
-        </Box>
-      ))}
+          </Box>
+        )
+      })}
     </Stack>
   )
 }

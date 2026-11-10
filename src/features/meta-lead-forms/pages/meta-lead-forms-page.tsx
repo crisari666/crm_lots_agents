@@ -5,6 +5,7 @@ import MetaLeadFormsHeaderCP from "../components/meta-lead-forms-header.cp"
 import MetaLeadFormsListCP from "../components/meta-lead-forms-list.cp"
 import MetaLeadFormsNoticeCP from "../components/meta-lead-forms-notice.cp"
 import MetaLeadFormsSettingsCP from "../components/meta-lead-forms-settings.cp"
+import MetaLeadFormsUnregisteredCP from "../components/meta-lead-forms-unregistered.cp"
 
 export default function MetaLeadFormsPage() {
   return (
@@ -13,6 +14,7 @@ export default function MetaLeadFormsPage() {
       <MetaLeadFormsHeaderCP />
       <MetaLeadFormsSettingsCP />
       <MetaLeadFormsListCP />
+      <MetaLeadFormsUnregisteredCP />
       <MetaLeadFormEditorPanelCP />
       <MetaLeadFormsNoticeCP />
     </Box>

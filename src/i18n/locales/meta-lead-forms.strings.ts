@@ -36,4 +36,10 @@ export const metaLeadFormsStrings = {
   chipImmediate: "Asignación",
   chipQualify: "Calificación",
   chipDisabled: "Inactivo",
+  leadCount: "leads",
+  leadCountOne: "lead",
+  unregisteredTitle: "Formularios con leads sin registrar",
+  unregisteredBody:
+    "Estos form ids ya tienen campañas en Meta pero no están en el registro. Agrégalos para definir el flujo.",
+  unregisteredEmpty: "No hay formularios con leads fuera del registro.",
 } as const

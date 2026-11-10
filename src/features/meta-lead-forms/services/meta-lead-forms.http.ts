@@ -3,6 +3,7 @@ import type {
   CreateMetaLeadFormBody,
   MetaLeadFormItem,
   MetaLeadFormSettings,
+  MetaLeadFormStatsResponse,
   UpdateMetaLeadFormBody,
 } from "../types/meta-lead-forms.types"
 
@@ -40,6 +41,14 @@ export async function deleteMetaLeadForm(id: string): Promise<void> {
 export async function getMetaLeadFormSettings(): Promise<MetaLeadFormSettings> {
   const response = await customersMsAxios.get<MetaLeadFormSettings>(
     `${BASE_PATH}/settings`,
+    auth(),
+  )
+  return response.data
+}
+
+export async function getMetaLeadFormStats(): Promise<MetaLeadFormStatsResponse> {
+  const response = await customersMsAxios.get<MetaLeadFormStatsResponse>(
+    `${BASE_PATH}/stats`,
     auth(),
   )
   return response.data

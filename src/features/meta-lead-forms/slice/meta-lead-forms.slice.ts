@@ -5,12 +5,14 @@ import {
   createMetaLeadForm,
   deleteMetaLeadForm,
   getMetaLeadFormSettings,
+  getMetaLeadFormStats,
   listMetaLeadForms,
   updateMetaLeadForm,
   updateMetaLeadFormSettings,
 } from "../services/meta-lead-forms.http"
 import type {
   CreateMetaLeadFormBody,
+  MetaLeadFormCampaignGroup,
   MetaLeadFormFlowStrategy,
   MetaLeadFormItem,
   MetaLeadFormSettings,
@@ -28,6 +30,8 @@ export type MetaLeadFormDraft = {
 export type MetaLeadFormsState = {
   items: MetaLeadFormItem[]
   settings: MetaLeadFormSettings | null
+  leadCountByFormId: Record<string, number>
+  unregisteredForms: MetaLeadFormCampaignGroup[]
   loading: boolean
   saving: boolean
   error: string | null
@@ -49,6 +53,8 @@ const emptyDraft = (): MetaLeadFormDraft => ({
 const initialState: MetaLeadFormsState = {
   items: [],
   settings: null,
+  leadCountByFormId: {},
+  unregisteredForms: [],
   loading: false,
   saving: false,
   error: null,
@@ -57,6 +63,20 @@ const initialState: MetaLeadFormsState = {
   editingId: null,
   draft: emptyDraft(),
   delayDraftMinutes: 2,
+}
+
+function buildLeadCountMap(
+  registered: ReadonlyArray<{ readonly formId: string; readonly leadCount: number }>,
+  unregistered: ReadonlyArray<MetaLeadFormCampaignGroup>,
+): Record<string, number> {
+  const map: Record<string, number> = {}
+  for (const row of registered) {
+    map[row.formId] = row.leadCount
+  }
+  for (const row of unregistered) {
+    map[row.formId] = row.leadCount
+  }
+  return map
 }
 
 type ThunkState = { metaLeadForms: MetaLeadFormsState }
@@ -75,16 +95,27 @@ function axiosMessage(err: unknown, fallback: string): string {
 }
 
 export const fetchMetaLeadFormsThunk = createAsyncThunk<
-  { items: MetaLeadFormItem[]; settings: MetaLeadFormSettings },
+  {
+    items: MetaLeadFormItem[]
+    settings: MetaLeadFormSettings
+    leadCountByFormId: Record<string, number>
+    unregisteredForms: MetaLeadFormCampaignGroup[]
+  },
   void,
   { rejectValue: string }
 >("metaLeadForms/fetchAll", async (_, { rejectWithValue }) => {
   try {
-    const [items, settings] = await Promise.all([
+    const [items, settings, stats] = await Promise.all([
       listMetaLeadForms(),
       getMetaLeadFormSettings(),
+      getMetaLeadFormStats(),
     ])
-    return { items, settings }
+    return {
+      items,
+      settings,
+      leadCountByFormId: buildLeadCountMap(stats.registered, stats.unregisteredForms),
+      unregisteredForms: [...stats.unregisteredForms],
+    }
   } catch (err) {
     return rejectWithValue(axiosMessage(err, s.loadError))
   }
@@ -188,6 +219,8 @@ const metaLeadFormsSlice = createSlice({
         state.loading = false
         state.items = action.payload.items
         state.settings = action.payload.settings
+        state.leadCountByFormId = action.payload.leadCountByFormId
+        state.unregisteredForms = action.payload.unregisteredForms
         state.delayDraftMinutes = action.payload.settings.outboundDelayMinutes
       })
       .addCase(fetchMetaLeadFormsThunk.rejected, (state, action) => {
@@ -209,6 +242,13 @@ const metaLeadFormsSlice = createSlice({
           state.items[idx] = action.payload
         } else {
           state.items = [action.payload, ...state.items]
+        }
+        const savedFormId = action.payload.formId
+        state.unregisteredForms = state.unregisteredForms.filter(
+          (row) => row.formId !== savedFormId,
+        )
+        if (state.leadCountByFormId[savedFormId] == null) {
+          state.leadCountByFormId[savedFormId] = 0
         }
       })
       .addCase(saveMetaLeadFormThunk.rejected, (state, action) => {
