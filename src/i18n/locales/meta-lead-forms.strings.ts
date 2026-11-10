@@ -42,4 +42,29 @@ export const metaLeadFormsStrings = {
   unregisteredBody:
     "Estos form ids ya tienen campañas en Meta pero no están en el registro. Agrégalos para definir el flujo.",
   unregisteredEmpty: "No hay formularios con leads fuera del registro.",
+  adsSectionTitle: "Anuncios Meta → proyecto",
+  adsSectionSubtitle:
+    "Registra el ad_id de Meta y asócialo a un proyecto. Así el bot de WhatsApp envía el intro del proyecto en lugar de preguntar cuál interesa.",
+  adsEmptyTitle: "Aún no hay anuncios registrados",
+  adsEmptyBody:
+    "Agrega el ad id de Meta y el proyecto del anuncio. Los leads de ese ad saltarán la pregunta de proyecto en WhatsApp.",
+  addAd: "Registrar anuncio",
+  editAd: "Editar anuncio",
+  adName: "Nombre del anuncio",
+  adId: "Ad ID (Meta)",
+  adIdHint: "Id numérico del anuncio (ad) en Meta Ads",
+  adProject: "Proyecto",
+  adProjectHint: "Proyecto que promociona este anuncio",
+  adCampaignId: "Campaign ID (opcional)",
+  adCampaignName: "Campaign name (opcional)",
+  adsSaveError: "No se pudo guardar el anuncio",
+  adsDeleteError: "No se pudo eliminar el anuncio",
+  adsSaved: "Anuncio guardado",
+  adsDeleted: "Anuncio eliminado",
+  adsDeleteConfirm: "¿Eliminar este anuncio del registro?",
+  adsUnregisteredTitle: "Anuncios con leads sin registrar",
+  adsUnregisteredBody:
+    "Estos ad ids ya tienen leads en Meta pero no están mapeados a un proyecto. Regístralos para que el bot envíe el intro correcto.",
+  adsUnregisteredEmpty: "No hay anuncios con leads fuera del registro.",
+  adsRegisterFromList: "Registrar",
 } as const

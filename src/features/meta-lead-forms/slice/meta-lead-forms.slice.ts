@@ -2,20 +2,28 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import axios from "axios"
 import { metaLeadFormsStrings as s } from "../../../i18n/locales/meta-lead-forms.strings"
 import {
+  createMetaLeadAdCampaign,
   createMetaLeadForm,
+  deleteMetaLeadAdCampaign,
   deleteMetaLeadForm,
   getMetaLeadFormSettings,
   getMetaLeadFormStats,
+  listMetaLeadAdCampaigns,
   listMetaLeadForms,
+  updateMetaLeadAdCampaign,
   updateMetaLeadForm,
   updateMetaLeadFormSettings,
 } from "../services/meta-lead-forms.http"
 import type {
+  CreateMetaLeadAdCampaignBody,
   CreateMetaLeadFormBody,
+  MetaLeadAdCampaignGroup,
+  MetaLeadAdCampaignItem,
   MetaLeadFormCampaignGroup,
   MetaLeadFormFlowStrategy,
   MetaLeadFormItem,
   MetaLeadFormSettings,
+  UpdateMetaLeadAdCampaignBody,
   UpdateMetaLeadFormBody,
 } from "../types/meta-lead-forms.types"
 
@@ -27,18 +35,36 @@ export type MetaLeadFormDraft = {
   readonly notes: string
 }
 
+export type MetaLeadAdCampaignDraft = {
+  readonly adId: string
+  readonly adName: string
+  readonly campaignId: string
+  readonly campaignName: string
+  readonly projectId: string
+  readonly projectTitle: string
+  readonly enabled: boolean
+  readonly notes: string
+}
+
 export type MetaLeadFormsState = {
   items: MetaLeadFormItem[]
   settings: MetaLeadFormSettings | null
   leadCountByFormId: Record<string, number>
   unregisteredForms: MetaLeadFormCampaignGroup[]
+  adItems: MetaLeadAdCampaignItem[]
+  leadCountByAdId: Record<string, number>
+  unregisteredAds: MetaLeadAdCampaignGroup[]
   loading: boolean
   saving: boolean
+  adSaving: boolean
   error: string | null
   notice: string | null
   panelOpen: boolean
   editingId: string | null
   draft: MetaLeadFormDraft
+  adPanelOpen: boolean
+  adEditingId: string | null
+  adDraft: MetaLeadAdCampaignDraft
   delayDraftMinutes: number
 }
 
@@ -50,18 +76,36 @@ const emptyDraft = (): MetaLeadFormDraft => ({
   notes: "",
 })
 
+const emptyAdDraft = (): MetaLeadAdCampaignDraft => ({
+  adId: "",
+  adName: "",
+  campaignId: "",
+  campaignName: "",
+  projectId: "",
+  projectTitle: "",
+  enabled: true,
+  notes: "",
+})
+
 const initialState: MetaLeadFormsState = {
   items: [],
   settings: null,
   leadCountByFormId: {},
   unregisteredForms: [],
+  adItems: [],
+  leadCountByAdId: {},
+  unregisteredAds: [],
   loading: false,
   saving: false,
+  adSaving: false,
   error: null,
   notice: null,
   panelOpen: false,
   editingId: null,
   draft: emptyDraft(),
+  adPanelOpen: false,
+  adEditingId: null,
+  adDraft: emptyAdDraft(),
   delayDraftMinutes: 2,
 }
 
@@ -75,6 +119,20 @@ function buildLeadCountMap(
   }
   for (const row of unregistered) {
     map[row.formId] = row.leadCount
+  }
+  return map
+}
+
+function buildAdLeadCountMap(
+  registered: ReadonlyArray<{ readonly adId: string; readonly leadCount: number }>,
+  unregistered: ReadonlyArray<MetaLeadAdCampaignGroup>,
+): Record<string, number> {
+  const map: Record<string, number> = {}
+  for (const row of registered) {
+    map[row.adId] = row.leadCount
+  }
+  for (const row of unregistered) {
+    map[row.adId] = row.leadCount
   }
   return map
 }
@@ -100,21 +158,31 @@ export const fetchMetaLeadFormsThunk = createAsyncThunk<
     settings: MetaLeadFormSettings
     leadCountByFormId: Record<string, number>
     unregisteredForms: MetaLeadFormCampaignGroup[]
+    adItems: MetaLeadAdCampaignItem[]
+    leadCountByAdId: Record<string, number>
+    unregisteredAds: MetaLeadAdCampaignGroup[]
   },
   void,
   { rejectValue: string }
 >("metaLeadForms/fetchAll", async (_, { rejectWithValue }) => {
   try {
-    const [items, settings, stats] = await Promise.all([
+    const [items, settings, stats, adItems] = await Promise.all([
       listMetaLeadForms(),
       getMetaLeadFormSettings(),
       getMetaLeadFormStats(),
+      listMetaLeadAdCampaigns(),
     ])
     return {
       items,
       settings,
       leadCountByFormId: buildLeadCountMap(stats.registered, stats.unregisteredForms),
       unregisteredForms: [...stats.unregisteredForms],
+      adItems,
+      leadCountByAdId: buildAdLeadCountMap(
+        stats.registeredAds ?? [],
+        stats.unregisteredAds ?? [],
+      ),
+      unregisteredAds: [...(stats.unregisteredAds ?? [])],
     }
   } catch (err) {
     return rejectWithValue(axiosMessage(err, s.loadError))
@@ -170,6 +238,45 @@ export const saveMetaLeadFormSettingsThunk = createAsyncThunk<
   }
 })
 
+export const saveMetaLeadAdCampaignThunk = createAsyncThunk<
+  MetaLeadAdCampaignItem,
+  void,
+  { rejectValue: string }
+>("metaLeadForms/saveAd", async (_, { getState, rejectWithValue }) => {
+  const { adDraft, adEditingId } = (getState() as ThunkState).metaLeadForms
+  const body: CreateMetaLeadAdCampaignBody | UpdateMetaLeadAdCampaignBody = {
+    adId: adDraft.adId.trim(),
+    adName: adDraft.adName.trim(),
+    campaignId: adDraft.campaignId.trim() || undefined,
+    campaignName: adDraft.campaignName.trim() || undefined,
+    projectId: adDraft.projectId.trim(),
+    projectTitle: adDraft.projectTitle.trim(),
+    enabled: adDraft.enabled,
+    notes: adDraft.notes.trim(),
+  }
+  try {
+    if (adEditingId != null) {
+      return await updateMetaLeadAdCampaign(adEditingId, body)
+    }
+    return await createMetaLeadAdCampaign(body as CreateMetaLeadAdCampaignBody)
+  } catch (err) {
+    return rejectWithValue(axiosMessage(err, s.adsSaveError))
+  }
+})
+
+export const deleteMetaLeadAdCampaignThunk = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>("metaLeadForms/deleteAd", async (id, { rejectWithValue }) => {
+  try {
+    await deleteMetaLeadAdCampaign(id)
+    return id
+  } catch (err) {
+    return rejectWithValue(axiosMessage(err, s.adsDeleteError))
+  }
+})
+
 const metaLeadFormsSlice = createSlice({
   name: "metaLeadForms",
   initialState,
@@ -201,6 +308,39 @@ const metaLeadFormsSlice = createSlice({
     patchDraftAct(state, action: PayloadAction<Partial<MetaLeadFormDraft>>) {
       state.draft = { ...state.draft, ...action.payload }
     },
+    openCreateAdPanelAct(
+      state,
+      action: PayloadAction<Partial<MetaLeadAdCampaignDraft> | undefined>,
+    ) {
+      state.adPanelOpen = true
+      state.adEditingId = null
+      state.adDraft = { ...emptyAdDraft(), ...(action.payload ?? {}) }
+      state.error = null
+    },
+    openEditAdPanelAct(state, action: PayloadAction<MetaLeadAdCampaignItem>) {
+      const item = action.payload
+      state.adPanelOpen = true
+      state.adEditingId = item.id
+      state.adDraft = {
+        adId: item.adId,
+        adName: item.adName,
+        campaignId: item.campaignId ?? "",
+        campaignName: item.campaignName ?? "",
+        projectId: item.projectId,
+        projectTitle: item.projectTitle,
+        enabled: item.enabled,
+        notes: item.notes,
+      }
+      state.error = null
+    },
+    closeAdPanelAct(state) {
+      state.adPanelOpen = false
+      state.adEditingId = null
+      state.adDraft = emptyAdDraft()
+    },
+    patchAdDraftAct(state, action: PayloadAction<Partial<MetaLeadAdCampaignDraft>>) {
+      state.adDraft = { ...state.adDraft, ...action.payload }
+    },
     setDelayDraftMinutesAct(state, action: PayloadAction<number>) {
       state.delayDraftMinutes = action.payload
     },
@@ -221,6 +361,9 @@ const metaLeadFormsSlice = createSlice({
         state.settings = action.payload.settings
         state.leadCountByFormId = action.payload.leadCountByFormId
         state.unregisteredForms = action.payload.unregisteredForms
+        state.adItems = action.payload.adItems
+        state.leadCountByAdId = action.payload.leadCountByAdId
+        state.unregisteredAds = action.payload.unregisteredAds
         state.delayDraftMinutes = action.payload.settings.outboundDelayMinutes
       })
       .addCase(fetchMetaLeadFormsThunk.rejected, (state, action) => {
@@ -270,6 +413,39 @@ const metaLeadFormsSlice = createSlice({
       .addCase(saveMetaLeadFormSettingsThunk.rejected, (state, action) => {
         state.error = action.payload ?? s.settingsError
       })
+      .addCase(saveMetaLeadAdCampaignThunk.pending, (state) => {
+        state.adSaving = true
+        state.error = null
+      })
+      .addCase(saveMetaLeadAdCampaignThunk.fulfilled, (state, action) => {
+        state.adSaving = false
+        state.adPanelOpen = false
+        state.adEditingId = null
+        state.adDraft = emptyAdDraft()
+        state.notice = s.adsSaved
+        const idx = state.adItems.findIndex((row) => row.id === action.payload.id)
+        if (idx >= 0) {
+          state.adItems[idx] = action.payload
+        } else {
+          state.adItems = [action.payload, ...state.adItems]
+        }
+        const savedAdId = action.payload.adId
+        state.unregisteredAds = state.unregisteredAds.filter((row) => row.adId !== savedAdId)
+        if (state.leadCountByAdId[savedAdId] == null) {
+          state.leadCountByAdId[savedAdId] = 0
+        }
+      })
+      .addCase(saveMetaLeadAdCampaignThunk.rejected, (state, action) => {
+        state.adSaving = false
+        state.error = action.payload ?? s.adsSaveError
+      })
+      .addCase(deleteMetaLeadAdCampaignThunk.fulfilled, (state, action) => {
+        state.adItems = state.adItems.filter((row) => row.id !== action.payload)
+        state.notice = s.adsDeleted
+      })
+      .addCase(deleteMetaLeadAdCampaignThunk.rejected, (state, action) => {
+        state.error = action.payload ?? s.adsDeleteError
+      })
   },
 })
 
@@ -278,6 +454,10 @@ export const {
   openEditPanelAct,
   closePanelAct,
   patchDraftAct,
+  openCreateAdPanelAct,
+  openEditAdPanelAct,
+  closeAdPanelAct,
+  patchAdDraftAct,
   setDelayDraftMinutesAct,
   clearNoticeAct,
 } = metaLeadFormsSlice.actions

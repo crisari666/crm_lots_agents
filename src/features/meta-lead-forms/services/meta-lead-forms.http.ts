@@ -1,13 +1,17 @@
 import { customersMsAuthHeaders, customersMsAxios } from "../../../app/customers-ms-http"
 import type {
+  CreateMetaLeadAdCampaignBody,
   CreateMetaLeadFormBody,
+  MetaLeadAdCampaignItem,
   MetaLeadFormItem,
   MetaLeadFormSettings,
   MetaLeadFormStatsResponse,
+  UpdateMetaLeadAdCampaignBody,
   UpdateMetaLeadFormBody,
 } from "../types/meta-lead-forms.types"
 
 const BASE_PATH = "admin/customer/meta-lead-forms"
+const AD_CAMPAIGNS_PATH = `${BASE_PATH}/ad-campaigns`
 const auth = () => ({ headers: customersMsAuthHeaders() })
 
 export async function listMetaLeadForms(): Promise<MetaLeadFormItem[]> {
@@ -63,4 +67,39 @@ export async function updateMetaLeadFormSettings(
     auth(),
   )
   return response.data
+}
+
+export async function listMetaLeadAdCampaigns(): Promise<MetaLeadAdCampaignItem[]> {
+  const response = await customersMsAxios.get<MetaLeadAdCampaignItem[]>(
+    AD_CAMPAIGNS_PATH,
+    auth(),
+  )
+  return response.data
+}
+
+export async function createMetaLeadAdCampaign(
+  body: CreateMetaLeadAdCampaignBody,
+): Promise<MetaLeadAdCampaignItem> {
+  const response = await customersMsAxios.post<MetaLeadAdCampaignItem>(
+    AD_CAMPAIGNS_PATH,
+    body,
+    auth(),
+  )
+  return response.data
+}
+
+export async function updateMetaLeadAdCampaign(
+  id: string,
+  body: UpdateMetaLeadAdCampaignBody,
+): Promise<MetaLeadAdCampaignItem> {
+  const response = await customersMsAxios.patch<MetaLeadAdCampaignItem>(
+    `${AD_CAMPAIGNS_PATH}/${id}`,
+    body,
+    auth(),
+  )
+  return response.data
+}
+
+export async function deleteMetaLeadAdCampaign(id: string): Promise<void> {
+  await customersMsAxios.delete(`${AD_CAMPAIGNS_PATH}/${id}`, auth())
 }
