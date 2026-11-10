@@ -1,8 +1,10 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import axios from "axios"
 import { leadsStrings as s } from "../../../i18n/locales/leads.strings"
+import { listMetaLeadForms } from "../../meta-lead-forms/services/meta-lead-forms.http"
 import { convertAdminLead, listAdminLeads } from "../services/leads.http"
 import type {
+  LeadFormOption,
   LeadLifecycleStatus,
   LeadListItem,
   LeadSource,
@@ -14,6 +16,7 @@ const DEFAULT_LIMIT = 50
 export type LeadsFilters = {
   lifecycleStatus: LeadLifecycleStatus | ""
   source: LeadSource | ""
+  formId: string
   search: string
   from: string
   to: string
@@ -27,6 +30,8 @@ export type LeadsState = {
   loading: boolean
   error: string | null
   filters: LeadsFilters
+  formOptions: LeadFormOption[]
+  formOptionsLoaded: boolean
   convertingId: string | null
   actionNotice: string | null
   actionError: string | null
@@ -42,10 +47,13 @@ const initialState: LeadsState = {
   filters: {
     lifecycleStatus: "",
     source: "",
+    formId: "",
     search: "",
     from: "",
     to: "",
   },
+  formOptions: [],
+  formOptionsLoaded: false,
   convertingId: null,
   actionNotice: null,
   actionError: null,
@@ -75,6 +83,7 @@ export const fetchLeadsThunk = createAsyncThunk(
       limit,
       ...(filters.lifecycleStatus ? { lifecycleStatus: filters.lifecycleStatus } : {}),
       ...(filters.source ? { source: filters.source } : {}),
+      ...(filters.formId.trim() ? { formId: filters.formId.trim() } : {}),
       ...(filters.search.trim() ? { search: filters.search.trim() } : {}),
       ...(filters.from ? { from: filters.from } : {}),
       ...(filters.to ? { to: filters.to } : {}),
@@ -85,6 +94,24 @@ export const fetchLeadsThunk = createAsyncThunk(
       return rejectWithValue(axiosMessage(err, s.loadError))
     }
   }
+)
+
+export const fetchLeadFormOptionsThunk = createAsyncThunk(
+  "leads/fetchFormOptions",
+  async (_, { rejectWithValue }) => {
+    try {
+      const forms = await listMetaLeadForms()
+      return forms.map(
+        (form): LeadFormOption => ({
+          id: form.id,
+          formId: form.formId,
+          formName: form.formName,
+        }),
+      )
+    } catch (err: unknown) {
+      return rejectWithValue(axiosMessage(err, s.loadError))
+    }
+  },
 )
 
 export const convertLeadThunk = createAsyncThunk(
@@ -133,6 +160,13 @@ const leadsSlice = createSlice({
       .addCase(fetchLeadsThunk.rejected, (state, action) => {
         state.loading = false
         state.error = (action.payload as string) ?? s.loadError
+      })
+      .addCase(fetchLeadFormOptionsThunk.fulfilled, (state, action) => {
+        state.formOptions = action.payload
+        state.formOptionsLoaded = true
+      })
+      .addCase(fetchLeadFormOptionsThunk.rejected, (state) => {
+        state.formOptionsLoaded = true
       })
       .addCase(convertLeadThunk.pending, (state, action) => {
         state.convertingId = action.meta.arg.customerId

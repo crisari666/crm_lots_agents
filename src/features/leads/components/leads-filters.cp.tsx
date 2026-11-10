@@ -9,7 +9,11 @@ import {
 import { Refresh } from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { leadsStrings as s } from "../../../i18n/locales/leads.strings"
-import { fetchLeadsThunk, setLeadsFiltersAct } from "../slice/leads.slice"
+import {
+  fetchLeadFormOptionsThunk,
+  fetchLeadsThunk,
+  setLeadsFiltersAct,
+} from "../slice/leads.slice"
 import type { LeadLifecycleStatus, LeadSource } from "../types/leads.types"
 
 const SOURCES: LeadSource[] = [
@@ -23,7 +27,15 @@ const SOURCES: LeadSource[] = [
 export default function LeadsFiltersCP(): React.ReactElement {
   const dispatch = useAppDispatch()
   const filters = useAppSelector((state) => state.leads.filters)
+  const formOptions = useAppSelector((state) => state.leads.formOptions)
+  const formOptionsLoaded = useAppSelector((state) => state.leads.formOptionsLoaded)
   const loading = useAppSelector((state) => state.leads.loading)
+
+  useEffect(() => {
+    if (!formOptionsLoaded) {
+      void dispatch(fetchLeadFormOptionsThunk())
+    }
+  }, [dispatch, formOptionsLoaded])
 
   useEffect(() => {
     void dispatch(fetchLeadsThunk())
@@ -71,6 +83,21 @@ export default function LeadsFiltersCP(): React.ReactElement {
           {SOURCES.map((source) => (
             <MenuItem key={source} value={source}>
               {s.sources[source]}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select
+          size="small"
+          label={s.formLabel}
+          value={filters.formId}
+          onChange={(event) => dispatch(setLeadsFiltersAct({ formId: event.target.value }))}
+          sx={{ minWidth: 200 }}
+        >
+          <MenuItem value="">{s.formAll}</MenuItem>
+          {formOptions.map((form) => (
+            <MenuItem key={form.id} value={form.formId}>
+              {form.formName}
             </MenuItem>
           ))}
         </TextField>

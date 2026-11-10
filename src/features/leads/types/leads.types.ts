@@ -33,9 +33,17 @@ export type LeadListItem = {
   isPromoted: boolean
   assignedTo?: string
   metaLeadgenId?: string
+  metaFormId?: string
+  metaFormName?: string
   createdAt: string
   leadSession?: LeadSessionSummary
   scheduledCall?: LeadScheduledCall
+}
+
+export type LeadFormOption = {
+  readonly id: string
+  readonly formId: string
+  readonly formName: string
 }
 
 export type LeadListPage = {
@@ -50,6 +58,7 @@ export type ListLeadsParams = {
   limit: number
   lifecycleStatus?: LeadLifecycleStatus | ""
   source?: LeadSource | ""
+  formId?: string
   assignedTo?: string
   search?: string
   from?: string

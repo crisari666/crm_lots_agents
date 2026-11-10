@@ -9,6 +9,8 @@ export const leadsStrings = {
   lifecycleCustomer: "Cliente",
   sourceLabel: "Origen",
   sourceAll: "Todos los orígenes",
+  formLabel: "Formulario Meta",
+  formAll: "Todos los formularios",
   sources: {
     meta_form: "Meta form",
     whatsapp_lead_conversation: "WhatsApp IA",
@@ -18,7 +20,7 @@ export const leadsStrings = {
   } as Record<string, string>,
   refresh: "Actualizar",
   emptyTitle: "Sin leads en este filtro",
-  emptyHint: "Prueba otro origen o rango de fechas. Los ingresos nuevos se etiquetan automáticamente.",
+  emptyHint: "Prueba otro origen, formulario o rango de fechas. Los ingresos nuevos se etiquetan automáticamente.",
   loadError: "No se pudo cargar la bandeja de leads.",
   convert: "Convertir a cliente",
   convertConfirmTitle: "¿Convertir este lead a cliente?",
@@ -30,6 +32,7 @@ export const leadsStrings = {
   colName: "Nombre",
   colPhone: "Teléfono",
   colSources: "Orígenes",
+  colForm: "Formulario",
   colLifecycle: "Estado",
   colAssignee: "Asesor",
   colScore: "Score IA",
@@ -39,4 +42,5 @@ export const leadsStrings = {
   promoted: "Ya es cliente",
   leadStripTitle: "Resumen lead",
   assignOptional: "Asignar ventor (opcional)",
+  formUnknown: "Sin formulario",
 }

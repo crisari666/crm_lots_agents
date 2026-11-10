@@ -174,6 +174,7 @@ export default function LeadsTableCP(): React.ReactElement {
               <TableCell>{s.colName}</TableCell>
               <TableCell>{s.colPhone}</TableCell>
               <TableCell>{s.colSources}</TableCell>
+              <TableCell>{s.colForm}</TableCell>
               <TableCell>{s.colLifecycle}</TableCell>
               <TableCell>{s.colAssignee}</TableCell>
               <TableCell>{s.colScore}</TableCell>
@@ -201,6 +202,11 @@ export default function LeadsTableCP(): React.ReactElement {
                       <LeadsSourceChipCP key={source} source={source} />
                     ))}
                   </Box>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color={item.metaFormName ? "text.primary" : "text.secondary"}>
+                    {item.metaFormName?.trim() || s.formUnknown}
+                  </Typography>
                 </TableCell>
                 <TableCell>
                   <Chip

@@ -49,6 +49,9 @@ export default function LeadsDetailStripCP({
             {lead.leadSources.map((source) => (
               <LeadsSourceChipCP key={source} source={source} />
             ))}
+            {lead.metaFormName?.trim() ? (
+              <Chip size="small" variant="outlined" label={lead.metaFormName.trim()} />
+            ) : null}
           </Stack>
         </Box>
         {canConvertLead(lead) ? (

@@ -13,6 +13,7 @@ export async function listAdminLeads(params: ListLeadsParams): Promise<LeadListP
       limit: params.limit,
       ...(params.lifecycleStatus ? { lifecycleStatus: params.lifecycleStatus } : {}),
       ...(params.source ? { source: params.source } : {}),
+      ...(params.formId?.trim() ? { formId: params.formId.trim() } : {}),
       ...(params.assignedTo?.trim() ? { assignedTo: params.assignedTo.trim() } : {}),
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
       ...(params.from ? { from: params.from } : {}),
