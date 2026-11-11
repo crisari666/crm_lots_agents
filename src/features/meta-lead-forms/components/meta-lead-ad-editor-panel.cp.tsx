@@ -1,5 +1,6 @@
 import {
   Autocomplete,
+  Box,
   Button,
   Drawer,
   FormControlLabel,
@@ -43,8 +44,8 @@ export default function MetaLeadAdEditorPanelCP() {
     enabledProjects.find((project) => project._id === draft.projectId) ?? null
 
   const canSave =
-    draft.adId.trim().length > 0 &&
-    draft.adName.trim().length > 0 &&
+    draft.campaignId.trim().length > 0 &&
+    draft.campaignName.trim().length > 0 &&
     draft.projectId.trim().length > 0
 
   return (
@@ -59,17 +60,17 @@ export default function MetaLeadAdEditorPanelCP() {
       </Typography>
       <Stack spacing={2.5} sx={{ mt: 1 }}>
         <TextField
-          label={s.adName}
-          value={draft.adName}
-          onChange={(event) => dispatch(patchAdDraftAct({ adName: event.target.value }))}
+          label={s.adCampaignName}
+          value={draft.campaignName}
+          onChange={(event) => dispatch(patchAdDraftAct({ campaignName: event.target.value }))}
           fullWidth
           required
         />
         <TextField
-          label={s.adId}
-          helperText={s.adIdHint}
-          value={draft.adId}
-          onChange={(event) => dispatch(patchAdDraftAct({ adId: event.target.value }))}
+          label={s.adCampaignId}
+          helperText={s.adCampaignIdHint}
+          value={draft.campaignId}
+          onChange={(event) => dispatch(patchAdDraftAct({ campaignId: event.target.value }))}
           fullWidth
           required
           inputProps={{
@@ -93,20 +94,44 @@ export default function MetaLeadAdEditorPanelCP() {
             <TextField {...params} label={s.adProject} helperText={s.adProjectHint} required />
           )}
         />
+        {draft.previewAds.length > 0 ? (
+          <Box>
+            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+              {s.adsUnderCampaign}
+            </Typography>
+            <Stack spacing={0.75} sx={{ mt: 1, pl: 1.5, borderLeft: 2, borderColor: "divider" }}>
+              {draft.previewAds.map((ad) => (
+                <Box key={ad.adId}>
+                  <Typography variant="body2" noWrap>
+                    {ad.adName.length > 0 ? ad.adName : ad.adId}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+                  >
+                    {ad.adId}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+        ) : null}
         <TextField
-          label={s.adCampaignId}
-          value={draft.campaignId}
-          onChange={(event) => dispatch(patchAdDraftAct({ campaignId: event.target.value }))}
+          label={s.adName}
+          value={draft.adName}
+          onChange={(event) => dispatch(patchAdDraftAct({ adName: event.target.value }))}
+          fullWidth
+        />
+        <TextField
+          label={s.adId}
+          helperText={s.adIdHint}
+          value={draft.adId}
+          onChange={(event) => dispatch(patchAdDraftAct({ adId: event.target.value }))}
           fullWidth
           inputProps={{
             style: { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" },
           }}
-        />
-        <TextField
-          label={s.adCampaignName}
-          value={draft.campaignName}
-          onChange={(event) => dispatch(patchAdDraftAct({ campaignName: event.target.value }))}
-          fullWidth
         />
         <FormControlLabel
           control={

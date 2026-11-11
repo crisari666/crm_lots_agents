@@ -19,10 +19,18 @@ function LeadCountChip({ count }: { readonly count: number }) {
   return <Chip size="small" variant="outlined" label={label} />
 }
 
+function AdsCountChip({ count }: { readonly count: number }) {
+  const label = count === 1 ? `1 ${s.adsCountOne}` : `${count} ${s.adsCount}`
+  return <Chip size="small" variant="outlined" label={label} />
+}
+
 export default function MetaLeadAdsListCP() {
   const dispatch = useAppDispatch()
   const adItems = useAppSelector((state) => state.metaLeadForms.adItems)
-  const leadCountByAdId = useAppSelector((state) => state.metaLeadForms.leadCountByAdId)
+  const leadCountByCampaignId = useAppSelector(
+    (state) => state.metaLeadForms.leadCountByCampaignId,
+  )
+  const adsByCampaignId = useAppSelector((state) => state.metaLeadForms.adsByCampaignId)
   const loading = useAppSelector((state) => state.metaLeadForms.loading)
 
   if (loading) {
@@ -49,7 +57,8 @@ export default function MetaLeadAdsListCP() {
   return (
     <Stack spacing={0} divider={<Box sx={{ borderBottom: 1, borderColor: "divider" }} />}>
       {adItems.map((item) => {
-        const leadCount = leadCountByAdId[item.adId] ?? 0
+        const leadCount = leadCountByCampaignId[item.campaignId] ?? 0
+        const nestedAds = adsByCampaignId[item.campaignId] ?? []
         return (
           <Box
             key={item.id}
@@ -65,14 +74,14 @@ export default function MetaLeadAdsListCP() {
             <Stack direction="row" alignItems="flex-start" justifyContent="space-between" gap={2}>
               <Box sx={{ minWidth: 0 }}>
                 <Typography variant="subtitle1" fontWeight={600} noWrap>
-                  {item.adName}
+                  {item.campaignName}
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
                 >
-                  {item.adId}
+                  {item.campaignId}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                   {item.projectTitle.length > 0 ? item.projectTitle : item.projectId}
@@ -80,8 +89,33 @@ export default function MetaLeadAdsListCP() {
                 {!item.enabled ? (
                   <Chip size="small" label={s.chipDisabled} variant="outlined" sx={{ mt: 0.75 }} />
                 ) : null}
+                {nestedAds.length > 0 ? (
+                  <Stack spacing={0.5} sx={{ mt: 1.25, pl: 1.5, borderLeft: 2, borderColor: "divider" }}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                      {s.adsUnderCampaign}
+                    </Typography>
+                    {nestedAds.map((ad) => (
+                      <Box key={ad.adId}>
+                        <Typography variant="body2" noWrap>
+                          {ad.adName.length > 0 ? ad.adName : ad.adId}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+                        >
+                          {ad.adId}
+                          {ad.leadCount > 0
+                            ? ` · ${ad.leadCount === 1 ? `1 ${s.leadCountOne}` : `${ad.leadCount} ${s.leadCount}`}`
+                            : ""}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                ) : null}
               </Box>
               <Stack direction="row" spacing={1} alignItems="center">
+                {nestedAds.length > 0 ? <AdsCountChip count={nestedAds.length} /> : null}
                 <LeadCountChip count={leadCount} />
                 <IconButton
                   size="small"
