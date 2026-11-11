@@ -54,6 +54,7 @@ import webinarReducer from "../features/webinar/slice/webinar.slice";
 import liveCallsReducer from "../features/live-calls/redux/live-calls.slice";
 import metaLeadFormsReducer from "../features/meta-lead-forms/slice/meta-lead-forms.slice";
 import leadsReducer from "../features/leads/slice/leads.slice";
+import assignmentTimelineReducer from "../features/leads/assignment-timeline/slice/assignment-timeline.slice";
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -143,6 +144,7 @@ export const store = configureStore({
     liveCalls: liveCallsReducer,
     metaLeadForms: metaLeadFormsReducer,
     leads: leadsReducer,
+    assignmentTimeline: assignmentTimelineReducer,
   },
 });
 
