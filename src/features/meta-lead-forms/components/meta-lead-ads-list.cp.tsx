@@ -7,12 +7,14 @@ import {
   Stack,
   Typography,
 } from "@mui/material"
+import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { metaLeadFormsStrings as s } from "../../../i18n/locales/meta-lead-forms.strings"
 import {
   deleteMetaLeadAdCampaignThunk,
   openEditAdPanelAct,
 } from "../slice/meta-lead-forms.slice"
+import MetaLeadCampaignAdsCollapseCP from "./meta-lead-campaign-ads-collapse.cp"
 
 function LeadCountChip({ count }: { readonly count: number }) {
   const label = count === 1 ? `1 ${s.leadCountOne}` : `${count} ${s.leadCount}`
@@ -32,6 +34,9 @@ export default function MetaLeadAdsListCP() {
   )
   const adsByCampaignId = useAppSelector((state) => state.metaLeadForms.adsByCampaignId)
   const loading = useAppSelector((state) => state.metaLeadForms.loading)
+  const [expandedByCampaignId, setExpandedByCampaignId] = useState<Record<string, boolean>>(
+    {},
+  )
 
   if (loading) {
     return (
@@ -59,6 +64,7 @@ export default function MetaLeadAdsListCP() {
       {adItems.map((item) => {
         const leadCount = leadCountByCampaignId[item.campaignId] ?? 0
         const nestedAds = adsByCampaignId[item.campaignId] ?? []
+        const expanded = expandedByCampaignId[item.campaignId] === true
         return (
           <Box
             key={item.id}
@@ -89,30 +95,16 @@ export default function MetaLeadAdsListCP() {
                 {!item.enabled ? (
                   <Chip size="small" label={s.chipDisabled} variant="outlined" sx={{ mt: 0.75 }} />
                 ) : null}
-                {nestedAds.length > 0 ? (
-                  <Stack spacing={0.5} sx={{ mt: 1.25, pl: 1.5, borderLeft: 2, borderColor: "divider" }}>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                      {s.adsUnderCampaign}
-                    </Typography>
-                    {nestedAds.map((ad) => (
-                      <Box key={ad.adId}>
-                        <Typography variant="body2" noWrap>
-                          {ad.adName.length > 0 ? ad.adName : ad.adId}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
-                        >
-                          {ad.adId}
-                          {ad.leadCount > 0
-                            ? ` · ${ad.leadCount === 1 ? `1 ${s.leadCountOne}` : `${ad.leadCount} ${s.leadCount}`}`
-                            : ""}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Stack>
-                ) : null}
+                <MetaLeadCampaignAdsCollapseCP
+                  ads={nestedAds}
+                  expanded={expanded}
+                  onToggle={() =>
+                    setExpandedByCampaignId((prev) => ({
+                      ...prev,
+                      [item.campaignId]: !prev[item.campaignId],
+                    }))
+                  }
+                />
               </Box>
               <Stack direction="row" spacing={1} alignItems="center">
                 {nestedAds.length > 0 ? <AdsCountChip count={nestedAds.length} /> : null}

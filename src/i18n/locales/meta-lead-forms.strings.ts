@@ -65,6 +65,8 @@ export const metaLeadFormsStrings = {
   adCampaignIdHint: "Id numérico de la campaña en Meta Ads",
   adCampaignName: "Nombre de la campaña",
   adsUnderCampaign: "Anuncios en esta campaña",
+  adsExpand: "Mostrar anuncios de la campaña",
+  adsCollapse: "Ocultar anuncios de la campaña",
   adsSaveError: "No se pudo guardar la campaña",
   adsDeleteError: "No se pudo eliminar la campaña",
   adsSaved: "Campaña guardada",
