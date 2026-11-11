@@ -13,15 +13,11 @@ export default function MetaLeadAdsHeaderCP() {
         alignItems: "flex-start",
         justifyContent: "space-between",
         gap: 2,
-        mt: 6,
         mb: 1,
-        pt: 4,
-        borderTop: 1,
-        borderColor: "divider",
       }}
     >
       <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
+        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
           {s.adsSectionTitle}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 640 }}>
@@ -32,7 +28,7 @@ export default function MetaLeadAdsHeaderCP() {
         variant="contained"
         startIcon={<Add />}
         onClick={() => dispatch(openCreateAdPanelAct())}
-        sx={{ flexShrink: 0 }}
+        sx={{ flexShrink: 0, cursor: "pointer" }}
       >
         {s.addAd}
       </Button>

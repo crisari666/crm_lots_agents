@@ -1,6 +1,12 @@
 export const metaLeadFormsStrings = {
-  title: "Formularios Meta Lead Ads",
+  title: "Meta Lead Ads",
   subtitle:
+    "Registra formularios Instant Form y anuncia el mapeo ad → proyecto para leads de Facebook.",
+  tabsAriaLabel: "Secciones de Meta Lead Ads",
+  tabForms: "Formularios",
+  tabAds: "Anuncios",
+  formsSectionTitle: "Registro de formularios",
+  formsSectionSubtitle:
     "Registra formularios de Facebook por id y nombre, y elige si el lead se asigna de inmediato o entra a calificación por WhatsApp.",
   emptyTitle: "Aún no hay formularios registrados",
   emptyBody:
