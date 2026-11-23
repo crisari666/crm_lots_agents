@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import PeopleIcon from "@mui/icons-material/People"
 import { Link } from "react-router-dom"
-import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, DynamicFormOutlined, Dvr, ElectricalServices, EventAvailableOutlined, GridView, GroupAdd, HistorySharp, InboxOutlined, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
+import { AdminPanelSettings, AnalyticsOutlined, ArrowDropDown, ArrowRight, BusinessOutlined, Campaign, CampaignOutlined, Category, ChecklistRtl, ContactPage, ContactPhone, Dashboard, Description, Done, DynamicFormOutlined, Dvr, ElectricalServices, EventAvailableOutlined, GridView, GroupAdd, HistorySharp, InboxOutlined, ListAlt, PeopleAltTwoTone, Person, PersonPinCircle, PhoneAndroid, PointOfSale, PriceChange, RecordVoiceOverOutlined, SchoolOutlined, Settings, SmartToyOutlined, UploadFileSharp, VideoCallOutlined } from "@mui/icons-material"
 import { useAppSelector } from "../../../app/hooks"
 import { RootState } from "../../../app/store"
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -60,6 +60,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
       { to: "/dashboard/customers-v2/assignment-audit", Icon: <HistorySharp />, title: "Historial asignaciones" },
       { to: "/dashboard/steps-v2", Icon: <Category />, title: "Steps V2" },
       { to: "/dashboard/staff-performance", Icon: <AnalyticsOutlined />, title: "Rendimiento personal" },
+      { to: "/dashboard/sales-down-payments-report", Icon: <PointOfSale />, title: "Reporte de ventas" },
       { to: "/dashboard/whatsapp-marketing", Icon: <Campaign />, title: "Campañas WhatsApp", crmAdminOnly: true },
     ]},
     { Icon: <GroupAdd />, title: "Referidos", children: [

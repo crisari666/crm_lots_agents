@@ -50,6 +50,7 @@ import StaffPerformanceReportPage from "../features/staff-performance-report/pag
 import ReferralFollowUpPage from "../features/referral-follow-up/pages/referral-follow-up-page";
 import LeadCandidatesPage from "../features/lead-candidates/pages/lead-candidates-page";
 import CustomerPaymentsAuditoryPage from "../features/customer-payment/pages/customer-payments-auditory-page";
+import SalesDownPaymentsReportPage from "../features/sales-down-payments-report/pages/sales-down-payments-report-page";
 import UserProfilePage from "../features/user-profile/pages/user-profile-page";
 import WhatsappMarketingView from "../features/whatsapp-marketing/whatsapp-marketing-view";
 import WhatsappMarketingListPage from "../features/whatsapp-marketing/pages/whatsapp-marketing-list-page";
@@ -86,6 +87,7 @@ const router = createBrowserRouter([
       { path: "webinar", element: <WebinarPage /> },
       { path: "steps-v2", element: <StepsV2Page /> },
       { path: "staff-performance", element: <StaffPerformanceReportPage /> },
+      { path: "sales-down-payments-report", element: <SalesDownPaymentsReportPage /> },
       { path: "office-dashboard/:officeId", element: <OfficeDashboardView /> },
       { path: "twilio-numbers", element: <TwilioNumbersView /> },
       { path: "projects", element: <ProjectListPage /> },
