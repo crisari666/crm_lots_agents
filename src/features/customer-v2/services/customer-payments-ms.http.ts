@@ -4,6 +4,7 @@ import type {
   CreateCustomerDownPaymentBody,
   CreateCustomerPaymentFeeBody,
   CustomerDownPaymentItem,
+  CustomerDownPaymentSalesReportResponse,
   CustomerPaymentFeeItem,
   ListCustomerDownPaymentsParams,
   ListCustomerDownPaymentsResponse,
@@ -99,6 +100,19 @@ export async function listCustomerDownPaymentsReq(
   return {
     ...response.data,
     data: response.data.data.map(normalizeDownPayment),
+  }
+}
+
+export async function fetchDownPaymentSalesReportReq(
+  params: ListCustomerDownPaymentsParams,
+): Promise<CustomerDownPaymentSalesReportResponse> {
+  const response = await customersMsAxios.get<CustomerDownPaymentSalesReportResponse>(
+    "customer-down-payment/sales-report",
+    { params, ...auth() },
+  )
+  return {
+    ...response.data,
+    rows: response.data.rows.map(normalizeDownPayment),
   }
 }
 

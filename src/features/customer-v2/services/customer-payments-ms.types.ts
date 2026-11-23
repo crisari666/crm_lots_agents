@@ -85,6 +85,48 @@ export type ListCustomerDownPaymentsResponse = {
   total: number
 }
 
+export type SalesReportSummary = {
+  salesCount: number
+  completedCount: number
+  pendingCount: number
+  totalExpected: number
+  totalPaid: number
+  totalRemaining: number
+  completionRate: number
+}
+
+export type SalesReportByAgentItem = {
+  recordedBy: string
+  salesCount: number
+  completedCount: number
+  totalExpected: number
+  totalPaid: number
+}
+
+export type SalesReportByProjectItem = {
+  projectId: string
+  projectName?: string
+  salesCount: number
+  totalExpected: number
+  totalPaid: number
+}
+
+export type SalesReportByDayItem = {
+  date: string
+  salesCount: number
+  totalExpected: number
+  totalPaid: number
+}
+
+export type CustomerDownPaymentSalesReportResponse = {
+  summary: SalesReportSummary
+  byAgent: SalesReportByAgentItem[]
+  byProject: SalesReportByProjectItem[]
+  byDay: SalesReportByDayItem[]
+  rows: CustomerDownPaymentItem[]
+  total: number
+}
+
 /** @deprecated legacy flat payment */
 export type CustomerPaymentItem = {
   id: string

@@ -48,6 +48,7 @@ import staffPerformanceReportReducer from "../features/staff-performance-report/
 import referralFollowUpReducer from "../features/referral-follow-up/slice/referral-follow-up.slice";
 import leadCandidatesReducer from "../features/lead-candidates/slice/lead-candidates.slice";
 import customerPaymentsReducer from "../features/customer-payment/slice/customer-payments.slice";
+import salesDownPaymentsReportReducer from "../features/sales-down-payments-report/slice/sales-down-payments-report.slice";
 import userProfileReducer from "../features/user-profile/slice/user-profile.slice";
 import whatsappMarketingReducer from "../features/whatsapp-marketing/slice/whatsapp-marketing.slice";
 import webinarReducer from "../features/webinar/slice/webinar.slice";
@@ -138,6 +139,7 @@ export const store = configureStore({
     referralFollowUp: referralFollowUpReducer,
     leadCandidates: leadCandidatesReducer,
     customerPayments: customerPaymentsReducer,
+    salesDownPaymentsReport: salesDownPaymentsReportReducer,
     userProfile: userProfileReducer,
     whatsappMarketing: whatsappMarketingReducer,
     webinar: webinarReducer,
