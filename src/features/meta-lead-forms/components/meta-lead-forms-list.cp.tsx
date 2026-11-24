@@ -19,6 +19,9 @@ function FlowChip({ item }: { readonly item: MetaLeadFormItem }) {
   if (!item.enabled) {
     return <Chip size="small" label={s.chipDisabled} variant="outlined" />
   }
+  if (item.flowStrategy === "lead_conversation_v2") {
+    return <Chip size="small" color="success" label={s.chipV2} />
+  }
   if (item.flowStrategy === "lead_conversation") {
     return <Chip size="small" color="secondary" label={s.chipQualify} />
   }

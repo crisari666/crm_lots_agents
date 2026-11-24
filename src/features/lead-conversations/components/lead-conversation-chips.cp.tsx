@@ -1,6 +1,8 @@
 import React from "react"
 import { Box, Chip, LinearProgress, Typography } from "@mui/material"
+import { AcUnitOutlined, DeviceThermostatOutlined, LocalFireDepartmentOutlined } from "@mui/icons-material"
 import { leadConversationsStrings as s } from "../../../i18n/locales/lead-conversations.strings"
+import type { LeadTemperature } from "../../lead-assistant/types/lead-assistant.types"
 import type { LeadConversationStatus, LeadConversationStep } from "../types/lead-conversations.types"
 
 const STATUS_COLOR: Record<LeadConversationStatus, "primary" | "success" | "error" | "default"> = {
@@ -14,8 +16,24 @@ export function LeadConversationStatusChipCP({ status }: { status: LeadConversat
   return <Chip size="small" color={STATUS_COLOR[status]} variant={status === "active" ? "outlined" : "filled"} label={s.status[status]} />
 }
 
+const TEMPERATURE_VISUAL: Record<
+  LeadTemperature,
+  { color: "error" | "warning" | "info"; icon: React.ReactElement }
+> = {
+  hot: { color: "error", icon: <LocalFireDepartmentOutlined /> },
+  warm: { color: "warning", icon: <DeviceThermostatOutlined /> },
+  cold: { color: "info", icon: <AcUnitOutlined /> },
+}
+
 export function LeadConversationStepChipCP({ step }: { step: LeadConversationStep }): React.ReactElement {
-  return <Chip size="small" variant="outlined" label={s.step[step]} sx={{ borderStyle: "dashed" }} />
+  const label = (s.step as Record<string, string>)[step] ?? s.stepUnknown
+  return <Chip size="small" variant="outlined" label={label} sx={{ borderStyle: "dashed" }} />
+}
+
+/** Temperature chip: icon + text so the state never relies on color alone. */
+export function LeadConversationTemperatureChipCP({ temperature }: { temperature: LeadTemperature }): React.ReactElement {
+  const visual = TEMPERATURE_VISUAL[temperature]
+  return <Chip size="small" variant="outlined" color={visual.color} icon={visual.icon} label={s.temperature[temperature]} />
 }
 
 type ScoreProps = { score: number; maxScore: number; priority: number }

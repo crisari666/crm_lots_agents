@@ -1,3 +1,9 @@
+import type { LeadProfile, LeadProfileStage, LeadTemperature } from "../../lead-assistant/types/lead-assistant.types"
+
+export type LeadConversationFlowVersion = "v1" | "v2"
+
+export type LeadConversationFlowFilter = LeadConversationFlowVersion | ""
+
 export type LeadConversationStep =
   | "initial"
   | "ask_project"
@@ -8,6 +14,7 @@ export type LeadConversationStep =
   | "reminder_sent"
   | "scheduled"
   | "closed"
+  | "v2_conversation"
 
 export type LeadConversationStatus = "active" | "scheduled" | "disqualified" | "abandoned"
 
@@ -26,11 +33,17 @@ export type LeadConversationListItem = {
   priority: number
   lastInboundAt?: string
   startedAt?: string
+  /** Absent on legacy rows → treated as v1. */
+  flowVersion?: LeadConversationFlowVersion
+  temperature?: LeadTemperature
+  stage?: LeadProfileStage
+  profile?: LeadProfile
 }
 
 export type ListLeadConversationsParams = {
   status?: LeadConversationStatus
   step?: LeadConversationStep
+  flow?: LeadConversationFlowVersion
   search?: string
   page: number
   limit: number
@@ -51,6 +64,8 @@ export type LeadConversationMessage = {
   options: string[]
   mediaUrl?: string
   delivered: boolean
+  templateName?: string
+  deliveryStatus?: "sent" | "delivered" | "read" | "failed"
   timestamp: string
 }
 
@@ -63,5 +78,5 @@ export type LeadConversationMessagesPage = {
 export type RestartLeadConversationResponse = {
   restarted: true
   sent: boolean
-  reason?: "outside_customer_service_window"
+  reason?: "outside_customer_service_window" | "v2_waits_for_customer"
 }

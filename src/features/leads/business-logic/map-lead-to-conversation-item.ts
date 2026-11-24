@@ -22,7 +22,10 @@ const STEPS: ReadonlySet<string> = new Set([
   "reminder_sent",
   "scheduled",
   "closed",
+  "v2_conversation",
 ])
+
+const DEFAULT_MAX_SCORE = 10
 
 /**
  * Builds a list-row stub so LeadConversationChatDrawer header works when opened from the leads inbox.
@@ -48,7 +51,9 @@ export function mapLeadToConversationItem(lead: LeadListItem): LeadConversationL
     step,
     status,
     score: lead.leadSession?.score ?? 0,
-    maxScore: 10,
+    maxScore: lead.leadSession?.maxScore ?? DEFAULT_MAX_SCORE,
     priority: lead.leadSession?.priority ?? 1,
+    ...(lead.leadSession?.flowVersion ? { flowVersion: lead.leadSession.flowVersion } : {}),
+    ...(lead.leadSession?.temperature ? { temperature: lead.leadSession.temperature } : {}),
   }
 }

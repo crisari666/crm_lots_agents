@@ -13,6 +13,9 @@ export type LeadSessionSummary = {
   score?: number
   priority?: number
   step?: string
+  maxScore?: number
+  flowVersion?: "v1" | "v2"
+  temperature?: "hot" | "warm" | "cold"
 }
 
 export type LeadScheduledCall = {

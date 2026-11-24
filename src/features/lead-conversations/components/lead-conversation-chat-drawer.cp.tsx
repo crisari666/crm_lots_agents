@@ -1,11 +1,18 @@
 import React from "react"
-import { Box, Divider, Drawer, IconButton, Stack, Typography } from "@mui/material"
+import { Box, Chip, Divider, Drawer, IconButton, Stack, Typography } from "@mui/material"
 import { Close } from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
+import { leadAssistantStrings as assistantStrings } from "../../../i18n/locales/lead-assistant.strings"
 import { leadConversationsStrings as s } from "../../../i18n/locales/lead-conversations.strings"
 import { selectLeadConversationAct } from "../slice/lead-conversations.slice"
 import LeadConversationActionsCP from "./lead-conversation-actions.cp"
-import { LeadConversationScoreCP, LeadConversationStatusChipCP, LeadConversationStepChipCP } from "./lead-conversation-chips.cp"
+import { buildProfileRows } from "../../lead-assistant/business-logic/build-profile-rows"
+import {
+  LeadConversationScoreCP,
+  LeadConversationStatusChipCP,
+  LeadConversationStepChipCP,
+  LeadConversationTemperatureChipCP,
+} from "./lead-conversation-chips.cp"
 import LeadConversationMessagesCP from "./lead-conversation-messages.cp"
 import LeadConversationScheduleStripCP from "./lead-conversation-schedule-strip.cp"
 
@@ -17,6 +24,7 @@ function DrawerHeader({ sessionId }: { sessionId: string }): React.ReactElement 
     state.leadConversations.items.find((row) => row.sessionId === sessionId)
   )
   const drawerSchedule = useAppSelector((state) => state.leadConversations.drawerSchedule)
+  const profileRows = item?.profile ? buildProfileRows(item.profile) : []
   return (
     <Box sx={{ pt: 2, pb: 1.5 }}>
       <Box sx={{ px: 2.5 }}>
@@ -41,8 +49,19 @@ function DrawerHeader({ sessionId }: { sessionId: string }): React.ReactElement 
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1.5 }}>
             <LeadConversationStatusChipCP status={item.status} />
             <LeadConversationStepChipCP step={item.step} />
+            {item.temperature ? <LeadConversationTemperatureChipCP temperature={item.temperature} /> : null}
             <Box sx={{ flex: 1 }} />
             <LeadConversationScoreCP score={item.score} maxScore={item.maxScore} priority={item.priority} />
+          </Stack>
+        ) : null}
+        {item?.stage || profileRows.length > 0 ? (
+          <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ mt: 1.25 }}>
+            {item?.stage ? (
+              <Chip size="small" color="primary" label={`${s.drawerStage}: ${assistantStrings.stageLabels[item.stage]}`} />
+            ) : null}
+            {profileRows.map((row) => (
+              <Chip key={row.label} size="small" variant="outlined" label={`${row.label}: ${row.value}`} />
+            ))}
           </Stack>
         ) : null}
       </Box>

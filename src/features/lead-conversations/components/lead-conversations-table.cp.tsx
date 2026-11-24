@@ -3,8 +3,10 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Paper,
   Skeleton,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -29,6 +31,7 @@ import {
   LeadConversationScoreCP,
   LeadConversationStatusChipCP,
   LeadConversationStepChipCP,
+  LeadConversationTemperatureChipCP,
 } from "./lead-conversation-chips.cp"
 
 const COLUMN_COUNT = 6
@@ -150,7 +153,11 @@ export default function LeadConversationsTableCP(): React.ReactElement {
                 </TableCell>
                 <TableCell>{resolveProjectLabel(item)}</TableCell>
                 <TableCell>
-                  <LeadConversationStepChipCP step={item.step} />
+                  <Stack direction="row" spacing={0.75} alignItems="center" flexWrap="wrap" useFlexGap>
+                    <LeadConversationStepChipCP step={item.step} />
+                    {item.flowVersion === "v2" ? <Chip size="small" color="success" label={s.flowChipV2} /> : null}
+                    {item.temperature ? <LeadConversationTemperatureChipCP temperature={item.temperature} /> : null}
+                  </Stack>
                 </TableCell>
                 <TableCell>
                   <LeadConversationStatusChipCP status={item.status} />

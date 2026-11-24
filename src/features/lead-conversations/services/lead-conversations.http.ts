@@ -22,6 +22,7 @@ export async function listLeadConversations(
       limit: params.limit,
       ...(params.status ? { status: params.status } : {}),
       ...(params.step ? { step: params.step } : {}),
+      ...(params.flow ? { flow: params.flow } : {}),
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
     },
   })

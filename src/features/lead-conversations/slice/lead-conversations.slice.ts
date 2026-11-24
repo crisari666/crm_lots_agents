@@ -9,6 +9,7 @@ import {
 } from "../services/lead-conversations.http"
 import type { LeadScheduledCall } from "../../leads/types/leads.types"
 import type {
+  LeadConversationFlowFilter,
   LeadConversationListItem,
   LeadConversationMessage,
   LeadConversationMessagesPage,
@@ -21,6 +22,7 @@ import type {
 type LeadConversationsFilters = {
   status: LeadConversationStatus | ""
   step: LeadConversationStep | ""
+  flow: LeadConversationFlowFilter
   search: string
   page: number
   limit: 10 | 20 | 50
@@ -49,7 +51,7 @@ const initialState: LeadConversationsState = {
   total: 0,
   loading: false,
   error: null,
-  filters: { status: "", step: "", search: "", page: 0, limit: 20 },
+  filters: { status: "", step: "", flow: "", search: "", page: 0, limit: 20 },
   selectedSessionId: null,
   drawerSchedule: null,
   messages: [],
@@ -89,6 +91,7 @@ export const fetchLeadConversationsThunk = createAsyncThunk<
       search: filters.search,
       ...(filters.status ? { status: filters.status } : {}),
       ...(filters.step ? { step: filters.step } : {}),
+      ...(filters.flow ? { flow: filters.flow } : {}),
     })
   } catch (err: unknown) {
     return rejectWithValue(axiosMessage(err, s.loadError))
@@ -226,6 +229,10 @@ const leadConversationsSlice = createSlice({
       })
       .addCase(restartLeadConversationThunk.fulfilled, (state, action) => {
         state.isActionRunning = false
+        if (action.payload.reason === "v2_waits_for_customer") {
+          state.actionNotice = s.restartV2Waits
+          return
+        }
         state.actionNotice = action.payload.sent ? s.restartSent : s.restartNotSent
       })
       .addCase(restartLeadConversationThunk.rejected, (state, action) => {

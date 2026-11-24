@@ -1,4 +1,7 @@
-export type MetaLeadFormFlowStrategy = "immediate_assign" | "lead_conversation"
+export type MetaLeadFormFlowStrategy =
+  | "immediate_assign"
+  | "lead_conversation"
+  | "lead_conversation_v2"
 
 export type MetaLeadFormItem = {
   readonly id: string

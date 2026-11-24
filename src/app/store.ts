@@ -55,6 +55,7 @@ import webinarReducer from "../features/webinar/slice/webinar.slice";
 import liveCallsReducer from "../features/live-calls/redux/live-calls.slice";
 import metaLeadFormsReducer from "../features/meta-lead-forms/slice/meta-lead-forms.slice";
 import leadsReducer from "../features/leads/slice/leads.slice";
+import leadAssistantReducer from "../features/lead-assistant/slice/lead-assistant.reducer";
 import assignmentTimelineReducer from "../features/leads/assignment-timeline/slice/assignment-timeline.slice";
 
 export const store = configureStore({
@@ -147,6 +148,7 @@ export const store = configureStore({
     metaLeadForms: metaLeadFormsReducer,
     leads: leadsReducer,
     assignmentTimeline: assignmentTimelineReducer,
+    leadAssistant: leadAssistantReducer,
   },
 });
 

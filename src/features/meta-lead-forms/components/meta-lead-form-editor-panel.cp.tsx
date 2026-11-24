@@ -15,6 +15,7 @@ import {
   patchDraftAct,
   saveMetaLeadFormThunk,
 } from "../slice/meta-lead-forms.slice"
+import MetaLeadFormV2ReadinessCP from "./meta-lead-form-v2-readiness.cp"
 import type { MetaLeadFormFlowStrategy } from "../types/meta-lead-forms.types"
 
 function FlowCard(props: {
@@ -113,7 +114,15 @@ export default function MetaLeadFormEditorPanelCP() {
               body={s.flowQualifyBody}
               onSelect={() => dispatch(patchDraftAct({ flowStrategy: "lead_conversation" }))}
             />
+            <FlowCard
+              strategy="lead_conversation_v2"
+              selected={draft.flowStrategy === "lead_conversation_v2"}
+              title={s.flowV2Title}
+              body={s.flowV2Body}
+              onSelect={() => dispatch(patchDraftAct({ flowStrategy: "lead_conversation_v2" }))}
+            />
           </Stack>
+          {draft.flowStrategy === "lead_conversation_v2" ? <MetaLeadFormV2ReadinessCP /> : null}
           {draft.flowStrategy === "lead_conversation" ? (
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1.5 }}>
               {s.settingsBody} ({delayMinutes} {s.settingsMinutes.toLowerCase()})

@@ -46,6 +46,7 @@ export function MenuItems({onClick = ()=> {}} : {onClick: () => void}) {
     { Icon: <ContactPhone />, title: "Leads", children: [
       { to: "/dashboard/leads", Icon: <InboxOutlined />, title: "Bandeja de leads", crmAdminOnly: true },
       { to: "/dashboard/meta-lead-forms", Icon: <DynamicFormOutlined />, title: "Formularios Meta leads", crmAdminOnly: true },
+      { to: "/dashboard/lead-assistant", Icon: <SmartToyOutlined />, title: "Asistente IA leads", crmAdminOnly: true },
       { to: "/dashboard/lead-conversations", Icon: <SmartToyOutlined />, title: "Conversaciones IA leads", crmAdminOnly: true },
       { to: "/dashboard/lead-call-schedule", Icon: <EventAvailableOutlined />, title: "Agenda llamadas leads", crmAdminOnly: true },
       { to: "/dashboard/webinar", Icon: <VideoCallOutlined />, title: "Webinars / MasterClass", crmAdminOnly: true },

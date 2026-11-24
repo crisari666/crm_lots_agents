@@ -7,10 +7,11 @@ import {
   fetchLeadConversationsThunk,
   setLeadConversationsFiltersAct,
 } from "../slice/lead-conversations.slice"
-import type { LeadConversationStatus, LeadConversationStep } from "../types/lead-conversations.types"
+import type { LeadConversationFlowFilter, LeadConversationStatus, LeadConversationStep } from "../types/lead-conversations.types"
 
 const STATUS_OPTIONS = Object.keys(s.status) as LeadConversationStatus[]
 const STEP_OPTIONS = Object.keys(s.step) as LeadConversationStep[]
+const FLOW_OPTIONS = Object.keys(s.flowOptions) as Exclude<LeadConversationFlowFilter, "">[]
 
 export default function LeadConversationsFiltersCP(): React.ReactElement {
   const dispatch = useAppDispatch()
@@ -61,6 +62,21 @@ export default function LeadConversationsFiltersCP(): React.ReactElement {
           {STEP_OPTIONS.map((step) => (
             <MenuItem key={step} value={step}>
               {s.step[step]}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select
+          size="small"
+          label={s.flowLabel}
+          value={filters.flow}
+          onChange={(event) => applyFilters({ flow: event.target.value as LeadConversationFlowFilter })}
+          sx={{ minWidth: 130 }}
+        >
+          <MenuItem value="">{s.allOption}</MenuItem>
+          {FLOW_OPTIONS.map((flow) => (
+            <MenuItem key={flow} value={flow}>
+              {s.flowOptions[flow]}
             </MenuItem>
           ))}
         </TextField>

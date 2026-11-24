@@ -29,6 +29,7 @@ function MessageMedia({ message }: Props): React.ReactElement | null {
 /** Read-only bubble: assistant (outbound) on the right, lead (inbound) on the left. */
 export default function LeadConversationMessageBubbleCP({ message }: Props): React.ReactElement {
   const isBot = message.direction === "outbound"
+  const isUndelivered = message.deliveryStatus ? message.deliveryStatus === "failed" : !message.delivered
   return (
     <Box sx={{ display: "flex", justifyContent: isBot ? "flex-end" : "flex-start", mb: 1.25 }}>
       <Box
@@ -51,6 +52,11 @@ export default function LeadConversationMessageBubbleCP({ message }: Props): Rea
             </Typography>
           </Stack>
         ) : null}
+        {message.templateName ? (
+          <Typography variant="caption" sx={{ display: "block", opacity: 0.75, mb: 0.25 }}>
+            {s.templateLabel(message.templateName)}
+          </Typography>
+        ) : null}
         <MessageMedia message={message} />
         {message.body ? (
           <Typography variant="body2" sx={{ whiteSpace: "pre-line", overflowWrap: "anywhere" }}>
@@ -71,7 +77,7 @@ export default function LeadConversationMessageBubbleCP({ message }: Props): Rea
           </Stack>
         ) : null}
         <Stack direction="row" spacing={0.5} alignItems="center" justifyContent="flex-end" sx={{ mt: 0.5, opacity: 0.7 }}>
-          {!message.delivered ? (
+          {isUndelivered ? (
             <>
               <ErrorOutline sx={{ fontSize: 14 }} />
               <Typography variant="caption">{s.notDelivered}</Typography>

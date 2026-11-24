@@ -28,6 +28,15 @@ export const metaLeadFormsStrings = {
   flowQualifyTitle: "Calificación IA (WhatsApp)",
   flowQualifyBody:
     "Se guarda el lead sin asignar. Esperamos a que escriba por WhatsApp; si no lo hace, enviamos el template tras el delay.",
+  flowV2Title: "Asistente IA conversacional (V2)",
+  flowV2Body:
+    "La asistente conversa con el lead, responde sus preguntas con la base de conocimiento y agenda la llamada con un asesor.",
+  readinessReady: "Listo",
+  readinessMissing: "Faltan",
+  readinessMissingSteps: "pasos",
+  readinessMissingStep: "paso",
+  readinessLoading: "Verificando configuración…",
+  readinessLink: "Configurar asistente",
   settingsTitle: "Delay de WhatsApp",
   settingsBody: "Minutos de espera antes del primer mensaje de calificación si el lead no escribe.",
   settingsMinutes: "Minutos",
@@ -41,6 +50,7 @@ export const metaLeadFormsStrings = {
   settingsSaved: "Delay actualizado",
   chipImmediate: "Asignación",
   chipQualify: "Calificación",
+  chipV2: "Asistente V2",
   chipDisabled: "Inactivo",
   leadCount: "leads",
   leadCountOne: "lead",
