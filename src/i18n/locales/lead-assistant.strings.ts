@@ -127,10 +127,10 @@ export const leadAssistantStrings = {
   pricePolicyHelper: "Elige el estilo; cada tarjeta muestra una respuesta de ejemplo.",
   pricePolicies: {
     entry_ticket_first: {
-      title: "Empezar por el valor de entrada",
-      description: "Menciona el precio desde y destaca que se puede separar y financiar.",
+      title: "Empezar por la cuota mensual",
+      description: "Muestra cuotas mensuales desde (precio − separación) ÷ plazos, sin el total del lote.",
       sample:
-        "Tenemos lotes desde $85.000.000 según el área. Lo que más gusta es que no necesitas tenerlo todo de contado: puedes separar y financiar el saldo. ¿Buscas un lote amplio o algo más estándar?",
+        "Los lotes en Riviera pueden financiarse con cuotas mensuales desde $1.403.000. El de 300 m² queda en cuotas desde $1.403.000 al mes. ¿Te ayudo con algo más o te agendo la llamada con el asesor?",
     },
     full_price: {
       title: "Dar el precio completo",
@@ -383,8 +383,11 @@ export const leadAssistantStrings = {
       cash: "De contado",
     },
     timeline: {
-      within_3_months: "En menos de 3 meses",
-      later: "Más adelante",
+      immediate: "Compra inmediata",
+      within_30_days: "Compra en 30 días",
+      within_3_months: "Compra en 3 meses",
+      future: "Compra futura",
+      not_now: "No comprar ahora",
     },
   },
 } as const

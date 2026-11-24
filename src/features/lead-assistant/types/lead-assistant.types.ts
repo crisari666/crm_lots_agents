@@ -189,7 +189,12 @@ export type LeadProfile = {
   readonly motivation?: "build" | "invest" | "leisure" | "exploring"
   readonly experience?: "first_property" | "has_property"
   readonly paymentMethod?: "financed" | "cash"
-  readonly timeline?: "within_3_months" | "later"
+  readonly timeline?:
+    | "immediate"
+    | "within_30_days"
+    | "within_3_months"
+    | "future"
+    | "not_now"
   readonly budget?: string
   readonly lotPreference?: string
   readonly mainObjection?: string
