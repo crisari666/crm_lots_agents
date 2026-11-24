@@ -82,6 +82,7 @@ function projectToFormState(project: {
   commissionPercentage: number
   commissionValue: number
   separation?: number
+  maxInstallments?: number
   lotOptions?: ProjectLotOption[]
   slug?: string
   amenitiesGroups?: ProjectAmenitiesGroup[]
@@ -104,6 +105,7 @@ function projectToFormState(project: {
     commissionPercentage: project.commissionPercentage,
     commissionValue: project.commissionValue,
     separation: project.separation ?? 0,
+    maxInstallments: project.maxInstallments ?? 36,
     lotOptions: lotOptionsFromApi.map((o) => ({
       area: o.area ?? 0,
       price: o.price ?? 0,
@@ -298,6 +300,7 @@ export default function EditProjectFormCP() {
       commissionPercentage: form.commissionPercentage,
       commissionValue: (form.priceSell * form.commissionPercentage) / 100,
       separation: form.separation,
+      maxInstallments: form.maxInstallments > 0 ? form.maxInstallments : 36,
       lotOptions: projectLotOptionsForApi(form.lotOptions ?? []),
       amenitiesGroups: form.amenitiesGroups
     }

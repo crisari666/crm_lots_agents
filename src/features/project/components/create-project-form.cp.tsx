@@ -41,6 +41,7 @@ const initialForm: ProjectFormState = {
   commissionPercentage: 0,
   commissionValue: 0,
   separation: 0,
+  maxInstallments: 36,
   lotOptions: [],
   amenitiesGroups: [],
   cardProjectFile: null,
@@ -87,6 +88,7 @@ export default function CreateProjectFormCP() {
       commissionPercentage: form.commissionPercentage,
       commissionValue: (form.priceSell * form.commissionPercentage) / 100,
       separation: form.separation > 0 ? form.separation : undefined,
+      maxInstallments: form.maxInstallments > 0 ? form.maxInstallments : 36,
       lotOptions: lotOptionsPayload.length > 0 ? lotOptionsPayload : undefined,
       amenitiesGroups: form.amenitiesGroups.length > 0 ? form.amenitiesGroups : undefined
     }

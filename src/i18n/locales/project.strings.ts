@@ -70,14 +70,18 @@ export const projectStrings = {
   formFieldSellPriceUsd: "Sell price (USD)",
   formFieldCommissionPercent: "Commission %",
   formFieldCommissionCop: "Commission (COP)",
-  formFieldSeparation: "Separation",
+  formFieldSeparation: "Separation fee (COP)",
   formFieldSeparationHelper:
-    "Distance between lots (use the same unit your team uses, e.g. meters).",
+    "Amount in COP the customer pays to reserve a lot before financing the balance.",
+  formFieldMaxInstallments: "Max installments",
+  formFieldMaxInstallmentsHelper:
+    "Maximum number of monthly installments after the separation fee (e.g. 36 or 10).",
   formLotOptionsTitle: "Lot sizes and prices",
   formLotOptionsAdd: "Add lot option",
   formLotOptionsArea: "Area (m²)",
   formLotOptionsPriceCop: "Price (COP)",
   formLotOptionsPriceUsd: "Price (USD)",
+  formLotOptionsMonthlyFrom: "Monthly from",
   formLotOptionsRemove: "Remove row",
   formLotOptionsEmptyHint: "Add one row per lot size with its sale price.",
 

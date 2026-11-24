@@ -33,6 +33,17 @@ function toNonNegative(value: string): number {
   return Math.max(0, Number(value) || 0)
 }
 
+function toPositiveInt(value: string): number {
+  return Math.max(1, Math.floor(Number(value) || 1))
+}
+
+const MONTHLY_ROUNDING_COP = 1000
+
+function monthlyFromLot(price: number, separation: number, installments: number): number {
+  if (price <= separation || installments < 1) return 0
+  return Math.ceil((price - separation) / installments / MONTHLY_ROUNDING_COP) * MONTHLY_ROUNDING_COP
+}
+
 export default function ProjectFormSalesSectionCP({
   form,
   onChange,
@@ -123,7 +134,20 @@ export default function ProjectFormSalesSectionCP({
           onChange={(e) => onChange({ separation: toNonNegative(e.target.value) })}
           disabled={disabled}
           helperText={s.formFieldSeparationHelper}
-          inputProps={{ min: 0, step: 0.01 }}
+          InputProps={{ startAdornment: <InputAdornment position="start">COP</InputAdornment> }}
+          inputProps={{ min: 0, step: 1 }}
+        />
+      </Grid>
+      <Grid item xs={12} sm={4}>
+        <TextField
+          fullWidth
+          type="number"
+          label={s.formFieldMaxInstallments}
+          value={form.maxInstallments ?? ""}
+          onChange={(e) => onChange({ maxInstallments: toPositiveInt(e.target.value) })}
+          disabled={disabled}
+          helperText={s.formFieldMaxInstallmentsHelper}
+          inputProps={{ min: 1, max: 120, step: 1 }}
         />
       </Grid>
       <Grid item xs={12}>
@@ -137,9 +161,15 @@ export default function ProjectFormSalesSectionCP({
           </Typography>
         )}
         <Stack spacing={1.5}>
-          {lotOptions.map((row, index) => (
+          {lotOptions.map((row, index) => {
+            const monthly = monthlyFromLot(
+              row.price,
+              form.separation ?? 0,
+              form.maxInstallments > 0 ? form.maxInstallments : 36
+            )
+            return (
             <Grid container spacing={1} alignItems="flex-start" key={`lot-${index}`}>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
                 <TextField
                   fullWidth
                   type="number"
@@ -164,7 +194,7 @@ export default function ProjectFormSalesSectionCP({
                   inputProps={{ min: 0, step: 1 }}
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={2}>
                 <TextField
                   fullWidth
                   type="number"
@@ -177,7 +207,16 @@ export default function ProjectFormSalesSectionCP({
                   inputProps={{ min: 0, step: 1 }}
                 />
               </Grid>
-              <Grid item xs={12} sm={2} sx={{ display: "flex", alignItems: "center" }}>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={s.formLotOptionsMonthlyFrom}
+                  value={monthly > 0 ? copFormatter.format(monthly) : "—"}
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12} sm={1} sx={{ display: "flex", alignItems: "center" }}>
                 <IconButton
                   aria-label={s.formLotOptionsRemove}
                   onClick={() => removeLotRow(index)}
@@ -189,7 +228,8 @@ export default function ProjectFormSalesSectionCP({
                 </IconButton>
               </Grid>
             </Grid>
-          ))}
+            )
+          })}
         </Stack>
         <Button
           type="button"

@@ -43,8 +43,10 @@ export type ProjectType = {
   externalDistribution?: boolean
   commissionPercentage: number
   commissionValue: number
-  /** Separation between lots (product-defined unit, e.g. meters) */
+  /** Separation fee in COP paid to reserve a lot */
   separation?: number
+  /** Maximum number of monthly installments after the separation fee */
+  maxInstallments?: number
   lotOptions?: ProjectLotOption[]
   /** Catalog-linked amenity documents (GET may populate) */
   amenities?: ProjectAmenityRef[]
@@ -93,6 +95,7 @@ export type CreateProjectDto = {
   commissionPercentage: number
   commissionValue: number
   separation?: number
+  maxInstallments?: number
   lotOptions?: ProjectLotOption[]
   amenitiesGroups?: ProjectAmenitiesGroup[]
   images?: string[]
@@ -117,6 +120,7 @@ export type UpdateProjectDto = {
   commissionPercentage?: number
   commissionValue?: number
   separation?: number
+  maxInstallments?: number
   lotOptions?: ProjectLotOption[]
   amenitiesGroups?: ProjectAmenitiesGroup[]
   images?: string[]
@@ -145,6 +149,7 @@ export type ProjectFormState = {
   commissionPercentage: number
   commissionValue: number
   separation: number
+  maxInstallments: number
   lotOptions: ProjectLotOption[]
   amenitiesGroups: ProjectAmenitiesGroup[]
   cardProjectFile: File | null
