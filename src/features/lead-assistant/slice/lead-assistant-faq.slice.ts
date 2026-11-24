@@ -40,13 +40,6 @@ export type FaqDraft = {
   enabled: boolean
 }
 
-export type StarterDraft = {
-  key: string
-  category: LeadFaqCategory
-  question: string
-  answer: string
-}
-
 export type LeadAssistantFaqState = {
   items: LeadFaq[]
   status: LeadAssistantLoadStatus
@@ -60,9 +53,6 @@ export type LeadAssistantFaqState = {
   deleting: boolean
   saveErrorSummary: string[]
   saveFailedToken: number
-  starterOpen: boolean
-  starterDrafts: StarterDraft[]
-  starterSaving: boolean
   unanswered: LeadUnansweredPage
   unansweredStatus: LeadAssistantLoadStatus
   unansweredError: string | null
@@ -92,9 +82,6 @@ const initialState: LeadAssistantFaqState = {
   deleting: false,
   saveErrorSummary: [],
   saveFailedToken: 0,
-  starterOpen: false,
-  starterDrafts: [],
-  starterSaving: false,
   unanswered: { items: [], total: 0, page: 0, limit: UNANSWERED_PAGE_SIZE },
   unansweredStatus: "idle",
   unansweredError: null,
@@ -221,41 +208,6 @@ export const deleteFaqThunk = createAsyncThunk<string, string, { rejectValue: st
   },
 )
 
-export const saveStarterPackThunk = createAsyncThunk<
-  { savedKeys: string[]; failedCount: number },
-  void,
-  { rejectValue: string }
->("leadAssistant/faq/saveStarterPack", async (_, { getState, dispatch }) => {
-  const { starterDrafts } = (getState() as ThunkState).leadAssistant.faq
-  const answered = starterDrafts.filter((draft) => draft.answer.trim().length > 0)
-  const results = await Promise.allSettled(
-    answered.map((draft) =>
-      createLeadFaq({
-        question: draft.question,
-        category: draft.category,
-        defaultAnswer: draft.answer.trim(),
-        projectAnswers: [],
-        alternativePhrasings: [],
-        enabled: true,
-      }),
-    ),
-  )
-  const savedKeys = answered
-    .filter((_, index) => results[index].status === "fulfilled")
-    .map((draft) => draft.key)
-  const failedCount = answered.length - savedKeys.length
-  dispatch(
-    pushNoticeAct(
-      failedCount === 0
-        ? { severity: "success", message: s.starterSaved(savedKeys.length) }
-        : { severity: "error", message: s.starterPartial(savedKeys.length, failedCount) },
-    ),
-  )
-  void dispatch(fetchFaqsThunk())
-  void dispatch(fetchReadinessThunk())
-  return { savedKeys, failedCount }
-})
-
 export const fetchUnansweredThunk = createAsyncThunk<
   LeadUnansweredPage,
   number,
@@ -349,24 +301,6 @@ const faqSlice = createSlice({
     touchFieldAct(state, action: PayloadAction<FaqField>) {
       state.touched[action.payload] = true
     },
-    openStarterAct(state, action: PayloadAction<readonly StarterDraft[]>) {
-      state.starterOpen = true
-      if (state.starterDrafts.length === 0) {
-        state.starterDrafts = [...action.payload]
-      }
-    },
-    closeStarterAct(state) {
-      state.starterOpen = false
-    },
-    patchStarterDraftAct(
-      state,
-      action: PayloadAction<{ readonly key: string; readonly answer: string }>,
-    ) {
-      const draft = state.starterDrafts.find((row) => row.key === action.payload.key)
-      if (draft != null) {
-        draft.answer = action.payload.answer
-      }
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -422,22 +356,6 @@ const faqSlice = createSlice({
       .addCase(deleteFaqThunk.rejected, (state) => {
         state.deleting = false
       })
-      .addCase(saveStarterPackThunk.pending, (state) => {
-        state.starterSaving = true
-      })
-      .addCase(saveStarterPackThunk.fulfilled, (state, action) => {
-        state.starterSaving = false
-        state.starterDrafts = state.starterDrafts.filter(
-          (draft) => !action.payload.savedKeys.includes(draft.key),
-        )
-        if (state.starterDrafts.length === 0 || action.payload.failedCount === 0) {
-          state.starterOpen = false
-          state.starterDrafts = []
-        }
-      })
-      .addCase(saveStarterPackThunk.rejected, (state) => {
-        state.starterSaving = false
-      })
       .addCase(fetchUnansweredThunk.pending, (state) => {
         state.unansweredStatus = state.unanswered.items.length === 0 ? "loading" : state.unansweredStatus
         state.unansweredError = null
@@ -471,9 +389,6 @@ export const {
   patchDraftAct,
   patchProjectAnswerAct,
   touchFieldAct,
-  openStarterAct,
-  closeStarterAct,
-  patchStarterDraftAct,
 } = faqSlice.actions
 
 export default faqSlice.reducer

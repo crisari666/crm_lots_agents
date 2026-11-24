@@ -1,36 +1,20 @@
 import AddOutlined from "@mui/icons-material/AddOutlined"
-import AutoAwesomeOutlined from "@mui/icons-material/AutoAwesomeOutlined"
 import MenuBookOutlined from "@mui/icons-material/MenuBookOutlined"
 import { Box, Button, Skeleton, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import { leadAssistantStrings as s } from "../../../../i18n/locales/lead-assistant.strings"
-import {
-  fetchFaqsThunk,
-  openCreateDrawerAct,
-  openStarterAct,
-  type StarterDraft,
-} from "../../slice/lead-assistant-faq.slice"
+import { fetchFaqsThunk, openCreateDrawerAct } from "../../slice/lead-assistant-faq.slice"
 import SectionEmptyStateCP from "../shared/section-empty-state.cp"
 import SectionErrorStateCP from "../shared/section-error-state.cp"
 import FaqCoverageGridCP from "./faq-coverage-grid.cp"
 import FaqCoverageListCP from "./faq-coverage-list.cp"
 import FaqDictionaryCP from "./faq-dictionary.cp"
 import FaqEditorDrawerCP from "./faq-editor-drawer.cp"
-import FaqStarterPackCP from "./faq-starter-pack.cp"
 import UnansweredInboxCP from "./unanswered-inbox.cp"
 
 type TabKey = "dictionary" | "coverage" | "unanswered"
-
-function buildStarterDrafts(): StarterDraft[] {
-  return s.starterQuestions.map((entry, index) => ({
-    key: `${entry.category}-${index}`,
-    category: entry.category,
-    question: entry.question,
-    answer: "",
-  }))
-}
 
 function KnowledgeSkeleton() {
   return (
@@ -49,7 +33,6 @@ function KnowledgeBody(props: { readonly tab: TabKey }) {
   const status = useAppSelector((state) => state.leadAssistant.faq.status)
   const error = useAppSelector((state) => state.leadAssistant.faq.error)
   const count = useAppSelector((state) => state.leadAssistant.faq.items.length)
-  const isStarterOpen = useAppSelector((state) => state.leadAssistant.faq.starterOpen)
   if (props.tab === "unanswered") {
     return <UnansweredInboxCP />
   }
@@ -64,9 +47,6 @@ function KnowledgeBody(props: { readonly tab: TabKey }) {
       />
     )
   }
-  if (isStarterOpen) {
-    return <FaqStarterPackCP />
-  }
   if (count === 0) {
     return (
       <SectionEmptyStateCP
@@ -74,8 +54,8 @@ function KnowledgeBody(props: { readonly tab: TabKey }) {
         title={s.faqEmptyTitle}
         body={s.faqEmptyBody}
         actionLabel={s.faqEmptyAction}
-        actionIcon={<AutoAwesomeOutlined />}
-        onAction={() => dispatch(openStarterAct(buildStarterDrafts()))}
+        actionIcon={<AddOutlined />}
+        onAction={() => dispatch(openCreateDrawerAct())}
       />
     )
   }
@@ -85,12 +65,11 @@ function KnowledgeBody(props: { readonly tab: TabKey }) {
   return isWide ? <FaqCoverageGridCP /> : <FaqCoverageListCP />
 }
 
-/** Step 3: FAQ dictionary, coverage matrix, starter pack and unanswered inbox. */
+/** Step 3: FAQ dictionary, coverage matrix and unanswered inbox. */
 export default function KnowledgeStepCP() {
   const dispatch = useAppDispatch()
   const [tab, setTab] = useState<TabKey>("dictionary")
   const unansweredTotal = useAppSelector((state) => state.leadAssistant.faq.unanswered.total)
-  const faqCount = useAppSelector((state) => state.leadAssistant.faq.items.length)
   return (
     <Stack spacing={2.5}>
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
@@ -102,21 +81,14 @@ export default function KnowledgeStepCP() {
             {s.knowledgeIntro}
           </Typography>
         </Box>
-        {faqCount > 0 ? (
-          <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
-            <Button
-              variant="outlined"
-              startIcon={<AutoAwesomeOutlined />}
-              onClick={() => dispatch(openStarterAct(buildStarterDrafts()))}
-              sx={{ display: { xs: "none", sm: "inline-flex" } }}
-            >
-              {s.faqStarterButton}
-            </Button>
-            <Button variant="contained" startIcon={<AddOutlined />} onClick={() => dispatch(openCreateDrawerAct())}>
-              {s.faqAdd}
-            </Button>
-          </Stack>
-        ) : null}
+        <Button
+          variant="contained"
+          startIcon={<AddOutlined />}
+          onClick={() => dispatch(openCreateDrawerAct())}
+          sx={{ flexShrink: 0 }}
+        >
+          {s.faqAdd}
+        </Button>
       </Stack>
       <Tabs
         value={tab}

@@ -8,10 +8,15 @@ type Props = {
   readonly actionLabel?: string
   readonly actionIcon?: ReactNode
   readonly onAction?: () => void
+  readonly secondaryActionLabel?: string
+  readonly secondaryActionIcon?: ReactNode
+  readonly onSecondaryAction?: () => void
 }
 
 /** Empty state: what is missing, why it matters, and the primary action. */
 export default function SectionEmptyStateCP(props: Props) {
+  const hasPrimary = props.actionLabel != null && props.onAction != null
+  const hasSecondary = props.secondaryActionLabel != null && props.onSecondaryAction != null
   return (
     <Stack
       alignItems="flex-start"
@@ -33,10 +38,19 @@ export default function SectionEmptyStateCP(props: Props) {
       <Typography variant="body2" color="text.secondary">
         {props.body}
       </Typography>
-      {props.actionLabel != null && props.onAction != null ? (
-        <Button variant="contained" startIcon={props.actionIcon} onClick={props.onAction}>
-          {props.actionLabel}
-        </Button>
+      {hasPrimary || hasSecondary ? (
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          {hasPrimary ? (
+            <Button variant="contained" startIcon={props.actionIcon} onClick={props.onAction}>
+              {props.actionLabel}
+            </Button>
+          ) : null}
+          {hasSecondary ? (
+            <Button variant="outlined" startIcon={props.secondaryActionIcon} onClick={props.onSecondaryAction}>
+              {props.secondaryActionLabel}
+            </Button>
+          ) : null}
+        </Stack>
       ) : null}
     </Stack>
   )

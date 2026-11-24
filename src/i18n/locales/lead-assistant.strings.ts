@@ -7,27 +7,6 @@ import type {
   LeadTemplateBindingSource,
 } from "../../features/lead-assistant/types/lead-assistant.types"
 
-type StarterQuestion = {
-  readonly category: LeadFaqCategory
-  readonly question: string
-}
-
-const starterQuestions: readonly StarterQuestion[] = [
-  { category: "price", question: "¿Cuál es el precio de los lotes?" },
-  { category: "price", question: "¿Qué tamaños de lote hay disponibles?" },
-  { category: "financing", question: "¿Con cuánto puedo separar un lote?" },
-  {
-    category: "financing",
-    question: "¿Cómo es la financiación y cuánto queda la cuota mensual?",
-  },
-  { category: "legal", question: "¿Los lotes tienen escritura y qué documentos entregan?" },
-  { category: "services", question: "¿Qué servicios públicos tiene el proyecto?" },
-  { category: "location", question: "¿Dónde queda y cómo se llega?" },
-  { category: "process", question: "¿Puedo visitar el proyecto?" },
-  { category: "process", question: "¿Cuándo puedo empezar a construir?" },
-  { category: "process", question: "¿Cuál es el proceso de compra?" },
-]
-
 const simulatorMediaLabels: Partial<Record<LeadSimulatedMessageKind, string>> = {
   image: "Imagen",
   video: "Video",
@@ -191,11 +170,10 @@ export const leadAssistantStrings = {
   dictionaryMissingAnswer: "Sin respuesta para este filtro",
   dictionaryNoMatches: "Ninguna pregunta coincide con la búsqueda.",
   faqAdd: "Nueva pregunta",
-  faqStarterButton: "Preguntas sugeridas",
   faqEmptyTitle: "Aún no hay preguntas",
   faqEmptyBody:
-    "La asistente solo responde con lo que esté aquí y en los datos del proyecto. Empieza con las preguntas más comunes.",
-  faqEmptyAction: "Usar preguntas sugeridas",
+    "Escribe las preguntas que la asistente debe saber responder (servicios, legal, proceso, etc.). Precio y tamaños de lote salen de cada proyecto, no de este diccionario.",
+  faqEmptyAction: "Nueva pregunta",
   faqLoadError: "No se pudieron cargar las preguntas frecuentes",
   faqSaved: "Pregunta guardada",
   faqSaveError: "No se pudo guardar la pregunta",
@@ -245,18 +223,6 @@ export const leadAssistantStrings = {
     categoryRequired: "Elige una categoría",
     answerRequired: "Agrega una respuesta general o al menos una excepción por proyecto",
   },
-  starterTitle: "Preguntas sugeridas",
-  starterBody:
-    "Escribe la respuesta de las que quieras usar; las que dejes vacías no se guardan. Podrás ajustar cada una por proyecto después.",
-  starterAnswerPlaceholder: "Respuesta que dará la asistente",
-  starterSkipHint: "Las preguntas sin respuesta se omiten.",
-  starterSave: (count: number): string =>
-    count === 1 ? "Guardar 1 pregunta" : `Guardar ${count} preguntas`,
-  starterSaved: (count: number): string =>
-    count === 1 ? "1 pregunta guardada" : `${count} preguntas guardadas`,
-  starterPartial: (saved: number, failed: number): string =>
-    `${saved} guardadas, ${failed} con error. Reintenta con las que quedaron.`,
-  starterQuestions,
   unansweredEmptyTitle: "Sin preguntas pendientes",
   unansweredEmptyBody:
     "Cuando un cliente pregunte algo que la asistente no sepa responder, aparecerá aquí.",
