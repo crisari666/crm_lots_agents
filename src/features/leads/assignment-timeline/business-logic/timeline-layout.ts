@@ -3,18 +3,30 @@ import type {
   AssignmentTimelineEvent,
 } from "../types/assignment-timeline.types"
 
-/** Pixels per hour on the horizontal axis. */
-export const TIMELINE_PX_PER_HOUR = 48
+/** Width of one event time column on the discrete X-axis. */
+export const TIMELINE_COLUMN_WIDTH = 140
 export const TIMELINE_LANE_HEIGHT = 56
 export const TIMELINE_LABEL_WIDTH = 160
 export const TIMELINE_RULER_HEIGHT = 36
 export const TIMELINE_CHIP_WIDTH = 120
 export const TIMELINE_CHIP_HEIGHT = 36
 
-export type TimelineExtent = {
-  readonly minMs: number
-  readonly maxMs: number
+const MINUTE_MS = 60 * 1000
+
+export type TimelineEventColumn = {
+  readonly ms: number
+  readonly index: number
+}
+
+export type TimelineEventColumns = {
+  readonly columns: readonly TimelineEventColumn[]
   readonly widthPx: number
+}
+
+export type TimelineTick = {
+  readonly ms: number
+  readonly label: string
+  readonly leftPx: number
 }
 
 export function eventAnchorIso(
@@ -24,42 +36,68 @@ export function eventAnchorIso(
   return clockMode === "arrivedAt" ? event.arrivedAt : event.assignedAt
 }
 
-export function buildTimelineExtent(
+function floorToMinuteMs(ms: number): number {
+  return Math.floor(ms / MINUTE_MS) * MINUTE_MS
+}
+
+function formatTickLabel(ms: number): string {
+  return new Date(ms).toLocaleString("es-CO", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+/**
+ * Builds evenly spaced columns from unique event anchor minutes (clock mode).
+ * Empty time gaps are collapsed — only arrival/assignment times appear.
+ */
+export function buildEventColumns(
   events: readonly AssignmentTimelineEvent[],
-  clockMode: AssignmentTimelineClockMode,
-  windowFromIso: string,
-  windowToIso: string
-): TimelineExtent {
-  let minMs = new Date(windowFromIso).getTime()
-  let maxMs = new Date(windowToIso).getTime()
+  clockMode: AssignmentTimelineClockMode
+): TimelineEventColumns {
+  const uniqueMs = new Set<number>()
   for (const event of events) {
     const ms = new Date(eventAnchorIso(event, clockMode)).getTime()
     if (!Number.isNaN(ms)) {
-      minMs = Math.min(minMs, ms)
-      maxMs = Math.max(maxMs, ms)
+      uniqueMs.add(floorToMinuteMs(ms))
     }
   }
-  if (!(maxMs > minMs)) {
-    maxMs = minMs + 24 * 60 * 60 * 1000
-  }
-  const padMs = 60 * 60 * 1000
-  minMs -= padMs
-  maxMs += padMs
-  const hours = (maxMs - minMs) / (60 * 60 * 1000)
-  return {
-    minMs,
-    maxMs,
-    widthPx: Math.max(Math.ceil(hours * TIMELINE_PX_PER_HOUR), 640),
-  }
+  const sortedMs = Array.from(uniqueMs).sort((a, b) => a - b)
+  const columns: TimelineEventColumn[] = sortedMs.map((ms, index) => ({ ms, index }))
+  const widthPx = Math.max(columns.length * TIMELINE_COLUMN_WIDTH, TIMELINE_COLUMN_WIDTH)
+  return { columns, widthPx }
 }
 
-export function timeToOffsetPx(iso: string, extent: TimelineExtent): number {
+export function eventColumnOffsetPx(iso: string, layout: TimelineEventColumns): number {
   const ms = new Date(iso).getTime()
-  if (Number.isNaN(ms)) {
-    return 0
+  if (Number.isNaN(ms) || layout.columns.length === 0) {
+    return TIMELINE_COLUMN_WIDTH / 2
   }
-  const ratio = (ms - extent.minMs) / (extent.maxMs - extent.minMs)
-  return Math.max(0, Math.min(1, ratio)) * extent.widthPx
+  const bucketMs = floorToMinuteMs(ms)
+  const exact = layout.columns.find((column) => column.ms === bucketMs)
+  if (exact) {
+    return exact.index * TIMELINE_COLUMN_WIDTH + TIMELINE_COLUMN_WIDTH / 2
+  }
+  let nearest = layout.columns[0]
+  let nearestDelta = Math.abs(nearest.ms - bucketMs)
+  for (const column of layout.columns) {
+    const delta = Math.abs(column.ms - bucketMs)
+    if (delta < nearestDelta) {
+      nearest = column
+      nearestDelta = delta
+    }
+  }
+  return nearest.index * TIMELINE_COLUMN_WIDTH + TIMELINE_COLUMN_WIDTH / 2
+}
+
+export function buildEventTicks(layout: TimelineEventColumns): readonly TimelineTick[] {
+  return layout.columns.map((column) => ({
+    ms: column.ms,
+    label: formatTickLabel(column.ms),
+    leftPx: column.index * TIMELINE_COLUMN_WIDTH + TIMELINE_COLUMN_WIDTH / 2,
+  }))
 }
 
 export function listVentorIds(events: readonly AssignmentTimelineEvent[]): string[] {
@@ -71,26 +109,6 @@ export function listVentorIds(events: readonly AssignmentTimelineEvent[]): strin
     }
   }
   return Array.from(ids).sort((a, b) => a.localeCompare(b))
-}
-
-export function buildHourTicks(extent: TimelineExtent): readonly { ms: number; label: string }[] {
-  const hourMs = 60 * 60 * 1000
-  const startHour = Math.floor(extent.minMs / hourMs) * hourMs
-  const ticks: { ms: number; label: string }[] = []
-  for (let ms = startHour; ms <= extent.maxMs; ms += hourMs) {
-    if (ms < extent.minMs) {
-      continue
-    }
-    const date = new Date(ms)
-    const label = date.toLocaleString("es-CO", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-    ticks.push({ ms, label })
-  }
-  return ticks
 }
 
 export function formatEventLabel(event: AssignmentTimelineEvent): string {

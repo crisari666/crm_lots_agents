@@ -10,12 +10,12 @@ import {
   TIMELINE_LABEL_WIDTH,
   TIMELINE_LANE_HEIGHT,
   TIMELINE_RULER_HEIGHT,
-  buildHourTicks,
-  buildTimelineExtent,
+  buildEventColumns,
+  buildEventTicks,
   eventAnchorIso,
+  eventColumnOffsetPx,
   formatEventLabel,
   listVentorIds,
-  timeToOffsetPx,
 } from "../business-logic/timeline-layout"
 import type { AssignmentTimelineEvent } from "../types/assignment-timeline.types"
 
@@ -40,7 +40,7 @@ function chipColor(event: AssignmentTimelineEvent): string {
 }
 
 /**
- * Video-editor style board: sticky ventor labels, horizontal time canvas, scroll-left loads older.
+ * Video-editor style board: sticky ventor labels, discrete event-time columns, scroll-left loads older.
  */
 export default function AssignmentTimelineBoardCP() {
   const dispatch = useAppDispatch()
@@ -48,19 +48,14 @@ export default function AssignmentTimelineBoardCP() {
   const leftSentinelRef = useRef<HTMLDivElement | null>(null)
   const events = useAppSelector((state) => state.assignmentTimeline.events)
   const clockMode = useAppSelector((state) => state.assignmentTimeline.clockMode)
-  const windowFrom = useAppSelector((state) => state.assignmentTimeline.windowFrom)
-  const windowTo = useAppSelector((state) => state.assignmentTimeline.windowTo)
   const hasMoreOlder = useAppSelector((state) => state.assignmentTimeline.hasMoreOlder)
   const loadingOlder = useAppSelector((state) => state.assignmentTimeline.loadingOlder)
   const loading = useAppSelector((state) => state.assignmentTimeline.loading)
   const users = useAppSelector((state) => state.users.users) as UserRow[]
 
   const ventorIds = useMemo(() => listVentorIds(events), [events])
-  const extent = useMemo(
-    () => buildTimelineExtent(events, clockMode, windowFrom, windowTo),
-    [events, clockMode, windowFrom, windowTo]
-  )
-  const ticks = useMemo(() => buildHourTicks(extent), [extent])
+  const columns = useMemo(() => buildEventColumns(events, clockMode), [events, clockMode])
+  const ticks = useMemo(() => buildEventTicks(columns), [columns])
 
   useEffect(() => {
     const root = scrollRef.current
@@ -137,7 +132,7 @@ export default function AssignmentTimelineBoardCP() {
             position: "relative",
           }}
         >
-          <Box sx={{ position: "relative", width: extent.widthPx, height: boardHeight }}>
+          <Box sx={{ position: "relative", width: columns.widthPx, height: boardHeight }}>
             <Box
               ref={leftSentinelRef}
               sx={{ position: "absolute", left: 0, top: 0, width: 8, height: "100%", zIndex: 1 }}
@@ -148,32 +143,29 @@ export default function AssignmentTimelineBoardCP() {
                 left: 0,
                 top: 0,
                 height: TIMELINE_RULER_HEIGHT,
-                width: extent.widthPx,
+                width: columns.widthPx,
                 borderBottom: 1,
                 borderColor: "divider",
                 bgcolor: "grey.50",
               }}
             >
-              {ticks.map((tick) => {
-                const left = timeToOffsetPx(new Date(tick.ms).toISOString(), extent)
-                return (
-                  <Typography
-                    key={tick.ms}
-                    variant="caption"
-                    sx={{
-                      position: "absolute",
-                      left,
-                      top: 8,
-                      transform: "translateX(-50%)",
-                      whiteSpace: "nowrap",
-                      color: "text.secondary",
-                      fontSize: 10,
-                    }}
-                  >
-                    {tick.label}
-                  </Typography>
-                )
-              })}
+              {ticks.map((tick) => (
+                <Typography
+                  key={tick.ms}
+                  variant="caption"
+                  sx={{
+                    position: "absolute",
+                    left: tick.leftPx,
+                    top: 8,
+                    transform: "translateX(-50%)",
+                    whiteSpace: "nowrap",
+                    color: "text.secondary",
+                    fontSize: 10,
+                  }}
+                >
+                  {tick.label}
+                </Typography>
+              ))}
             </Box>
             {ventorIds.map((ventorId, laneIndex) => {
               const top = TIMELINE_RULER_HEIGHT + laneIndex * TIMELINE_LANE_HEIGHT
@@ -185,31 +177,28 @@ export default function AssignmentTimelineBoardCP() {
                     position: "absolute",
                     left: 0,
                     top,
-                    width: extent.widthPx,
+                    width: columns.widthPx,
                     height: TIMELINE_LANE_HEIGHT,
                     borderBottom: 1,
                     borderColor: "divider",
                   }}
                 >
-                  {ticks.map((tick) => {
-                    const left = timeToOffsetPx(new Date(tick.ms).toISOString(), extent)
-                    return (
-                      <Box
-                        key={`${ventorId}-${tick.ms}`}
-                        sx={{
-                          position: "absolute",
-                          left,
-                          top: 0,
-                          bottom: 0,
-                          width: "1px",
-                          bgcolor: "divider",
-                          opacity: 0.5,
-                        }}
-                      />
-                    )
-                  })}
+                  {ticks.map((tick) => (
+                    <Box
+                      key={`${ventorId}-${tick.ms}`}
+                      sx={{
+                        position: "absolute",
+                        left: tick.leftPx,
+                        top: 0,
+                        bottom: 0,
+                        width: "1px",
+                        bgcolor: "divider",
+                        opacity: 0.5,
+                      }}
+                    />
+                  ))}
                   {laneEvents.map((event) => {
-                    const left = timeToOffsetPx(eventAnchorIso(event, clockMode), extent)
+                    const left = eventColumnOffsetPx(eventAnchorIso(event, clockMode), columns)
                     const title = [
                       formatEventLabel(event),
                       event.customerPhone,
