@@ -18,6 +18,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import UserInterface from "../../../app/models/user-interface"
 import { OfficeInterface } from "../../../app/models/office.inteface"
 import type { CustomerStepV2 } from "../../steps-v2/services/customer-steps-v2.service"
+import ProjectFilterAutocompleteCP from "../../project/components/project-filter-autocomplete.cp"
 import type { FilterFormState } from "../types/filter-form.types"
 import AssignUserAutocompleteCP from "./assign-user-autocomplete.cp"
 
@@ -242,6 +243,11 @@ export default function CustomerListFiltersCP({
               ))}
             </Select>
           </FormControl>
+          <ProjectFilterAutocompleteCP
+            value={draft.projectId}
+            onChange={(projectId) => setDraft((prev) => ({ ...prev, projectId }))}
+            label="Proyecto"
+          />
         </Stack>
       </Stack>
     </Box>

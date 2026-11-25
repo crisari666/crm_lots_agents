@@ -12,6 +12,7 @@ import {
 } from "@mui/material"
 import { fetchUsers } from "../../../app/services/users.service"
 import UserInterface from "../../../app/models/user-interface"
+import ProjectFilterAutocompleteCP from "../../project/components/project-filter-autocomplete.cp"
 import { createCustomerAdmin } from "../services/customers-ms.service"
 import AssignUserAutocompleteCP from "./assign-user-autocomplete.cp"
 
@@ -163,14 +164,13 @@ export default function AddCustomerDialogCP({
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Proyecto (id)"
+            <ProjectFilterAutocompleteCP
               value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
-              fullWidth
+              onChange={setProjectId}
+              label="Proyecto"
               size="small"
-              margin="none"
-              placeholder="Opcional"
+              disabled={loading}
+              sx={{ width: "100%" }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>

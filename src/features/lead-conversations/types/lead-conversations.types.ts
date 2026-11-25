@@ -45,6 +45,7 @@ export type ListLeadConversationsParams = {
   step?: LeadConversationStep
   flow?: LeadConversationFlowVersion
   search?: string
+  projectId?: string
   page: number
   limit: number
 }

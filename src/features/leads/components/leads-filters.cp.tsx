@@ -9,6 +9,7 @@ import {
 import { Refresh } from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { leadsStrings as s } from "../../../i18n/locales/leads.strings"
+import ProjectFilterAutocompleteCP from "../../project/components/project-filter-autocomplete.cp"
 import {
   fetchLeadFormOptionsThunk,
   fetchLeadsThunk,
@@ -101,6 +102,12 @@ export default function LeadsFiltersCP(): React.ReactElement {
             </MenuItem>
           ))}
         </TextField>
+        <ProjectFilterAutocompleteCP
+          value={filters.projectId}
+          onChange={(projectId) => dispatch(setLeadsFiltersAct({ projectId }))}
+          label={s.projectLabel}
+          sx={{ minWidth: 200 }}
+        />
         <TextField
           type="date"
           size="small"

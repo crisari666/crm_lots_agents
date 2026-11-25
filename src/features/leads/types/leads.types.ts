@@ -41,6 +41,8 @@ export type LeadListItem = {
   createdAt: string
   leadSession?: LeadSessionSummary
   scheduledCall?: LeadScheduledCall
+  /** Project ids of interest (titles resolved from RAG catalog). */
+  interestedProjects?: { projectId: string }[]
 }
 
 export type LeadFormOption = {
@@ -66,4 +68,5 @@ export type ListLeadsParams = {
   search?: string
   from?: string
   to?: string
+  projectId?: string
 }

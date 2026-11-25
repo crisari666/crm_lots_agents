@@ -31,6 +31,8 @@ export type CustomerAdminListItem = {
   /** True when created from referral flow. */
   isReferral: boolean
   createdAt: string
+  /** Project ids of interest (titles resolved from RAG catalog). */
+  interestedProjects?: { projectId: string }[]
 }
 
 export type CustomerAdminListResponse = {
@@ -65,6 +67,8 @@ export type ListCustomersAdminParams = {
   search?: string
   /** Filter list to customers currently on this pipeline step. */
   customerStepId?: string
+  /** Filter list to customers with this id in interestedProjects. */
+  projectId?: string
   limit?: number
   skip?: number
 }

@@ -24,6 +24,7 @@ type LeadConversationsFilters = {
   step: LeadConversationStep | ""
   flow: LeadConversationFlowFilter
   search: string
+  projectId: string
   page: number
   limit: 10 | 20 | 50
 }
@@ -51,7 +52,7 @@ const initialState: LeadConversationsState = {
   total: 0,
   loading: false,
   error: null,
-  filters: { status: "", step: "", flow: "", search: "", page: 0, limit: 20 },
+  filters: { status: "", step: "", flow: "", search: "", projectId: "", page: 0, limit: 20 },
   selectedSessionId: null,
   drawerSchedule: null,
   messages: [],
@@ -92,6 +93,7 @@ export const fetchLeadConversationsThunk = createAsyncThunk<
       ...(filters.status ? { status: filters.status } : {}),
       ...(filters.step ? { step: filters.step } : {}),
       ...(filters.flow ? { flow: filters.flow } : {}),
+      ...(filters.projectId.trim() ? { projectId: filters.projectId.trim() } : {}),
     })
   } catch (err: unknown) {
     return rejectWithValue(axiosMessage(err, s.loadError))

@@ -18,6 +18,7 @@ export async function listAdminLeads(params: ListLeadsParams): Promise<LeadListP
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
       ...(params.from ? { from: params.from } : {}),
       ...(params.to ? { to: params.to } : {}),
+      ...(params.projectId?.trim() ? { projectId: params.projectId.trim() } : {}),
     },
   })
   return response.data

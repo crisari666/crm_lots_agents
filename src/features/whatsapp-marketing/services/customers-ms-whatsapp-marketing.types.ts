@@ -30,6 +30,7 @@ export type MarketingAudienceFilterBody = {
   isReferral?: boolean
   search?: string
   customerStepIds?: string[]
+  projectId?: string
 }
 
 export type AudiencePreviewBody = {

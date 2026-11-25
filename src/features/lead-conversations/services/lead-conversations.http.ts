@@ -24,6 +24,7 @@ export async function listLeadConversations(
       ...(params.step ? { step: params.step } : {}),
       ...(params.flow ? { flow: params.flow } : {}),
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
+      ...(params.projectId?.trim() ? { projectId: params.projectId.trim() } : {}),
     },
   })
   return response.data

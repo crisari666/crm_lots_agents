@@ -3,6 +3,7 @@ export const leadConversationsStrings = {
   subtitle:
     "Revisa lo que cada lead respondió al asistente de WhatsApp, reinicia el flujo o elimina la conversación.",
   searchLabel: "Buscar por teléfono, nombre o proyecto",
+  projectLabel: "Proyecto",
   statusLabel: "Estado",
   stepLabel: "Paso",
   allOption: "Todos",
@@ -17,6 +18,7 @@ export const leadConversationsStrings = {
   colStatus: "Estado",
   colScore: "Puntaje",
   colLastMessage: "Último mensaje",
+  columnsMenu: "Columnas",
   allProjects: "Todos los proyectos",
   noProject: "Sin proyecto aún",
   emptyTitle: "No hay conversaciones con estos filtros",

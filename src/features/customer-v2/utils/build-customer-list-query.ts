@@ -38,5 +38,6 @@ export function buildCustomerListQueryParams(
     ...(search ? { search } : {}),
     ...(stepId ? { customerStepId: stepId } : {}),
     ...(applied.createdBy.trim() ? { createdBy: applied.createdBy.trim() } : {}),
+    ...(applied.projectId.trim() ? { projectId: applied.projectId.trim() } : {}),
   }
 }

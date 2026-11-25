@@ -15,8 +15,9 @@ import {
 } from "@mui/material"
 import moment from "moment"
 import UserInterface from "../../../../app/models/user-interface"
-import type { CustomerAdminDetail } from "../../services/customers-ms.service"
 import type { AppDispatch } from "../../../../app/store"
+import ProjectFilterAutocompleteCP from "../../../project/components/project-filter-autocomplete.cp"
+import type { CustomerAdminDetail } from "../../services/customers-ms.service"
 import {
   setCustomerDetailFormAct,
   setCustomerDetailInterestedProjectsAct,
@@ -178,17 +179,17 @@ export default function CustomerDetailFormTabCP({
             spacing={1}
             alignItems="flex-start"
           >
-            <TextField
-              label="Project ID"
+            <ProjectFilterAutocompleteCP
               value={row.projectId}
-              onChange={(e) => {
+              onChange={(projectId) => {
                 const next = [...form.interestedProjects]
-                next[index] = { ...next[index], projectId: e.target.value }
+                next[index] = { ...next[index], projectId }
                 dispatch(setCustomerDetailInterestedProjectsAct(next))
               }}
+              label="Proyecto"
               size="small"
-              fullWidth
               disabled={detailSaving}
+              sx={{ flex: 1, minWidth: { xs: "100%", sm: 220 } }}
             />
             <TextField
               label="Fecha (ISO)"

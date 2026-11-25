@@ -25,6 +25,7 @@ export default function CustomersPage() {
       createdBy: draft.createdBy,
       search: draft.search,
       customerStepId: draft.customerStepId,
+      projectId: draft.projectId,
     })
   }, [draft])
 

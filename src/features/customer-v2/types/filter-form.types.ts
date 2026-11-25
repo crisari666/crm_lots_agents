@@ -19,6 +19,8 @@ export type FilterFormState = {
   search: string
   /** Empty = all steps; otherwise Mongo id of catalog step. */
   customerStepId: string
+  /** Empty = all projects; otherwise RAG project id in interestedProjects. */
+  projectId: string
 }
 
 export function emptyFilters(): FilterFormState {
@@ -34,5 +36,6 @@ export function emptyFilters(): FilterFormState {
     createdBy: "",
     search: "",
     customerStepId: "",
+    projectId: "",
   }
 }

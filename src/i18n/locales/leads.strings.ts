@@ -11,6 +11,8 @@ export const leadsStrings = {
   sourceAll: "Todos los orígenes",
   formLabel: "Formulario Meta",
   formAll: "Todos los formularios",
+  projectLabel: "Proyecto",
+
   sources: {
     meta_form: "Meta form",
     whatsapp_lead_conversation: "WhatsApp IA",
@@ -37,7 +39,9 @@ export const leadsStrings = {
   colAssignee: "Asesor",
   colScore: "Score IA",
   colCreated: "Alta",
+  colProject: "Proyecto",
   colActions: "Acciones",
+  columnsMenu: "Columnas",
   unassigned: "Sin asignar",
   promoted: "Ya es cliente",
   leadStripTitle: "Resumen lead",

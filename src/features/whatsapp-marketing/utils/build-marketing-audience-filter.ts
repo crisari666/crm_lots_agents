@@ -51,5 +51,6 @@ export function buildMarketingAudienceFilterBody(
     ...(applied.referralOnly ? { isReferral: true } : {}),
     ...(search ? { search } : {}),
     ...(customerStepIds.length > 0 ? { customerStepIds } : {}),
+    ...(applied.projectId.trim() ? { projectId: applied.projectId.trim() } : {}),
   }
 }

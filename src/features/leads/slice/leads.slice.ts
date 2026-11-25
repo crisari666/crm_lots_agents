@@ -20,6 +20,7 @@ export type LeadsFilters = {
   search: string
   from: string
   to: string
+  projectId: string
 }
 
 export type LeadsState = {
@@ -51,6 +52,7 @@ const initialState: LeadsState = {
     search: "",
     from: "",
     to: "",
+    projectId: "",
   },
   formOptions: [],
   formOptionsLoaded: false,
@@ -87,6 +89,7 @@ export const fetchLeadsThunk = createAsyncThunk(
       ...(filters.search.trim() ? { search: filters.search.trim() } : {}),
       ...(filters.from ? { from: filters.from } : {}),
       ...(filters.to ? { to: filters.to } : {}),
+      ...(filters.projectId.trim() ? { projectId: filters.projectId.trim() } : {}),
     }
     try {
       return await listAdminLeads(params)

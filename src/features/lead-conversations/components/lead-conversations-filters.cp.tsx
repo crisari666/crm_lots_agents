@@ -3,6 +3,7 @@ import { Button, MenuItem, Paper, Stack, TextField } from "@mui/material"
 import { Search as SearchIcon } from "@mui/icons-material"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { leadConversationsStrings as s } from "../../../i18n/locales/lead-conversations.strings"
+import ProjectFilterAutocompleteCP from "../../project/components/project-filter-autocomplete.cp"
 import {
   fetchLeadConversationsThunk,
   setLeadConversationsFiltersAct,
@@ -34,6 +35,12 @@ export default function LeadConversationsFiltersCP(): React.ReactElement {
           value={filters.search}
           onChange={(event) => dispatch(setLeadConversationsFiltersAct({ search: event.target.value }))}
           sx={{ flex: 1, minWidth: 240 }}
+        />
+        <ProjectFilterAutocompleteCP
+          value={filters.projectId}
+          onChange={(projectId) => applyFilters({ projectId })}
+          label={s.projectLabel}
+          sx={{ minWidth: 200 }}
         />
         <TextField
           select
