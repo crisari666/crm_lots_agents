@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { SettingForm, SettingsSliceState } from "./settings.state";
-import { addSettingReq, getSettingsReq, updateSettingReq } from "../../../app/services/settings.service";
+import {
+  addSettingReq,
+  getSettingsChangeHistoryReq,
+  getSettingsReq,
+  updateSettingReq,
+} from "../../../app/services/settings.service";
 const settingFormInitStaTe: SettingForm = {
   title: "",
   type: "",
@@ -12,13 +17,25 @@ const initialState: SettingsSliceState = {
   settingForm: settingFormInitStaTe,
   settings: [],
   showDialog: false,
-  settingForEdit: ""
+  settingForEdit: "",
+  history: [],
+  historyLoading: false,
+  historyError: null,
 }
 export const getSettingsThunk = createAsyncThunk( "SettingsSlice/getSettingsThunk", async () => await getSettingsReq())
 
 export const addSettingThunk = createAsyncThunk( "SettingsSlice/addSetting", async (setting: SettingForm) => await addSettingReq({setting}))
 
 export const updateSettingThunk = createAsyncThunk( "SettingsSlice/updateSettingThunk", async ({setting, settingId} : {settingId: string, setting: SettingForm}) => await updateSettingReq({setting, settingId}))
+
+export const getSettingsHistoryThunk = createAsyncThunk(
+  "SettingsSlice/getSettingsHistoryThunk",
+  async () => await getSettingsChangeHistoryReq(),
+)
+
+const isSettingsListMutation = (actionType: string): boolean =>
+  actionType.includes("SettingsSlice") &&
+  !actionType.includes("getSettingsHistoryThunk")
 
 export const settingsSlice = createSlice({
   name: "SettingsSlice",
@@ -55,9 +72,25 @@ export const settingsSlice = createSlice({
       state.settingForm = settingFormInitStaTe
     })
 
-    builder.addMatcher((action) => action.type.endsWith("/pending") && action.type.includes("SettingsSlice"), (state) => {
+    builder
+      .addCase(getSettingsHistoryThunk.pending, (state) => {
+        state.historyLoading = true
+        state.historyError = null
+      })
+      .addCase(getSettingsHistoryThunk.fulfilled, (state, action) => {
+        state.historyLoading = false
+        state.history = action.payload
+      })
+      .addCase(getSettingsHistoryThunk.rejected, (state, action) => {
+        state.historyLoading = false
+        state.historyError = action.error.message ?? "Failed to load history"
+      })
+
+    builder.addMatcher((action) => action.type.endsWith("/pending") && isSettingsListMutation(action.type), (state) => {
       state.loading = true
-    }).addMatcher((action) => action.type.endsWith("/fulfilled") && action.type.includes("SettingsSlice"), (state) => {
+    }).addMatcher((action) => action.type.endsWith("/fulfilled") && isSettingsListMutation(action.type), (state) => {
+      state.loading = false
+    }).addMatcher((action) => action.type.endsWith("/rejected") && isSettingsListMutation(action.type), (state) => {
       state.loading = false
     })
   },
