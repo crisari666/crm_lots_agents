@@ -26,6 +26,11 @@ import {
   TableRow,
   Typography,
 } from "@mui/material"
+import ProjectChipsCP from "../../../app/components/project-chips.cp"
+import TableColumnPickerCP, {
+  type TableColumnPickerOption,
+} from "../../../app/components/table-column-picker.cp"
+import { useTableColumnVisibility } from "../../../app/hooks/use-table-column-visibility"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { leadsStrings as s } from "../../../i18n/locales/leads.strings"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
@@ -52,6 +57,25 @@ function displayName(item: LeadListItem): string {
   return `${item.name} ${item.lastName}`.trim() || item.phone
 }
 
+const COLUMN_VISIBILITY_STORAGE_KEY = "crm.leads.columnVisibility.v1"
+
+const LEADS_COLUMN_OPTIONS: readonly TableColumnPickerOption[] = [
+  { id: "name", label: s.colName },
+  { id: "phone", label: s.colPhone },
+  { id: "sources", label: s.colSources },
+  { id: "form", label: s.colForm },
+  { id: "lifecycle", label: s.colLifecycle },
+  { id: "assignee", label: s.colAssignee },
+  { id: "score", label: s.colScore },
+  { id: "created", label: s.colCreated },
+  { id: "project", label: s.colProject },
+  { id: "actions", label: s.colActions, locked: true },
+]
+
+const LEADS_DEFAULT_VISIBILITY = Object.fromEntries(
+  LEADS_COLUMN_OPTIONS.map((column) => [column.id, true])
+) as Record<string, boolean>
+
 export default function LeadsTableCP(): React.ReactElement {
   const dispatch = useAppDispatch()
   const items = useAppSelector((state) => state.leads.items)
@@ -69,6 +93,11 @@ export default function LeadsTableCP(): React.ReactElement {
   const [convertTarget, setConvertTarget] = useState<LeadListItem | null>(null)
   const [assignToUserId, setAssignToUserId] = useState("")
   const [detailLead, setDetailLead] = useState<LeadListItem | null>(null)
+  const { visibility, isVisible, setColumnVisible, visibleCount } = useTableColumnVisibility({
+    storageKey: COLUMN_VISIBILITY_STORAGE_KEY,
+    defaultVisibility: LEADS_DEFAULT_VISIBILITY,
+    lockedIds: ["actions"],
+  })
 
   useEffect(() => {
     if (!gotUsers) {
@@ -167,100 +196,140 @@ export default function LeadsTableCP(): React.ReactElement {
 
   return (
     <>
-      <TableContainer component={Paper} variant="outlined">
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>{s.colName}</TableCell>
-              <TableCell>{s.colPhone}</TableCell>
-              <TableCell>{s.colSources}</TableCell>
-              <TableCell>{s.colForm}</TableCell>
-              <TableCell>{s.colLifecycle}</TableCell>
-              <TableCell>{s.colAssignee}</TableCell>
-              <TableCell>{s.colScore}</TableCell>
-              <TableCell>{s.colCreated}</TableCell>
-              <TableCell align="right">{s.colActions}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id} hover>
-                <TableCell>
-                  <MuiLink
-                    component="button"
-                    type="button"
-                    onClick={() => openDetail(item)}
-                    sx={{ cursor: "pointer", fontWeight: 600 }}
-                  >
-                    {displayName(item)}
-                  </MuiLink>
-                </TableCell>
-                <TableCell>{item.phone}</TableCell>
-                <TableCell>
-                  <Box>
-                    {item.leadSources.map((source) => (
-                      <LeadsSourceChipCP key={source} source={source} />
-                    ))}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" color={item.metaFormName ? "text.primary" : "text.secondary"}>
-                    {item.metaFormName?.trim() || s.formUnknown}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    size="small"
-                    label={item.isPromoted ? s.lifecycleCustomer : s.lifecycleLead}
-                    color={item.isPromoted ? "success" : "warning"}
-                  />
-                </TableCell>
-                <TableCell>{userName(item.assignedTo)}</TableCell>
-                <TableCell>
-                  {item.leadSession?.score !== undefined ? `${item.leadSession.score}` : "—"}
-                </TableCell>
-                <TableCell>
-                  {new Date(item.createdAt).toLocaleString("es-CO", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
-                </TableCell>
-                <TableCell align="right">
-                  <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap">
-                    <Button size="small" onClick={() => openDetail(item)} sx={{ cursor: "pointer" }}>
-                      {s.openDetail}
-                    </Button>
-                    {item.leadSession?.sessionId ? (
-                      <Button
-                        size="small"
-                        onClick={() => openConversation(item)}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        {s.openSession}
-                      </Button>
-                    ) : null}
-                    {canConvertLead(item) ? (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        disabled={convertingId === item.id}
-                        onClick={() => openConvert(item)}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        {s.convert}
-                      </Button>
-                    ) : item.isPromoted ? (
-                      <Typography variant="caption" color="text.secondary">
-                        {s.promoted}
-                      </Typography>
-                    ) : null}
-                  </Stack>
-                </TableCell>
+      <Paper variant="outlined">
+        <Box sx={{ px: 2, py: 1, display: "flex", justifyContent: "flex-end" }}>
+          <TableColumnPickerCP
+            columns={LEADS_COLUMN_OPTIONS}
+            visibility={visibility}
+            onChange={setColumnVisible}
+            menuLabel={s.columnsMenu}
+          />
+        </Box>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                {isVisible("name") ? <TableCell>{s.colName}</TableCell> : null}
+                {isVisible("phone") ? <TableCell>{s.colPhone}</TableCell> : null}
+                {isVisible("sources") ? <TableCell>{s.colSources}</TableCell> : null}
+                {isVisible("form") ? <TableCell>{s.colForm}</TableCell> : null}
+                {isVisible("lifecycle") ? <TableCell>{s.colLifecycle}</TableCell> : null}
+                {isVisible("assignee") ? <TableCell>{s.colAssignee}</TableCell> : null}
+                {isVisible("project") ? <TableCell>{s.colProject}</TableCell> : null}
+                {isVisible("score") ? <TableCell>{s.colScore}</TableCell> : null}
+                {isVisible("created") ? <TableCell>{s.colCreated}</TableCell> : null}
+                <TableCell align="right">{s.colActions}</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {items.map((item) => (
+                <TableRow key={item.id} hover>
+                  {isVisible("name") ? (
+                    <TableCell>
+                      <MuiLink
+                        component="button"
+                        type="button"
+                        onClick={() => openDetail(item)}
+                        sx={{ cursor: "pointer", fontWeight: 600 }}
+                      >
+                        {displayName(item)}
+                      </MuiLink>
+                    </TableCell>
+                  ) : null}
+                  {isVisible("phone") ? <TableCell>{item.phone}</TableCell> : null}
+                  {isVisible("sources") ? (
+                    <TableCell>
+                      <Box>
+                        {item.leadSources.map((source) => (
+                          <LeadsSourceChipCP key={source} source={source} />
+                        ))}
+                      </Box>
+                    </TableCell>
+                  ) : null}
+                  {isVisible("form") ? (
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        color={item.metaFormName ? "text.primary" : "text.secondary"}
+                      >
+                        {item.metaFormName?.trim() || s.formUnknown}
+                      </Typography>
+                    </TableCell>
+                  ) : null}
+                  {isVisible("lifecycle") ? (
+                    <TableCell>
+                      <Chip
+                        size="small"
+                        label={item.isPromoted ? s.lifecycleCustomer : s.lifecycleLead}
+                        color={item.isPromoted ? "success" : "warning"}
+                      />
+                    </TableCell>
+                  ) : null}
+                  {isVisible("assignee") ? <TableCell>{userName(item.assignedTo)}</TableCell> : null}
+                  {isVisible("project") ? (
+                    <TableCell>
+                      <ProjectChipsCP
+                        projectIds={(item.interestedProjects ?? []).map((entry) => entry.projectId)}
+                      />
+                    </TableCell>
+                  ) : null}
+                  {isVisible("score") ? (
+                    <TableCell>
+                      {item.leadSession?.score !== undefined ? `${item.leadSession.score}` : "—"}
+                    </TableCell>
+                  ) : null}
+                  {isVisible("created") ? (
+                    <TableCell>
+                      {new Date(item.createdAt).toLocaleString("es-CO", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </TableCell>
+                  ) : null}
+                  <TableCell align="right">
+                    <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap">
+                      <Button size="small" onClick={() => openDetail(item)} sx={{ cursor: "pointer" }}>
+                        {s.openDetail}
+                      </Button>
+                      {item.leadSession?.sessionId ? (
+                        <Button
+                          size="small"
+                          onClick={() => openConversation(item)}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          {s.openSession}
+                        </Button>
+                      ) : null}
+                      {canConvertLead(item) ? (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          disabled={convertingId === item.id}
+                          onClick={() => openConvert(item)}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          {s.convert}
+                        </Button>
+                      ) : item.isPromoted ? (
+                        <Typography variant="caption" color="text.secondary">
+                          {s.promoted}
+                        </Typography>
+                      ) : null}
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {items.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={visibleCount} align="center">
+                    {s.emptyTitle}
+                  </TableCell>
+                </TableRow>
+              ) : null}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
       <TablePagination
         component="div"
         count={total}

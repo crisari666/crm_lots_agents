@@ -16,6 +16,10 @@ import {
   Typography,
 } from "@mui/material"
 import { alpha } from "@mui/material/styles"
+import TableColumnPickerCP, {
+  type TableColumnPickerOption,
+} from "../../../app/components/table-column-picker.cp"
+import { useTableColumnVisibility } from "../../../app/hooks/use-table-column-visibility"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch, useAppSelector } from "../../../app/hooks"
 import { clearListErrorAct, fetchCustomerListAdminThunk } from "../redux/customer-v2.slice"
@@ -28,6 +32,24 @@ import CustomerListItemCP from "./customer-list-item.cp"
 import { fetchUsersThunk } from "../../users-list/slice/user-list.slice"
 
 const ROWS_PER_PAGE_OPTIONS = [50, 100, 200] as const
+const COLUMN_VISIBILITY_STORAGE_KEY = "crm.customers.columnVisibility.v1"
+
+const CUSTOMER_COLUMN_OPTIONS: readonly TableColumnPickerOption[] = [
+  { id: "detail", label: "Detalle", locked: true },
+  { id: "client", label: "Cliente" },
+  { id: "phone", label: "Teléfono" },
+  { id: "email", label: "Email" },
+  { id: "assignee", label: "Asignado" },
+  { id: "creator", label: "Creador" },
+  { id: "project", label: "Proyecto" },
+  { id: "step", label: "Paso actual" },
+  { id: "status", label: "Estado" },
+  { id: "createdAt", label: "Creación" },
+]
+
+const CUSTOMER_DEFAULT_VISIBILITY = Object.fromEntries(
+  CUSTOMER_COLUMN_OPTIONS.map((column) => [column.id, true])
+) as Record<string, boolean>
 
 export type CustomerListCPProps = {
   applied: FilterFormState
@@ -53,6 +75,11 @@ export default function CustomerListCP({
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(50)
+  const { visibility, isVisible, setColumnVisible, visibleCount } = useTableColumnVisibility({
+    storageKey: COLUMN_VISIBILITY_STORAGE_KEY,
+    defaultVisibility: CUSTOMER_DEFAULT_VISIBILITY,
+    lockedIds: ["detail"],
+  })
 
   const scopeUserIds = useMemo(
     () =>
@@ -201,7 +228,23 @@ export default function CustomerListCP({
         </Alert>
       )}
 
-      <TableContainer sx={{ position: "relative" }}>
+      <Box
+        sx={{
+          px: 2,
+          py: 1,
+          borderBottom: 1,
+          borderColor: "divider",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <TableColumnPickerCP
+          columns={CUSTOMER_COLUMN_OPTIONS}
+          visibility={visibility}
+          onChange={setColumnVisible}
+        />
+      </Box>
+      <TableContainer sx={{ position: "relative", overflowX: "auto" }}>
         {loading && (
           <Box
             sx={{
@@ -221,20 +264,21 @@ export default function CustomerListCP({
           <TableHead>
             <TableRow sx={{ bgcolor: "grey.100" }}>
               <TableCell sx={{ fontWeight: 700, width: 48 }} aria-label="Ver detalle" />
-              <TableCell sx={{ fontWeight: 700 }}>Cliente</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Teléfono</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Asignado</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Creador</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Paso actual</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Creación</TableCell>
+              {isVisible("client") ? <TableCell sx={{ fontWeight: 700 }}>Cliente</TableCell> : null}
+              {isVisible("phone") ? <TableCell sx={{ fontWeight: 700 }}>Teléfono</TableCell> : null}
+              {isVisible("email") ? <TableCell sx={{ fontWeight: 700 }}>Email</TableCell> : null}
+              {isVisible("assignee") ? <TableCell sx={{ fontWeight: 700 }}>Asignado</TableCell> : null}
+              {isVisible("creator") ? <TableCell sx={{ fontWeight: 700 }}>Creador</TableCell> : null}
+              {isVisible("project") ? <TableCell sx={{ fontWeight: 700 }}>Proyecto</TableCell> : null}
+              {isVisible("step") ? <TableCell sx={{ fontWeight: 700 }}>Paso actual</TableCell> : null}
+              {isVisible("status") ? <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell> : null}
+              {isVisible("createdAt") ? <TableCell sx={{ fontWeight: 700 }}>Creación</TableCell> : null}
             </TableRow>
           </TableHead>
           <TableBody>
             {!loading && items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                <TableCell colSpan={visibleCount} align="center" sx={{ py: 6 }}>
                   <Typography color="text.secondary">
                     No hay resultados con los filtros actuales.
                   </Typography>
@@ -248,6 +292,7 @@ export default function CustomerListCP({
                   users={usersFromSlice}
                   userById={userById}
                   onAssigneeUpdated={() => void load()}
+                  visibility={visibility}
                 />
               ))
             )}

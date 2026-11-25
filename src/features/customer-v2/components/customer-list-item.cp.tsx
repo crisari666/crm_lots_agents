@@ -2,6 +2,8 @@ import React from "react"
 import { Chip, IconButton, TableCell, TableRow, Tooltip, Typography } from "@mui/material"
 import { alpha } from "@mui/material/styles"
 import { Visibility as VisibilityIcon } from "@mui/icons-material"
+import ProjectChipsCP from "../../../app/components/project-chips.cp"
+import type { TableColumnVisibility } from "../../../app/hooks/use-table-column-visibility"
 import UserInterface from "../../../app/models/user-interface"
 import { useAppDispatch } from "../../../app/hooks"
 import type { CustomerAdminListItem } from "../services/customers-ms.service"
@@ -13,6 +15,11 @@ export type CustomerListItemCPProps = {
   users: UserInterface[]
   userById: Map<string, UserInterface>
   onAssigneeUpdated: () => void
+  visibility: TableColumnVisibility
+}
+
+function isColVisible(visibility: TableColumnVisibility, id: string): boolean {
+  return visibility[id] !== false
 }
 
 function displayName(row: CustomerAdminListItem): string {
@@ -29,6 +36,7 @@ export default function CustomerListItemCP({
   users,
   userById,
   onAssigneeUpdated,
+  visibility,
 }: CustomerListItemCPProps) {
   const dispatch = useAppDispatch()
   const assignedUser = row.assignedTo ? userById.get(row.assignedTo) ?? null : null
@@ -46,6 +54,7 @@ export default function CustomerListItemCP({
   const stepColor = row.currentStepColor?.trim()
   const hasStep = Boolean(row.currentStep?.trim())
   const isCreatorNonPhysical = creatorIsPhysical === false
+  const projectIds = (row.interestedProjects ?? []).map((entry) => entry.projectId)
 
   return (
     <TableRow
@@ -67,92 +76,113 @@ export default function CustomerListItemCP({
           </IconButton>
         </Tooltip>
       </TableCell>
-      <TableCell sx={{ py: 1.5 }}>
-        <Typography variant="body2" fontWeight={500}>
-          {displayName(row)}
-        </Typography>
-      </TableCell>
-      <TableCell sx={{ py: 1.5 }}>
-        <Typography variant="body2" color="text.secondary">
-          {row.phone}
-        </Typography>
-      </TableCell>
-      <TableCell sx={{ py: 1.5 }}>
-        <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 220 }}>
-          {row.email?.trim() ? row.email : "—"}
-        </Typography>
-      </TableCell>
-      <TableCell sx={{ py: 1.5 }}>
-        <CustomerAssigneeCellCP
-          row={row}
-          users={users}
-          assignedUser={assignedUser}
-          onAssigneeUpdated={onAssigneeUpdated}
-        />
-      </TableCell>
-      <TableCell sx={{ py: 1.5 }}>
-        {creatorUser ? (
-          <Tooltip
-            title={creatorUser.email?.trim() ? creatorUser.email : "Sin email"}
-            placement="top"
-            enterDelay={400}
-          >
-            <Chip
-              size="small"
-              variant="outlined"
-              label={userFullName(creatorUser)}
-              sx={{
-                cursor: "default",
-                maxWidth: 220,
-                "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
-                ...(isCreatorNonPhysical
-                  ? {
-                      borderColor: "#7e57c2",
-                      bgcolor: alpha("#7e57c2", 0.14),
-                      color: "#5e35b1",
-                    }
-                  : {}),
-              }}
-            />
-          </Tooltip>
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            —
+      {isColVisible(visibility, "client") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          <Typography variant="body2" fontWeight={500}>
+            {displayName(row)}
           </Typography>
-        )}
-      </TableCell>
-      <TableCell sx={{ py: 1.5 }}>
-        <Chip
-          label={stepLabel}
-          size="small"
-          variant="outlined"
-          sx={{
-            cursor: "default",
-            ...(stepColor && hasStep
-              ? {
-                  borderColor: stepColor,
-                  bgcolor: alpha(stepColor, 0.14),
-                  color: "text.primary",
-                }
-              : hasStep
-                ? { borderColor: "info.main", color: "info.dark" }
-                : {}),
-          }}
-          color={!stepColor && hasStep ? "info" : "default"}
-        />
-      </TableCell>
-      <TableCell sx={{ py: 1.5 }}>
-        {row.enabled ? (
-          <Chip label="Activo" size="small" color="success" variant="outlined" />
-        ) : (
-          <Chip label="Inactivo" size="small" color="default" variant="outlined" />
-        )}
-      </TableCell>
-      <TableCell sx={{ py: 1.5, whiteSpace: "nowrap" }}>
-        <Typography variant="body2" color="text.secondary">
-          {createdLabel}
-        </Typography>
-      </TableCell>
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "phone") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          <Typography variant="body2" color="text.secondary">
+            {row.phone}
+          </Typography>
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "email") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 220 }}>
+            {row.email?.trim() ? row.email : "—"}
+          </Typography>
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "assignee") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          <CustomerAssigneeCellCP
+            row={row}
+            users={users}
+            assignedUser={assignedUser}
+            onAssigneeUpdated={onAssigneeUpdated}
+          />
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "creator") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          {creatorUser ? (
+            <Tooltip
+              title={creatorUser.email?.trim() ? creatorUser.email : "Sin email"}
+              placement="top"
+              enterDelay={400}
+            >
+              <Chip
+                size="small"
+                variant="outlined"
+                label={userFullName(creatorUser)}
+                sx={{
+                  cursor: "default",
+                  maxWidth: 220,
+                  "& .MuiChip-label": { overflow: "hidden", textOverflow: "ellipsis" },
+                  ...(isCreatorNonPhysical
+                    ? {
+                        borderColor: "#7e57c2",
+                        bgcolor: alpha("#7e57c2", 0.14),
+                        color: "#5e35b1",
+                      }
+                    : {}),
+                }}
+              />
+            </Tooltip>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              —
+            </Typography>
+          )}
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "project") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          <ProjectChipsCP projectIds={projectIds} />
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "step") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          <Chip
+            label={stepLabel}
+            size="small"
+            variant="outlined"
+            sx={{
+              cursor: "default",
+              ...(stepColor && hasStep
+                ? {
+                    borderColor: stepColor,
+                    bgcolor: alpha(stepColor, 0.14),
+                    color: "text.primary",
+                  }
+                : hasStep
+                  ? { borderColor: "info.main", color: "info.dark" }
+                  : {}),
+            }}
+            color={!stepColor && hasStep ? "info" : "default"}
+          />
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "status") ? (
+        <TableCell sx={{ py: 1.5 }}>
+          {row.enabled ? (
+            <Chip label="Activo" size="small" color="success" variant="outlined" />
+          ) : (
+            <Chip label="Inactivo" size="small" color="default" variant="outlined" />
+          )}
+        </TableCell>
+      ) : null}
+      {isColVisible(visibility, "createdAt") ? (
+        <TableCell sx={{ py: 1.5, whiteSpace: "nowrap" }}>
+          <Typography variant="body2" color="text.secondary">
+            {createdLabel}
+          </Typography>
+        </TableCell>
+      ) : null}
     </TableRow>
   )
 }
