@@ -38,10 +38,10 @@ export default function ProjectFilterAutocompleteCP({
     }
   }, [dispatch, projects.length, isLoading])
 
-  const selected: ProjectType | null =
+  const selected: ProjectType | undefined =
     value.trim() !== ""
-      ? (projects.find((project) => project._id === value) ?? null)
-      : null
+      ? projects.find((project) => project._id === value)
+      : undefined
 
   return (
     <Autocomplete
