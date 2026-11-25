@@ -24,9 +24,12 @@ export const customerPaymentStrings = {
   remainingLabel: "Restante",
   paidLabel: "Pagado",
   expectedLabel: "Esperado",
-  onePerProjectHint:
-    "Solo una separación por proyecto. Después solo se registran abonos hasta completar el valor.",
+  onePerLotHint:
+    "Una separación por lote. Puedes registrar varios lotes del mismo proyecto.",
   pendingFeesOnlyHint:
-    "Ya existe una separación para este proyecto. Registra abonos hasta completar el valor.",
-  completedBanner: "Separación completada para este proyecto. No se pueden agregar más abonos.",
+    "Este lote ya tiene separación. Registra abonos hasta completar el valor, o crea otra separación con un lote distinto.",
+  completedBanner: "Separación completada para este lote. No se pueden agregar más abonos.",
+  duplicateLotError: "Ya existe una separación para este lote en el proyecto.",
+  addAnotherLotHint: "Completa el formulario para registrar otro lote.",
+  projectLotsSummary: "Separaciones en este proyecto",
 } as const

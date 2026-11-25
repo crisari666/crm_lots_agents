@@ -122,13 +122,21 @@ export default function CustomerPaymentTabCP({
     [projects],
   )
 
-  const activeForProject = useMemo(
+  const downPaymentsForProject = useMemo(
     () =>
       selectedProject
-        ? downPayments.find((d) => d.projectId === selectedProject._id) ?? null
-        : null,
+        ? downPayments.filter((d) => d.projectId === selectedProject._id)
+        : [],
     [downPayments, selectedProject],
   )
+
+  const trimmedLotNumber = createForm.lotNumber.trim()
+  const isDuplicateLot = useMemo(() => {
+    if (!trimmedLotNumber) return false
+    return downPaymentsForProject.some(
+      (d) => d.lotNumber.trim().toLowerCase() === trimmedLotNumber.toLowerCase(),
+    )
+  }, [downPaymentsForProject, trimmedLotNumber])
 
   const feeTarget = useMemo(
     () => downPayments.find((d) => d.id === feeTargetId) ?? null,
@@ -136,14 +144,13 @@ export default function CustomerPaymentTabCP({
   )
 
   useEffect(() => {
-    if (activeForProject && activeForProject.remaining > 0) {
-      setFeeTargetId(activeForProject.id)
-      return
-    }
-    if (activeForProject && activeForProject.remaining <= 0) {
+    if (
+      feeTargetId &&
+      !downPayments.some((d) => d.id === feeTargetId && d.remaining > 0)
+    ) {
       setFeeTargetId(null)
     }
-  }, [activeForProject?.id, activeForProject?.remaining])
+  }, [feeTargetId, downPayments])
 
   const formatCurrency = (value: number): string =>
     value.toLocaleString("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 })
@@ -152,13 +159,13 @@ export default function CustomerPaymentTabCP({
     if (!selectedProject || !contractFile || !createForm.expectedValue || !createForm.firstPaymentValue) {
       return
     }
-    if (!createForm.lotNumber || !createForm.datePayment) return
+    if (!trimmedLotNumber || !createForm.datePayment || isDuplicateLot) return
     const result = await dispatch(
       createCustomerDownPaymentThunk({
         body: {
           customerId,
           projectId: selectedProject._id,
-          lotNumber: createForm.lotNumber.trim(),
+          lotNumber: trimmedLotNumber,
           expectedValue: Number(createForm.expectedValue),
           firstPaymentValue: Number(createForm.firstPaymentValue),
           datePayment: `${createForm.datePayment}T12:00:00.000Z`,
@@ -234,19 +241,28 @@ export default function CustomerPaymentTabCP({
         renderInput={(params) => <TextField {...params} label="Proyecto" />}
       />
       {selectedProject && (
-        <Typography variant="caption" color="text.secondary">
-          {activeForProject
-            ? activeForProject.status === "completed"
-              ? payS.completedBanner
-              : payS.pendingFeesOnlyHint
-            : payS.onePerProjectHint}
-        </Typography>
+        <Stack spacing={0.5}>
+          <Typography variant="caption" color="text.secondary">
+            {payS.onePerLotHint}
+          </Typography>
+          {downPaymentsForProject.length > 0 ? (
+            <Typography variant="caption" color="text.secondary">
+              {payS.projectLotsSummary}:{" "}
+              {downPaymentsForProject.map((d) => d.lotNumber).join(", ")}
+            </Typography>
+          ) : null}
+        </Stack>
       )}
-      {selectedProject && !activeForProject && (
+      {selectedProject && (
         <Stack spacing={1.5}>
           <Typography variant="subtitle1" fontWeight={600}>
             {payS.createDownPaymentTitle}
           </Typography>
+          {downPaymentsForProject.length > 0 ? (
+            <Typography variant="caption" color="text.secondary">
+              {payS.addAnotherLotHint}
+            </Typography>
+          ) : null}
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
             <TextField
               size="small"
@@ -271,6 +287,8 @@ export default function CustomerPaymentTabCP({
               label={payS.lotNumberLabel}
               value={createForm.lotNumber}
               onChange={(e) => setCreateForm((p) => ({ ...p, lotNumber: e.target.value }))}
+              error={isDuplicateLot}
+              helperText={isDuplicateLot ? payS.duplicateLotError : undefined}
               sx={{ minWidth: 140 }}
             />
           </Stack>
@@ -371,8 +389,9 @@ export default function CustomerPaymentTabCP({
               !contractFile ||
               !createForm.expectedValue ||
               !createForm.firstPaymentValue ||
-              !createForm.lotNumber ||
-              !createForm.datePayment
+              !trimmedLotNumber ||
+              !createForm.datePayment ||
+              isDuplicateLot
             }
             sx={{ cursor: "pointer", alignSelf: "flex-start", minWidth: 180 }}
           >
@@ -495,9 +514,6 @@ export default function CustomerPaymentTabCP({
             </Button>
           </Stack>
         </Stack>
-      )}
-      {selectedProject && activeForProject && activeForProject.remaining <= 0 && (
-        <Alert severity="success">{payS.completedBanner}</Alert>
       )}
       <Typography variant="subtitle1" fontWeight={600} sx={{ mt: 1 }}>
         {payS.historyTitle}
