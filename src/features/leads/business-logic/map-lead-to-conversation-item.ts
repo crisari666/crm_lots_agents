@@ -47,6 +47,7 @@ export function mapLeadToConversationItem(lead: LeadListItem): LeadConversationL
     customerId: lead.id,
     customerName,
     phone: lead.phone,
+    ...(lead.whatsappUsername ? { whatsappUsername: lead.whatsappUsername } : {}),
     isAllProjects: false,
     step,
     status,

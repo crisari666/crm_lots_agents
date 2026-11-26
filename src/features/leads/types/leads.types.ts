@@ -31,6 +31,7 @@ export type LeadListItem = {
   name: string
   lastName: string
   phone: string
+  whatsappUsername?: string
   lifecycleStatus: LeadLifecycleStatus
   leadSources: LeadSource[]
   isPromoted: boolean

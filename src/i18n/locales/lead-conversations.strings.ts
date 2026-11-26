@@ -2,7 +2,7 @@ export const leadConversationsStrings = {
   title: "Conversaciones IA de leads",
   subtitle:
     "Revisa lo que cada lead respondió al asistente de WhatsApp, reinicia el flujo o elimina la conversación.",
-  searchLabel: "Buscar por teléfono, nombre o proyecto",
+  searchLabel: "Buscar por teléfono, usuario, nombre o proyecto",
   projectLabel: "Proyecto",
   statusLabel: "Estado",
   stepLabel: "Paso",

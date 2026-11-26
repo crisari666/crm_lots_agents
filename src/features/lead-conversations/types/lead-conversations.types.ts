@@ -24,6 +24,7 @@ export type LeadConversationListItem = {
   customerId: string
   customerName: string
   phone: string
+  whatsappUsername?: string
   projectTitle?: string
   isAllProjects: boolean
   step: LeadConversationStep

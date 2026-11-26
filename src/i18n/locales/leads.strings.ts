@@ -2,7 +2,7 @@ export const leadsStrings = {
   title: "Bandeja de leads",
   subtitle:
     "Audita personas que llegaron por Meta, WhatsApp IA o inbound. Convierte a cliente y asigna ventor sin salir del detalle.",
-  searchPlaceholder: "Buscar por nombre o teléfono",
+  searchPlaceholder: "Buscar por nombre, teléfono o usuario de WhatsApp",
   lifecycleLabel: "Estado",
   lifecycleAll: "Todos (leads y clientes)",
   lifecycleLead: "Lead",
