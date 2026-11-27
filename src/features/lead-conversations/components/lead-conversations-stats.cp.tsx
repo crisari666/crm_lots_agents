@@ -1,13 +1,17 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import {
   Alert,
   Box,
   Button,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Paper,
   Stack,
   Typography,
 } from "@mui/material"
+import BarChartIcon from "@mui/icons-material/BarChart"
 import { BarChart } from "@mui/x-charts/BarChart"
 import { PieChart } from "@mui/x-charts/PieChart"
 import AppDateRangeSelector from "../../../app/components/app-date-range-selector"
@@ -50,13 +54,15 @@ function buildPieSlices(buckets: readonly LeadConversationStatsBucket[]): PieSli
 
 export default function LeadConversationsStatsCP() {
   const dispatch = useAppDispatch()
+  const [isOpen, setIsOpen] = useState(false)
   const { statsDateFrom, statsDateTo, stats, statsLoading, statsError } = useAppSelector(
     (state) => state.leadConversations
   )
 
   useEffect(() => {
+    if (!isOpen) return
     void dispatch(fetchLeadConversationStatsThunk())
-  }, [dispatch, statsDateFrom, statsDateTo])
+  }, [dispatch, isOpen, statsDateFrom, statsDateTo])
 
   const stepLabels = (stats?.byStep ?? []).map((bucket) => resolveStepLabel(bucket.key))
   const stepValues = (stats?.byStep ?? []).map((bucket) => bucket.count)
@@ -65,116 +71,134 @@ export default function LeadConversationsStatsCP() {
   const hasData = (stats?.total ?? 0) > 0
 
   return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={2}
-        alignItems={{ sm: "center" }}
-        justifyContent="space-between"
+    <>
+      <Button
+        variant="outlined"
+        size="small"
+        startIcon={<BarChartIcon />}
+        onClick={() => setIsOpen(true)}
         sx={{ mb: 2 }}
       >
-        <Box>
-          <Typography variant="subtitle2" color="text.secondary">
-            {s.statsDateLabel}
-          </Typography>
-          {stats && !statsLoading ? (
-            <Typography variant="caption" color="text.secondary">
-              {s.statsTotal(stats.total)}
-            </Typography>
-          ) : null}
-        </Box>
-        <Box sx={{ minWidth: { xs: "100%", sm: 280 }, maxWidth: 360 }}>
-          <AppDateRangeSelector
-            id="lead-conversations-stats-range"
-            dateStart={new Date(statsDateFrom)}
-            dateEnd={new Date(statsDateTo)}
-            onChange={({ dateStart, dateEnd }) => {
-              dispatch(
-                setLeadConversationStatsRangeAct({
-                  statsDateFrom: dateStart.toISOString(),
-                  statsDateTo: dateEnd.toISOString(),
-                })
-              )
-            }}
-          />
-        </Box>
-      </Stack>
-
-      {statsLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress size={32} />
-        </Box>
-      ) : null}
-
-      {statsError && !statsLoading ? (
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => void dispatch(fetchLeadConversationStatsThunk())}>
-              {s.retry}
-            </Button>
-          }
-          sx={{ mb: 1 }}
-        >
-          {statsError}
-        </Alert>
-      ) : null}
-
-      {!statsLoading && !statsError && !hasData ? (
-        <Typography variant="body2" color="text.secondary">
-          {s.statsEmpty}
-        </Typography>
-      ) : null}
-
-      {!statsLoading && hasData ? (
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <Paper variant="outlined" sx={{ flex: 1, p: 2, minWidth: 0 }}>
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
-              {s.statsStepTitle}
-            </Typography>
-            <Box sx={{ width: "100%", height: barHeight }}>
-              <BarChart
-                layout="horizontal"
-                yAxis={[{ scaleType: "band", data: stepLabels }]}
-                series={[{ data: stepValues, label: s.colStep }]}
-                margin={{ top: 10, right: 24, bottom: 24, left: 140 }}
-                slotProps={{ legend: { hidden: true } }}
+        {s.statsOpenButton}
+      </Button>
+      <Dialog open={isOpen} onClose={() => setIsOpen(false)} maxWidth="lg" fullWidth>
+        <DialogTitle>{s.statsDialogTitle}</DialogTitle>
+        <DialogContent dividers>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            alignItems={{ sm: "center" }}
+            justifyContent="space-between"
+            sx={{ mb: 2 }}
+          >
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                {s.statsDateLabel}
+              </Typography>
+              {stats && !statsLoading ? (
+                <Typography variant="caption" color="text.secondary">
+                  {s.statsTotal(stats.total)}
+                </Typography>
+              ) : null}
+            </Box>
+            <Box sx={{ minWidth: { xs: "100%", sm: 280 }, maxWidth: 360 }}>
+              <AppDateRangeSelector
+                id="lead-conversations-stats-range"
+                dateStart={new Date(statsDateFrom)}
+                dateEnd={new Date(statsDateTo)}
+                onChange={({ dateStart, dateEnd }) => {
+                  dispatch(
+                    setLeadConversationStatsRangeAct({
+                      statsDateFrom: dateStart.toISOString(),
+                      statsDateTo: dateEnd.toISOString(),
+                    })
+                  )
+                }}
               />
             </Box>
-          </Paper>
-          <Paper variant="outlined" sx={{ flex: 1, p: 2, minWidth: 0 }}>
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
-              {s.statsTemperatureTitle}
+          </Stack>
+
+          {statsLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress size={32} />
+            </Box>
+          ) : null}
+
+          {statsError && !statsLoading ? (
+            <Alert
+              severity="error"
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => void dispatch(fetchLeadConversationStatsThunk())}
+                >
+                  {s.retry}
+                </Button>
+              }
+              sx={{ mb: 1 }}
+            >
+              {statsError}
+            </Alert>
+          ) : null}
+
+          {!statsLoading && !statsError && !hasData ? (
+            <Typography variant="body2" color="text.secondary">
+              {s.statsEmpty}
             </Typography>
-            {temperatureSlices.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                {s.statsEmpty}
-              </Typography>
-            ) : (
-              <Box sx={{ width: "100%", height: 300 }}>
-                <PieChart
-                  series={[
-                    {
-                      data: temperatureSlices,
-                      highlightScope: { faded: "global", highlighted: "item" },
-                      faded: { innerRadius: 25, additionalRadius: -10, color: "gray" },
-                      innerRadius: 40,
-                      outerRadius: 100,
-                      paddingAngle: 1,
-                    },
-                  ]}
-                  slotProps={{
-                    legend: {
-                      direction: "row",
-                      position: { vertical: "bottom", horizontal: "middle" },
-                    },
-                  }}
-                />
-              </Box>
-            )}
-          </Paper>
-        </Stack>
-      ) : null}
-    </Paper>
+          ) : null}
+
+          {!statsLoading && hasData ? (
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              <Paper variant="outlined" sx={{ flex: 1, p: 2, minWidth: 0 }}>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+                  {s.statsStepTitle}
+                </Typography>
+                <Box sx={{ width: "100%", height: barHeight }}>
+                  <BarChart
+                    layout="horizontal"
+                    yAxis={[{ scaleType: "band", data: stepLabels }]}
+                    series={[{ data: stepValues, label: s.colStep }]}
+                    margin={{ top: 10, right: 24, bottom: 24, left: 140 }}
+                    slotProps={{ legend: { hidden: true } }}
+                  />
+                </Box>
+              </Paper>
+              <Paper variant="outlined" sx={{ flex: 1, p: 2, minWidth: 0 }}>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+                  {s.statsTemperatureTitle}
+                </Typography>
+                {temperatureSlices.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    {s.statsEmpty}
+                  </Typography>
+                ) : (
+                  <Box sx={{ width: "100%", height: 300 }}>
+                    <PieChart
+                      series={[
+                        {
+                          data: temperatureSlices,
+                          highlightScope: { faded: "global", highlighted: "item" },
+                          faded: { innerRadius: 25, additionalRadius: -10, color: "gray" },
+                          innerRadius: 40,
+                          outerRadius: 100,
+                          paddingAngle: 1,
+                        },
+                      ]}
+                      slotProps={{
+                        legend: {
+                          direction: "row",
+                          position: { vertical: "bottom", horizontal: "middle" },
+                        },
+                      }}
+                    />
+                  </Box>
+                )}
+              </Paper>
+            </Stack>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
