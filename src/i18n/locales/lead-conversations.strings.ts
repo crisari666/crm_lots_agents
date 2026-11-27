@@ -98,4 +98,6 @@ export const leadConversationsStrings = {
   statsLoadError: "No se pudieron cargar las gráficas.",
   temperatureUnset: "Sin temperatura",
   statsTotal: (total: number) => `${total} en el rango`,
+  statsBucketCount: (label: string, count: number) => `${label}: ${count}`,
+  statsResumeTitle: "Resumen",
 } as const

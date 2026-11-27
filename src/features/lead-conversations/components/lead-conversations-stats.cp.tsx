@@ -7,6 +7,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
   Paper,
   Stack,
   Typography,
@@ -32,6 +35,12 @@ type PieSlice = {
   label: string
 }
 
+type LabeledCount = {
+  key: string
+  label: string
+  count: number
+}
+
 function resolveStepLabel(key: string): string {
   return s.step[key as LeadConversationStep] ?? s.stepUnknown
 }
@@ -42,14 +51,50 @@ function resolveTemperatureLabel(key: string): string {
   return key
 }
 
-function buildPieSlices(buckets: readonly LeadConversationStatsBucket[]): PieSlice[] {
+function buildStepCounts(buckets: readonly LeadConversationStatsBucket[]): LabeledCount[] {
+  return buckets.map((bucket) => ({
+    key: bucket.key,
+    label: resolveStepLabel(bucket.key),
+    count: bucket.count,
+  }))
+}
+
+function buildTemperatureCounts(buckets: readonly LeadConversationStatsBucket[]): LabeledCount[] {
   return buckets
     .filter((bucket) => bucket.count > 0)
     .map((bucket) => ({
-      id: bucket.key,
-      value: bucket.count,
+      key: bucket.key,
       label: resolveTemperatureLabel(bucket.key),
+      count: bucket.count,
     }))
+}
+
+function buildPieSlices(rows: readonly LabeledCount[]): PieSlice[] {
+  return rows.map((row) => ({
+    id: row.key,
+    value: row.count,
+    label: s.statsBucketCount(row.label, row.count),
+  }))
+}
+
+function StatsResumeList({ rows }: { rows: readonly LabeledCount[] }) {
+  return (
+    <Box sx={{ mt: 1 }}>
+      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+        {s.statsResumeTitle}
+      </Typography>
+      <List dense disablePadding>
+        {rows.map((row) => (
+          <ListItem key={row.key} disableGutters sx={{ py: 0 }}>
+            <ListItemText
+              primary={s.statsBucketCount(row.label, row.count)}
+              primaryTypographyProps={{ variant: "body2" }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  )
 }
 
 export default function LeadConversationsStatsCP() {
@@ -64,9 +109,11 @@ export default function LeadConversationsStatsCP() {
     void dispatch(fetchLeadConversationStatsThunk())
   }, [dispatch, isOpen, statsDateFrom, statsDateTo])
 
-  const stepLabels = (stats?.byStep ?? []).map((bucket) => resolveStepLabel(bucket.key))
-  const stepValues = (stats?.byStep ?? []).map((bucket) => bucket.count)
-  const temperatureSlices = buildPieSlices(stats?.byTemperature ?? [])
+  const stepCounts = buildStepCounts(stats?.byStep ?? [])
+  const temperatureCounts = buildTemperatureCounts(stats?.byTemperature ?? [])
+  const stepLabels = stepCounts.map((row) => row.label)
+  const stepValues = stepCounts.map((row) => row.count)
+  const temperatureSlices = buildPieSlices(temperatureCounts)
   const barHeight = Math.min(420, Math.max(220, 48 + stepLabels.length * 36))
   const hasData = (stats?.total ?? 0) > 0
 
@@ -158,11 +205,18 @@ export default function LeadConversationsStatsCP() {
                   <BarChart
                     layout="horizontal"
                     yAxis={[{ scaleType: "band", data: stepLabels }]}
-                    series={[{ data: stepValues, label: s.colStep }]}
-                    margin={{ top: 10, right: 24, bottom: 24, left: 140 }}
+                    series={[
+                      {
+                        data: stepValues,
+                        label: s.colStep,
+                        valueFormatter: (value) => (value == null ? "" : String(value)),
+                      },
+                    ]}
+                    margin={{ top: 10, right: 40, bottom: 24, left: 140 }}
                     slotProps={{ legend: { hidden: true } }}
                   />
                 </Box>
+                <StatsResumeList rows={stepCounts} />
               </Paper>
               <Paper variant="outlined" sx={{ flex: 1, p: 2, minWidth: 0 }}>
                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
@@ -173,26 +227,31 @@ export default function LeadConversationsStatsCP() {
                     {s.statsEmpty}
                   </Typography>
                 ) : (
-                  <Box sx={{ width: "100%", height: 300 }}>
-                    <PieChart
-                      series={[
-                        {
-                          data: temperatureSlices,
-                          highlightScope: { faded: "global", highlighted: "item" },
-                          faded: { innerRadius: 25, additionalRadius: -10, color: "gray" },
-                          innerRadius: 40,
-                          outerRadius: 100,
-                          paddingAngle: 1,
-                        },
-                      ]}
-                      slotProps={{
-                        legend: {
-                          direction: "row",
-                          position: { vertical: "bottom", horizontal: "middle" },
-                        },
-                      }}
-                    />
-                  </Box>
+                  <>
+                    <Box sx={{ width: "100%", height: 300 }}>
+                      <PieChart
+                        series={[
+                          {
+                            data: temperatureSlices,
+                            arcLabel: "value",
+                            arcLabelMinAngle: 12,
+                            highlightScope: { faded: "global", highlighted: "item" },
+                            faded: { innerRadius: 25, additionalRadius: -10, color: "gray" },
+                            innerRadius: 40,
+                            outerRadius: 100,
+                            paddingAngle: 1,
+                          },
+                        ]}
+                        slotProps={{
+                          legend: {
+                            direction: "row",
+                            position: { vertical: "bottom", horizontal: "middle" },
+                          },
+                        }}
+                      />
+                    </Box>
+                    <StatsResumeList rows={temperatureCounts} />
+                  </>
                 )}
               </Paper>
             </Stack>
