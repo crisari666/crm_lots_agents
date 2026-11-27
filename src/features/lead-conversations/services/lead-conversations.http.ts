@@ -1,6 +1,8 @@
 import { customersMsAuthHeaders, customersMsAxios } from "../../../app/customers-ms-http"
 import type {
   LeadConversationMessagesPage,
+  LeadConversationStatsParams,
+  LeadConversationStatsResponse,
   ListLeadConversationsParams,
   ListLeadConversationsResponse,
   RestartLeadConversationResponse,
@@ -26,6 +28,16 @@ export async function listLeadConversations(
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
       ...(params.projectId?.trim() ? { projectId: params.projectId.trim() } : {}),
     },
+  })
+  return response.data
+}
+
+export async function getLeadConversationStats(
+  params: LeadConversationStatsParams
+): Promise<LeadConversationStatsResponse> {
+  const response = await customersMsAxios.get<LeadConversationStatsResponse>(`${BASE_PATH}/stats`, {
+    ...auth(),
+    params: { from: params.from, to: params.to },
   })
   return response.data
 }

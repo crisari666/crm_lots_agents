@@ -3,6 +3,7 @@ import axios from "axios"
 import { leadConversationsStrings as s } from "../../../i18n/locales/lead-conversations.strings"
 import {
   deleteLeadConversation,
+  getLeadConversationStats,
   listLeadConversationMessages,
   listLeadConversations,
   restartLeadConversation,
@@ -13,6 +14,7 @@ import type {
   LeadConversationListItem,
   LeadConversationMessage,
   LeadConversationMessagesPage,
+  LeadConversationStatsResponse,
   LeadConversationStatus,
   LeadConversationStep,
   ListLeadConversationsResponse,
@@ -29,12 +31,26 @@ type LeadConversationsFilters = {
   limit: 10 | 20 | 50
 }
 
+function buildDefaultStatsRange(): { statsDateFrom: string; statsDateTo: string } {
+  const dateEnd = new Date()
+  dateEnd.setHours(23, 59, 59, 999)
+  const dateStart = new Date()
+  dateStart.setDate(dateStart.getDate() - 30)
+  dateStart.setHours(0, 0, 0, 0)
+  return { statsDateFrom: dateStart.toISOString(), statsDateTo: dateEnd.toISOString() }
+}
+
 export type LeadConversationsState = {
   items: LeadConversationListItem[]
   total: number
   loading: boolean
   error: string | null
   filters: LeadConversationsFilters
+  statsDateFrom: string
+  statsDateTo: string
+  stats: LeadConversationStatsResponse | null
+  statsLoading: boolean
+  statsError: string | null
   selectedSessionId: string | null
   /** Optional schedule context when opening the chat drawer from the leads inbox. */
   drawerSchedule: LeadScheduledCall | null
@@ -47,12 +63,19 @@ export type LeadConversationsState = {
   actionNotice: string | null
 }
 
+const initialStatsRange = buildDefaultStatsRange()
+
 const initialState: LeadConversationsState = {
   items: [],
   total: 0,
   loading: false,
   error: null,
   filters: { status: "", step: "", flow: "", search: "", projectId: "", page: 0, limit: 20 },
+  statsDateFrom: initialStatsRange.statsDateFrom,
+  statsDateTo: initialStatsRange.statsDateTo,
+  stats: null,
+  statsLoading: false,
+  statsError: null,
   selectedSessionId: null,
   drawerSchedule: null,
   messages: [],
@@ -97,6 +120,19 @@ export const fetchLeadConversationsThunk = createAsyncThunk<
     })
   } catch (err: unknown) {
     return rejectWithValue(axiosMessage(err, s.loadError))
+  }
+})
+
+export const fetchLeadConversationStatsThunk = createAsyncThunk<
+  LeadConversationStatsResponse,
+  void,
+  { rejectValue: string }
+>("leadConversations/fetchStats", async (_, { getState, rejectWithValue }) => {
+  const { statsDateFrom, statsDateTo } = (getState() as ThunkState).leadConversations
+  try {
+    return await getLeadConversationStats({ from: statsDateFrom, to: statsDateTo })
+  } catch (err: unknown) {
+    return rejectWithValue(axiosMessage(err, s.statsLoadError))
   }
 })
 
@@ -148,6 +184,13 @@ const leadConversationsSlice = createSlice({
     setLeadConversationsFiltersAct: (state, action: PayloadAction<Partial<LeadConversationsFilters>>) => {
       state.filters = { ...state.filters, ...action.payload }
     },
+    setLeadConversationStatsRangeAct: (
+      state,
+      action: PayloadAction<{ statsDateFrom: string; statsDateTo: string }>
+    ) => {
+      state.statsDateFrom = action.payload.statsDateFrom
+      state.statsDateTo = action.payload.statsDateTo
+    },
     selectLeadConversationAct: (state, action: PayloadAction<string | null>) => {
       state.selectedSessionId = action.payload
       state.messages = []
@@ -190,6 +233,18 @@ const leadConversationsSlice = createSlice({
       .addCase(fetchLeadConversationsThunk.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload ?? s.loadError
+      })
+      .addCase(fetchLeadConversationStatsThunk.pending, (state) => {
+        state.statsLoading = true
+        state.statsError = null
+      })
+      .addCase(fetchLeadConversationStatsThunk.fulfilled, (state, action) => {
+        state.statsLoading = false
+        state.stats = action.payload
+      })
+      .addCase(fetchLeadConversationStatsThunk.rejected, (state, action) => {
+        state.statsLoading = false
+        state.statsError = action.payload ?? s.statsLoadError
       })
       .addCase(fetchLeadConversationMessagesThunk.pending, (state, action) => {
         state.messagesLoading = true
@@ -246,6 +301,7 @@ const leadConversationsSlice = createSlice({
 
 export const {
   setLeadConversationsFiltersAct,
+  setLeadConversationStatsRangeAct,
   selectLeadConversationAct,
   upsertLeadConversationItemAct,
   setLeadConversationDrawerScheduleAct,

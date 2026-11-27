@@ -89,4 +89,11 @@ export const leadConversationsStrings = {
   restartV2Waits: "Conversación reiniciada. La asistente responderá cuando el cliente escriba.",
   deleted: "Conversación eliminada.",
   actionError: "No se pudo completar la acción.",
+  statsDateLabel: "Rango de fechas (gráficas)",
+  statsStepTitle: "Conversaciones por paso",
+  statsTemperatureTitle: "Conversaciones por temperatura",
+  statsEmpty: "No hay conversaciones en este rango de fechas.",
+  statsLoadError: "No se pudieron cargar las gráficas.",
+  temperatureUnset: "Sin temperatura",
+  statsTotal: (total: number) => `${total} en el rango`,
 } as const

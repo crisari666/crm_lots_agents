@@ -82,3 +82,20 @@ export type RestartLeadConversationResponse = {
   sent: boolean
   reason?: "outside_customer_service_window" | "v2_waits_for_customer"
 }
+
+/** customers-ms `GET admin/customer/lead-conversations/sessions/stats` bucket. */
+export type LeadConversationStatsBucket = {
+  key: string
+  count: number
+}
+
+export type LeadConversationStatsParams = {
+  from: string
+  to: string
+}
+
+export type LeadConversationStatsResponse = {
+  total: number
+  byStep: LeadConversationStatsBucket[]
+  byTemperature: LeadConversationStatsBucket[]
+}
