@@ -3,6 +3,7 @@ import { leadConversationsStrings as s } from "../../../i18n/locales/lead-conver
 import LeadConversationChatDrawerCP from "../components/lead-conversation-chat-drawer.cp"
 import LeadConversationNoticeCP from "../components/lead-conversation-notice.cp"
 import LeadConversationsFiltersCP from "../components/lead-conversations-filters.cp"
+import LeadConversationsStatsCP from "../components/lead-conversations-stats.cp"
 import LeadConversationsTableCP from "../components/lead-conversations-table.cp"
 
 export default function LeadConversationsPage() {
@@ -14,6 +15,7 @@ export default function LeadConversationsPage() {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 720 }}>
         {s.subtitle}
       </Typography>
+      <LeadConversationsStatsCP />
       <LeadConversationsFiltersCP />
       <LeadConversationsTableCP />
       <LeadConversationChatDrawerCP />
